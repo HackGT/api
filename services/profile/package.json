@@ -1,5 +1,5 @@
 {
-  "name": "@api/services-auth",
+  "name": "@api/services-profile",
   "version": "1.0.0",
   "description": "",
   "main": "src/app.ts",
@@ -21,6 +21,7 @@
   },
   "prettier": "@hex-labs/prettier-config",
   "dependencies": {
+    "@api/common": "*",
     "@api/config": "*",
     "@types/compression": "^1.7.2",
     "@types/cors": "^2.8.12",
@@ -31,6 +32,7 @@
     "cors": "^2.8.5",
     "express": "^4.17.2",
     "fs": "^0.0.1-security",
+    "helmet": "^5.0.2",
     "mongoose": "^6.1.9",
     "morgan": "^1.10.0",
     "path": "^0.12.7",

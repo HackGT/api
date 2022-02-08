@@ -1,5 +1,5 @@
 import { startGateway } from "@api/gateway";
-import { startAuthServer } from "@api/services-auth";
+import { startProfileServer } from "@api/services-profile";
 
 startGateway();
-startAuthServer();
+startProfileServer();

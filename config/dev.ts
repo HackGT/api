@@ -1,10 +1,15 @@
 export const GATEWAY = {
   port: 8000,
+  firebase: {
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"), // replace `\` and `n` character pairs w/ single `\n` character
+  },
 };
 
 export const SERVICES = {
-  AUTH: {
-    url: "/auth",
+  PROFILE: {
+    url: "/profile",
     port: 8001,
     auth: false,
     rateLimit: {
@@ -15,15 +20,18 @@ export const SERVICES = {
       target: "http://localhost:8001",
       changeOrigin: false,
       pathRewrite: {
-        [`^/auth`]: "",
+        [`^/profile`]: "",
       },
     },
     database: {
       type: "mongo",
-      host: "localhost",
-      name: "auth",
+      url: "mongodb://localhost/profile",
     },
   },
+};
+
+export const GENERAL = {
+  production: false,
 };
 
 // const SERVICES = [
