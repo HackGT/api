@@ -7,6 +7,8 @@ import { config } from "@api/config";
 import { decodeToken } from "@api/common";
 import mongoose from "mongoose";
 
+import { defaultRouter } from "./routes";
+
 export const app = express();
 
 // Throw and show a stack trace on an unhandled Promise rejection instead of logging an unhelpful warning
@@ -28,6 +30,8 @@ app.use(express.json());
 app.get("/status", (req, res) => {
   res.status(200).end();
 });
+
+app.use("/", defaultRouter);
 
 app.listen(config.SERVICES.PROFILE.port, () => {
   console.log(`PROFILE service started on port ${config.SERVICES.PROFILE.port}`);
