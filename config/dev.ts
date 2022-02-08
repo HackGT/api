@@ -9,7 +9,7 @@ export const GATEWAY = {
 
 export const SERVICES = {
   PROFILE: {
-    url: "/profile",
+    url: "/profiles",
     port: 8001,
     auth: false,
     rateLimit: {
@@ -20,12 +20,32 @@ export const SERVICES = {
       target: "http://localhost:8001",
       changeOrigin: false,
       pathRewrite: {
-        [`^/profile`]: "",
+        [`^/profiles`]: "",
       },
     },
     database: {
       type: "mongo",
       url: "mongodb://localhost/profile",
+    },
+  },
+  EVENT: {
+    url: "/events",
+    port: 8002,
+    auth: false,
+    rateLimit: {
+      windowMs: 15 * 60 * 1000,
+      max: 5,
+    },
+    proxy: {
+      target: "http://localhost:8002",
+      changeOrigin: false,
+      pathRewrite: {
+        [`^/events`]: "",
+      },
+    },
+    database: {
+      type: "mongo",
+      url: "mongodb://localhost/event",
     },
   },
 };

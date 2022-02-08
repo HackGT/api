@@ -10,6 +10,9 @@ declare global {
   }
 }
 
+/**
+ * Middleware to decode JWT from Google Cloud Identity Provider
+ */
 export const decodeToken = async (
   req: Request,
   res: Response,
@@ -30,3 +33,11 @@ export const decodeToken = async (
 
   next();
 };
+
+/**
+ * Middleware to handle and catch errors in async methods
+ */
+export const asyncHandler =
+  (fn: (req: Request, res: Response, next: NextFunction) => any) =>
+  (req: Request, res: Response, next: NextFunction) =>
+    Promise.resolve(fn(req, res, next)).catch(next);

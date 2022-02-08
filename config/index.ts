@@ -1,5 +1,8 @@
-import "dotenv/config";
+import dotenv from "dotenv";
 import admin from "firebase-admin";
+import path from "path";
+
+dotenv.config({ path: path.resolve(__dirname, ".env") });
 
 import { GATEWAY, SERVICES, GENERAL } from "./dev";
 

@@ -11,8 +11,6 @@ for (const service of Object.values(config.SERVICES)) {
   app.use(service.url, createProxyMiddleware(service.proxy));
 }
 
-export const startGateway = () => {
-  app.listen(config.GATEWAY.port, () => {
-    console.log(`GATEWAY started on port ${config.GATEWAY.port}`);
-  });
-};
+app.listen(config.GATEWAY.port, () => {
+  console.log(`GATEWAY started on port ${config.GATEWAY.port}`);
+});

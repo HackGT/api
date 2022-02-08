@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:all": "ts-node main.ts"
+    "start:all": "concurrently \"cd gateway && yarn start \" \"cd services/event && yarn start \" \"cd services/profile && yarn start \""
   },
   "author": "",
   "license": "ISC",

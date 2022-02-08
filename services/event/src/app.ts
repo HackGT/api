@@ -14,7 +14,7 @@ process.on("unhandledRejection", err => {
   throw err;
 });
 
-mongoose.connect(config.SERVICES.PROFILE.database.url).catch(err => {
+mongoose.connect(config.SERVICES.EVENT.database.url).catch(err => {
   throw err;
 });
 
@@ -29,6 +29,6 @@ app.get("/status", (req, res) => {
   res.status(200).end();
 });
 
-app.listen(config.SERVICES.PROFILE.port, () => {
-  console.log(`PROFILE service started on port ${config.SERVICES.PROFILE.port}`);
+app.listen(config.SERVICES.EVENT.port, () => {
+  console.log(`EVENT service started on port ${config.SERVICES.EVENT.port}`);
 });
