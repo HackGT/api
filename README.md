@@ -23,3 +23,7 @@ The gateway handles all incoming requests. Based on the url format, it will forw
 ### Services
 
 Each of the services in this folder has a unique and distinct job. They each are setup with their own database and have their own routing system.
+
+## Attribution
+
+This project was inspired by [HackIllinois API repository](https://github.com/HackIllinois/api).
