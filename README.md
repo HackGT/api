@@ -2,15 +2,9 @@
 
 HexLab's new backend API with multiple services and a custom API gateway
 
-## Getting Started
-
-The packages in this repo are linked via Yarn Workspaces, so you only need to run `yarn install` once in the main root folder.
-
-1. Copy `.env.example` to `.env` in the config folder
-2. In the root folder, run `yarn install` to install all packages
-3. Run `yarn start:all` to start all the services and gateway
-
 ## Overview
+
+Here's a breakdown of the major folders you'll interact with and what each one does.
 
 ### Config
 
@@ -23,6 +17,20 @@ The gateway handles all incoming requests. Based on the url format, it will forw
 ### Services
 
 Each of the services in this folder has a unique and distinct job. They each are setup with their own database and have their own routing system.
+
+## Getting Started
+
+The packages in this repo are linked via Yarn Workspaces, so you only need to run `yarn install` once in the main root folder.
+
+1. Copy `.env.example` to `.env` in the config folder
+2. In the root folder, run `yarn install` to install all packages
+3. Run `yarn start:all` to start all the services and gateway
+
+## Development Guide
+
+When you start your services and gateway, you will get messages from the proxy in the console saying "proxy created" and "proxy started". What this does is essentially forward your requests to the appropriate service. All the requests you make should be through the URL and port of the gateway (hosted locally at port 8000).
+
+So for example, if you want to access the profile service, you would make a request to `localhost:8000/profiles`. And the gateway will forward this request to the profile service. When the service receives the request, it receivies it without the `/profiles`. So `/profiles/id` will become `/id` for example.
 
 ## Attribution
 
