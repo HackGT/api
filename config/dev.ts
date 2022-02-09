@@ -48,6 +48,26 @@ export const SERVICES = {
       url: "mongodb://localhost/event",
     },
   },
+  CHECKIN: {
+    url: "/checkin",
+    port: 8003,
+    auth: false,
+    rateLimit: {
+      windowMs: 15 * 60 * 1000,
+      max: 5,
+    },
+    proxy: {
+      target: "http://localhost:8003",
+      changeOrigin: false,
+      pathRewrite: {
+        [`^/checkin`]: "",
+      },
+    },
+    database: {
+      type: "mongo",
+      url: "mongodb://localhost/checkin",
+    },
+  },
 };
 
 export const GENERAL = {
