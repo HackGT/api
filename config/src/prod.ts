@@ -7,7 +7,7 @@ import {
 } from "./types";
 
 export const GATEWAY: GatewayConfig = {
-  port: 8000,
+  port: 3000,
   firebase: {
     projectId: String(process.env.FIREBASE_PROJECT_ID),
     clientEmail: String(process.env.FIREBASE_CLIENT_EMAIL),
@@ -17,7 +17,7 @@ export const GATEWAY: GatewayConfig = {
 
 export const DATABASE: DatabaseConfig = {
   mongo: {
-    baseUri: "mongodb://localhost/",
+    baseUri: String(process.env.MONGO_BASE_URI),
   },
 };
 
@@ -31,7 +31,7 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       max: 5,
     },
     proxy: {
-      target: "https://profile",
+      target: "https://profiles.api.hexlabs.org",
       changeOrigin: true,
       pathRewrite: {
         [`^/profiles`]: "",
@@ -44,14 +44,14 @@ export const SERVICES: Record<Service, ServiceConfig> = {
   },
   EVENTS: {
     url: "/events",
-    port: 8002,
+    port: 3000,
     auth: false,
     rateLimit: {
       windowMs: 15 * 60 * 1000,
       max: 5,
     },
     proxy: {
-      target: "http://localhost:8002",
+      target: "https://events.api.hexlabs.org",
       changeOrigin: true,
       pathRewrite: {
         [`^/events`]: "",
@@ -64,14 +64,14 @@ export const SERVICES: Record<Service, ServiceConfig> = {
   },
   CHECKIN: {
     url: "/checkin",
-    port: 8003,
+    port: 3000,
     auth: false,
     rateLimit: {
       windowMs: 15 * 60 * 1000,
       max: 5,
     },
     proxy: {
-      target: "http://localhost:8003",
+      target: "https://checkin.api.hexlabs.org",
       changeOrigin: true,
       pathRewrite: {
         [`^/checkin`]: "",
@@ -84,14 +84,14 @@ export const SERVICES: Record<Service, ServiceConfig> = {
   },
   REGISTRATION: {
     url: "/registration",
-    port: 8004,
+    port: 3000,
     auth: false,
     rateLimit: {
       windowMs: 15 * 60 * 1000,
       max: 5,
     },
     proxy: {
-      target: "http://localhost:8004",
+      target: "https://registration.api.hexlabs.org",
       changeOrigin: true,
       pathRewrite: {
         [`^/registration`]: "",
