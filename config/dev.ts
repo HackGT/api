@@ -68,6 +68,26 @@ export const SERVICES = {
       url: "mongodb://localhost/checkin",
     },
   },
+  REGISTRATION: {
+    url: "/registration",
+    port: 8004,
+    auth: false,
+    rateLimit: {
+      windowMs: 15 * 60 * 1000,
+      max: 5,
+    },
+    proxy: {
+      target: "http://localhost:8004",
+      changeOrigin: false,
+      pathRewrite: {
+        [`^/registration`]: "",
+      },
+    },
+    database: {
+      type: "mongo",
+      url: "mongodb://localhost/registration",
+    },
+  },
 };
 
 export const GENERAL = {
