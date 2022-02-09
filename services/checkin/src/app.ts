@@ -3,7 +3,7 @@ import compression from "compression";
 import morgan from "morgan";
 import cors from "cors";
 import helmet from "helmet";
-import { config } from "@api/config";
+import config from "@api/config";
 import { decodeToken } from "@api/common";
 import mongoose from "mongoose";
 
@@ -16,9 +16,11 @@ process.on("unhandledRejection", err => {
   throw err;
 });
 
-mongoose.connect(config.SERVICES.CHECKIN.database.url).catch(err => {
-  throw err;
-});
+mongoose
+  .connect(config.database.mongo.baseUri + config.services.CHECKIN.database.name)
+  .catch(err => {
+    throw err;
+  });
 
 app.use(helmet());
 app.use(decodeToken);
@@ -33,6 +35,6 @@ app.get("/status", (req, res) => {
 
 app.use("/", defaultRouter);
 
-app.listen(config.SERVICES.CHECKIN.port, () => {
-  console.log(`CHECKIN service started on port ${config.SERVICES.CHECKIN.port}`);
+app.listen(config.services.CHECKIN.port, () => {
+  console.log(`CHECKIN service started on port ${config.services.CHECKIN.port}`);
 });

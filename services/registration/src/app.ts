@@ -3,7 +3,7 @@ import compression from "compression";
 import morgan from "morgan";
 import cors from "cors";
 import helmet from "helmet";
-import { config } from "@api/config";
+import config from "@api/config";
 import { decodeToken } from "@api/common";
 import mongoose from "mongoose";
 
@@ -16,9 +16,11 @@ process.on("unhandledRejection", err => {
   throw err;
 });
 
-mongoose.connect(config.SERVICES.REGISTRATION.database.url).catch(err => {
-  throw err;
-});
+mongoose
+  .connect(config.database.mongo.baseUri + config.services.REGISTRATION.database.name)
+  .catch(err => {
+    throw err;
+  });
 
 app.use(helmet());
 app.use(decodeToken);
@@ -33,6 +35,6 @@ app.get("/status", (req, res) => {
 
 app.use("/", defaultRouter);
 
-app.listen(config.SERVICES.REGISTRATION.port, () => {
-  console.log(`REGISTRATION service started on port ${config.SERVICES.REGISTRATION.port}`);
+app.listen(config.services.REGISTRATION.port, () => {
+  console.log(`REGISTRATION service started on port ${config.services.REGISTRATION.port}`);
 });
