@@ -1,14 +1,12 @@
 import { asyncHandler } from "@api/common";
 import express from "express";
-import { createNew, Checkin, CheckinModel } from "../models/event"
+import { CheckinModel } from "../models/event"
 
 export const checkinRouter = express.Router();
 
 checkinRouter.route("/").get(
   asyncHandler(async (req, res) => {
-    const checkins = Array<string>();
-    const users = await CheckinModel.find({});
-    users.forEach((user) => { checkins.push(user.status) })
+    const checkins = await CheckinModel.find({});
 
     return res.send(checkins);
   })
@@ -16,7 +14,7 @@ checkinRouter.route("/").get(
 
 checkinRouter.route("/").post(
   asyncHandler(async (req, res) => {
-    let checkin = createNew<Checkin>(CheckinModel, {
+    let checkin = new CheckinModel({
       userId: req.body.userId,
       eventId: req.body.eventId,
       status: req.body.status
