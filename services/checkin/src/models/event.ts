@@ -1,23 +1,12 @@
 import mongoose, { Schema, model } from "mongoose";
 
-type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
-interface RootDocument {
-  _id: mongoose.Types.ObjectId;
-}
-export function createNew<T extends RootDocument>(
-  model: mongoose.Model<T & mongoose.Document, {}>,
-  doc: Omit<T, "_id">
-) {
-  return new model(doc);
-}
-
-export interface Checkin extends RootDocument {
+export interface Checkin {
   userId: string;
   eventId: mongoose.Types.ObjectId;
   status: string;
 }
 
-const checkinSchema = new Schema<Checkin & mongoose.Document>({
+const checkinSchema = new Schema<Checkin>({
   userId: {
     type: String,
     required: true
@@ -32,4 +21,4 @@ const checkinSchema = new Schema<Checkin & mongoose.Document>({
   }
 });
 
-export const CheckinModel = model<Checkin & mongoose.Document>("Checkin", checkinSchema);
+export const CheckinModel = model<Checkin>("Checkin", checkinSchema);
