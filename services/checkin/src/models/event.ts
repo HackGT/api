@@ -1,24 +1,24 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, Types } from "mongoose";
 
 export interface Checkin {
   userId: string;
-  eventId: mongoose.Types.ObjectId;
+  eventId: Types.ObjectId;
   status: string;
 }
 
 const checkinSchema = new Schema<Checkin>({
   userId: {
     type: String,
-    required: true
+    required: true,
   },
   eventId: {
-    type: mongoose.Types.ObjectId,
-    required: false
+    type: Types.ObjectId,
+    required: false,
   },
   status: {
     type: String,
-    default: "NOT_CHECKED_IN"
-  }
+    default: "NOT_CHECKED_IN",
+  },
 });
 
 export const CheckinModel = model<Checkin>("Checkin", checkinSchema);

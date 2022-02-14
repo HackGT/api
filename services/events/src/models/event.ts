@@ -1,8 +1,8 @@
 import { Schema, model } from "mongoose";
 
-interface Event {
-  name: String;
-  isActive: Boolean;
+export interface Event {
+  name: string;
+  isActive: boolean;
 }
 
 const eventSchema = new Schema<Event>({
