@@ -3,16 +3,19 @@ import { Schema, model } from "mongoose";
 interface Branch {
     name: string;
     type: string;
-    settings:{
+    settings: {
         open: Date,
-        close:Date;
+        close: Date;
     }
 }
 
-const branchSchema = new Schema<Branch>({
+const branchSchema = new Schema<Branch>({ 
     name: { type: String, required: true },
     type: { type: String, required: true },
-    settings:{type: String, required: true} 
+    settings: {
+        open: { type: Date, required: true },
+        close: { type: Date, required: true }
+    }
 });
 
 const BranchModel = model<Branch>("Branch", branchSchema);
