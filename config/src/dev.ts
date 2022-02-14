@@ -1,14 +1,28 @@
-export const GATEWAY = {
+import {
+  DatabaseConfig,
+  GatewayConfig,
+  GeneralConfig,
+  Service,
+  ServiceConfig,
+} from "./types";
+
+export const GATEWAY: GatewayConfig = {
   port: 8000,
   firebase: {
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"), // replace `\` and `n` character pairs w/ single `\n` character
+    projectId: String(process.env.FIREBASE_PROJECT_ID),
+    clientEmail: String(process.env.FIREBASE_CLIENT_EMAIL),
+    privateKey: String(process.env.FIREBASE_PRIVATE_KEY).replace(/\\n/g, "\n"), // replace `\` and `n` character pairs w/ single `\n` character
   },
 };
 
-export const SERVICES = {
-  PROFILE: {
+export const DATABASE: DatabaseConfig = {
+  mongo: {
+    baseUri: "mongodb://localhost/",
+  },
+};
+
+export const SERVICES: Record<Service, ServiceConfig> = {
+  PROFILES: {
     url: "/profiles",
     port: 8001,
     auth: false,
@@ -25,10 +39,10 @@ export const SERVICES = {
     },
     database: {
       type: "mongo",
-      url: "mongodb://localhost/profile",
+      name: "profiles",
     },
   },
-  EVENT: {
+  EVENTS: {
     url: "/events",
     port: 8002,
     auth: false,
@@ -45,7 +59,7 @@ export const SERVICES = {
     },
     database: {
       type: "mongo",
-      url: "mongodb://localhost/event",
+      name: "events",
     },
   },
   CHECKIN: {
@@ -65,12 +79,32 @@ export const SERVICES = {
     },
     database: {
       type: "mongo",
-      url: "mongodb://localhost/checkin",
+      name: "checkin",
+    },
+  },
+  REGISTRATION: {
+    url: "/registration",
+    port: 8004,
+    auth: false,
+    rateLimit: {
+      windowMs: 15 * 60 * 1000,
+      max: 5,
+    },
+    proxy: {
+      target: "http://localhost:8004",
+      changeOrigin: false,
+      pathRewrite: {
+        [`^/registration`]: "",
+      },
+    },
+    database: {
+      type: "mongo",
+      name: "registration",
     },
   },
 };
 
-export const GENERAL = {
+export const GENERAL: GeneralConfig = {
   production: false,
 };
 

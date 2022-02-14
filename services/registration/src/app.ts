@@ -17,7 +17,7 @@ process.on("unhandledRejection", err => {
 });
 
 mongoose
-  .connect(config.database.mongo.baseUri + config.services.CHECKIN.database.name)
+  .connect(config.database.mongo.baseUri + config.services.REGISTRATION.database.name)
   .catch(err => {
     throw err;
   });
@@ -35,6 +35,6 @@ app.get("/status", (req, res) => {
 
 app.use("/", defaultRouter);
 
-app.listen(config.services.CHECKIN.port, () => {
-  console.log(`CHECKIN service started on port ${config.services.CHECKIN.port}`);
+app.listen(config.services.REGISTRATION.port, () => {
+  console.log(`REGISTRATION service started on port ${config.services.REGISTRATION.port}`);
 });

@@ -1,0 +1,43 @@
+{
+  "name": "@api/services-profiles",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/app.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint src/ --fix; prettier src/ --write",
+    "start": "ts-node src/app.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@hex-labs/eslint-config": "^1.2.0",
+    "@hex-labs/prettier-config": "^1.2.0",
+    "@hex-labs/tsconfig": "^1.2.0",
+    "eslint": "^8.8.0",
+    "prettier": "^2.5.1",
+    "ts-node": "^10.5.0"
+  },
+  "eslintConfig": {
+    "extends": "@hex-labs/eslint-config"
+  },
+  "prettier": "@hex-labs/prettier-config",
+  "dependencies": {
+    "@api/common": "*",
+    "@api/config": "*",
+    "@types/compression": "^1.7.2",
+    "@types/cors": "^2.8.12",
+    "@types/express": "^4.17.13",
+    "@types/morgan": "^1.9.3",
+    "@types/node": "^17.0.13",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "express": "^4.17.2",
+    "fs": "^0.0.1-security",
+    "helmet": "^5.0.2",
+    "mongoose": "^6.1.9",
+    "morgan": "^1.10.0",
+    "path": "^0.12.7",
+    "typescript": "^4.5.5"
+  }
+}

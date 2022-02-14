@@ -32,6 +32,12 @@ When you start your services and gateway, you will get messages from the proxy i
 
 So for example, if you want to access the profile service, you would make a request to `localhost:8000/profiles`. And the gateway will forward this request to the profile service. When the service receives the request, it receivies it without the `/profiles`. So `/profiles/id` will become `/id` for example.
 
+### Authentication
+
+This project uses authentication via [Google Cloud Identity Platform](https://cloud.google.com/identity-platform) that allows us to easily manage user authentication with JWT. To login, visit [login.hexlabs.org](https://login.hexlabs.org). Once you retrieve your ID token, you can use that with Bearer Authentication to authenticate against these services. We recommend using Postman when doing local development.
+
+Note that these tokens expire very quickly after an hour, so you will often have to retrieve a new token.
+
 ## Attribution
 
 This project was inspired by [HackIllinois API repository](https://github.com/HackIllinois/api).
