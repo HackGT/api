@@ -1,7 +1,31 @@
 import { Schema, model } from "mongoose";
 
-interface Profile {}
+export interface Profile {
+    first: String,
+    middle: String,
+    last: String,
+    phoneNumber: String,
+    gender: String,
+}
 
-const profileSchema = new Schema<Profile>({});
+const profileSchema = new Schema<Profile>({
+    first: {
+        type: String,
+        required: true,
+    },
+    middle: {
+        type: String,
+    },
+    last: {
+        type: String,
+        required: true,
+    },
+    phoneNumber: {
+        type: String,
+    },
+    gender: {
+        type: String,
+    },
+});
 
-const ProfileModel = model<Profile>("Profile", profileSchema);
+export const ProfileModel = model<Profile>("Profile", profileSchema);
