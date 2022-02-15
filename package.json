@@ -2,7 +2,7 @@
   "name": "api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.ts",
   "private": true,
   "workspaces": [
     "services/**",
@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:all": "concurrently \"cd gateway && yarn start \" \"cd services/events && yarn start \" \"cd services/profiles && yarn start \" \"cd services/checkin && yarn start \" \"cd services/registration && yarn start \""
+    "start:all": "ts-node index.ts"
   },
   "author": "",
   "license": "ISC",
