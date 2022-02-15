@@ -1,6 +1,7 @@
 import { asyncHandler } from "@api/common";
 import express from "express";
-import { CheckinModel } from "../models/event"
+
+import { CheckinModel } from "../models/checkin";
 
 export const checkinRouter = express.Router();
 
@@ -14,26 +15,34 @@ checkinRouter.route("/").get(
 
 checkinRouter.route("/").post(
   asyncHandler(async (req, res) => {
-    let checkin = new CheckinModel({
-      userId: req.body.userId,
-      eventId: req.body.eventId,
-      status: req.body.status
+    const newCheckin = await CheckinModel.create({
+      user: req.body.user,
+      event: req.body.event,
+      status: req.body.status,
     });
 
-    await checkin.save();
-
-    return res.send({ id: checkin._id });
+    return res.send(newCheckin);
   })
 );
 
 checkinRouter.route("/:id").get(
   asyncHandler(async (req, res) => {
-    res.send();
+    const checkin = await CheckinModel.findById(req.params.id);
+
+    return res.send(checkin);
   })
 );
 
-checkinRouter.route("/:id").put(
+checkinRouter.route("/:id").patch(
   asyncHandler(async (req, res) => {
-    res.send();
+    const checkin = await CheckinModel.findByIdAndUpdate(
+      req.params.id,
+      {
+        status: req.body.status,
+      },
+      { new: true }
+    );
+
+    return res.send(checkin);
   })
 );
