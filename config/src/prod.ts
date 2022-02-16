@@ -24,7 +24,7 @@ export const DATABASE: DatabaseConfig = {
 export const SERVICES: Record<Service, ServiceConfig> = {
   PROFILES: {
     url: "/profiles",
-    port: 3000,
+    port: 8080,
     auth: false,
     rateLimit: {
       windowMs: 15 * 60 * 1000,
@@ -44,7 +44,7 @@ export const SERVICES: Record<Service, ServiceConfig> = {
   },
   EVENTS: {
     url: "/events",
-    port: 3000,
+    port: 8080,
     auth: false,
     rateLimit: {
       windowMs: 15 * 60 * 1000,
@@ -64,7 +64,7 @@ export const SERVICES: Record<Service, ServiceConfig> = {
   },
   CHECKIN: {
     url: "/checkin",
-    port: 3000,
+    port: 8080,
     auth: false,
     rateLimit: {
       windowMs: 15 * 60 * 1000,
@@ -84,7 +84,7 @@ export const SERVICES: Record<Service, ServiceConfig> = {
   },
   REGISTRATION: {
     url: "/registration",
-    port: 3000,
+    port: 8080,
     auth: false,
     rateLimit: {
       windowMs: 15 * 60 * 1000,
