@@ -13,13 +13,15 @@ FROM base AS release
 
 WORKDIR /app
 
-COPY ["package.json", "tsconfig.base.json", "tsconfig.json", "yarn.lock", "./"]
-COPY ./common ./common
-COPY ./config ./config
-COPY ./services/$SERVICE ./services/$SERVICE
+# COPY ["package.json", "tsconfig.base.json", "tsconfig.json", "yarn.lock", "./"]
+# COPY ./common ./common
+# COPY ./config ./config
+# COPY ./services/$SERVICE ./services/$SERVICE
+
+COPY . .
 
 RUN yarn install --production --pure-lockfile --non-interactive
 
-RUN yarn build
+RUN yarn build && yarn build services/$SERVICE
 
 CMD yarn workspace @api/services-${SERVICE} start
