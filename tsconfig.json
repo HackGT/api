@@ -1,3 +1,28 @@
 {
-  "extends": "@hex-labs/tsconfig"
+  "extends": "@hex-labs/tsconfig",
+  "references": [
+    {
+      "path": "common"
+    },
+    {
+      "path": "config"
+    },
+    {
+      "path": "gateway"
+    },
+    {
+      "path": "services/checkin"
+    },
+    {
+      "path": "services/events"
+    },
+    {
+      "path": "services/profiles"
+    },
+    {
+      "path": "services/registration"
+    }
+  ],
+  "include": [],
+  "exclude": ["**/node_modules", "**/dist"]
 }

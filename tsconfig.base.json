@@ -1,0 +1,10 @@
+{
+  "extends": "@hex-labs/tsconfig",
+  "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "composite": true
+  },
+  "exclude": ["**/node_modules", "**/dist"]
+}

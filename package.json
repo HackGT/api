@@ -12,7 +12,8 @@
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:all": "ts-node index.ts"
+    "start:all": "ts-node index.ts",
+    "build": "tsc --build --force"
   },
   "author": "",
   "license": "ISC",
