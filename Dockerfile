@@ -8,28 +8,18 @@ ENV SERVICE=${SERVICE}
 
 ENV NODE_ENV=production
 
-# ---- Build ----
-FROM base AS build
-
-WORKDIR /app
-
-COPY ["package.json", "yarn.lock", "./"]
-COPY common/package.json ./common
-COPY config/package.json ./config
-
-COPY services/$SERVICE/package.json ./services/$SERVICE
-
-RUN yarn install
-
 # ---- Release ----
 FROM base AS release
 
 WORKDIR /app
 
-# copy production node_modules
-COPY --from=build /app/node_modules ./
+COPY ["package.json", "tsconfig.base.json", "tsconfig.json", "yarn.lock", "./"]
+COPY ./common ./common
+COPY ./config ./config
+COPY ./services/$SERVICE ./services/$SERVICE
 
-# copy app sources
-COPY . .
+RUN yarn install --production --pure-lockfile --non-interactive
+
+RUN yarn build
 
 CMD yarn workspace @api/services-${SERVICE} start

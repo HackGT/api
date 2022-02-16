@@ -7,7 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint src/ --fix; prettier src/ --write",
-    "start": "ts-node src/app.ts",
+    "start": "node dist/app.js",
     "dev": "nodemon --watch 'src/**/*' --exec \"ts-node\" src/app.ts"
   },
   "author": "",
@@ -15,7 +15,6 @@
   "devDependencies": {
     "@hex-labs/eslint-config": "^1.2.0",
     "@hex-labs/prettier-config": "^1.2.0",
-    "@hex-labs/tsconfig": "^1.2.0",
     "eslint": "^8.8.0",
     "nodemon": "^2.0.15",
     "prettier": "^2.5.1",

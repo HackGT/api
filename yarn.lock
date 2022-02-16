@@ -199,11 +199,6 @@
   resolved "https://registry.yarnpkg.com/@hex-labs/prettier-config/-/prettier-config-1.2.0.tgz#7512a5762449601da2ee99e0152ca1840abbbf56"
   integrity sha512-ECr/hxyKjTXoquJkpn2FWnRKTBofTtCEcFqY+2LnLfI8djXJnhtGhS1JdPATww8uD3tSekfn6WcYXKLnrLy7ag==
 
-"@hex-labs/tsconfig@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@hex-labs/tsconfig/-/tsconfig-1.2.0.tgz#e1fb2e8653598ed5c437103303bdbb9232a5908d"
-  integrity sha512-xSk26S/HBuvnCcygBF2hJD+QnOf00MlmXf0Pn7MpNZYcloiZUoipNO49ULs6IgvzzoTrz+dYWEJxbF+plM3APw==
-
 "@humanwhocodes/config-array@^0.9.2":
   version "0.9.3"
   resolved "https://registry.yarnpkg.com/@humanwhocodes/config-array/-/config-array-0.9.3.tgz#f2564c744b387775b436418491f15fce6601f63e"
@@ -450,6 +445,11 @@
   version "17.0.14"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.14.tgz#33b9b94f789a8fedd30a68efdbca4dbb06b61f20"
   integrity sha512-SbjLmERksKOGzWzPNuW7fJM7fk3YXVTFiZWB/Hs99gwhk+/dnrQRPBQjPW9aO+fi1tAffi9PrwFvsmOKmDTyng==
+
+"@types/node@^17.0.18":
+  version "17.0.18"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.18.tgz#3b4fed5cfb58010e3a2be4b6e74615e4847f1074"
+  integrity sha512-eKj4f/BsN/qcculZiRSujogjvp5O/k4lOW5m35NopjZM/QwLOR075a8pJW5hD+Rtdm2DaCVPENS6KtSQnUD6BA==
 
 "@types/qs@*":
   version "6.9.7"
