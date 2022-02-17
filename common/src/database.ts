@@ -13,7 +13,7 @@ export const generateMongoConnection = (
 
   if (!config.database.mongo.uri.includes("${DATABASE}")) {
     throw new Error(
-      'Mongo connection uri must include "{DATABASE}" identifier'
+      'Mongo connection uri must include "${DATABASE}" identifier'
     );
   }
 
