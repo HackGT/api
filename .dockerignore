@@ -1,6 +1,7 @@
 # Logs
 logs
 *.log
+**/tsconfig.tsbuildinfo
 
 # Runtime data
 pids
@@ -29,3 +30,6 @@ build/Release
 # Bulid directory
 **/dist
 **/out
+
+# env files
+**/.env
