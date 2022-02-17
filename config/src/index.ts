@@ -23,9 +23,9 @@ if (process.env.PRODUCTION == "true") {
 } else {
   admin.initializeApp({
     credential: admin.credential.cert({
-      projectId: devConfig.GATEWAY.firebase.projectId,
-      clientEmail: devConfig.GATEWAY.firebase.clientEmail,
-      privateKey: devConfig.GATEWAY.firebase.privateKey,
+      projectId: devConfig.GATEWAY.firebase?.projectId,
+      clientEmail: devConfig.GATEWAY.firebase?.clientEmail,
+      privateKey: devConfig.GATEWAY.firebase?.privateKey,
     }),
   });
 

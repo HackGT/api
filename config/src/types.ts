@@ -1,6 +1,6 @@
 export interface GatewayConfig {
   port: number;
-  firebase: {
+  firebase?: {
     projectId: string;
     clientEmail: string;
     privateKey: string;

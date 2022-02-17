@@ -7,12 +7,7 @@ import {
 } from "./types";
 
 export const GATEWAY: GatewayConfig = {
-  port: 3000,
-  firebase: {
-    projectId: String(process.env.FIREBASE_PROJECT_ID),
-    clientEmail: String(process.env.FIREBASE_CLIENT_EMAIL),
-    privateKey: String(process.env.FIREBASE_PRIVATE_KEY).replace(/\\n/g, "\n"), // replace `\` and `n` character pairs w/ single `\n` character
-  },
+  port: parseInt(process.env.PORT || "8080"),
 };
 
 export const DATABASE: DatabaseConfig = {
