@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import admin from "firebase-admin";
+import { applicationDefault } from "firebase-admin/app";
 import path from "path";
 
 dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
@@ -11,13 +12,7 @@ import { Config } from "./types";
 let config: Config;
 
 if (process.env.PRODUCTION == "true") {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: prodConfig.GATEWAY.firebase.projectId,
-      clientEmail: prodConfig.GATEWAY.firebase.clientEmail,
-      privateKey: prodConfig.GATEWAY.firebase.privateKey,
-    }),
-  });
+  admin.initializeApp();
 
   config = {
     gateway: prodConfig.GATEWAY,
