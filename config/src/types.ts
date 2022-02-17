@@ -1,15 +1,15 @@
+export interface CommonConfig {
+  production: boolean;
+}
+
 export interface GatewayConfig {
   port: number;
-  firebase?: {
-    projectId: string;
-    clientEmail: string;
-    privateKey: string;
-  };
 }
 
 export interface DatabaseConfig {
   mongo: {
-    baseUri: string;
+    uri: string;
+    tlsCAFile?: string;
   };
 }
 
@@ -44,6 +44,7 @@ export interface GeneralConfig {
 }
 
 export interface Config {
+  common: CommonConfig;
   gateway: GatewayConfig;
   database: DatabaseConfig;
   services: Record<Service, ServiceConfig>;

@@ -12,7 +12,8 @@ export const GATEWAY: GatewayConfig = {
 
 export const DATABASE: DatabaseConfig = {
   mongo: {
-    baseUri: String(process.env.MONGO_BASE_URI),
+    uri: String(process.env.MONGO_URI),
+    tlsCAFile: String(process.env.MONGO_TLS_CA_FILE),
   },
 };
 
