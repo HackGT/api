@@ -16,11 +16,11 @@ process.on("unhandledRejection", err => {
   throw err;
 });
 
-// mongoose
-//   .connect(config.database.mongo.baseUri + config.services.PROFILES.database.name)
-//   .catch(err => {
-//     throw err;
-//   });
+mongoose
+  .connect(config.database.mongo.baseUri + config.services.PROFILES.database.name)
+  .catch(err => {
+    throw err;
+  });
 
 app.use(helmet());
 app.use(decodeToken);
