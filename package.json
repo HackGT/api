@@ -14,7 +14,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint './**/src/**' --fix; prettier './**/src/**' --write",
     "start:all": "ts-node index.ts",
-    "build": "tsc --build --force"
+    "build": "tsc --build --force",
+    "prepare": "husky install"
+  },
+  "engines": {
+    "node": ">=14"
   },
   "author": "",
   "license": "ISC",
@@ -23,6 +27,7 @@
     "@hex-labs/prettier-config": "^1.2.0",
     "concurrently": "^7.0.0",
     "eslint": "^8.9.0",
+    "husky": ">=6",
     "lint-staged": "^12.3.4",
     "prettier": "^2.5.1",
     "ts-node": "^10.4.0"
@@ -35,8 +40,7 @@
   },
   "prettier": "@hex-labs/prettier-config",
   "lint-staged": {
-    "*.{js,ts,tsx,json,yml,yaml,css,html,md}": [
-      "prettier --write"
-    ]
+    "*.{js,ts,tsx}": "eslint --cache --fix",
+    "*.{js,ts,tsx,json,yml,yaml,css,html,md}": "prettier --write"
   }
 }
