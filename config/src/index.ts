@@ -1,7 +1,9 @@
+/* eslint-disable import/first */
 import dotenv from "dotenv";
 import admin from "firebase-admin";
 import path from "path";
 
+// env vars need to be loaded before other imports
 dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
 
 import * as devConfig from "./dev";
@@ -11,7 +13,7 @@ import { CommonConfig, Config } from "./types";
 let config: Config;
 
 const COMMON: CommonConfig = {
-  production: process.env.PRODUCTION == "true",
+  production: process.env.PRODUCTION === "true",
 };
 
 if (COMMON.production) {
@@ -29,10 +31,7 @@ if (COMMON.production) {
     credential: admin.credential.cert({
       projectId: String(process.env.FIREBASE_PROJECT_ID),
       clientEmail: String(process.env.FIREBASE_CLIENT_EMAIL),
-      privateKey: String(process.env.FIREBASE_PRIVATE_KEY).replace(
-        /\\n/g,
-        "\n"
-      ), // replace `\` and `n` character pairs w/ single `\n` character,
+      privateKey: String(process.env.FIREBASE_PRIVATE_KEY).replace(/\\n/g, "\n"), // replace `\` and `n` character pairs w/ single `\n` character,
     }),
   });
 

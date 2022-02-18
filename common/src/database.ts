@@ -12,21 +12,14 @@ export const generateMongoConnection = (
   }
 
   if (!config.database.mongo.uri.includes("${DATABASE}")) {
-    throw new Error(
-      'Mongo connection uri must include "${DATABASE}" identifier'
-    );
+    throw new Error('Mongo connection uri must include "${DATABASE}" identifier');
   }
 
-  const uri = config.database.mongo.uri.replace(
-    "${DATABASE}",
-    service.database.name
-  );
+  const uri = config.database.mongo.uri.replace("${DATABASE}", service.database.name);
 
   if (config.common.production) {
     if (!config.database.mongo.tlsCAFile) {
-      throw new Error(
-        "Mongo tlsCAFile required to connect to production database."
-      );
+      throw new Error("Mongo tlsCAFile required to connect to production database.");
     }
 
     return {

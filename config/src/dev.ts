@@ -1,10 +1,4 @@
-import {
-  DatabaseConfig,
-  GatewayConfig,
-  GeneralConfig,
-  Service,
-  ServiceConfig,
-} from "./types";
+import { DatabaseConfig, GatewayConfig, GeneralConfig, Service, ServiceConfig } from "./types";
 
 export const GATEWAY: GatewayConfig = {
   port: 8000,

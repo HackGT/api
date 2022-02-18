@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@api/config": "*",
     "axios": "^0.26.0",
     "mongoose": "^6.2.2",
     "source-map-support": "^0.5.21"
