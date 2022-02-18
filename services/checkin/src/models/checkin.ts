@@ -2,8 +2,8 @@ import { Schema, model, Types } from "mongoose";
 
 export interface Checkin {
   user: string;
-  event: Types.ObjectId;
   status: string;
+  event: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
