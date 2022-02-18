@@ -1,23 +1,12 @@
-import {
-  DatabaseConfig,
-  GatewayConfig,
-  GeneralConfig,
-  Service,
-  ServiceConfig,
-} from "./types";
+import { DatabaseConfig, GatewayConfig, GeneralConfig, Service, ServiceConfig } from "./types";
 
 export const GATEWAY: GatewayConfig = {
   port: 8000,
-  firebase: {
-    projectId: String(process.env.FIREBASE_PROJECT_ID),
-    clientEmail: String(process.env.FIREBASE_CLIENT_EMAIL),
-    privateKey: String(process.env.FIREBASE_PRIVATE_KEY).replace(/\\n/g, "\n"), // replace `\` and `n` character pairs w/ single `\n` character
-  },
 };
 
 export const DATABASE: DatabaseConfig = {
   mongo: {
-    baseUri: "mongodb://localhost/",
+    uri: "mongodb://localhost/${DATABASE}",
   },
 };
 

@@ -13,11 +13,7 @@ declare global {
 /**
  * Middleware to decode JWT from Google Cloud Identity Provider
  */
-export const decodeToken = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const decodeToken = async (req: Request, res: Response, next: NextFunction) => {
   req.user = null;
 
   if (req.headers?.authorization?.startsWith("Bearer ")) {

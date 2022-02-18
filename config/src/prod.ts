@@ -1,30 +1,20 @@
-import {
-  DatabaseConfig,
-  GatewayConfig,
-  GeneralConfig,
-  Service,
-  ServiceConfig,
-} from "./types";
+import { DatabaseConfig, GatewayConfig, GeneralConfig, Service, ServiceConfig } from "./types";
 
 export const GATEWAY: GatewayConfig = {
-  port: 3000,
-  firebase: {
-    projectId: String(process.env.FIREBASE_PROJECT_ID),
-    clientEmail: String(process.env.FIREBASE_CLIENT_EMAIL),
-    privateKey: String(process.env.FIREBASE_PRIVATE_KEY).replace(/\\n/g, "\n"), // replace `\` and `n` character pairs w/ single `\n` character
-  },
+  port: parseInt(process.env.PORT || "8080"),
 };
 
 export const DATABASE: DatabaseConfig = {
   mongo: {
-    baseUri: String(process.env.MONGO_BASE_URI),
+    uri: String(process.env.MONGO_URI),
+    tlsCAFile: String(process.env.MONGO_TLS_CA_FILE),
   },
 };
 
 export const SERVICES: Record<Service, ServiceConfig> = {
   PROFILES: {
     url: "/profiles",
-    port: 3000,
+    port: parseInt(process.env.PORT || "8080"),
     auth: false,
     rateLimit: {
       windowMs: 15 * 60 * 1000,
@@ -44,7 +34,7 @@ export const SERVICES: Record<Service, ServiceConfig> = {
   },
   EVENTS: {
     url: "/events",
-    port: 3000,
+    port: parseInt(process.env.PORT || "8080"),
     auth: false,
     rateLimit: {
       windowMs: 15 * 60 * 1000,
@@ -64,7 +54,7 @@ export const SERVICES: Record<Service, ServiceConfig> = {
   },
   CHECKIN: {
     url: "/checkin",
-    port: 3000,
+    port: parseInt(process.env.PORT || "8080"),
     auth: false,
     rateLimit: {
       windowMs: 15 * 60 * 1000,
@@ -84,7 +74,7 @@ export const SERVICES: Record<Service, ServiceConfig> = {
   },
   REGISTRATION: {
     url: "/registration",
-    port: 3000,
+    port: parseInt(process.env.PORT || "8080"),
     auth: false,
     rateLimit: {
       windowMs: 15 * 60 * 1000,
