@@ -92,6 +92,26 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       name: "registration",
     },
   },
+  INTERACTIONS: {
+    url: "/interactions",
+    port: 3000,
+    auth: false,
+    rateLimit: {
+      windowMs: 15 * 60 * 1000,
+      max: 5,
+    },
+    proxy: {
+      target: "https://interactions.api.hexlabs.org",
+      changeOrigin: true,
+      pathRewrite: {
+        [`^/interactions`]: "",
+      },
+    },
+    database: {
+      type: "mongo",
+      name: "interactions",
+    },
+  },
 };
 
 export const GENERAL: GeneralConfig = {

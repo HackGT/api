@@ -18,6 +18,7 @@ export enum Service {
   EVENTS = "EVENTS",
   CHECKIN = "CHECKIN",
   REGISTRATION = "REGISTRATION",
+  INTERACTIONS = "INTERACTIONS",
 }
 
 export interface ServiceConfig {

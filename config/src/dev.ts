@@ -91,6 +91,26 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       name: "registration",
     },
   },
+  INTERACTIONS: {
+    url: "/interactions",
+    port: 8005,
+    auth: false,
+    rateLimit: {
+      windowMs: 15 * 60 * 1000,
+      max: 5,
+    },
+    proxy: {
+      target: "http://localhost:8005",
+      changeOrigin: false,
+      pathRewrite: {
+        [`^/interactions`]: "",
+      },
+    },
+    database: {
+      type: "mongo",
+      name: "interactions",
+    },
+  },
 };
 
 export const GENERAL: GeneralConfig = {

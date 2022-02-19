@@ -1,9 +1,18 @@
 {
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@api/common": ["common"],
+      "@api/config": ["config"]
+    }
+  },
   "references": [
     {
+      "name": "@api/common",
       "path": "common"
     },
     {
+      "name": "@api/config",
       "path": "config"
     }
   ],
