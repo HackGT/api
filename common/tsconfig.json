@@ -6,7 +6,11 @@
     }
   ],
   "compilerOptions": {
+    "baseUrl": ".",
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    "paths": {
+      "@api/config": ["../config/src"]
+    }
   }
 }

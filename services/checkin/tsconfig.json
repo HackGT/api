@@ -9,7 +9,12 @@
     }
   ],
   "compilerOptions": {
+    "baseUrl": ".",
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    "paths": {
+      "@api/common": ["../../common/src"],
+      "@api/config": ["../../config/src"]
+    }
   }
 }

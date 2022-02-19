@@ -15,6 +15,7 @@
     "lint": "eslint './**/src/**' --fix; prettier './**/src/**' --write",
     "start:all": "ts-node index.ts",
     "build": "tsc --build --force",
+    "clean": "tsc --build --clean",
     "prepare": "husky install"
   },
   "engines": {
@@ -27,6 +28,7 @@
     "@hex-labs/prettier-config": "^1.2.0",
     "concurrently": "^7.0.0",
     "eslint": "^8.9.0",
+    "eslint-import-resolver-typescript": "^2.5.0",
     "husky": ">=6",
     "lint-staged": "^12.3.4",
     "prettier": "^2.5.1",
@@ -36,7 +38,18 @@
     "typescript": "^4.5.5"
   },
   "eslintConfig": {
-    "extends": "@hex-labs/eslint-config"
+    "extends": "@hex-labs/eslint-config",
+    "settings": {
+      "import/resolver": {
+        "typescript": {
+          "project": [
+            "common/tsconfig.json",
+            "config/tsconfig.json",
+            "services/*/tsconfig.json"
+          ]
+        }
+      }
+    }
   },
   "prettier": "@hex-labs/prettier-config",
   "lint-staged": {
