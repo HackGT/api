@@ -4,7 +4,7 @@ import morgan from "morgan";
 import cors from "cors";
 import helmet from "helmet";
 import config from "@api/config";
-import { decodeToken } from "@api/common";
+import { decodeToken, generateMongoConnection } from "@api/common";
 import mongoose from "mongoose";
 
 import { defaultRouter } from "./routes";
@@ -16,11 +16,10 @@ process.on("unhandledRejection", err => {
   throw err;
 });
 
-mongoose
-  .connect(config.database.mongo.baseUri + config.services.INTERACTIONS.database.name)
-  .catch(err => {
-    throw err;
-  });
+const { uri, options } = generateMongoConnection(config.services.INTERACTIONS);
+mongoose.connect(uri, options).catch(err => {
+  throw err;
+});
 
 app.use(helmet());
 app.use(decodeToken);
