@@ -32,12 +32,28 @@ eventRouter.route("/").post(
 
 eventRouter.route("/:id").get(
   asyncHandler(async (req, res) => {
-    res.send();
+    const { id } = req.params;
+    const event = await EventModel.findById(id);
+    if (!event) {
+      res.status(400);
+      throw new Error("Event not found");
+    }
+    return res.status(200).send(event);
   })
 );
 
 eventRouter.route("/:id").put(
   asyncHandler(async (req, res) => {
-    res.send();
+    const { id } = req.params;
+    const event = await EventModel.findById(id);
+    if (!event) {
+      res.status(400);
+      throw new Error("Event not found");
+    }
+
+    const updatedEvent = await EventModel.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
+    res.status(200).json(updatedEvent);
   })
 );
