@@ -37,20 +37,6 @@
   "dependencies": {
     "typescript": "^4.5.5"
   },
-  "eslintConfig": {
-    "extends": "@hex-labs/eslint-config",
-    "settings": {
-      "import/resolver": {
-        "typescript": {
-          "project": [
-            "common/tsconfig.json",
-            "config/tsconfig.json",
-            "services/*/tsconfig.json"
-          ]
-        }
-      }
-    }
-  },
   "prettier": "@hex-labs/prettier-config",
   "lint-staged": {
     "*.{js,ts,tsx}": "eslint --cache --fix",
