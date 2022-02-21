@@ -8,31 +8,34 @@ export const branchRouter = express.Router();
 branchRouter.route("/").get(
   asyncHandler(async (req, res) => {
     const branches = await BranchModel.find({});
+
     return res.send(branches);
   })
 );
 
 branchRouter.route("/").post(
   asyncHandler(async (req, res) => {
-    const new_branch = await BranchModel.create({
+    const newBranch = await BranchModel.create({
       name: req.body.name,
       type: req.body.type,
       settings: req.body.settings,
     });
-    return res.send(new_branch);
+
+    return res.send(newBranch);
   })
 );
 
 branchRouter.route("/:id").get(
   asyncHandler(async (req, res) => {
-    const new_branch = await BranchModel.findById({ _id: req.query.id });
-    return res.send(new_branch);
+    const newBranch = await BranchModel.findById(req.query.id);
+
+    return res.send(newBranch);
   })
 );
 
 branchRouter.route("/:id").patch(
   asyncHandler(async (req, res) => {
-    const updated_branch = await BranchModel.findByIdAndUpdate(
+    const updatedBranch = await BranchModel.findByIdAndUpdate(
       req.params.id,
       {
         name: req.body.name,
@@ -41,6 +44,7 @@ branchRouter.route("/:id").patch(
       },
       { new: true }
     );
-    return res.send(updated_branch);
+
+    return res.send(updatedBranch);
   })
 );
