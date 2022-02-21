@@ -94,7 +94,7 @@ export const SERVICES: Record<Service, ServiceConfig> = {
   },
   INTERACTIONS: {
     url: "/interactions",
-    port: 3000,
+    port: parseInt(process.env.PORT || "8080"),
     auth: false,
     rateLimit: {
       windowMs: 15 * 60 * 1000,
