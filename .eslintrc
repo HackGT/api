@@ -1,0 +1,14 @@
+{
+  "extends": "@hex-labs/eslint-config",
+  "settings": {
+    "import/resolver": {
+      "typescript": {
+        "project": [
+          "common/tsconfig.json",
+          "config/tsconfig.json",
+          "services/*/tsconfig.json"
+        ]
+      }
+    }
+  }
+}

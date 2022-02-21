@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import concurrently from "concurrently";
 
 concurrently([
@@ -7,4 +8,5 @@ concurrently([
   { command: "cd services/checkin && yarn dev", name: "checkin" },
   { command: "cd services/registration && yarn dev", name: "registration" },
   { command: "cd services/interactions && yarn dev", name: "interactions" },
+  { command: "cd services/notifications && yarn dev", name: "notifications" },
 ]);

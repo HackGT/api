@@ -6,7 +6,7 @@ export const GATEWAY: GatewayConfig = {
 
 export const DATABASE: DatabaseConfig = {
   mongo: {
-    uri: "mongodb://localhost/${DATABASE}",
+    uri: "mongodb://localhost/${DATABASE}", // eslint-disable-line no-template-curly-in-string
   },
 };
 
@@ -109,6 +109,26 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     database: {
       type: "mongo",
       name: "interactions",
+    },
+  },
+  NOTIFICATIONS: {
+    url: "/notifications",
+    port: 8006,
+    auth: false,
+    rateLimit: {
+      windowMs: 15 * 60 * 1000,
+      max: 5,
+    },
+    proxy: {
+      target: "http://localhost:8006",
+      changeOrigin: false,
+      pathRewrite: {
+        [`^/notifications`]: "",
+      },
+    },
+    database: {
+      type: "mongo",
+      name: "notifications",
     },
   },
 };

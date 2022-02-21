@@ -7,7 +7,7 @@ export const profileRoutes = express.Router();
 
 profileRoutes.route("/").get(
   asyncHandler(async (req, res) => {
-    const profiles = await ProfileModel.find({});
+    const profiles = await ProfileModel.find();
 
     return res.send(profiles);
   })
@@ -23,12 +23,19 @@ profileRoutes.route("/").post(
 
 profileRoutes.route("/:id").get(
   asyncHandler(async (req, res) => {
-    res.send();
+    const { id } = req.params;
+    const profile = await ProfileModel.findById(id);
+    res.send(profile);
   })
 );
 
 profileRoutes.route("/:id").put(
   asyncHandler(async (req, res) => {
-    res.send();
+    const { id } = req.params;
+
+    const updatedProfile = await ProfileModel.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
+    res.send(updatedProfile);
   })
 );
