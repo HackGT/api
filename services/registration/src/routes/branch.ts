@@ -25,18 +25,22 @@ branchRouter.route("/").post(
 
 branchRouter.route("/:id").get(
   asyncHandler(async (req, res) => {
-    const new_branch = await BranchModel.find({ _id: req.query.id });
+    const new_branch = await BranchModel.findById({ _id: req.query.id });
     return res.send(new_branch);
   })
 );
 
 branchRouter.route("/:id").patch(
   asyncHandler(async (req, res) => {
-    const updated_branch = await BranchModel.findByIdAndUpdate(req.params.id, {
-      name: req.body.name,
-      type: req.body.type,
-      settings: req.body.settings,
-    });
+    const updated_branch = await BranchModel.findByIdAndUpdate(
+      req.params.id,
+      {
+        name: req.body.name,
+        type: req.body.type,
+        settings: req.body.settings,
+      },
+      { new: true }
+    );
     return res.send(updated_branch);
   })
 );
