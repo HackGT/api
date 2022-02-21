@@ -112,6 +112,26 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       name: "interactions",
     },
   },
+  NOTIFICATIONS: {
+    url: "/notifications",
+    port: parseInt(process.env.PORT || "8080"),
+    auth: false,
+    rateLimit: {
+      windowMs: 15 * 60 * 1000,
+      max: 5,
+    },
+    proxy: {
+      target: "https://notifications.api.hexlabs.org",
+      changeOrigin: true,
+      pathRewrite: {
+        [`^/notifications`]: "",
+      },
+    },
+    database: {
+      type: "mongo",
+      name: "notifications",
+    },
+  },
 };
 
 export const GENERAL: GeneralConfig = {
