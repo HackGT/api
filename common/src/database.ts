@@ -1,3 +1,4 @@
+/* eslint-disable no-template-curly-in-string */
 import mongoose from "mongoose";
 import config, { ServiceConfig } from "@api/config";
 
@@ -17,19 +18,19 @@ export const generateMongoConnection = (
 
   const uri = config.database.mongo.uri.replace("${DATABASE}", service.database.name);
 
-  if (config.common.production) {
-    if (!config.database.mongo.tlsCAFile) {
-      throw new Error("Mongo tlsCAFile required to connect to production database.");
-    }
+  // if (config.common.production) {
+  //   if (!config.database.mongo.tlsCAFile) {
+  //     throw new Error("Mongo tlsCAFile required to connect to production database.");
+  //   }
 
-    return {
-      uri,
-      options: {
-        tls: true,
-        tlsCAFile: config.database.mongo.tlsCAFile,
-      },
-    };
-  }
+  //   return {
+  //     uri,
+  //     options: {
+  //       tls: true,
+  //       tlsCAFile: config.database.mongo.tlsCAFile,
+  //     },
+  //   };
+  // }
 
   return { uri };
 };
