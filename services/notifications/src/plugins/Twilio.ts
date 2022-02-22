@@ -31,11 +31,13 @@ export const sendOneMessage = async (message: string, recipient: string): Promis
   }
 };
 
-// export const sendMessages = async (
-//   message: string,
-//   messageConfig: TwilioConfig
-// ): Promise<Status[]> => {
-//   const { numbers } = messageConfig;
+export const sendMessages = async (
+  message: string,
+  messageConfig: TwilioConfig
+): Promise<Status[]> => {
+  const { numbers } = messageConfig;
 
-//   return await Promise.all(numbers.map(number => sendOneMessage(message, number)));
-// };
+  console.log(numbers);
+
+  return await Promise.all(numbers.map(number => sendOneMessage(message, number)));
+};
