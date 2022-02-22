@@ -43,7 +43,6 @@ export interface ServiceConfig {
       accountSID: string;
       authToken: string;
       serviceSID: string;
-      senderNumber: string;
     };
   };
 }

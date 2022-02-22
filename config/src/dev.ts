@@ -135,7 +135,6 @@ export const SERVICES: Record<Service, ServiceConfig> = {
         accountSID: String(process.env.TWILIO_ACCOUNT_SID),
         authToken: String(process.env.TWILIO_AUTH_TOKEN),
         serviceSID: String(process.env.TWILIO_SERVICE_SID),
-        senderNumber: String(process.env.TWILIO_SENDER_NUMBER),
       },
     },
   },
