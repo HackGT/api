@@ -1,8 +1,6 @@
 import { asyncHandler } from "@api/common";
 import express from "express";
 
-import { InteractionModel } from "../models/interaction";
-
 export const interactionRoutes = express.Router();
 
 interactionRoutes.route("/").get(asyncHandler(async (req, res) => res.send()));

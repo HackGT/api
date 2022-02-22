@@ -12,7 +12,8 @@
   "dependencies": {
     "@api/config": "*",
     "axios": "^0.26.0",
-    "mongoose": "^6.2.2",
+    "express": "^4.17.3",
+    "firebase-admin": "^10.0.2",
     "source-map-support": "^0.5.21"
   }
 }

@@ -10,6 +10,7 @@ import * as devConfig from "./dev";
 import * as prodConfig from "./prod";
 import { CommonConfig, Config } from "./types";
 
+// eslint-disable-next-line import/no-mutable-exports
 let config: Config;
 
 const COMMON: CommonConfig = {

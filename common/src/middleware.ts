@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import admin from "firebase-admin";
-import { DecodedIdToken } from "firebase-admin/auth";
+import { DecodedIdToken } from "firebase-admin/auth"; // eslint-disable-line import/no-unresolved
 
 declare global {
   namespace Express {
