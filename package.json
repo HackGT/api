@@ -25,7 +25,7 @@
   "license": "ISC",
   "devDependencies": {
     "@hex-labs/eslint-config": "^1.2.3",
-    "@hex-labs/prettier-config": "^1.2.0",
+    "@hex-labs/prettier-config": "^1.2.4",
     "concurrently": "^7.0.0",
     "eslint": "^8.9.0",
     "eslint-import-resolver-typescript": "^2.5.0",

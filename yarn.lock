@@ -194,10 +194,10 @@
     eslint-config-prettier "^8.3.0"
     eslint-plugin-import "^2.25.4"
 
-"@hex-labs/prettier-config@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@hex-labs/prettier-config/-/prettier-config-1.2.0.tgz#7512a5762449601da2ee99e0152ca1840abbbf56"
-  integrity sha512-ECr/hxyKjTXoquJkpn2FWnRKTBofTtCEcFqY+2LnLfI8djXJnhtGhS1JdPATww8uD3tSekfn6WcYXKLnrLy7ag==
+"@hex-labs/prettier-config@^1.2.4":
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/@hex-labs/prettier-config/-/prettier-config-1.2.4.tgz#043056cb1a5c5c58704b9aafad1316758fd85dd9"
+  integrity sha512-KHxKxei8FGb/AZyjUjPkiD/kps42OIUpHXgXKEF0VZ4w/HpOLuLfq8V8atxCdf7NgxY0QtGW3vAtR8TxsaZpbA==
 
 "@humanwhocodes/config-array@^0.9.2":
   version "0.9.3"
