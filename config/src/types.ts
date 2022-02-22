@@ -9,7 +9,6 @@ export interface GatewayConfig {
 export interface DatabaseConfig {
   mongo: {
     uri: string;
-    tlsCAFile?: string;
   };
 }
 
