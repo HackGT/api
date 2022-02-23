@@ -131,6 +131,26 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       name: "notifications",
     },
   },
+  FILES: {
+    url: "/files",
+    port: 8007,
+    auth: false,
+    rateLimit: {
+      windowMs: 15 * 60 * 1000,
+      max: 5,
+    },
+    proxy: {
+      target: "http://localhost:8007",
+      changeOrigin: false,
+      pathRewrite: {
+        [`^/files`]: "",
+      },
+    },
+    database: {
+      type: "mongo",
+      name: "files",
+    },
+  },
 };
 
 export const GENERAL: GeneralConfig = {

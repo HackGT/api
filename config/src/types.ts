@@ -19,6 +19,7 @@ export enum Service {
   REGISTRATION = "REGISTRATION",
   INTERACTIONS = "INTERACTIONS",
   NOTIFICATIONS = "NOTIFICATIONS",
+  FILES = "FILES",
 }
 
 export interface ServiceConfig {

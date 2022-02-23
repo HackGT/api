@@ -131,6 +131,26 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       name: "notifications",
     },
   },
+  FILES: {
+    url: "/files",
+    port: parseInt(process.env.PORT || "8080"),
+    auth: false,
+    rateLimit: {
+      windowMs: 15 * 60 * 1000,
+      max: 5,
+    },
+    proxy: {
+      target: "https://files.api.hexlabs.org",
+      changeOrigin: false,
+      pathRewrite: {
+        [`^/files`]: "",
+      },
+    },
+    database: {
+      type: "mongo",
+      name: "files",
+    },
+  },
 };
 
 export const GENERAL: GeneralConfig = {
