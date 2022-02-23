@@ -1,6 +1,7 @@
 import { Schema, model } from "mongoose";
 
 export interface Profile {
+  user: string;
   name: {
     first: string;
     middle: string;
@@ -11,6 +12,11 @@ export interface Profile {
 }
 
 const profileSchema = new Schema<Profile>({
+  user: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   name: {
     first: {
       type: String,

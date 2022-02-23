@@ -3,39 +3,39 @@ import express from "express";
 
 import { ProfileModel } from "../models/profile";
 
-export const profileRoutes = express.Router();
+export const profileRoutes = express.Router({ mergeParams: true });
 
 profileRoutes.route("/").get(
   asyncHandler(async (req, res) => {
-    const profiles = await ProfileModel.find();
+    const profile = await ProfileModel.findOne({
+      user: req.params.userId,
+    });
 
-    return res.send(profiles);
+    res.send(profile || {});
   })
 );
 
 profileRoutes.route("/").post(
   asyncHandler(async (req, res) => {
-    const profile = await ProfileModel.create(req.body);
+    const profile = await ProfileModel.create({
+      ...req.body,
+      user: req.params.userId,
+    });
 
     return res.send(profile);
   })
 );
 
-profileRoutes.route("/:id").get(
+profileRoutes.route("/").put(
   asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const profile = await ProfileModel.findById(id);
-    res.send(profile);
-  })
-);
+    const updatedProfile = await ProfileModel.findOneAndUpdate(
+      { user: req.params.userId },
+      req.body,
+      {
+        new: true,
+      }
+    );
 
-profileRoutes.route("/:id").put(
-  asyncHandler(async (req, res) => {
-    const { id } = req.params;
-
-    const updatedProfile = await ProfileModel.findByIdAndUpdate(id, req.body, {
-      new: true,
-    });
     res.send(updatedProfile);
   })
 );
