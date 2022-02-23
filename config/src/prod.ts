@@ -11,8 +11,8 @@ export const DATABASE: DatabaseConfig = {
 };
 
 export const SERVICES: Record<Service, ServiceConfig> = {
-  PROFILES: {
-    url: "/profiles",
+  USERS: {
+    url: "/users",
     port: parseInt(process.env.PORT || "8080"),
     auth: false,
     rateLimit: {
@@ -20,15 +20,15 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       max: 5,
     },
     proxy: {
-      target: "https://profiles.api.hexlabs.org",
+      target: "https://users.api.hexlabs.org",
       changeOrigin: true,
       pathRewrite: {
-        [`^/profiles`]: "",
+        [`^/users`]: "",
       },
     },
     database: {
       type: "mongo",
-      name: "profiles",
+      name: "users",
     },
   },
   EVENTS: {

@@ -13,7 +13,7 @@ export interface DatabaseConfig {
 }
 
 export enum Service {
-  PROFILES = "PROFILES",
+  USERS = "USERS",
   EVENTS = "EVENTS",
   CHECKIN = "CHECKIN",
   REGISTRATION = "REGISTRATION",

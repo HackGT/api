@@ -16,7 +16,7 @@ process.on("unhandledRejection", err => {
   throw err;
 });
 
-mongoose.connect(generateMongoConnectionUri(config.services.PROFILES)).catch(err => {
+mongoose.connect(generateMongoConnectionUri(config.services.USERS)).catch(err => {
   throw err;
 });
 
@@ -33,6 +33,6 @@ app.get("/status", (req, res) => {
 
 app.use("/", defaultRouter);
 
-app.listen(config.services.PROFILES.port, () => {
-  console.log(`PROFILES service started on port ${config.services.PROFILES.port}`);
+app.listen(config.services.USERS.port, () => {
+  console.log(`USERS service started on port ${config.services.USERS.port}`);
 });

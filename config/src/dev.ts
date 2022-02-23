@@ -11,8 +11,8 @@ export const DATABASE: DatabaseConfig = {
 };
 
 export const SERVICES: Record<Service, ServiceConfig> = {
-  PROFILES: {
-    url: "/profiles",
+  USERS: {
+    url: "/users",
     port: 8001,
     auth: false,
     rateLimit: {
@@ -23,12 +23,12 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       target: "http://localhost:8001",
       changeOrigin: false,
       pathRewrite: {
-        [`^/profiles`]: "",
+        [`^/users`]: "",
       },
     },
     database: {
       type: "mongo",
-      name: "profiles",
+      name: "users",
     },
   },
   EVENTS: {

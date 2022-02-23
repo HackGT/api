@@ -1,5 +1,5 @@
 {
-  "name": "@api/services-profiles",
+  "name": "@api/services-users",
   "version": "1.0.0",
   "description": "",
   "main": "dist/app",
