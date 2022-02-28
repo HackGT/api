@@ -5,8 +5,8 @@ import { Status, TwilioConfig } from "./types";
 import { generateErrorMessage } from "../utils";
 
 const serviceSid = config.services.NOTIFICATIONS.pluginConfig?.twilio.serviceSID || "";
-const accountSid = config.services.NOTIFICATIONS.pluginConfig?.twilio.accountSID || "";
-const authToken = config.services.NOTIFICATIONS.pluginConfig?.twilio.authToken || "";
+const accountSid = config.services.NOTIFICATIONS.pluginConfig?.twilio.accountSID || "AC";
+const authToken = config.services.NOTIFICATIONS.pluginConfig?.twilio.authToken || "password";
 
 const client = new Twilio(accountSid, authToken);
 

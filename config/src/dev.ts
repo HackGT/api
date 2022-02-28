@@ -132,9 +132,9 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     },
     pluginConfig: {
       twilio: {
-        accountSID: String(process.env.TWILIO_ACCOUNT_SID),
-        authToken: String(process.env.TWILIO_AUTH_TOKEN),
-        serviceSID: String(process.env.TWILIO_SERVICE_SID),
+        accountSID: process.env.TWILIO_ACCOUNT_SID,
+        authToken: process.env.TWILIO_AUTH_TOKEN,
+        serviceSID: process.env.TWILIO_SERVICE_SID,
       },
     },
   },

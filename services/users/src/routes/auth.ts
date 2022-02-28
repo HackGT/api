@@ -1,5 +1,4 @@
-import { asyncHandler } from "@api/common";
-import { BadRequestError } from "@api/common/src/errors";
+import { asyncHandler, BadRequestError } from "@api/common";
 import config from "@api/config";
 import express from "express";
 import admin from "firebase-admin";
