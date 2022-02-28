@@ -1,9 +1,11 @@
 import express from "express";
 
 import { profileRoutes } from "./profile";
+import { authRoutes } from "./auth";
 import { userRoutes } from "./user";
 
 export const defaultRouter = express.Router();
 
-defaultRouter.use("/", userRoutes);
-defaultRouter.use("/:userId/profile", profileRoutes);
+defaultRouter.use("/auth", authRoutes);
+defaultRouter.use("/users", userRoutes);
+defaultRouter.use("/users/:userId/profile", profileRoutes);

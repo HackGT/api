@@ -4,6 +4,7 @@ import morgan from "morgan";
 import cors from "cors";
 import helmet from "helmet";
 import config from "@api/config";
+import cookieParser from "cookie-parser";
 import { decodeToken, generateMongoConnectionUri, handleError } from "@api/common";
 import mongoose from "mongoose";
 
@@ -24,7 +25,15 @@ app.use(helmet());
 app.use(decodeToken);
 app.use(morgan("dev"));
 app.use(compression());
-app.use(cors());
+app.use(
+  cors({
+    // allowedHeaders: ["Content-Type", "set-cookie"],
+    origin: true,
+    preflightContinue: true,
+    credentials: true,
+  })
+);
+app.use(cookieParser());
 app.use(express.json());
 
 app.get("/status", (req, res) => {
