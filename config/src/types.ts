@@ -39,6 +39,13 @@ export interface ServiceConfig {
     type: string;
     name: string;
   };
+  pluginConfig?: {
+    twilio: {
+      accountSID: string;
+      authToken: string;
+      serviceSID: string;
+    };
+  };
 }
 
 export interface GeneralConfig {
