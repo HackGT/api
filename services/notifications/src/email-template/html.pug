@@ -1,0 +1,177 @@
+doctype html
+html(xmlns='http://www.w3.org/1999/xhtml' xmlns:v='urn:schemas-microsoft-com:vml' xmlns:o='urn:schemas-microsoft-com:office:office')
+  head
+    //  NAME: 1 COLUMN 
+    //
+      [if gte mso 15]>
+              <xml>
+                  <o:OfficeDocumentSettings>
+                  <o:AllowPNG/>
+                  <o:PixelsPerInch>96</o:PixelsPerInch>
+                  </o:OfficeDocumentSettings>
+              </xml>
+              <![endif]
+    meta(charset='UTF-8')
+    meta(http-equiv='X-UA-Compatible' content='IE=edge')
+    meta(name='viewport' content='width=device-width,initial-scale=1')
+    //- title #{subject}
+    link(rel="stylesheet", href="/style.css", data-inline)
+
+  body
+    center
+      table#bodyTable(align='center' border='0' cellpadding='0' cellspacing='0' height='100%' width='100%')
+        tbody
+          tr
+            td#bodyCell(align='center' valign='top')
+              //  BEGIN TEMPLATE // 
+              //
+                [if (gte mso 9)|(IE)]>
+                                        <table align="center" border="0" cellspacing="0" cellpadding="0" width="600" style="width:600px;">
+                                        <tr>
+                                        <td align="center" valign="top" width="600" style="width:600px;">
+                                        <![endif]
+              table.templateContainer(border='0' cellpadding='0' cellspacing='0' width='100%')
+                tbody
+                  tr
+                    td#templatePreheader(valign='top')
+                  tr
+                    td#templateHeader(valign='top')
+                      table.mcnImageBlock(border='0' cellpadding='0' cellspacing='0' width='100%' style='min-width:100%;')
+                        tbody.mcnImageBlockOuter
+                          tr
+                            td.mcnImageBlockInner(valign='top' style='padding:9px')
+                              table.mcnImageContentContainer(align='left' width='100%' border='0' cellpadding='0' cellspacing='0' style='min-width:100%;')
+                                tbody
+                                  tr
+                                    td.mcnImageContent(valign='top' style='padding-right: 9px; padding-left: 9px; padding-top: 0; padding-bottom: 0; text-align:center;')
+                                      img.mcnImage(width='544px' align='center' alt src=emailHeaderImage style='max-width:1200px; padding-bottom: 0; display: inline !important; vertical-align: bottom;')
+                  tr
+                    td#templateBody(valign='top')
+                      table.mcnTextBlock(border='0' cellpadding='0' cellspacing='0' width='100%' style='min-width:100%;')
+                        tbody.mcnTextBlockOuter
+                          tr
+                            td.mcnTextBlockInner(valign='top' style='padding-top:9px;')
+                              //
+                                [if mso]>
+                                				<table align="left" border="0" cellspacing="0" cellpadding="0" width="100%" style="width:100%;">
+                                				<tr>
+                                				<![endif]
+                              //
+                                [if mso]>
+                                				<td valign="top" width="600" style="width:600px;">
+                                				<![endif]
+                              table.mcnTextContentContainer(align='left' border='0' cellpadding='0' cellspacing='0' style='max-width:100%; min-width:100%;' width='100%')
+                                tbody
+                                  tr
+                                    td.mcnTextContent(valign='top' style='padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;')
+                                      |                                                 !{body}
+                              //
+                                [if mso]>
+                                				</td>
+                                				<![endif]
+                              //
+                                [if mso]>
+                                				</tr>
+                                				</table>
+                                				<![endif]
+                  tr
+                    td#templateFooter(valign='top')
+                      table.mcnFollowBlock(border='0' cellpadding='0' cellspacing='0' width='100%' style='min-width:100%;')
+                        tbody.mcnFollowBlockOuter
+                          tr
+                            td.mcnFollowBlockInner(align='center' valign='top' style='padding:9px')
+                              table.mcnFollowContentContainer(border='0' cellpadding='0' cellspacing='0' width='100%' style='min-width:100%;')
+                                tbody
+                                  tr
+                                    td(align='center' style='padding-left:9px;padding-right:9px;')
+                                      table.mcnFollowContent(border='0' cellpadding='0' cellspacing='0' width='100%' style='min-width:100%;')
+                                        tbody
+                                          tr
+                                            td(align='center' valign='top' style='padding-top:9px; padding-right:9px; padding-left:9px;')
+                                              table(align='center' border='0' cellpadding='0' cellspacing='0')
+                                                tbody
+                                                  tr
+                                                    td(align='center' valign='top')
+                                                      //
+                                                        [if mso]>
+                                                                                            <table align="center" border="0" cellspacing="0" cellpadding="0">
+                                                                                            <tr>
+                                                                                            <![endif]
+                                                      //
+                                                        [if mso]>
+                                                                                                <td align="center" valign="top">
+                                                                                                <![endif]
+                                                      table(align='left' border='0' cellpadding='0' cellspacing='0' style='display:inline;')
+                                                        tbody
+                                                          tr
+                                                            td.mcnFollowContentItemContainer(valign='top' style='padding-right:10px; padding-bottom:9px;')
+                                                              table.mcnFollowContentItem(border='0' cellpadding='0' cellspacing='0' width='100%')
+                                                                tbody
+                                                                  tr
+                                                                    td(align='left' valign='middle' style='padding-top:5px; padding-right:10px; padding-bottom:5px; padding-left:9px;')
+                                                                      table(align='left' border='0' cellpadding='0' cellspacing='0' width)
+                                                                        tbody
+                                                                          tr
+                                                                            td.mcnFollowIconContent(align='center' valign='middle' width='24')
+                                                                              a(href='http://www.twitter.com/' + twitterHandle target='_blank')
+                                                                                img(src='https://storage.googleapis.com/hackgt6-public/color-twitter-48.png' alt='Twitter' style='display:block;' height='24' width='24')
+                                                      //
+                                                        [if mso]>
+                                                                                                </td>
+                                                                                                <![endif]
+                                                      //
+                                                        [if mso]>
+                                                                                                <td align="center" valign="top">
+                                                                                                <![endif]
+                                                      table(align='left' border='0' cellpadding='0' cellspacing='0' style='display:inline;')
+                                                        tbody
+                                                          tr
+                                                            td.mcnFollowContentItemContainer(valign='top' style='padding-right:10px; padding-bottom:9px;')
+                                                              table.mcnFollowContentItem(border='0' cellpadding='0' cellspacing='0' width='100%')
+                                                                tbody
+                                                                  tr
+                                                                    td(align='left' valign='middle' style='padding-top:5px; padding-right:10px; padding-bottom:5px; padding-left:9px;')
+                                                                      table(align='left' border='0' cellpadding='0' cellspacing='0' width)
+                                                                        tbody
+                                                                          tr
+                                                                            td.mcnFollowIconContent(align='center' valign='middle' width='24')
+                                                                              a(href='http://www.facebook.com/' + facebookHandle target='_blank')
+                                                                                img(src='https://storage.googleapis.com/hackgt6-public/color-facebook-48.png' alt='Facebook' style='display:block;' height='24' width='24')
+                                                      //
+                                                        [if mso]>
+                                                                                                </td>
+                                                                                                <![endif]
+                                                      //
+                                                        [if mso]>
+                                                                                                <td align="center" valign="top">
+                                                                                                <![endif]
+                                                      table(align='left' border='0' cellpadding='0' cellspacing='0' style='display:inline;')
+                                                        tbody
+                                                          tr
+                                                            td.mcnFollowContentItemContainer(valign='top' style='padding-right:0; padding-bottom:9px;')
+                                                              table.mcnFollowContentItem(border='0' cellpadding='0' cellspacing='0' width='100%')
+                                                                tbody
+                                                                  tr
+                                                                    td(align='left' valign='middle' style='padding-top:5px; padding-right:10px; padding-bottom:5px; padding-left:9px;')
+                                                                      table(align='left' border='0' cellpadding='0' cellspacing='0' width)
+                                                                        tbody
+                                                                          tr
+                                                                            td.mcnFollowIconContent(align='center' valign='middle' width='24')
+                                                                              a(href='mailto:' + emailAddress target='_blank')
+                                                                                img(src='https://storage.googleapis.com/hackgt6-public/color-forwardtofriend-48.png' alt='Email Us' style='display:block;' height='24' width='24')
+                                                      //
+                                                        [if mso]>
+                                                                                                </td>
+                                                                                                <![endif]
+                                                      //
+                                                        [if mso]>
+                                                                                            </tr>
+                                                                                            </table>
+                                                                                            <![endif]
+              //
+                [if (gte mso 9)|(IE)]>
+                                        </td>
+                                        </tr>
+                                        </table>
+                                        <![endif]
+              //  // END TEMPLATE 
