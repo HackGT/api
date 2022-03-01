@@ -54,9 +54,10 @@ authRoutes.route("/status").get(
 authRoutes.route("/logout").all(
   asyncHandler(async (req, res) => {
     res.clearCookie("session", {
-      domain: config.common.production ? ".hexlabs.org" : "",
-      httpOnly: true,
       expires: new Date(),
+      httpOnly: true,
+      domain: config.common.production ? ".hexlabs.org" : "",
+      sameSite: "none",
     });
     res.sendStatus(204);
   })
