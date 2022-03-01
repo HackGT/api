@@ -57,7 +57,7 @@ authRoutes.route("/login-localhost").post(
         maxAge: expiresIn,
         httpOnly: true,
         secure: config.common.production,
-        domain: "",
+        domain: ".hexlabs.org",
         sameSite: "none",
       });
       res.sendStatus(204);
