@@ -22,6 +22,7 @@ mongoose.connect(generateMongoConnectionUri(config.services.USERS)).catch(err =>
 });
 
 app.use(helmet());
+app.use(cookieParser());
 app.use(decodeToken);
 app.use(morgan("dev"));
 app.use(compression());
@@ -33,7 +34,6 @@ app.use(
     credentials: true,
   })
 );
-app.use(cookieParser());
 app.use(express.json());
 
 app.get("/status", (req, res) => {
