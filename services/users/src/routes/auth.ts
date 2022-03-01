@@ -56,7 +56,7 @@ authRoutes.route("/logout").all(
     res.clearCookie("session", {
       domain: config.common.production ? ".hexlabs.org" : "",
       httpOnly: true,
-      maxAge: 0,
+      expires: new Date(),
     });
     res.sendStatus(204);
   })
