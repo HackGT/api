@@ -58,6 +58,7 @@ authRoutes.route("/login-localhost").post(
         httpOnly: true,
         secure: config.common.production,
         domain: "",
+        sameSite: "none",
       });
       res.sendStatus(204);
     } else {
