@@ -1,33 +1,18 @@
 import { asyncHandler } from "@api/common";
 import express from "express";
 
-import { sendOneMessage, sendMessages } from "../plugins/Twilio";
+import { sendMessages } from "../plugins/Twilio";
 import { generateErrorMessage } from "../utils/index";
 import { TwilioConfig } from "../plugins/types";
 
-export const notificationsRoutes = express.Router();
+export const textRoutes = express.Router();
 
-notificationsRoutes.route("/").get(asyncHandler(async (req, res) => res.send()));
-
-notificationsRoutes.route("/").post(asyncHandler(async (req, res) => res.send()));
-
-notificationsRoutes.route("/:id").get(
-  asyncHandler(async (req, res) => {
-    res.send();
-  })
-);
-
-notificationsRoutes.route("/:id").put(
-  asyncHandler(async (req, res) => {
-    res.send();
-  })
-);
-
-notificationsRoutes.route("/text/send").post(
+textRoutes.route("/send").post(
   asyncHandler(async (req, res) => {
     try {
       const { message, numbers } = req.body;
       await sendMessages(message as string, { numbers } as TwilioConfig);
+
       res.status(200).json({
         error: false,
         payload: `Message sent to ${numbers}!`,

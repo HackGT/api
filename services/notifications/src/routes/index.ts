@@ -1,7 +1,7 @@
 import express from "express";
 
-import { notificationsRoutes } from "./notifications";
+import { textRoutes } from "./text";
 
 export const defaultRouter = express.Router();
 
-defaultRouter.use("/", notificationsRoutes);
+defaultRouter.use("/text", textRoutes);
