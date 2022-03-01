@@ -6,6 +6,7 @@ import helmet from "helmet";
 import config from "@api/config";
 import { decodeToken, generateMongoConnectionUri, handleError } from "@api/common";
 import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
 
 import { defaultRouter } from "./routes";
 
@@ -21,6 +22,7 @@ mongoose.connect(generateMongoConnectionUri(config.services.NOTIFICATIONS)).catc
 });
 
 app.use(helmet());
+app.use(cookieParser());
 app.use(decodeToken);
 app.use(morgan("dev"));
 app.use(compression());
