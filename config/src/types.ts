@@ -1,5 +1,9 @@
 export interface CommonConfig {
   production: boolean;
+  socialMedia: {
+    twitterHandle: string;
+    facebookHandle: string;
+  };
 }
 
 export interface GatewayConfig {
@@ -44,6 +48,11 @@ export interface ServiceConfig {
       accountSID?: string;
       authToken?: string;
       serviceSID?: string;
+    };
+    email: {
+      sendgridApiKey?: string;
+      from?: string;
+      headerImage?: string;
     };
   };
 }
