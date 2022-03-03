@@ -13,7 +13,7 @@ import { CommonConfig, Config } from "./types";
 // eslint-disable-next-line import/no-mutable-exports
 let config: Config;
 
-export const COMMON: CommonConfig = {
+const COMMON: CommonConfig = {
   production: process.env.PRODUCTION === "true",
   socialMedia: {
     twitterHandle: "thehexlabs",

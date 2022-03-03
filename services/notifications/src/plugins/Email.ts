@@ -35,6 +35,7 @@ const renderMarkdown = (markdownString: string): Promise<string> =>
   new Promise<string>((resolve, reject) => {
     marked(markdownString, { smartypants: true }, (err: Error | null, parseResult: string) => {
       if (err) {
+        console.log("Error in markdown");
         reject(err);
       } else {
         resolve(parseResult);
@@ -71,7 +72,6 @@ export const sendMessage = async (message: string, config: EmailConfig): Promise
     if (error instanceof Error) {
       errorMessage = error.message;
     }
-    console.log(errorMessage);
     return [
       {
         error: true,
