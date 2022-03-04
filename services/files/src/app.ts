@@ -28,12 +28,12 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/status", (req, res) => {
-  res.status(200).end();
+  res.status(200).end("Files service is running");
 });
 
 app.use("/", defaultRouter);
 
-app.use(handleError);
+// app.use(handleError);
 
 app.listen(config.services.FILES.port, () => {
   console.log(`FILES service started on port ${config.services.FILES.port}`);

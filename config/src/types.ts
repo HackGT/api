@@ -39,6 +39,9 @@ export interface ServiceConfig {
     type: string;
     name: string;
   };
+  gcp?: {
+    serviceKeyPath?: string;
+  };
 }
 
 export interface GeneralConfig {

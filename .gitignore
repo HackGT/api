@@ -136,3 +136,5 @@ temp/
 config/credentials/*.json
 
 .env
+
+hexlabs-cloud*.json

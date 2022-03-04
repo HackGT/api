@@ -150,6 +150,9 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       type: "mongo",
       name: "files",
     },
+    gcp: {
+      serviceKeyPath: process.env.GOOGLE_STORAGE_SERVICE_KEY,
+    },
   },
 };
 
