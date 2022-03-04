@@ -7,3 +7,9 @@ export type Status = {
 export type TwilioConfig = {
   numbers: string[];
 };
+
+export type EmailConfig = {
+  subject: string;
+  emails: string[];
+  headerImage?: string;
+};
