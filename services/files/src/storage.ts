@@ -9,7 +9,7 @@ import { Status } from "./types";
 
 const storage = new Storage({
   projectId: "hexlabs-cloud",
-  keyFilename: "../../config/hexlabs-cloud-8b967db79479.json",
+  keyFilename: config.services.FILES.gcp?.serviceKeyPath,
 });
 
 const bucket = storage.bucket("hexlabs-api-files");

@@ -151,7 +151,7 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       name: "files",
     },
     gcp: {
-      serviceKeyPath: process.env.GOOGLE_STORAGE_SERVICE_KEY,
+      serviceKeyPath: process.env.GOOGLE_CREDENTIALS_PATH,
     },
   },
 };
