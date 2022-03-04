@@ -137,4 +137,4 @@ config/credentials/*.json
 
 .env
 
-hexlabs-cloud*.json
+**/hexlabs-cloud*.json
