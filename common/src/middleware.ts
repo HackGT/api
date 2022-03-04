@@ -1,3 +1,4 @@
+/* eslint-disable no-empty */
 import { NextFunction, Request, Response } from "express";
 import admin, { FirebaseError } from "firebase-admin";
 import { DecodedIdToken } from "firebase-admin/auth"; // eslint-disable-line import/no-unresolved
@@ -20,15 +21,24 @@ declare global {
 export const decodeToken = async (req: Request, res: Response, next: NextFunction) => {
   req.user = null;
 
-  if (req.headers?.authorization?.startsWith("Bearer ")) {
+  let isUserDecoded = false;
+
+  if (!isUserDecoded && req.headers?.authorization?.startsWith("Bearer ")) {
     const idToken = req.headers.authorization.split("Bearer ")[1];
 
     try {
-      const decodedToken = await admin.auth().verifyIdToken(idToken);
-      req.user = decodedToken;
-    } catch (err) {
-      console.log(err);
-    }
+      const decodedIdToken = await admin.auth().verifyIdToken(idToken);
+      req.user = decodedIdToken;
+      isUserDecoded = true;
+    } catch {}
+  }
+
+  if (!isUserDecoded && req.cookies.session) {
+    try {
+      const decodedIdToken = await admin.auth().verifySessionCookie(req.cookies.session || "");
+      req.user = decodedIdToken;
+      isUserDecoded = true;
+    } catch {}
   }
 
   next();

@@ -15,6 +15,10 @@ let config: Config;
 
 const COMMON: CommonConfig = {
   production: process.env.PRODUCTION === "true",
+  socialMedia: {
+    twitterHandle: "thehexlabs",
+    facebookHandle: "TheHexLabs",
+  },
 };
 
 if (COMMON.production) {
