@@ -21,7 +21,7 @@ const interactionSchema = new Schema<Interaction>({
     required: true,
   },
   event: {
-    type: Types.ObjectId,
+    type: Schema.Types.ObjectId,
     required: true,
   },
 });

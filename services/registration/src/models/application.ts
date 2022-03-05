@@ -22,11 +22,11 @@ const applicationSchema = new Schema<Application>(
       required: true,
     },
     event: {
-      type: Types.ObjectId,
+      type: Schema.Types.ObjectId,
       required: true,
     },
     applicationBranch: {
-      type: Types.ObjectId,
+      type: Schema.Types.ObjectId,
       required: true,
     },
     applicationData: {
@@ -40,7 +40,7 @@ const applicationSchema = new Schema<Application>(
       type: Date,
     },
     confirmationBranch: {
-      type: Types.ObjectId,
+      type: Schema.Types.ObjectId,
     },
     confirmationData: {
       type: Schema.Types.Mixed,

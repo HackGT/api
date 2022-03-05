@@ -15,7 +15,7 @@ const checkinSchema = new Schema<Checkin>(
       required: true,
     },
     event: {
-      type: Types.ObjectId,
+      type: Schema.Types.ObjectId,
       required: true,
     },
     status: {
