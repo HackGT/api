@@ -4,8 +4,9 @@ import admin, { FirebaseError } from "firebase-admin";
 import { DecodedIdToken } from "firebase-admin/auth"; // eslint-disable-line import/no-unresolved
 import { StatusCodes } from "http-status-codes";
 import mongoose from "mongoose";
+import config from "@api/config";
 
-import { BadRequestError } from "./errors";
+import { BadRequestError, ForbiddenError } from "./errors";
 
 declare global {
   namespace Express {
@@ -42,6 +43,27 @@ export const decodeToken = async (req: Request, res: Response, next: NextFunctio
   }
 
   next();
+};
+
+/**
+ * Middleware to check that API key is provided, otherwise throw a forbidden error. Only check API key in production.
+ */
+export const checkApiKey = async (req: Request, res: Response, next: NextFunction) => {
+  if (!config.general.production) {
+    next();
+    return;
+  }
+
+  if (req.headers?.authorization?.startsWith("Bearer ")) {
+    const apiKey = req.headers.authorization.split("Bearer ")[1];
+
+    if (apiKey === config.common.apiKey) {
+      next();
+      return;
+    }
+  }
+
+  throw new ForbiddenError("Request does not have valid API Key");
 };
 
 /**
@@ -93,7 +115,14 @@ export const handleError = (err: any, req: Request, res: Response, next: NextFun
   } else if (err instanceof BadRequestError) {
     res.status(StatusCodes.BAD_REQUEST).json({
       status: StatusCodes.BAD_REQUEST,
-      type: "application_error",
+      type: "user_error",
+      message: err.message,
+      stack: err.stack,
+    });
+  } else if (err instanceof ForbiddenError) {
+    res.status(StatusCodes.FORBIDDEN).json({
+      status: StatusCodes.FORBIDDEN,
+      type: "user_error",
       message: err.message,
       stack: err.stack,
     });

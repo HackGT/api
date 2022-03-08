@@ -4,6 +4,8 @@ export interface CommonConfig {
     twitterHandle: string;
     facebookHandle: string;
   };
+  memberEmailDomains: string[];
+  apiKey?: string;
 }
 
 export interface GatewayConfig {

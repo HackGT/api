@@ -1,8 +1,10 @@
-import { asyncHandler } from "@api/common";
+import { asyncHandler, checkApiKey } from "@api/common";
 import express from "express";
 import admin from "firebase-admin";
 
 export const userRoutes = express.Router();
+
+userRoutes.use(checkApiKey);
 
 userRoutes.route("/").get(
   asyncHandler(async (req, res) => {

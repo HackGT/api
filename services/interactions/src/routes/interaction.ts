@@ -1,10 +1,12 @@
-import { asyncHandler, BadRequestError } from "@api/common";
+import { asyncHandler, BadRequestError, checkApiKey } from "@api/common";
 import express from "express";
 import { FilterQuery } from "mongoose";
 
 import { EventInteraction, Interaction } from "../models/interaction";
 
 export const interactionRoutes = express.Router();
+
+interactionRoutes.use(checkApiKey);
 
 interactionRoutes.route("/").get(
   asyncHandler(async (req, res) => {

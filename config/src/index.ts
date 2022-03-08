@@ -19,6 +19,8 @@ const COMMON: CommonConfig = {
     twitterHandle: "thehexlabs",
     facebookHandle: "TheHexLabs",
   },
+  memberEmailDomains: ["hack.gt", "hexlabs.org"],
+  apiKey: process.env.API_KEY,
 };
 
 if (COMMON.production) {
