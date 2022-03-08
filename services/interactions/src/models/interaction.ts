@@ -1,27 +1,37 @@
-import { Schema, model, Types } from "mongoose";
+import { Schema, model } from "mongoose";
+
+enum InteractionType {
+  EVENT = "event",
+  SCAVENGER_HUNT = "scavengerHunt",
+}
 
 export interface Interaction {
-  uuid: string;
   userId: string;
-  timeIn: Date;
-  event: Types.ObjectId;
+  type: InteractionType;
+  identifier?: string;
+  timestamp: Date;
+  hackathon: string;
 }
 
 const interactionSchema = new Schema<Interaction>({
-  uuid: {
-    type: String,
-    required: true,
-  },
   userId: {
     type: String,
     required: true,
   },
-  timeIn: {
+  type: {
+    type: String,
+    enum: Object.values(InteractionType),
+    required: true,
+  },
+  identifier: {
+    type: String,
+  },
+  timestamp: {
     type: Date,
     required: true,
   },
-  event: {
-    type: Schema.Types.ObjectId,
+  hackathon: {
+    type: String,
     required: true,
   },
 });

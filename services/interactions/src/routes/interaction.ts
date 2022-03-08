@@ -10,8 +10,8 @@ interactionRoutes.route("/").get(
   asyncHandler(async (req, res) => {
     const filter: FilterQuery<Interaction> = {};
 
-    if (req.query.event) {
-      filter.event = String(req.query.event);
+    if (req.query.hackathon) {
+      filter.event = String(req.query.hackathon);
     }
 
     if (req.query.userId) {
@@ -27,19 +27,20 @@ interactionRoutes.route("/").get(
 interactionRoutes.route("/").post(
   asyncHandler(async (req, res) => {
     const existingInteraction = await EventInteraction.findOne({
-      uuid: req.body.uuid,
       userId: req.body.userId,
+      identifier: req.body.identifier,
     });
 
     if (existingInteraction) {
-      throw new BadRequestError("Interaction already exists for this user and event");
+      throw new BadRequestError("Interaction already exists for this user and identifier");
     }
 
     const interaction = await EventInteraction.create({
-      uuid: req.body.uuid,
+      ...(req.body.identifier && { identifier: req.body.identifier }),
       userId: req.body.userId,
-      timeIn: new Date(),
-      event: req.body.event,
+      type: req.body.type,
+      timestamp: new Date(),
+      hackathon: req.body.hackathon,
     });
 
     return res.send(interaction);
@@ -52,9 +53,9 @@ interactionRoutes.route("/:id").put(
       req.params.id,
       {
         $set: {
-          uuid: req.params.uuid,
           userId: req.params.userId,
-          timeIn: new Date().toLocaleString(),
+          identifier: req.body.identifier,
+          timestamp: new Date(),
         },
       },
       { new: true }
