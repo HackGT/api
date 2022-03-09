@@ -4,6 +4,8 @@ export interface CommonConfig {
     twitterHandle: string;
     facebookHandle: string;
   };
+  memberEmailDomains: string[];
+  apiKey?: string;
 }
 
 export interface GatewayConfig {
@@ -12,6 +14,9 @@ export interface GatewayConfig {
 
 export interface DatabaseConfig {
   mongo: {
+    uri: string;
+  };
+  redis: {
     uri: string;
   };
 }
@@ -30,10 +35,6 @@ export interface ServiceConfig {
   url: string;
   port: number;
   auth: boolean;
-  rateLimit: {
-    windowMs: number;
-    max: number;
-  };
   proxy: {
     target: string;
     changeOrigin: boolean;
@@ -60,14 +61,9 @@ export interface ServiceConfig {
   };
 }
 
-export interface GeneralConfig {
-  production: boolean;
-}
-
 export interface Config {
   common: CommonConfig;
   gateway: GatewayConfig;
   database: DatabaseConfig;
   services: Record<Service, ServiceConfig>;
-  general: GeneralConfig;
 }

@@ -4,7 +4,7 @@ import morgan from "morgan";
 import cors from "cors";
 import helmet from "helmet";
 import config from "@api/config";
-import { decodeToken, generateMongoConnectionUri, handleError } from "@api/common";
+import { decodeToken, handleError, isAuthenticated, rateLimiter } from "@api/common";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 
@@ -17,11 +17,20 @@ process.on("unhandledRejection", err => {
   throw err;
 });
 
-mongoose.connect(generateMongoConnectionUri(config.services.EVENTS)).catch(err => {
-  throw err;
-});
+if (config.common.production) {
+  app.enable("trust proxy");
+}
+
+mongoose
+  .connect(config.database.mongo.uri, {
+    dbName: config.services.EVENTS.database.name,
+  })
+  .catch(err => {
+    throw err;
+  });
 
 app.use(helmet());
+app.use(rateLimiter());
 app.use(cookieParser());
 app.use(decodeToken);
 app.use(morgan("dev"));
@@ -33,6 +42,7 @@ app.get("/status", (req, res) => {
   res.status(200).end();
 });
 
+app.use(isAuthenticated);
 app.use("/", defaultRouter);
 
 app.use(handleError);

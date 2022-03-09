@@ -1,4 +1,4 @@
-import { DatabaseConfig, GatewayConfig, GeneralConfig, Service, ServiceConfig } from "./types";
+import { DatabaseConfig, GatewayConfig, Service, ServiceConfig } from "./types";
 
 export const GATEWAY: GatewayConfig = {
   port: 8000,
@@ -6,7 +6,10 @@ export const GATEWAY: GatewayConfig = {
 
 export const DATABASE: DatabaseConfig = {
   mongo: {
-    uri: "mongodb://localhost/${DATABASE}", // eslint-disable-line no-template-curly-in-string
+    uri: "mongodb://localhost",
+  },
+  redis: {
+    uri: "redis://localhost",
   },
 };
 
@@ -15,10 +18,6 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     url: "/users",
     port: 8001,
     auth: false,
-    rateLimit: {
-      windowMs: 15 * 60 * 1000,
-      max: 5,
-    },
     proxy: {
       target: "http://localhost:8001",
       changeOrigin: false,
@@ -35,10 +34,6 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     url: "/events",
     port: 8002,
     auth: false,
-    rateLimit: {
-      windowMs: 15 * 60 * 1000,
-      max: 5,
-    },
     proxy: {
       target: "http://localhost:8002",
       changeOrigin: false,
@@ -55,10 +50,6 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     url: "/checkin",
     port: 8003,
     auth: false,
-    rateLimit: {
-      windowMs: 15 * 60 * 1000,
-      max: 5,
-    },
     proxy: {
       target: "http://localhost:8003",
       changeOrigin: false,
@@ -75,10 +66,6 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     url: "/registration",
     port: 8004,
     auth: false,
-    rateLimit: {
-      windowMs: 15 * 60 * 1000,
-      max: 5,
-    },
     proxy: {
       target: "http://localhost:8004",
       changeOrigin: false,
@@ -95,10 +82,6 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     url: "/interactions",
     port: 8005,
     auth: false,
-    rateLimit: {
-      windowMs: 15 * 60 * 1000,
-      max: 5,
-    },
     proxy: {
       target: "http://localhost:8005",
       changeOrigin: false,
@@ -115,10 +98,6 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     url: "/notifications",
     port: 8006,
     auth: false,
-    rateLimit: {
-      windowMs: 15 * 60 * 1000,
-      max: 5,
-    },
     proxy: {
       target: "http://localhost:8006",
       changeOrigin: false,
@@ -147,10 +126,6 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     url: "/files",
     port: 8007,
     auth: false,
-    rateLimit: {
-      windowMs: 15 * 60 * 1000,
-      max: 5,
-    },
     proxy: {
       target: "http://localhost:8007",
       changeOrigin: false,
@@ -166,10 +141,6 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       serviceKeyPath: "../../config/hexlabs-cloud-8b967db79479.json",
     },
   },
-};
-
-export const GENERAL: GeneralConfig = {
-  production: false,
 };
 
 // const SERVICES = [

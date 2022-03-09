@@ -1,4 +1,4 @@
-import { asyncHandler } from "@api/common";
+import { asyncHandler, isMember } from "@api/common";
 import express from "express";
 
 import { sendMessages } from "../plugins/Twilio";
@@ -6,6 +6,8 @@ import { generateErrorMessage } from "../utils/index";
 import { TwilioConfig } from "../plugins/types";
 
 export const textRoutes = express.Router();
+
+textRoutes.use(isMember);
 
 textRoutes.route("/send").post(
   asyncHandler(async (req, res) => {

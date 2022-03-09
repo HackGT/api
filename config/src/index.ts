@@ -19,6 +19,8 @@ const COMMON: CommonConfig = {
     twitterHandle: "thehexlabs",
     facebookHandle: "TheHexLabs",
   },
+  memberEmailDomains: ["hack.gt", "hexlabs.org"],
+  apiKey: process.env.API_KEY,
 };
 
 if (COMMON.production) {
@@ -29,7 +31,6 @@ if (COMMON.production) {
     gateway: prodConfig.GATEWAY,
     database: prodConfig.DATABASE,
     services: prodConfig.SERVICES,
-    general: prodConfig.GENERAL,
   };
 } else {
   admin.initializeApp({
@@ -45,7 +46,6 @@ if (COMMON.production) {
     gateway: devConfig.GATEWAY,
     database: devConfig.DATABASE,
     services: devConfig.SERVICES,
-    general: devConfig.GENERAL,
   };
 }
 

@@ -1,11 +1,12 @@
 /* eslint-disable no-empty */
-import { NextFunction, Request, Response } from "express";
+import { ErrorRequestHandler, NextFunction, Request, RequestHandler, Response } from "express";
 import admin, { FirebaseError } from "firebase-admin";
 import { DecodedIdToken } from "firebase-admin/auth"; // eslint-disable-line import/no-unresolved
 import { StatusCodes } from "http-status-codes";
 import mongoose from "mongoose";
+import config from "@api/config";
 
-import { BadRequestError } from "./errors";
+import { BadRequestError, ForbiddenError } from "./errors";
 
 declare global {
   namespace Express {
@@ -18,7 +19,7 @@ declare global {
 /**
  * Middleware to decode JWT from Google Cloud Identity Provider
  */
-export const decodeToken = async (req: Request, res: Response, next: NextFunction) => {
+export const decodeToken: RequestHandler = async (req, res, next) => {
   req.user = null;
 
   let isUserDecoded = false;
@@ -45,6 +46,51 @@ export const decodeToken = async (req: Request, res: Response, next: NextFunctio
 };
 
 /**
+ * Checks that a user is authenticated and logged in
+ */
+export const isAuthenticated: RequestHandler = async (req, res, next) => {
+  if (req.user) {
+    next();
+  }
+
+  next(new ForbiddenError("User is not authenticated. Please authenticate and try again."));
+};
+
+/*
+ * Checks if a user is a member or not depending on if their email domain matches the config
+ */
+export const isMember: RequestHandler = async (req, res, next) => {
+  const domain = req.user?.email?.split("@").pop();
+
+  if (domain && config.common.memberEmailDomains.includes(domain)) {
+    next();
+  }
+
+  next(new ForbiddenError("Sorry, you don't have permission to access this endpoint"));
+};
+
+/**
+ * Middleware to check that API key is provided, otherwise throw a forbidden error. Only check API key in production.
+ */
+export const checkApiKey: RequestHandler = async (req, res, next) => {
+  if (!config.common.production) {
+    next();
+    return;
+  }
+
+  if (req.headers?.authorization?.startsWith("Bearer ")) {
+    const apiKey = req.headers.authorization.split("Bearer ")[1];
+
+    if (apiKey === config.common.apiKey) {
+      next();
+      return;
+    }
+  }
+
+  next(new ForbiddenError("Request does not have valid API Key"));
+};
+
+/**
  * Middleware to handle and catch errors in async methods
  */
 export const asyncHandler =
@@ -55,7 +101,7 @@ export const asyncHandler =
 /**
  * Middleware to parse errors and response with error messages
  */
-export const handleError = (err: any, req: Request, res: Response, next: NextFunction) => {
+export const handleError: ErrorRequestHandler = (err, req, res, next) => {
   if (
     err instanceof mongoose.Error.CastError ||
     err instanceof mongoose.Error.ValidationError ||
@@ -93,7 +139,14 @@ export const handleError = (err: any, req: Request, res: Response, next: NextFun
   } else if (err instanceof BadRequestError) {
     res.status(StatusCodes.BAD_REQUEST).json({
       status: StatusCodes.BAD_REQUEST,
-      type: "application_error",
+      type: "user_error",
+      message: err.message,
+      stack: err.stack,
+    });
+  } else if (err instanceof ForbiddenError) {
+    res.status(StatusCodes.FORBIDDEN).json({
+      status: StatusCodes.FORBIDDEN,
+      type: "user_error",
       message: err.message,
       stack: err.stack,
     });

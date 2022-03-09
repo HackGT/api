@@ -1,4 +1,4 @@
-import { DatabaseConfig, GatewayConfig, GeneralConfig, Service, ServiceConfig } from "./types";
+import { DatabaseConfig, GatewayConfig, Service, ServiceConfig } from "./types";
 
 export const GATEWAY: GatewayConfig = {
   port: parseInt(process.env.PORT || "8080"),
@@ -8,6 +8,9 @@ export const DATABASE: DatabaseConfig = {
   mongo: {
     uri: String(process.env.MONGO_URI),
   },
+  redis: {
+    uri: String(process.env.REDIS_URI),
+  },
 };
 
 export const SERVICES: Record<Service, ServiceConfig> = {
@@ -15,10 +18,6 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     url: "/users",
     port: parseInt(process.env.PORT || "8080"),
     auth: false,
-    rateLimit: {
-      windowMs: 15 * 60 * 1000,
-      max: 5,
-    },
     proxy: {
       target: "https://users.api.hexlabs.org",
       changeOrigin: true,
@@ -35,10 +34,6 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     url: "/events",
     port: parseInt(process.env.PORT || "8080"),
     auth: false,
-    rateLimit: {
-      windowMs: 15 * 60 * 1000,
-      max: 5,
-    },
     proxy: {
       target: "https://events.api.hexlabs.org",
       changeOrigin: true,
@@ -55,10 +50,6 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     url: "/checkin",
     port: parseInt(process.env.PORT || "8080"),
     auth: false,
-    rateLimit: {
-      windowMs: 15 * 60 * 1000,
-      max: 5,
-    },
     proxy: {
       target: "https://checkin.api.hexlabs.org",
       changeOrigin: true,
@@ -75,10 +66,6 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     url: "/registration",
     port: parseInt(process.env.PORT || "8080"),
     auth: false,
-    rateLimit: {
-      windowMs: 15 * 60 * 1000,
-      max: 5,
-    },
     proxy: {
       target: "https://registration.api.hexlabs.org",
       changeOrigin: true,
@@ -95,10 +82,6 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     url: "/interactions",
     port: parseInt(process.env.PORT || "8080"),
     auth: false,
-    rateLimit: {
-      windowMs: 15 * 60 * 1000,
-      max: 5,
-    },
     proxy: {
       target: "https://interactions.api.hexlabs.org",
       changeOrigin: true,
@@ -115,10 +98,6 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     url: "/notifications",
     port: parseInt(process.env.PORT || "8080"),
     auth: false,
-    rateLimit: {
-      windowMs: 15 * 60 * 1000,
-      max: 5,
-    },
     proxy: {
       target: "https://notifications.api.hexlabs.org",
       changeOrigin: true,
@@ -135,13 +114,9 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     url: "/files",
     port: parseInt(process.env.PORT || "8080"),
     auth: false,
-    rateLimit: {
-      windowMs: 15 * 60 * 1000,
-      max: 5,
-    },
     proxy: {
       target: "https://files.api.hexlabs.org",
-      changeOrigin: false,
+      changeOrigin: true,
       pathRewrite: {
         [`^/files`]: "",
       },
@@ -154,10 +129,6 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       serviceKeyPath: "../../config/hexlabs-cloud-8b967db79479.json",
     },
   },
-};
-
-export const GENERAL: GeneralConfig = {
-  production: false,
 };
 
 // const SERVICES = [
