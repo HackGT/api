@@ -44,9 +44,6 @@ export interface ServiceConfig {
     type: string;
     name: string;
   };
-  gcp?: {
-    serviceKeyPath?: string;
-  };
   pluginConfig?: {
     twilio: {
       accountSID?: string;
@@ -59,6 +56,7 @@ export interface ServiceConfig {
       headerImage?: string;
     };
   };
+  storageBucket?: string;
 }
 
 export interface Config {

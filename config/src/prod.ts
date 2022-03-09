@@ -125,9 +125,7 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       type: "mongo",
       name: "files",
     },
-    gcp: {
-      serviceKeyPath: "../../config/hexlabs-cloud-8b967db79479.json",
-    },
+    storageBucket: "hexlabs-api-files",
   },
 };
 

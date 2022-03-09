@@ -5,12 +5,9 @@ import { ObjectId } from "mongodb";
 
 import { FileModel } from "./models/file";
 
-const storage = new Storage({
-  projectId: "hexlabs-cloud",
-  keyFilename: config.services.FILES.gcp?.serviceKeyPath,
-});
+const storage = new Storage();
 
-const bucket = storage.bucket("hexlabs-api-files");
+const bucket = storage.bucket(config.services.FILES.storageBucket || "");
 
 export const uploadFile = async (file: Express.Multer.File, userId: string): Promise<string> => {
   const { originalname, buffer } = file;
