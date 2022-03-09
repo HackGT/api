@@ -35,10 +35,6 @@ export interface ServiceConfig {
   url: string;
   port: number;
   auth: boolean;
-  rateLimit: {
-    windowMs: number;
-    max: number;
-  };
   proxy: {
     target: string;
     changeOrigin: boolean;
