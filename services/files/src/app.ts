@@ -7,10 +7,19 @@ import config from "@api/config";
 import { decodeToken, generateMongoConnectionUri, handleError } from "@api/common";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
+import multer from "multer";
 
 import { defaultRouter } from "./routes";
 
 export const app = express();
+
+const multerMid = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    // no larger than 5mb.
+    fileSize: 5 * 1024 * 1024,
+  },
+});
 
 // Throw and show a stack trace on an unhandled Promise rejection instead of logging an unhelpful warning
 process.on("unhandledRejection", err => {
@@ -22,6 +31,7 @@ mongoose.connect(generateMongoConnectionUri(config.services.FILES)).catch(err =>
 });
 
 app.use(helmet());
+app.use(multerMid.single("file"));
 app.use(cookieParser());
 app.use(decodeToken);
 app.use(morgan("dev"));
@@ -30,12 +40,12 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/status", (req, res) => {
-  res.status(200).end("Files service is running");
+  res.status(200).end();
 });
 
 app.use("/", defaultRouter);
 
-// app.use(handleError);
+app.use(handleError);
 
 app.listen(config.services.FILES.port, () => {
   console.log(`FILES service started on port ${config.services.FILES.port}`);

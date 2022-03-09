@@ -6,38 +6,31 @@ import { FileModel } from "../models/file";
 
 export const fileRoutes = express.Router();
 
-fileRoutes.route("/").get(asyncHandler(async (req, res) => res.send()));
-
-fileRoutes.route("/").post(asyncHandler(async (req, res) => res.send()));
-
 fileRoutes.route("/files/upload").post(
   asyncHandler(async (req, res) => {
-    try {
-      const { filePath, name, userId } = req.body;
+    const { file } = req;
+    const { userId } = req.body;
 
-      const { payload } = await uploadFile(filePath, name, userId);
-      res.status(200).send(`File ${payload} uploaded!`);
-    } catch (error) {
-      let message = "Unknown error";
-      if (error instanceof Error) message = error.message;
-      res.status(400).send(message);
+    if (!userId) {
+      throw new Error("UserId is required!");
     }
+
+    if (!file) {
+      throw new Error("No file uploaded!");
+    }
+
+    const payload = await uploadFile(file, userId);
+    res.status(200).json({ message: "File successfully uploaded", fileUrl: payload });
   })
 );
 
 fileRoutes.route("/files/:id").get(
   asyncHandler(async (req, res) => {
-    try {
-      const mongoId = req.params.id;
+    const mongoId = req.params.id;
 
-      const fileUrl = await getFileUrl(mongoId);
+    const fileUrl = await getFileUrl(mongoId);
 
-      res.status(200).send(fileUrl);
-    } catch (error) {
-      let message = "Unknown error";
-      if (error instanceof Error) message = error.message;
-      res.status(400).send(message);
-    }
+    res.status(200).send(fileUrl);
   })
 );
 

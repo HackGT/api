@@ -1,11 +1,9 @@
 import { GetSignedUrlConfig, Storage } from "@google-cloud/storage";
 import config from "@api/config";
 import path from "path";
-import mime from "mime-types";
 import { ObjectId } from "mongodb";
 
-import { FileModel, File } from "./models/file";
-import { Status } from "./types";
+import { FileModel } from "./models/file";
 
 const storage = new Storage({
   projectId: "hexlabs-cloud",
@@ -14,46 +12,39 @@ const storage = new Storage({
 
 const bucket = storage.bucket("hexlabs-api-files");
 
-export const uploadFile = async (
-  filePath: string,
-  name: string,
-  userId: string
-): Promise<Status> => {
-  try {
-    const fileName = path.parse(path.basename(filePath)).name;
-    const mimeType = mime.lookup(filePath);
-    const googleFileName = `${fileName}_${Date.now()}`;
-    const file = bucket.file(googleFileName);
+export const uploadFile = async (file: Express.Multer.File, userId: string): Promise<string> => {
+  const { originalname, buffer } = file;
 
-    await bucket.upload(filePath, {
-      destination: googleFileName,
-    });
+  const googleFileName = `${path.parse(originalname).name}_${Date.now()}`;
+  const blob = bucket.file(googleFileName);
 
-    await file.setMetadata({
-      contentType: mimeType,
-    });
+  const blobStream = blob.createWriteStream({
+    resumable: false,
+  });
 
-    const { id } = await FileModel.create({
-      fileName,
-      mimeType,
-      userId,
-      storageId: googleFileName,
-    });
+  const { id } = await FileModel.create({
+    fileName: path.parse(originalname).name,
+    mimeType: file.mimetype,
+    userId,
+    storageId: googleFileName,
+  });
 
-    await file.makePublic();
+  blobStream
+    .on("finish", async () => {
+      await blob.makePublic();
+      await blob.setMetadata({
+        contentType: file.mimetype,
+      });
+    })
+    .on("error", err => {
+      throw new Error(err.message);
+    })
+    .end(buffer);
 
-    return {
-      error: false,
-      payload: id,
-    };
-  } catch (err) {
-    let message = "Unknown error";
-    if (err instanceof Error) message = err.message;
-    throw new Error(message);
-  }
+  return id;
 };
 
-export const getFileUrl = async (mongoId: string): Promise<Status> => {
+export const getFileUrl = async (mongoId: string): Promise<string> => {
   const options: GetSignedUrlConfig = {
     version: "v4",
     action: "read",
@@ -68,13 +59,10 @@ export const getFileUrl = async (mongoId: string): Promise<Status> => {
 
   const [url] = await bucket.file(file?.storageId).getSignedUrl(options);
 
-  return {
-    error: false,
-    payload: url,
-  };
+  return url;
 };
 
-export const getDownloadUrl = async (mongoId: string): Promise<Status> => {
+export const getDownloadUrl = async (mongoId: string): Promise<string> => {
   const file = await FileModel.findOne({ _id: new ObjectId(mongoId) });
 
   if (!file || !file.storageId) {
@@ -82,8 +70,5 @@ export const getDownloadUrl = async (mongoId: string): Promise<Status> => {
   }
 
   const metaData = await bucket.file(file.storageId).getMetadata();
-  return {
-    error: false,
-    payload: metaData[0].mediaLink,
-  };
+  return metaData[0].mediaLink;
 };
