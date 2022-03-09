@@ -17,6 +17,10 @@ process.on("unhandledRejection", err => {
   throw err;
 });
 
+if (config.common.production) {
+  app.enable("trust proxy");
+}
+
 mongoose
   .connect(config.database.mongo.uri, {
     dbName: config.services.INTERACTIONS.database.name,
