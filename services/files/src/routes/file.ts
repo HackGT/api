@@ -1,7 +1,7 @@
 import { asyncHandler, BadRequestError } from "@api/common";
 import express from "express";
 
-import { uploadFile, getFileUrl, getDownloadUrl } from "src/storage";
+import { uploadFile, getFileUrl, getDownloadUrl } from "../storage";
 
 export const fileRoutes = express.Router();
 
