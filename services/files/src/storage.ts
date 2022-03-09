@@ -1,8 +1,7 @@
 import { GetSignedUrlConfig, Storage } from "@google-cloud/storage";
 import config from "@api/config";
 import path from "path";
-import { ObjectId } from "mongodb";
-import { BadRequestError } from "@api/common/src/errors";
+import { BadRequestError } from "@api/common";
 
 import { FileModel } from "./models/file";
 

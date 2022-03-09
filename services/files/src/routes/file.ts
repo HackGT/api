@@ -1,6 +1,5 @@
-import { asyncHandler } from "@api/common";
+import { asyncHandler, BadRequestError } from "@api/common";
 import express from "express";
-import { BadRequestError } from "@api/common/src/errors";
 
 import { uploadFile, getFileUrl, getDownloadUrl } from "src/storage";
 
@@ -11,7 +10,7 @@ fileRoutes.route("/upload").post(
     const { file } = req;
 
     if (!req.user) {
-      throw new Error("User must be logged in");
+      throw new BadRequestError("User must be logged in");
     }
 
     if (!file) {
