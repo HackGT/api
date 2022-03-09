@@ -63,7 +63,7 @@ export const checkApiKey = async (req: Request, res: Response, next: NextFunctio
     }
   }
 
-  throw new ForbiddenError("Request does not have valid API Key");
+  next(new ForbiddenError("Request does not have valid API Key"));
 };
 
 /**
