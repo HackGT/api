@@ -1,4 +1,3 @@
-/* eslint-disable arrow-body-style */
 import rateLimit from "express-rate-limit";
 import RedisStore from "rate-limit-redis";
 import Redis from "ioredis";
@@ -14,25 +13,23 @@ if (config.common.production) {
   });
 }
 
+/**
+ * Rate limits all services among a common redis database with a redis store. Sets rate limit headers.
+ * Only applies in production environments.
+ */
 export const rateLimiter = () => {
   if (config.common.production) {
     return rateLimit({
-      // Rate limiter configuration
       windowMs: 2 * 60 * 1000, // 2 minutes
       max: 1, // Limit each IP to 500 requests per window
       standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
       legacyHeaders: false, // Disable the `X-RateLimit-*` headers
       message: {
+        //
         status: StatusCodes.TOO_MANY_REQUESTS,
         type: "rate_limit_error",
         message: "Too many requests sent. Please try again later.",
       },
-      skip: (req, res) => {
-        console.log(req.ip);
-        return false;
-      },
-
-      // Redis store configuration
       store: new RedisStore({
         // @ts-expect-error - Known issue: the `call` function is not present in @types/ioredis
         sendCommand: (...args: string[]) => client.call(...args),

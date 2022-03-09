@@ -1,5 +1,5 @@
 /* eslint-disable no-empty */
-import { NextFunction, Request, Response } from "express";
+import { ErrorRequestHandler, NextFunction, Request, RequestHandler, Response } from "express";
 import admin, { FirebaseError } from "firebase-admin";
 import { DecodedIdToken } from "firebase-admin/auth"; // eslint-disable-line import/no-unresolved
 import { StatusCodes } from "http-status-codes";
@@ -19,7 +19,7 @@ declare global {
 /**
  * Middleware to decode JWT from Google Cloud Identity Provider
  */
-export const decodeToken = async (req: Request, res: Response, next: NextFunction) => {
+export const decodeToken: RequestHandler = async (req, res, next) => {
   req.user = null;
 
   let isUserDecoded = false;
@@ -48,7 +48,7 @@ export const decodeToken = async (req: Request, res: Response, next: NextFunctio
 /**
  * Middleware to check that API key is provided, otherwise throw a forbidden error. Only check API key in production.
  */
-export const checkApiKey = async (req: Request, res: Response, next: NextFunction) => {
+export const checkApiKey: RequestHandler = async (req, res, next) => {
   if (!config.common.production) {
     next();
     return;
@@ -77,7 +77,7 @@ export const asyncHandler =
 /**
  * Middleware to parse errors and response with error messages
  */
-export const handleError = (err: any, req: Request, res: Response, next: NextFunction) => {
+export const handleError: ErrorRequestHandler = (err, req, res, next) => {
   if (
     err instanceof mongoose.Error.CastError ||
     err instanceof mongoose.Error.ValidationError ||
