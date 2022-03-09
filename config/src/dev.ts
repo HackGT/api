@@ -6,7 +6,7 @@ export const GATEWAY: GatewayConfig = {
 
 export const DATABASE: DatabaseConfig = {
   mongo: {
-    uri: "mongodb://localhost/{DATABASE}",
+    uri: "mongodb://localhost",
   },
 };
 

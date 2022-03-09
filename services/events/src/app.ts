@@ -4,7 +4,7 @@ import morgan from "morgan";
 import cors from "cors";
 import helmet from "helmet";
 import config from "@api/config";
-import { decodeToken, generateMongoConnectionUri, handleError } from "@api/common";
+import { decodeToken, handleError } from "@api/common";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 
@@ -17,9 +17,13 @@ process.on("unhandledRejection", err => {
   throw err;
 });
 
-mongoose.connect(generateMongoConnectionUri(config.services.EVENTS)).catch(err => {
-  throw err;
-});
+mongoose
+  .connect(config.database.mongo.uri, {
+    dbName: config.services.EVENTS.database.name,
+  })
+  .catch(err => {
+    throw err;
+  });
 
 app.use(helmet());
 app.use(cookieParser());
