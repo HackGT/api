@@ -133,6 +133,6 @@ temp/
 
 .DS_Store
 
-config/credentials/*.json
+config/*.json
 
 .env
