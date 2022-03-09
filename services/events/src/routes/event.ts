@@ -1,4 +1,4 @@
-import { asyncHandler } from "@api/common";
+import { asyncHandler, BadRequestError } from "@api/common";
 import express from "express";
 
 import { EventModel } from "../models/event";
@@ -18,7 +18,7 @@ eventRouter.route("/").post(
     const { name, isActive } = req.body;
     if (!req.body.name) {
       res.status(400);
-      throw new Error("Please add all fields");
+      throw new BadRequestError("Please add all fields");
     }
 
     const createdEvent = await EventModel.create({
@@ -36,7 +36,7 @@ eventRouter.route("/:id").get(
     const event = await EventModel.findById(id);
     if (!event) {
       res.status(400);
-      throw new Error("Event not found");
+      throw new BadRequestError("Event not found");
     }
     return res.status(200).send(event);
   })
@@ -48,7 +48,7 @@ eventRouter.route("/:id").put(
     const event = await EventModel.findById(id);
     if (!event) {
       res.status(400);
-      throw new Error("Event not found");
+      throw new BadRequestError("Event not found");
     }
 
     const updatedEvent = await EventModel.findByIdAndUpdate(id, req.body, {
