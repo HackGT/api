@@ -56,6 +56,7 @@ export interface ServiceConfig {
       headerImage?: string;
     };
   };
+  storageBucket?: string;
 }
 
 export interface Config {

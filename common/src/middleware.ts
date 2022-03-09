@@ -5,6 +5,7 @@ import { DecodedIdToken } from "firebase-admin/auth"; // eslint-disable-line imp
 import { StatusCodes } from "http-status-codes";
 import mongoose from "mongoose";
 import config from "@api/config";
+import multer from "multer";
 
 import { BadRequestError, ForbiddenError } from "./errors";
 
@@ -51,6 +52,7 @@ export const decodeToken: RequestHandler = async (req, res, next) => {
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   if (req.user) {
     next();
+    return;
   }
 
   next(new ForbiddenError("User is not authenticated. Please authenticate and try again."));
@@ -64,6 +66,7 @@ export const isMember: RequestHandler = async (req, res, next) => {
 
   if (domain && config.common.memberEmailDomains.includes(domain)) {
     next();
+    return;
   }
 
   next(new ForbiddenError("Sorry, you don't have permission to access this endpoint"));
@@ -126,6 +129,13 @@ export const handleError: ErrorRequestHandler = (err, req, res, next) => {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       status: StatusCodes.INTERNAL_SERVER_ERROR,
       type: "mongo_error",
+      message: err.message,
+      stack: err.stack,
+    });
+  } else if (err instanceof multer.MulterError) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      status: StatusCodes.INTERNAL_SERVER_ERROR,
+      type: "upload_error",
       message: err.message,
       stack: err.stack,
     });

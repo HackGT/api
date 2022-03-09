@@ -137,6 +137,7 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       type: "mongo",
       name: "files",
     },
+    storageBucket: "hexlabs-api-files",
   },
 };
 

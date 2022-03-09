@@ -4,4 +4,4 @@ import { fileRoutes } from "./file";
 
 export const defaultRouter = express.Router();
 
-defaultRouter.use("/", fileRoutes);
+defaultRouter.use("/files", fileRoutes);
