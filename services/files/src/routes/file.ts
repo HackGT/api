@@ -1,5 +1,6 @@
 import { asyncHandler } from "@api/common";
 import express from "express";
+import { BadRequestError } from "@api/common/src/errors";
 
 import { uploadFile, getFileUrl, getDownloadUrl } from "src/storage";
 
@@ -14,7 +15,7 @@ fileRoutes.route("/upload").post(
     }
 
     if (!file) {
-      throw new Error("No file uploaded!");
+      throw new BadRequestError("No file uploaded!");
     }
 
     const id = await uploadFile(file, req.user.uid);
