@@ -1,11 +1,21 @@
 import { asyncHandler } from "@api/common";
 import express from "express";
+import axios from "axios";
 
 import { sendMessage } from "../plugins/Email";
 import { generateErrorMessage } from "../utils/index";
 import { EmailConfig } from "../plugins/types";
 
 export const emailRoutes = express.Router();
+
+emailRoutes.route("/").get(
+  asyncHandler(async (req, res) => {
+    console.log("first request");
+    await axios.get("https://interactions.api.hexlabs.org");
+
+    res.end();
+  })
+);
 
 emailRoutes.route("/send").post(
   asyncHandler(async (req, res) => {
