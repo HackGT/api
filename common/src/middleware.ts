@@ -49,13 +49,10 @@ export const decodeToken = async (req: Request, res: Response, next: NextFunctio
  * Middleware to check that API key is provided, otherwise throw a forbidden error. Only check API key in production.
  */
 export const checkApiKey = async (req: Request, res: Response, next: NextFunction) => {
-  if (!config.general.production) {
+  if (!config.common.production) {
     next();
     return;
   }
-
-  console.log("here");
-  console.log(config.common.apiKey);
 
   if (req.headers?.authorization?.startsWith("Bearer ")) {
     const apiKey = req.headers.authorization.split("Bearer ")[1];
@@ -65,8 +62,6 @@ export const checkApiKey = async (req: Request, res: Response, next: NextFunctio
       return;
     }
   }
-
-  console.log("throwing error");
 
   next(new ForbiddenError("Request does not have valid API Key"));
 };

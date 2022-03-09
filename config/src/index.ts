@@ -31,7 +31,6 @@ if (COMMON.production) {
     gateway: prodConfig.GATEWAY,
     database: prodConfig.DATABASE,
     services: prodConfig.SERVICES,
-    general: prodConfig.GENERAL,
   };
 } else {
   admin.initializeApp({
@@ -47,7 +46,6 @@ if (COMMON.production) {
     gateway: devConfig.GATEWAY,
     database: devConfig.DATABASE,
     services: devConfig.SERVICES,
-    general: devConfig.GENERAL,
   };
 }
 

@@ -1,4 +1,4 @@
-import { DatabaseConfig, GatewayConfig, GeneralConfig, Service, ServiceConfig } from "./types";
+import { DatabaseConfig, GatewayConfig, Service, ServiceConfig } from "./types";
 
 export const GATEWAY: GatewayConfig = {
   port: parseInt(process.env.PORT || "8080"),
@@ -151,10 +151,6 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       name: "files",
     },
   },
-};
-
-export const GENERAL: GeneralConfig = {
-  production: false,
 };
 
 // const SERVICES = [

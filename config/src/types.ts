@@ -59,14 +59,9 @@ export interface ServiceConfig {
   };
 }
 
-export interface GeneralConfig {
-  production: boolean;
-}
-
 export interface Config {
   common: CommonConfig;
   gateway: GatewayConfig;
   database: DatabaseConfig;
   services: Record<Service, ServiceConfig>;
-  general: GeneralConfig;
 }
