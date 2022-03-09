@@ -54,6 +54,9 @@ export const checkApiKey = async (req: Request, res: Response, next: NextFunctio
     return;
   }
 
+  console.log("here");
+  console.log(config.common.apiKey);
+
   if (req.headers?.authorization?.startsWith("Bearer ")) {
     const apiKey = req.headers.authorization.split("Bearer ")[1];
 
@@ -62,6 +65,8 @@ export const checkApiKey = async (req: Request, res: Response, next: NextFunctio
       return;
     }
   }
+
+  console.log("throwing error");
 
   next(new ForbiddenError("Request does not have valid API Key"));
 };
