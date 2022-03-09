@@ -6,7 +6,7 @@ export const GATEWAY: GatewayConfig = {
 
 export const DATABASE: DatabaseConfig = {
   mongo: {
-    uri: "mongodb://localhost/${DATABASE}", // eslint-disable-line no-template-curly-in-string
+    uri: "mongodb://localhost/{DATABASE}",
   },
 };
 
