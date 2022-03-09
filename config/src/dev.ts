@@ -163,7 +163,7 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       name: "files",
     },
     gcp: {
-      serviceKeyPath: process.env.GOOGLE_CREDENTIALS_PATH,
+      serviceKeyPath: "../../config/hexlabs-cloud-8b967db79479.json",
     },
   },
 };
