@@ -39,8 +39,8 @@ mongoose
   });
 
 app.use(helmet());
-app.use(multerMid.single("file"));
 app.use(rateLimiter());
+app.use(multerMid.single("file"));
 app.use(cookieParser());
 app.use(decodeToken);
 app.use(morgan("dev"));

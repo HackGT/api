@@ -5,38 +5,35 @@ import { uploadFile, getFileUrl, getDownloadUrl } from "src/storage";
 
 export const fileRoutes = express.Router();
 
-fileRoutes.route("/files/upload").post(
+fileRoutes.route("/upload").post(
   asyncHandler(async (req, res) => {
     const { file } = req;
-    const { userId } = req.body;
 
-    if (!userId) {
-      throw new Error("UserId is required!");
+    if (!req.user) {
+      throw new Error("User must be logged in");
     }
 
     if (!file) {
       throw new Error("No file uploaded!");
     }
 
-    const payload = await uploadFile(file, userId);
-    res.status(200).json({ message: "File successfully uploaded", fileUrl: payload });
+    const id = await uploadFile(file, req.user.uid);
+    res.status(200).json({ id, message: "File successfully uploaded" });
   })
 );
 
-fileRoutes.route("/files/:id").get(
+fileRoutes.route("/:id").get(
   asyncHandler(async (req, res) => {
-    const mongoId = req.params.id;
-
-    const fileUrl = await getFileUrl(mongoId);
+    const fileUrl = await getFileUrl(req.params.id);
 
     res.status(200).send(fileUrl);
   })
 );
 
-fileRoutes.route("/files/download/:id").get(
+fileRoutes.route("/:id/download").get(
   asyncHandler(async (req, res) => {
-    const mongoId = req.params.id;
-    const downloadLink = await getDownloadUrl(mongoId);
+    const downloadLink = await getDownloadUrl(req.params.id);
+
     res.status(200).send(downloadLink);
   })
 );
