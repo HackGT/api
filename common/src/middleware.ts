@@ -46,6 +46,30 @@ export const decodeToken: RequestHandler = async (req, res, next) => {
 };
 
 /**
+ * Checks that a user is authenticated and logged in
+ */
+export const isAuthenticated: RequestHandler = async (req, res, next) => {
+  if (req.user) {
+    next();
+  }
+
+  next(new ForbiddenError("User is not authenticated. Please authenticate and try again."));
+};
+
+/*
+ * Checks if a user is a member or not depending on if their email domain matches the config
+ */
+export const isMember: RequestHandler = async (req, res, next) => {
+  const domain = req.user?.email?.split("@").pop();
+
+  if (domain && config.common.memberEmailDomains.includes(domain)) {
+    next();
+  }
+
+  next(new ForbiddenError("Sorry, you don't have permission to access this endpoint"));
+};
+
+/**
  * Middleware to check that API key is provided, otherwise throw a forbidden error. Only check API key in production.
  */
 export const checkApiKey: RequestHandler = async (req, res, next) => {

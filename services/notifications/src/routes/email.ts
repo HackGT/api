@@ -1,4 +1,4 @@
-import { asyncHandler } from "@api/common";
+import { asyncHandler, isMember } from "@api/common";
 import express from "express";
 import axios from "axios";
 
@@ -7,6 +7,8 @@ import { generateErrorMessage } from "../utils/index";
 import { EmailConfig } from "../plugins/types";
 
 export const emailRoutes = express.Router();
+
+emailRoutes.use(isMember);
 
 emailRoutes.route("/").get(
   asyncHandler(async (req, res) => {
