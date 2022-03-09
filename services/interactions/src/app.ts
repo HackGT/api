@@ -4,7 +4,7 @@ import morgan from "morgan";
 import cors from "cors";
 import helmet from "helmet";
 import config from "@api/config";
-import { decodeToken, handleError } from "@api/common";
+import { decodeToken, handleError, rateLimiter } from "@api/common";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 
@@ -26,6 +26,7 @@ mongoose
   });
 
 app.use(helmet());
+app.use(rateLimiter());
 app.use(cookieParser());
 app.use(decodeToken);
 app.use(morgan("dev"));

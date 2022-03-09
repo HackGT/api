@@ -16,6 +16,9 @@ export interface DatabaseConfig {
   mongo: {
     uri: string;
   };
+  redis: {
+    uri: string;
+  };
 }
 
 export enum Service {

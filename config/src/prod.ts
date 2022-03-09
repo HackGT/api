@@ -8,6 +8,9 @@ export const DATABASE: DatabaseConfig = {
   mongo: {
     uri: String(process.env.MONGO_URI),
   },
+  redis: {
+    uri: String(process.env.REDIS_URI),
+  },
 };
 
 export const SERVICES: Record<Service, ServiceConfig> = {

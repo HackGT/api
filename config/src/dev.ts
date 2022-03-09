@@ -8,6 +8,9 @@ export const DATABASE: DatabaseConfig = {
   mongo: {
     uri: "mongodb://localhost",
   },
+  redis: {
+    uri: "redis://localhost",
+  },
 };
 
 export const SERVICES: Record<Service, ServiceConfig> = {
