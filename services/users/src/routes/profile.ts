@@ -1,6 +1,7 @@
 /* eslint-disable object-shorthand */
 import { asyncHandler } from "@api/common";
 import express from "express";
+import RE2 from "re2";
 
 import { ProfileModel } from "../models/profile";
 
@@ -11,13 +12,16 @@ profileRoutes.route("/").get(
     const limit = parseInt(req.query.limit as string);
     const offset = parseInt(req.query.offset as string);
     const regex = (req.query.regex as string) === "true";
-
+    const searchLength = (req.query.search as string).length;
+    let search =
+      searchLength > 75 ? (req.query.search as string).slice(0, 75) : (req.query.search as string);
     let re;
+
     if (regex) {
-      const search = (req.query.search as string).split(/\s+/).join("");
-      re = new RegExp(search, "i");
+      search = search.split(/\s+/).join("");
+      re = new RE2(search);
     } else {
-      re = new RegExp(req.query.search as string);
+      re = new RE2(search, "i");
     }
 
     const matchCount = await ProfileModel.find({
@@ -28,7 +32,7 @@ profileRoutes.route("/").get(
         { phoneNumber: { $regex: re } },
       ],
     }).count();
-    console.log(matchCount);
+
     const profiles = await ProfileModel.find({
       $or: [
         { "name.first": { $regex: re } },
@@ -49,7 +53,7 @@ profileRoutes.route("/").get(
   })
 );
 
-profileRoutes.route("/:userId").post(
+profileRoutes.route("/").post(
   asyncHandler(async (req, res) => {
     const profile = await ProfileModel.create({
       ...req.body,
