@@ -57,7 +57,7 @@ userRoutes.route("/:userId").delete(
   })
 );
 
-userRoutes.route("/search").post(
+userRoutes.route("/actions/search").get(
   asyncHandler(async (req, res) => {
     const limit = parseInt(req.query.limit as string);
     const offset = parseInt(req.query.offset as string);
@@ -69,9 +69,9 @@ userRoutes.route("/search").post(
 
     if (regex) {
       search = search.split(/\s+/).join("");
-      re = new RE2(search);
+      re = new RegExp(search);
     } else {
-      re = new RE2(search, "i");
+      re = new RegExp(search, "i");
     }
 
     const matchCount = await ProfileModel.find({
