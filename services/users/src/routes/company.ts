@@ -64,17 +64,20 @@ companyRoutes.route("/:id/employees/add").post(
     }
 
     const emails = req.body.employees.split(",");
-    const newEmployees: string[] = [];
+    const employeesToAdd: string[] = [];
+    const uniqueEmployees: string[] = company.employees;
 
     emails.forEach(async (email: string) => {
       const user = await getAuth().getUserByEmail(email);
-      newEmployees.push(user.uid);
+      if (!uniqueEmployees.includes(user.uid)) {
+        uniqueEmployees.push(user.uid);
+      }
     });
 
     const currEmployees = await CompanyModel.findByIdAndUpdate(
       id,
       {
-        employees: company.employees.concat(newEmployees),
+        employees: uniqueEmployees,
       },
       { new: true }
     );
