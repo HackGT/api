@@ -7,8 +7,6 @@ import { ProfileModel } from "../models/profile";
 
 export const userRoutes = express.Router();
 
-userRoutes.use(checkApiKey);
-
 userRoutes.route("/").get(
   asyncHandler(async (req, res) => {
     let pageSize = parseInt(req.query.pageSize as string) || 1000;

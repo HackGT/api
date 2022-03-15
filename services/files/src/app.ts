@@ -7,19 +7,10 @@ import config from "@api/config";
 import { decodeToken, handleError, isAuthenticated, rateLimiter } from "@api/common";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
-import multer from "multer";
 
 import { defaultRouter } from "./routes";
 
 export const app = express();
-
-const multerMid = multer({
-  storage: multer.memoryStorage(),
-  limits: {
-    // no larger than 5mb.
-    fileSize: 5 * 1024 * 1024,
-  },
-});
 
 // Throw and show a stack trace on an unhandled Promise rejection instead of logging an unhelpful warning
 process.on("unhandledRejection", err => {
@@ -40,7 +31,6 @@ mongoose
 
 app.use(helmet());
 app.use(rateLimiter());
-app.use(multerMid.single("file"));
 app.use(cookieParser());
 app.use(decodeToken);
 app.use(morgan("dev"));

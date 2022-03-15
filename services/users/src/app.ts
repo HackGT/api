@@ -4,7 +4,7 @@ import morgan from "morgan";
 import cors from "cors";
 import helmet from "helmet";
 import config from "@api/config";
-import { decodeToken, handleError, rateLimiter } from "@api/common";
+import { decodeToken, handleError, isAuthenticated, rateLimiter } from "@api/common";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 
@@ -49,6 +49,7 @@ app.get("/status", (req, res) => {
   res.status(200).end();
 });
 
+app.use(isAuthenticated);
 app.use("/", defaultRouter);
 
 app.use(handleError);

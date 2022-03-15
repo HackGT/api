@@ -1,11 +1,21 @@
 import { asyncHandler, BadRequestError } from "@api/common";
 import express from "express";
+import multer from "multer";
 
 import { uploadFile, getFileUrl, getDownloadUrl } from "../storage";
+
+const multerMid = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    // no larger than 5mb.
+    fileSize: 5 * 1024 * 1024,
+  },
+});
 
 export const fileRoutes = express.Router();
 
 fileRoutes.route("/upload").post(
+  multerMid.single("file"),
   asyncHandler(async (req, res) => {
     const { file } = req;
 
