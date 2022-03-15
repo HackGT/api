@@ -49,7 +49,6 @@ app.get("/status", (req, res) => {
   res.status(200).end();
 });
 
-app.use(isAuthenticated);
 app.use("/", defaultRouter);
 
 app.use(handleError);
