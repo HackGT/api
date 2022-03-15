@@ -6,6 +6,7 @@ import { StatusCodes } from "http-status-codes";
 import mongoose from "mongoose";
 import config from "@api/config";
 import multer from "multer";
+import axios from "axios";
 
 import { BadRequestError, ForbiddenError } from "./errors";
 
@@ -157,6 +158,13 @@ export const handleError: ErrorRequestHandler = (err, req, res, next) => {
     res.status(StatusCodes.FORBIDDEN).json({
       status: StatusCodes.FORBIDDEN,
       type: "user_error",
+      message: err.message,
+      stack: err.stack,
+    });
+  } else if (axios.isAxiosError(err)) {
+    res.status(err.response?.status || StatusCodes.INTERNAL_SERVER_ERROR).json({
+      status: err.response?.status || StatusCodes.INTERNAL_SERVER_ERROR,
+      type: "axios_error",
       message: err.message,
       stack: err.stack,
     });
