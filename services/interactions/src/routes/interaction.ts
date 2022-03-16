@@ -2,7 +2,7 @@ import { asyncHandler, BadRequestError, checkApiKey } from "@api/common";
 import express from "express";
 import { FilterQuery } from "mongoose";
 
-import { EventInteraction, Interaction } from "../models/interaction";
+import { HexathonInteraction, Interaction } from "../models/interaction";
 
 export const interactionRoutes = express.Router();
 
@@ -11,14 +11,14 @@ interactionRoutes.route("/").get(
     const filter: FilterQuery<Interaction> = {};
 
     if (req.query.hackathon) {
-      filter.event = String(req.query.hackathon);
+      filter.hexathon = String(req.query.hackathon);
     }
 
     if (req.query.userId) {
       filter.userId = String(req.query.userId);
     }
 
-    const interactions = await EventInteraction.find(filter);
+    const interactions = await HexathonInteraction.find(filter);
 
     return res.send(interactions);
   })
@@ -26,7 +26,7 @@ interactionRoutes.route("/").get(
 
 interactionRoutes.route("/").post(
   asyncHandler(async (req, res) => {
-    const existingInteraction = await EventInteraction.findOne({
+    const existingInteraction = await HexathonInteraction.findOne({
       userId: req.body.userId,
       identifier: req.body.identifier,
     });
@@ -35,7 +35,7 @@ interactionRoutes.route("/").post(
       throw new BadRequestError("Interaction already exists for this user and identifier");
     }
 
-    const interaction = await EventInteraction.create({
+    const interaction = await HexathonInteraction.create({
       ...(req.body.identifier && { identifier: req.body.identifier }),
       userId: req.body.userId,
       type: req.body.type,
@@ -49,7 +49,7 @@ interactionRoutes.route("/").post(
 
 interactionRoutes.route("/:id").put(
   asyncHandler(async (req, res) => {
-    const interaction = await EventInteraction.findByIdAndUpdate(
+    const interaction = await HexathonInteraction.findByIdAndUpdate(
       req.params.id,
       {
         $set: {

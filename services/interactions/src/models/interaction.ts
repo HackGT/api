@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 
 enum InteractionType {
-  EVENT = "event",
+  HEXATHON = "hexathon",
   SCAVENGER_HUNT = "scavengerHunt",
 }
 
@@ -36,4 +36,4 @@ const interactionSchema = new Schema<Interaction>({
   },
 });
 
-export const EventInteraction = model<Interaction>("Interaction", interactionSchema);
+export const HexathonInteraction = model<Interaction>("Interaction", interactionSchema);
