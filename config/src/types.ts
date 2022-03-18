@@ -23,7 +23,7 @@ export interface DatabaseConfig {
 
 export enum Service {
   USERS = "USERS",
-  EVENTS = "EVENTS",
+  HEXATHONS = "HEXATHONS",
   CHECKIN = "CHECKIN",
   REGISTRATION = "REGISTRATION",
   INTERACTIONS = "INTERACTIONS",

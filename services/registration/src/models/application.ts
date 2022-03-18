@@ -2,7 +2,7 @@ import { Schema, model, Types, Mixed } from "mongoose";
 
 export interface Application {
   user: string;
-  event: Types.ObjectId;
+  hexathon: Types.ObjectId;
   applicationBranch: Types.ObjectId;
   applicationData: Mixed;
   applicationStartTime: Date;
@@ -21,7 +21,7 @@ const applicationSchema = new Schema<Application>(
       type: String,
       required: true,
     },
-    event: {
+    hexathon: {
       type: Schema.Types.ObjectId,
       required: true,
     },

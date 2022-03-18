@@ -1,11 +1,11 @@
 import { Schema, model } from "mongoose";
 
-export interface Event {
+export interface Hexathon {
   name: string;
   isActive: boolean;
 }
 
-const eventSchema = new Schema<Event>({
+const hexathonSchema = new Schema<Hexathon>({
   name: {
     type: String,
     required: true,
@@ -17,4 +17,4 @@ const eventSchema = new Schema<Event>({
   },
 });
 
-export const EventModel = model<Event>("Event", eventSchema);
+export const HexathonModel = model<Hexathon>("Hexathon", hexathonSchema);

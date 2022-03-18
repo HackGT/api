@@ -25,7 +25,7 @@ applicationRouter.route("/").post(
   asyncHandler(async (req, res) => {
     const newApplication = await ApplicationModel.create({
       user: req.body.user,
-      event: req.body.event,
+      hexathon: req.body.hexathon,
       applicationBranch: req.body.applicationBranch,
       applicationData: req.body.applicationData,
       applicationStartTime: req.body.appplicationStartTime,
@@ -46,7 +46,7 @@ applicationRouter.route("/:id").patch(
       req.params.id,
       {
         user: req.body.user,
-        event: req.body.event,
+        hexathon: req.body.hexathon,
         applicationBranch: req.body.applicationBranch,
         applicationData: req.body.applicationData,
         applicationStartTime: req.body.appplicationStartTime,
