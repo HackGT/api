@@ -16,6 +16,12 @@ teamRoutes.route("/").post(
       throw new BadRequestError("Team with this name already exists!");
     }
 
+    const teams = await TeamModel.find({ event, members: req.user?.uid });
+
+    if (teams.length !== 0) {
+      throw new BadRequestError("User is already in a team for this event!");
+    }
+
     await TeamModel.create({
       name,
       event,
@@ -56,7 +62,9 @@ teamRoutes.route("/join").post(
 
     const userId = req.user?.uid;
 
-    if (team.members.includes(userId as string)) {
+    const teams = await TeamModel.find({ event, members: req.user?.uid });
+
+    if (teams.length !== 0) {
       throw new BadRequestError(
         "User cannot join an team for an event they are already in a team for!"
       );
