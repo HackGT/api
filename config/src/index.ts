@@ -23,9 +23,10 @@ const COMMON: CommonConfig = {
   apiKey: process.env.API_KEY,
 };
 
-if (COMMON.production) {
-  admin.initializeApp();
+// Initialize firebase admin with credentials
+admin.initializeApp();
 
+if (COMMON.production) {
   config = {
     common: COMMON,
     gateway: prodConfig.GATEWAY,
@@ -33,14 +34,6 @@ if (COMMON.production) {
     services: prodConfig.SERVICES,
   };
 } else {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: String(process.env.GOOGLE_PROJECT_ID),
-      clientEmail: String(process.env.GOOGLE_CLIENT_EMAIL),
-      privateKey: String(process.env.GOOGLE_PRIVATE_KEY).replace(/\\n/g, "\n"), // replace `\` and `n` character pairs w/ single `\n` character,
-    }),
-  });
-
   config = {
     common: COMMON,
     gateway: devConfig.GATEWAY,

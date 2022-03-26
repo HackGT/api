@@ -23,7 +23,7 @@ if (config.common.production) {
 
 mongoose
   .connect(config.database.mongo.uri, {
-    dbName: config.services.EVENTS.database.name,
+    dbName: config.services.HEXATHONS.database.name,
   })
   .catch(err => {
     throw err;
@@ -47,6 +47,6 @@ app.use("/", defaultRouter);
 
 app.use(handleError);
 
-app.listen(config.services.EVENTS.port, () => {
-  console.log(`EVENTS service started on port ${config.services.EVENTS.port}`);
+app.listen(config.services.HEXATHONS.port, () => {
+  console.log(`HEXATHONS service started on port ${config.services.HEXATHONS.port}`);
 });

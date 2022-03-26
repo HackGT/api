@@ -23,7 +23,7 @@ export interface DatabaseConfig {
 
 export enum Service {
   USERS = "USERS",
-  EVENTS = "EVENTS",
+  HEXATHONS = "HEXATHONS",
   CHECKIN = "CHECKIN",
   REGISTRATION = "REGISTRATION",
   INTERACTIONS = "INTERACTIONS",
@@ -56,6 +56,7 @@ export interface ServiceConfig {
       headerImage?: string;
     };
   };
+  storageBucket?: string;
 }
 
 export interface Config {

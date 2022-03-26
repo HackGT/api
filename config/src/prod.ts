@@ -30,20 +30,20 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       name: "users",
     },
   },
-  EVENTS: {
-    url: "/events",
+  HEXATHONS: {
+    url: "/hexathons",
     port: parseInt(process.env.PORT || "8080"),
     auth: false,
     proxy: {
-      target: "https://events.api.hexlabs.org",
+      target: "https://hexathons.api.hexlabs.org",
       changeOrigin: true,
       pathRewrite: {
-        [`^/events`]: "",
+        [`^/hexathons`]: "",
       },
     },
     database: {
       type: "mongo",
-      name: "events",
+      name: "hexathons",
     },
   },
   CHECKIN: {
@@ -125,6 +125,7 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       type: "mongo",
       name: "files",
     },
+    storageBucket: "hexlabs-api-files",
   },
 };
 

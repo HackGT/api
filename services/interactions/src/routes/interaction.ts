@@ -6,8 +6,6 @@ import { EventInteraction, Interaction } from "../models/interaction";
 
 export const interactionRoutes = express.Router();
 
-interactionRoutes.use(checkApiKey);
-
 interactionRoutes.route("/").get(
   asyncHandler(async (req, res) => {
     const filter: FilterQuery<Interaction> = {};
