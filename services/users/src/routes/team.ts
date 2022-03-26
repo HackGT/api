@@ -32,7 +32,14 @@ teamRoutes.route("/").get(
   asyncHandler(async (req, res) => {
     const { event } = req.body;
 
-    const teams = await TeamModel.find({ event });
+    let teams;
+
+    if (!event) {
+      teams = await TeamModel.find();
+    } else {
+      teams = await TeamModel.find({ event });
+    }
+
     res.status(200).json(teams);
   })
 );
@@ -49,9 +56,7 @@ teamRoutes.route("/join").post(
 
     const userId = req.user?.uid;
 
-    const existingTeam = await TeamModel.find({ event, members: userId });
-
-    if (existingTeam) {
+    if (team.members.includes(userId as string)) {
       throw new BadRequestError(
         "User cannot join an team for an event they are already in a team for!"
       );
@@ -83,5 +88,7 @@ teamRoutes.route("/leave").post(
     await team.update({
       members: team.members.filter(member => member !== userId),
     });
+
+    res.status(200).send("User left team!");
   })
 );
