@@ -44,6 +44,7 @@ app.use(
   })
 );
 app.use(express.json());
+app.use(isAuthenticated);
 
 app.get("/status", (req, res) => {
   res.status(200).end();
