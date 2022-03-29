@@ -23,7 +23,7 @@ if (config.common.production) {
 
 mongoose
   .connect(config.database.mongo.uri, {
-    dbName: config.services.USERS.database.name,
+    dbName: config.services.USERS.database?.name,
   })
   .catch(err => {
     throw err;
@@ -35,20 +35,14 @@ app.use(cookieParser());
 app.use(decodeToken);
 app.use(morgan("dev"));
 app.use(compression());
-app.use(
-  cors({
-    // allowedHeaders: ["Content-Type", "set-cookie"],
-    origin: true,
-    preflightContinue: true,
-    credentials: true,
-  })
-);
+app.use(cors());
 app.use(express.json());
 
 app.get("/status", (req, res) => {
   res.status(200).end();
 });
 
+app.use(isAuthenticated);
 app.use("/", defaultRouter);
 
 app.use(handleError);

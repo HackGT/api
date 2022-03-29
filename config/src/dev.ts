@@ -139,6 +139,18 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     },
     storageBucket: "hexlabs-api-files",
   },
+  AUTH: {
+    url: "/auth",
+    port: 8008,
+    auth: false,
+    proxy: {
+      target: "http://localhost:8008",
+      changeOrigin: false,
+      pathRewrite: {
+        [`^/auth`]: "",
+      },
+    },
+  },
 };
 
 // const SERVICES = [

@@ -4,6 +4,7 @@ import concurrently from "concurrently";
 concurrently([
   { command: "cd gateway && yarn dev", name: "gateway" },
   { command: "cd services/hexathons && yarn dev", name: "hexathons" },
+  { command: "cd services/auth && yarn dev", name: "auth" },
   { command: "cd services/users && yarn dev", name: "users" },
   { command: "cd services/checkin && yarn dev", name: "checkin" },
   { command: "cd services/registration && yarn dev", name: "registration" },

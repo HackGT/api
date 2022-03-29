@@ -23,7 +23,7 @@ if (config.common.production) {
 
 mongoose
   .connect(config.database.mongo.uri, {
-    dbName: config.services.INTERACTIONS.database.name,
+    dbName: config.services.INTERACTIONS.database?.name,
   })
   .catch(err => {
     throw err;

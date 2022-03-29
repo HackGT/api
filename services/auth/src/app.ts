@@ -4,8 +4,7 @@ import morgan from "morgan";
 import cors from "cors";
 import helmet from "helmet";
 import config from "@api/config";
-import { decodeToken, handleError, isAuthenticated, rateLimiter } from "@api/common";
-import mongoose from "mongoose";
+import { decodeToken, handleError, rateLimiter } from "@api/common";
 import cookieParser from "cookie-parser";
 
 import { defaultRouter } from "./routes";
@@ -21,32 +20,32 @@ if (config.common.production) {
   app.enable("trust proxy");
 }
 
-mongoose
-  .connect(config.database.mongo.uri, {
-    dbName: config.services.NOTIFICATIONS.database?.name,
-  })
-  .catch(err => {
-    throw err;
-  });
-
 app.use(helmet());
 app.use(rateLimiter());
 app.use(cookieParser());
 app.use(decodeToken);
 app.use(morgan("dev"));
 app.use(compression());
-app.use(cors());
+app.use(
+  cors({
+    // allowedHeaders: ["Content-Type", "set-cookie"],
+    origin: true,
+    preflightContinue: true,
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.get("/status", (req, res) => {
   res.status(200).end();
 });
 
-app.use(isAuthenticated);
+// Note: The auth service doesn't use isAuthenticated as its routes need
+// to be accessed even when a user isn't authenticated
 app.use("/", defaultRouter);
 
 app.use(handleError);
 
-app.listen(config.services.NOTIFICATIONS.port, () => {
-  console.log(`NOTIFICATIONS service started on port ${config.services.NOTIFICATIONS.port}`);
+app.listen(config.services.AUTH.port, () => {
+  console.log(`AUTH service started on port ${config.services.AUTH.port}`);
 });

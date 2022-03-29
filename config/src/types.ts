@@ -29,6 +29,7 @@ export enum Service {
   INTERACTIONS = "INTERACTIONS",
   NOTIFICATIONS = "NOTIFICATIONS",
   FILES = "FILES",
+  AUTH = "AUTH",
 }
 
 export interface ServiceConfig {
@@ -40,7 +41,7 @@ export interface ServiceConfig {
     changeOrigin: boolean;
     pathRewrite: Record<string, string>;
   };
-  database: {
+  database?: {
     type: string;
     name: string;
   };
