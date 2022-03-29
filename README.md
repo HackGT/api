@@ -49,7 +49,7 @@ easily manage user authentication with JWT. To login, visit
 see your user profile printed in the console tab. Your access token can be found under the
 `accessToken` field. You can then use that with Bearer Authentication to authenticate against these
 services. We recommend using Postman when doing local development. Thus, you would set your
-authentication to `Beaer [accessToken]`.
+authentication to `Bearer [accessToken]`.
 
 **Note that these tokens expire very quickly after an hour, so you will often have to retrieve a new
 token if you receive an unauthenticated error.**
