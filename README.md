@@ -29,8 +29,10 @@ once in the main root folder.
 
 1. Copy `.env.example` to `.env` in the `config` folder
 2. Ask a team member for the secrets to fill in the `.env` file
-3. In the root folder, run `yarn install` to install all packages
-4. Run `yarn start:all` to start all the services and gateway
+3. Retrieve the `google-cloud-credentials.json` file from a team member and place in the `config`
+   folder as well
+4. In the root folder, run `yarn install` to install all packages
+5. Run `yarn start:all` to start all the services and gateway
 
 ## Development Guide
 
