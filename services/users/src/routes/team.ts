@@ -70,7 +70,7 @@ teamRoutes.route("/:id").get(
 teamRoutes.route("/user/:userId").get(
   asyncHandler(async (req, res) => {
     const { userId } = req.params;
-    const { event } = req.body;
+    const { event } = req.query;
 
     const filter: any = {
       members: userId,
