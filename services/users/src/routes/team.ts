@@ -1,14 +1,16 @@
 import express from "express";
 import { asyncHandler } from "@api/common/src/middleware";
 import { BadRequestError } from "@api/common/src/errors";
+import { isAuthenticated } from "@api/common";
 
 import { TeamModel, Team } from "../models/team";
 
 export const teamRoutes = express.Router();
 
 teamRoutes.route("/").post(
+  isAuthenticated,
   asyncHandler(async (req, res) => {
-    const { name, event, members, description, publicTeam } = req.body;
+    const { name, event, description, publicTeam } = req.body;
 
     const team = await TeamModel.findOne({ name, event });
 
@@ -25,7 +27,7 @@ teamRoutes.route("/").post(
     await TeamModel.create({
       name,
       event,
-      members: [req.user?.uid, ...(members || [])],
+      members: [req.user?.uid],
       description,
       public: publicTeam,
     });
@@ -35,8 +37,9 @@ teamRoutes.route("/").post(
 );
 
 teamRoutes.route("/").get(
+  isAuthenticated,
   asyncHandler(async (req, res) => {
-    const { event } = req.body;
+    const { event } = req.query;
 
     let teams;
 
@@ -51,13 +54,19 @@ teamRoutes.route("/").get(
 );
 
 teamRoutes.route("/join").post(
+  isAuthenticated,
   asyncHandler(async (req, res) => {
-    const { name, event } = req.body;
+    const { name } = req.body;
+    const { event } = req.query;
 
     const team = await TeamModel.findOne({ name, event });
 
     if (!team) {
       throw new BadRequestError("Team doesn't exist!");
+    }
+
+    if (team.members.includes(req.user?.uid as string)) {
+      throw new BadRequestError("User has already joined this team!");
     }
 
     const userId = req.user?.uid;
@@ -79,6 +88,7 @@ teamRoutes.route("/join").post(
 );
 
 teamRoutes.route("/leave").post(
+  isAuthenticated,
   asyncHandler(async (req, res) => {
     const { name, event } = req.body;
 
