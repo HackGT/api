@@ -1,4 +1,6 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, Types } from "mongoose";
+/* eslint-disable import/no-extraneous-dependencies */
+import { File } from "@api/services-files/src/models/file";
 
 export interface Profile {
   user: string;
@@ -9,6 +11,7 @@ export interface Profile {
   };
   phoneNumber: string;
   gender: string;
+  resume: File;
 }
 
 const profileSchema = new Schema<Profile>({
@@ -35,6 +38,9 @@ const profileSchema = new Schema<Profile>({
   },
   gender: {
     type: String,
+  },
+  resume: {
+    type: Types.ObjectId,
   },
 });
 

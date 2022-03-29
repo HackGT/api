@@ -9,7 +9,11 @@ const storage = new Storage();
 
 const bucket = storage.bucket(config.services.FILES.storageBucket || "");
 
-export const uploadFile = async (file: Express.Multer.File, userId: string): Promise<string> => {
+export const uploadFile = async (
+  file: Express.Multer.File,
+  userId: string,
+  fileType: string
+): Promise<string> => {
   const { originalname, buffer } = file;
 
   const googleFileName = `${path.parse(originalname).name}_${Date.now()}`;
@@ -24,6 +28,7 @@ export const uploadFile = async (file: Express.Multer.File, userId: string): Pro
     mimeType: file.mimetype,
     userId,
     storageId: googleFileName,
+    type: fileType,
   });
 
   blobStream
