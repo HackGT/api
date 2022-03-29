@@ -1,9 +1,7 @@
 import express from "express";
-import { asyncHandler } from "@api/common/src/middleware";
-import { BadRequestError } from "@api/common/src/errors";
-import { isAuthenticated } from "@api/common";
+import { asyncHandler, BadRequestError, isAuthenticated } from "@api/common";
 
-import { TeamModel, Team } from "../models/team";
+import { TeamModel } from "../models/team";
 
 export const teamRoutes = express.Router();
 
