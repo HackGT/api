@@ -53,6 +53,39 @@ teamRoutes.route("/").get(
   })
 );
 
+teamRoutes.route("/:id").get(
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const team = await TeamModel.findOne({ _id: id });
+
+    if (!team) {
+      throw new BadRequestError("Team doesn't exist!");
+    }
+
+    res.status(200).json(team);
+  })
+);
+
+teamRoutes.route("/user/:userId").get(
+  asyncHandler(async (req, res) => {
+    const { userId } = req.params;
+    const { event } = req.query;
+
+    const filter: any = {
+      members: userId,
+    };
+
+    if (event) {
+      filter.event = event;
+    }
+
+    const teams = await TeamModel.find(filter);
+
+    res.status(200).json(teams);
+  })
+);
+
 teamRoutes.route("/join").post(
   isAuthenticated,
   asyncHandler(async (req, res) => {
