@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, Types } from "mongoose";
 
 export interface Profile {
   user: string;
@@ -9,6 +9,7 @@ export interface Profile {
   };
   phoneNumber: string;
   gender: string;
+  resume: Types.ObjectId;
 }
 
 const profileSchema = new Schema<Profile>({
@@ -36,6 +37,7 @@ const profileSchema = new Schema<Profile>({
   gender: {
     type: String,
   },
+  resume: Types.ObjectId,
 });
 
 export const ProfileModel = model<Profile>("Profile", profileSchema);

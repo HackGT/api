@@ -5,6 +5,7 @@ export interface File {
   mimeType: string;
   fileName: string;
   storageId: string;
+  type: string;
 }
 
 const fileSchema = new Schema<File>({
@@ -12,6 +13,7 @@ const fileSchema = new Schema<File>({
   mimeType: { type: String, required: true },
   fileName: { type: String, required: true },
   storageId: { type: String, required: true },
+  type: { type: String, enum: ["resume", "other"], default: "other" },
 });
 
 export const FileModel = model<File>("File", fileSchema);
