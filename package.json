@@ -35,7 +35,6 @@
     "ts-node": "^10.4.0"
   },
   "dependencies": {
-    "@api/services-files": "file:services/files",
     "typescript": "^4.5.5"
   },
   "prettier": "@hex-labs/prettier-config",
