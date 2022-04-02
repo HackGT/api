@@ -28,18 +28,22 @@ fileRoutes.route("/upload").post(
       throw new BadRequestError("No file uploaded!");
     }
 
+    const id = await uploadFile(req.file, req.user.uid, type);
+
     if (type && type === "resume") {
       apiCall(
         Service.USERS,
         {
-          url: `/users/${  req.user.uid  }/profile`,
+          url: `/users/${req.user.uid}/profile`,
           method: "PUT",
+          data: {
+            resume: id,
+          },
         },
         req
       );
     }
 
-    const id = await uploadFile(req.file, req.user.uid, type);
     res.status(200).json({ id, message: "File successfully uploaded" });
   })
 );
