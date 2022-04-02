@@ -1,6 +1,10 @@
-import { DatabaseConfig, GatewayConfig, Service, ServiceConfig } from "./types";
+import { DatabaseConfig, DocsConfig, GatewayConfig, Service, ServiceConfig } from "./types";
 
 export const GATEWAY: GatewayConfig = {
+  port: parseInt(process.env.PORT || "8080"),
+};
+
+export const DOCS: DocsConfig = {
   port: parseInt(process.env.PORT || "8080"),
 };
 

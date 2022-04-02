@@ -12,6 +12,10 @@ export interface GatewayConfig {
   port: number;
 }
 
+export interface DocsConfig {
+  port: number;
+}
+
 export interface DatabaseConfig {
   mongo: {
     uri: string;
@@ -63,6 +67,7 @@ export interface ServiceConfig {
 export interface Config {
   common: CommonConfig;
   gateway: GatewayConfig;
+  docs: DocsConfig;
   database: DatabaseConfig;
   services: Record<Service, ServiceConfig>;
 }

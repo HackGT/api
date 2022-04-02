@@ -28,12 +28,12 @@ applicationRouter.route("/").post(
       hexathon: req.body.hexathon,
       applicationBranch: req.body.applicationBranch,
       applicationData: req.body.applicationData,
-      applicationStartTime: req.body.appplicationStartTime,
-      applicationSubmitTime: req.body.appplicationSubmitTime,
+      applicationStartTime: req.body.applicationStartTime,
+      applicationSubmitTime: req.body.applicationSubmitTime,
       confirmationBranch: req.body.confirmationBranch,
       confirmationData: req.body.confirmationData,
-      confirmationStartTime: req.body.appplicationStartTime,
-      confirmationSubmitTime: req.body.appplicationSubmitTime,
+      confirmationStartTime: req.body.confirmationStartTime,
+      confirmationSubmitTime: req.body.confirmationSubmitTime,
     });
 
     return res.send(newApplication);

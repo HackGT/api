@@ -1,0 +1,22 @@
+{
+  "extends": "../tsconfig.base.json",
+  "include": ["swagger-output1.json", "swagger-output.json"],
+  "references": [
+    {
+      "path": "../common"
+    },
+    {
+      "path": "../config"
+    }
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": "src",
+    "outDir": "dist",
+    "resolveJsonModule": true,
+    "paths": {
+      "@api/common": ["../common/src"],
+      "@api/config": ["../config/src"]
+    }
+  }
+}
