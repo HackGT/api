@@ -18,31 +18,32 @@ export const fileRoutes = express.Router();
 fileRoutes.route("/upload").post(
   multerMid.single("file"),
   asyncHandler(async (req, res) => {
-    const { file, type } = req.body;
+    const { type } = req.body;
 
     if (!req.user) {
       throw new BadRequestError("User must be logged in");
     }
 
-    if (!file) {
+    if (!req.file) {
       throw new BadRequestError("No file uploaded!");
     }
+
+    const id = await uploadFile(req.file, req.user.uid, type);
 
     if (type && type === "resume") {
       apiCall(
         Service.USERS,
         {
-          url: "/users/",
+          url: `/users/${req.user.uid}/profile`,
           method: "PUT",
-          params: {
-            userId: req.user.uid,
+          data: {
+            resume: id,
           },
         },
         req
       );
     }
 
-    const id = await uploadFile(file, req.user.uid, type);
     res.status(200).json({ id, message: "File successfully uploaded" });
   })
 );
