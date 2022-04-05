@@ -12,7 +12,11 @@
   "dependencies": {
     "@api/common": "*",
     "@api/config": "*",
+    "@types/compression": "^1.7.2",
+    "@types/cookie-parser": "^1.4.2",
+    "@types/cors": "^2.8.12",
     "@types/express": "^4.17.13",
+    "@types/morgan": "^1.9.3",
     "@types/node": "^17.0.23",
     "@types/swagger-ui-express": "^4.1.3",
     "compression": "^1.7.4",
@@ -24,7 +28,11 @@
     "nodemon": "^2.0.15",
     "swagger-autogen": "^2.20.6",
     "swagger-ui-express": "^4.3.0",
-    "ts-node": "^10.7.0",
     "typescript": "^4.6.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15",
+    "ts-node": "^10.7.0",
+    "tsconfig-paths": "^3.14.1"
   }
 }
