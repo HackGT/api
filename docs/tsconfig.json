@@ -1,6 +1,5 @@
 {
   "extends": "../tsconfig.base.json",
-  "include": ["swagger-output1.json", "swagger-output.json"],
   "references": [
     {
       "path": "../common"
@@ -18,5 +17,6 @@
       "@api/common": ["../common/src"],
       "@api/config": ["../config/src"]
     }
-  }
+  },
+  "include": ["**/.json"]
 }

@@ -5,7 +5,7 @@ export const GATEWAY: GatewayConfig = {
 };
 
 export const DOCS: DocsConfig = {
-  port: 8009,
+  port: 4000,
 };
 
 export const DATABASE: DatabaseConfig = {
