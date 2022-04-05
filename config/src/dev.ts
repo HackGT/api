@@ -1,7 +1,11 @@
-import { DatabaseConfig, GatewayConfig, Service, ServiceConfig } from "./types";
+import { DatabaseConfig, GatewayConfig, DocsConfig, Service, ServiceConfig } from "./types";
 
 export const GATEWAY: GatewayConfig = {
   port: 8000,
+};
+
+export const DOCS: DocsConfig = {
+  port: 4000,
 };
 
 export const DATABASE: DatabaseConfig = {

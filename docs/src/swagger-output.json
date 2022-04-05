@@ -1,0 +1,1796 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "This is HexLabs' API Documentation.",
+    "title": "API Reference"
+  },
+  "tags": [
+    {
+      "name": "checkin",
+      "description": "Everything about checkin."
+    },
+    {
+      "name": "files",
+      "description": "Everything about files."
+    },
+    {
+      "name": "hexathons",
+      "description": "Everything about hexathons."
+    },
+    {
+      "name": "interactions",
+      "description": "Everything about interactions."
+    },
+    {
+      "name": "notifications",
+      "description": "Everything about notifications."
+    },
+    {
+      "name": "registration",
+      "description": "Everything about registration."
+    },
+    {
+      "name": "users",
+      "description": "Everything about users."
+    }
+  ],
+  "schemes": ["https", "http"],
+  "paths": {
+    "/checkin/": {
+      "get": {
+        "tags": ["checkin"],
+        "summary": "Gets the checkin information of every user.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Checkin"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "post": {
+        "tags": ["checkin"],
+        "summary": "Checkin a new user.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "user": {
+                  "type": "string"
+                },
+                "hexathon": {
+                  "type": "integer"
+                },
+                "status": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Checkin"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/checkin/{id}": {
+      "get": {
+        "tags": ["checkin"],
+        "summary": "Finds and displays checkin by id.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Checkin id that needs to be considered for filter.",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Checkin"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["checkin"],
+        "summary": "Update an existing checkin.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Checkin id that needs to be considered for filter.",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "status",
+            "in": "body",
+            "description": "Status of checkin.",
+            "required": true,
+            "schema": {
+              "$ref": ""
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Checkin"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/files/upload": {
+      "post": {
+        "tags": ["files"],
+        "summary": "Upload a new file.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "File successfully uploaded"
+          },
+          "400": {
+            "description": "No file uploaded!"
+          }
+        }
+      }
+    },
+    "/files/{id}": {
+      "get": {
+        "tags": ["files"],
+        "summary": "Finds and displays file url by id.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "File id that needs to be considered for filter.",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": ""
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/files/{id}/download": {
+      "get": {
+        "tags": ["files"],
+        "summary": "Finds and displays file download url by id.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "File id that needs to be considered for filter.",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": ""
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/hexathons/": {
+      "get": {
+        "tags": ["hexathons"],
+        "summary": "Finds and displays information of all hexathons.",
+        "description": "",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Hexathon"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "post": {
+        "tags": ["hexathons"],
+        "summary": "Create a new hexathon.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "isActive": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Hexathon"
+              }
+            }
+          },
+          "400": {
+            "description": "Please add all fields"
+          }
+        }
+      }
+    },
+    "/hexathons/{id}": {
+      "get": {
+        "tags": ["hexathons"],
+        "summary": "Finds and displays hexathon by id.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Hexathon id that needs to be considered for filter.",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Hexathon"
+              }
+            }
+          },
+          "400": {
+            "description": "Hexathon not found"
+          }
+        }
+      },
+      "put": {
+        "tags": ["hexathons"],
+        "summary": "Update an existing hexathon by id.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Hexathon id that needs to be considered for filter.",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Hexathon"
+              }
+            }
+          },
+          "400": {
+            "description": "Hexathon not found"
+          }
+        }
+      }
+    },
+    "/interactions/": {
+      "get": {
+        "tags": ["interactions"],
+        "summary": "Finds and displays information of all iteractions.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hackathon",
+            "in": "query",
+            "description": "Hackathon id that needs to be considered for filter.",
+            "required": true,
+            "type": "integer",
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "User id that needs to be considered for filter.",
+            "required": true,
+            "type": "integer",
+            "collectionFormat": "multi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Interaction"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      },
+      "post": {
+        "tags": ["interactions"],
+        "summary": "Create a new interaction.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "type": "string"
+                },
+                "identifier": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Interaction"
+              }
+            }
+          },
+          "400": {
+            "description": "Interaction already exists for this user and identifier"
+          }
+        }
+      }
+    },
+    "/interactions/{id}": {
+      "put": {
+        "tags": ["interactions"],
+        "summary": "Update an existing hexathon by id.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Interaction id that needs to be considered for filter.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "type": "string"
+                },
+                "identifier": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Interaction"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/notifications/email/": {
+      "get": {
+        "tags": ["notifications"],
+        "summary": "",
+        "description": "Redirects to https://interactions.api.hexlabs.org.",
+        "produces": ["application/json"],
+        "responses": {
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/notifications/email/send": {
+      "post": {
+        "tags": ["notifications"],
+        "summary": "Send an email.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "emails": {
+                  "type": "array",
+                  "items": {
+                    "$ref": ""
+                  }
+                },
+                "subject": {
+                  "type": "string"
+                },
+                "headerImage": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message sent"
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/notifications/text/send": {
+      "post": {
+        "tags": ["notifications"],
+        "summary": "Send a text.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "numbers": {
+                  "type": "array",
+                  "items": {
+                    "$ref": ""
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message sent"
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/registration/application/": {
+      "get": {
+        "tags": ["registration"],
+        "summary": "Finds and displays information of all applications.",
+        "description": "",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Application"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      },
+      "post": {
+        "tags": ["registration"],
+        "summary": "Create a new application.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "user": {
+                  "type": "string",
+                  "required": true
+                },
+                "hexathon": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Hexathon"
+                  },
+                  "required": true
+                },
+                "applicationBranch": {
+                  "type": "object",
+                  "required": true
+                },
+                "applicationData": {
+                  "type": "object"
+                },
+                "applicationStartTime": {
+                  "type": "string",
+                  "format": "date-time",
+                  "required": true
+                },
+                "applicationSubmitTime": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "confirmationBranch": {
+                  "type": "object"
+                },
+                "confirmationData": {
+                  "type": "object"
+                },
+                "confirmationStartTime": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "confirmationSubmitTime": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Application"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/registration/application/{id}": {
+      "get": {
+        "tags": ["registration"],
+        "summary": "Finds and displays application by id.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "description": "Application id that needs to be considered for filter.",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Application"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["registration"],
+        "summary": "Create a new application.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "description": "Application id that needs to be considered for filter.",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "user": {
+                  "type": "string",
+                  "required": true
+                },
+                "hexathon": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Hexathon"
+                  },
+                  "required": true
+                },
+                "applicationBranch": {
+                  "type": "object",
+                  "required": true
+                },
+                "applicationData": {
+                  "type": "object"
+                },
+                "applicationStartTime": {
+                  "type": "string",
+                  "format": "date-time",
+                  "required": true
+                },
+                "applicationSubmitTime": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "confirmationBranch": {
+                  "type": "object"
+                },
+                "confirmationData": {
+                  "type": "object"
+                },
+                "confirmationStartTime": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "confirmationSubmitTime": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Application"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/registration/branch/": {
+      "get": {
+        "tags": ["registration"],
+        "summary": "Finds and displays information of all branches.",
+        "description": "",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Branch"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "post": {
+        "tags": ["registration"],
+        "summary": "Create a new branch.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "required": true
+                },
+                "type": {
+                  "type": "string",
+                  "required": true
+                },
+                "settings": {
+                  "type": "object",
+                  "properties": {
+                    "open": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "close": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Branch"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/registration/branch/{id}": {
+      "get": {
+        "tags": ["registration"],
+        "summary": "Finds and displays information of branches by id.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "description": "ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Branch"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["registration"],
+        "summary": "Update an existing branch by id.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "description": "Branch id to be updated.",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "required": true
+                },
+                "type": {
+                  "type": "string",
+                  "required": true
+                },
+                "settings": {
+                  "type": "object",
+                  "properties": {
+                    "open": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "close": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Branch"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/users/auth/login": {
+      "post": {
+        "tags": ["users"],
+        "summary": "Create the session cookie for a user.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "idToken",
+            "in": "body",
+            "description": "ID Token.",
+            "required": true,
+            "schema": {
+              "$ref": ""
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Cookie policy successfully set"
+          },
+          "400": {
+            "description": "Recent sign in is required"
+          }
+        }
+      }
+    },
+    "/users/auth/status": {
+      "get": {
+        "tags": ["users"],
+        "summary": "User status.",
+        "description": "",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "customToken": ""
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      }
+    },
+    "/users/auth/logout": {
+      "get": {
+        "tags": ["users"],
+        "summary": "User logout.",
+        "description": "",
+        "produces": ["application/json"],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      }
+    },
+    "/users/companies/": {
+      "post": {
+        "tags": ["users"],
+        "summary": "Create a new company.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "required": true
+                },
+                "defaultEmailDomains": {
+                  "type": "array",
+                  "items": {
+                    "$ref": ""
+                  },
+                  "default": []
+                },
+                "hasResumeAccess": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "employees": {
+                  "type": "array",
+                  "items": {
+                    "$ref": ""
+                  },
+                  "default": []
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Company"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/users/companies/{id}": {
+      "get": {
+        "tags": ["users"],
+        "summary": "Finds and displays company by id.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "description": "ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Company"
+              }
+            }
+          },
+          "400": {
+            "description": "Company not found"
+          }
+        }
+      },
+      "put": {
+        "tags": ["users"],
+        "summary": "Updates an existing company by id.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "description": "ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Company"
+              }
+            }
+          },
+          "400": {
+            "description": "Company not found"
+          }
+        }
+      }
+    },
+    "/users/companies/{id}/employees/add": {
+      "post": {
+        "tags": ["users"],
+        "summary": "Adds an employee to the company.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "description": "ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Company"
+              }
+            }
+          },
+          "400": {
+            "description": "Company not found"
+          }
+        }
+      }
+    },
+    "/users/companies/{id}/employees/": {
+      "put": {
+        "tags": ["users"],
+        "summary": "Updates an employee in the company.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "description": "ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Company"
+              }
+            }
+          },
+          "400": {
+            "description": "Company not found"
+          }
+        }
+      }
+    },
+    "/users/users/{userId}/profile/": {
+      "get": {
+        "tags": ["users"],
+        "summary": "Finds and displays profile by user ID.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "type": "integer",
+            "description": "User ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Profile"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "post": {
+        "tags": ["users"],
+        "summary": "Create a user's profile.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "type": "integer",
+            "description": "User ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Profile"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "put": {
+        "tags": ["users"],
+        "summary": "Update a user's profile.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "type": "integer",
+            "description": "User ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Profile"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/users/users/": {
+      "get": {
+        "tags": ["users"],
+        "summary": "Finds and displays all users.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "pageSize",
+            "in": "query",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "name": "pageToken",
+            "in": "query",
+            "type": "string",
+            "description": "",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pageSize": {
+                  "type": "integer"
+                },
+                "pageToken": {
+                  "type": "string"
+                },
+                "users": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Profile"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/users/users/{userId}": {
+      "get": {
+        "tags": ["users"],
+        "summary": "Finds and displays all users by user ID.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "type": "integer",
+            "description": "User ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Profile"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["users"],
+        "summary": "Updates existing user by ID.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "type": "integer",
+            "description": "User ID",
+            "required": true
+          },
+          {
+            "name": "disabled",
+            "in": "body",
+            "description": "",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Profile"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["users"],
+        "summary": "Deletes a user by ID.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "type": "integer",
+            "description": "User ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successfully deleted"
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/users/users/actions/search": {
+      "get": {
+        "tags": ["users"],
+        "summary": "Search for profile.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "string",
+            "description": "specifies the number of valid objects to return",
+            "required": true
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "string",
+            "description": "specifies offset in pagination",
+            "required": true
+          },
+          {
+            "name": "regex",
+            "in": "query",
+            "type": "string",
+            "description": "specifies if search term uses regex or not",
+            "required": true
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "type": "string",
+            "description": "search term",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "offset": {
+                  "type": "integer"
+                },
+                "total": {
+                  "type": "integer"
+                },
+                "count": {
+                  "type": "integer"
+                },
+                "profiles": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Profile"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Checkin": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "user": {
+          "type": "string",
+          "required": true
+        },
+        "hexathon": {
+          "type": "integer"
+        },
+        "status": {
+          "type": "string",
+          "default": "NOT_CHECKED_IN",
+          "required": true
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "xml": {
+        "name": "Checkin"
+      }
+    },
+    "File": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "userId": {
+          "type": "string",
+          "required": true
+        },
+        "mimeType": {
+          "type": "string",
+          "required": true
+        },
+        "fileName": {
+          "type": "string",
+          "required": true
+        },
+        "storageId": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "xml": {
+        "name": "File"
+      }
+    },
+    "Hexathon": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string",
+          "required": true
+        },
+        "isActive": {
+          "type": "boolean",
+          "required": true,
+          "default": true
+        }
+      },
+      "xml": {
+        "name": "Hexathon"
+      }
+    },
+    "Interaction": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "userId": {
+          "type": "string",
+          "required": true
+        },
+        "type": {
+          "type": "string",
+          "enum": ["event", "scavengerHunt"],
+          "required": true
+        },
+        "identifier": {
+          "type": "string"
+        },
+        "timeStamp": {
+          "type": "string",
+          "format": "date-time",
+          "required": true
+        },
+        "hackathon": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "xml": {
+        "name": "Interaction"
+      }
+    },
+    "Application": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "user": {
+          "type": "string",
+          "required": true
+        },
+        "hexathon": {
+          "type": "integer",
+          "required": true
+        },
+        "applicationBranch": {
+          "type": "object",
+          "required": true
+        },
+        "applicationStartTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "applicationSubmitTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "confirmationBranch": {
+          "type": "object"
+        },
+        "confirmationData": {
+          "type": "object"
+        },
+        "confirmationStartTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "confirmationSubmitTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "xml": {
+        "name": "Application"
+      }
+    },
+    "Branch": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string",
+          "required": true
+        },
+        "type": {
+          "type": "string",
+          "required": true
+        },
+        "settings": {
+          "type": "object",
+          "properties": {
+            "open": {
+              "type": "string",
+              "format": "date-time",
+              "required": true
+            },
+            "closed": {
+              "type": "string",
+              "format": "date-time",
+              "required": true
+            }
+          }
+        }
+      },
+      "xml": {
+        "name": "Branch"
+      }
+    },
+    "Company": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string",
+          "required": true
+        },
+        "defaultEmailDomains": {
+          "type": "array",
+          "default": []
+        },
+        "hasResumeAccess": {
+          "type": "boolean",
+          "default": false
+        },
+        "employees": {
+          "type": "array",
+          "default": []
+        }
+      },
+      "xml": {
+        "name": "Company"
+      }
+    },
+    "Profile": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "user": {
+          "type": "string",
+          "required": true,
+          "unique": true
+        },
+        "name": {
+          "type": "object",
+          "properties": {
+            "first": {
+              "type": "string",
+              "required": true
+            },
+            "middle": {
+              "type": "string",
+              "required": true
+            },
+            "last": {
+              "type": "string",
+              "required": true
+            }
+          }
+        },
+        "phoneNumber": {
+          "type": "string"
+        },
+        "gender": {
+          "type": "string"
+        }
+      },
+      "xml": {
+        "name": "Profile"
+      }
+    }
+  }
+}

@@ -30,6 +30,7 @@ if (COMMON.production) {
   config = {
     common: COMMON,
     gateway: prodConfig.GATEWAY,
+    docs: prodConfig.DOCS,
     database: prodConfig.DATABASE,
     services: prodConfig.SERVICES,
   };
@@ -37,6 +38,7 @@ if (COMMON.production) {
   config = {
     common: COMMON,
     gateway: devConfig.GATEWAY,
+    docs: devConfig.DOCS,
     database: devConfig.DATABASE,
     services: devConfig.SERVICES,
   };
