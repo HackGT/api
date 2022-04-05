@@ -18,5 +18,5 @@
       "@api/config": ["../config/src"]
     }
   },
-  "include": ["src/**/*.json|ts"]
+  "include": ["src/**/*.ts", "src/**/*.json"]
 }
