@@ -457,7 +457,7 @@
     "/interactions/{id}": {
       "put": {
         "tags": ["interactions"],
-        "summary": "Update an existing hexathon by id.",
+        "summary": "Update an existing interaction by id.",
         "description": "",
         "consumes": ["application/json"],
         "produces": ["application/json"],
