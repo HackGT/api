@@ -19,6 +19,8 @@ branchRouter.route("/").post(
       name: req.body.name,
       type: req.body.type,
       settings: req.body.settings,
+      jsonSchema: req.body.jsonSchema,
+      uiSchema: req.body.uiSchema,
     });
 
     return res.send(newBranch);
@@ -41,6 +43,8 @@ branchRouter.route("/:id").patch(
         name: req.body.name,
         type: req.body.type,
         settings: req.body.settings,
+        jsonSchema: req.body.jsonSchema,
+        uiSchema: req.body.uiSchema,
       },
       { new: true }
     );

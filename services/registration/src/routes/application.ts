@@ -1,9 +1,22 @@
 import { asyncHandler } from "@api/common";
 import express from "express";
+import Ajv from "ajv";
 
 import { ApplicationModel } from "../models/application";
+import { branchSchema } from "../models/branch";
 
 export const applicationRouter = express.Router();
+
+const ajv = new Ajv();
+
+const validateApplicationData = (branchSchema: any, applicationData: any) => {
+  const validate = ajv.compile(branchSchema);
+  const valid = validate(applicationData);
+  if (!valid) {
+    console.log(validate.errors);
+  }
+  return valid;
+};
 
 applicationRouter.route("/").get(
   asyncHandler(async (req, res) => {
@@ -23,6 +36,9 @@ applicationRouter.route("/:id").get(
 
 applicationRouter.route("/").post(
   asyncHandler(async (req, res) => {
+    if (!validateApplicationData(branchSchema, req.body.applicationData)) {
+      return res.status(400).send("Failure validating application data");
+    }
     const newApplication = await ApplicationModel.create({
       user: req.body.user,
       hexathon: req.body.hexathon,
@@ -42,6 +58,9 @@ applicationRouter.route("/").post(
 
 applicationRouter.route("/:id").patch(
   asyncHandler(async (req, res) => {
+    if (!validateApplicationData(branchSchema, req.body.applicationData)) {
+      return res.status(400).send("Failure validating application data");
+    }
     const updatedApplication = await ApplicationModel.findByIdAndUpdate(
       req.params.id,
       {
