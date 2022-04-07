@@ -866,6 +866,16 @@
                       "format": "date-time"
                     }
                   }
+                },
+                "jsonSchema": {
+                  "type": "object",
+                  "required": true,
+                  "default": {}
+                },
+                "uiSchema": {
+                  "type": "object",
+                  "required": true,
+                  "default": {}
                 }
               }
             }
@@ -959,6 +969,16 @@
                       "format": "date-time"
                     }
                   }
+                },
+                "jsonSchema": {
+                  "type": "object",
+                  "required": true,
+                  "default": {}
+                },
+                "uiSchema": {
+                  "type": "object",
+                  "required": true,
+                  "default": {}
                 }
               }
             }
@@ -1718,6 +1738,16 @@
               "required": true
             }
           }
+        },
+        "jsonSchema": {
+          "type": "object",
+          "required": true,
+          "default": {}
+        },
+        "uiSchema": {
+          "type": "object",
+          "required": true,
+          "default": {}
         }
       },
       "xml": {
