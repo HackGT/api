@@ -1,41 +1,39 @@
-import { asyncHandler } from "@api/common";
+import { asyncHandler, BadRequestError } from "@api/common";
 import express from "express";
 import Ajv from "ajv";
-import addFormats from "ajv-formats";
 
 import { ApplicationModel } from "../models/application";
 
 export const applicationRouter = express.Router();
 
 const ajv = new Ajv();
-addFormats(ajv);
 
-const branchSchema = {
+const jsonSchema = {
   type: "object",
+  required: ["firstName", "lastName"],
   properties: {
-    name: { type: "string" },
-    type: { type: "string" },
-    settings: {
-      type: "object",
-      properties: {
-        open: { type: "string", format: "date-time" },
-        close: { type: "string", format: "date-time" },
-      },
-      required: ["open", "close"],
+    firstName: {
+      type: "string",
+      title: "First name",
     },
-    jsonSchema: { type: "object", default: {} },
-    uiSchema: { type: "object", default: {} },
+    lastName: {
+      type: "string",
+      title: "Last name",
+    },
+    telephone: {
+      type: "string",
+      title: "Telephone",
+      minLength: 10,
+    },
   },
-  required: ["name", "type", "settings", "jsonSchema", "uiSchema"],
 };
 
 const validateApplicationData = (applicationData: any) => {
-  const validate = ajv.compile(branchSchema);
+  const validate = ajv.compile(jsonSchema);
   const valid = validate(applicationData);
   if (!valid) {
-    console.log(validate.errors);
+    throw new BadRequestError(`${validate.errors}`);
   }
-  return valid;
 };
 
 applicationRouter.route("/").get(
@@ -56,9 +54,7 @@ applicationRouter.route("/:id").get(
 
 applicationRouter.route("/").post(
   asyncHandler(async (req, res) => {
-    if (!validateApplicationData(req.body.applicationData)) {
-      return res.status(400).send("Failure validating application data");
-    }
+    validateApplicationData(req.body.applicationData);
     const newApplication = await ApplicationModel.create({
       user: req.body.user,
       hexathon: req.body.hexathon,
@@ -78,9 +74,7 @@ applicationRouter.route("/").post(
 
 applicationRouter.route("/:id").patch(
   asyncHandler(async (req, res) => {
-    if (!validateApplicationData(req.body.applicationData)) {
-      return res.status(400).send("Failure validating application data");
-    }
+    validateApplicationData(req.body.applicationData);
     const updatedApplication = await ApplicationModel.findByIdAndUpdate(
       req.params.id,
       {

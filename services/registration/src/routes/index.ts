@@ -5,5 +5,5 @@ import { branchRouter } from "./branch";
 
 export const defaultRouter = express.Router();
 
-defaultRouter.use("/branch", branchRouter);
-defaultRouter.use("/application", applicationRouter);
+defaultRouter.use("/branches", branchRouter);
+defaultRouter.use("/applications", applicationRouter);
