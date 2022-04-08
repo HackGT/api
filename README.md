@@ -32,7 +32,7 @@ once in the main root folder.
 3. Retrieve the `google-cloud-credentials.json` file from a team member and place in the `config`
    folder as well
 4. In the root folder, run `yarn install` to install all packages
-5. Run `yarn start:all` to start all the services and gateway
+5. Run `yarn start:all` to start all the services and gateway or run `cd services/<SERVICE_NAME>` and run `yarn dev` to run a specific service.
 
 ## Development Guide
 
