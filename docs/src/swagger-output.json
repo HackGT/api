@@ -600,7 +600,7 @@
         }
       }
     },
-    "/registration/application/": {
+    "/registration/applications/": {
       "get": {
         "tags": ["registration"],
         "summary": "Finds and displays information of all applications.",
@@ -697,7 +697,7 @@
         }
       }
     },
-    "/registration/application/{id}": {
+    "/registration/applications/{id}": {
       "get": {
         "tags": ["registration"],
         "summary": "Finds and displays application by id.",
@@ -810,7 +810,7 @@
         }
       }
     },
-    "/registration/branch/": {
+    "/registration/branches/": {
       "get": {
         "tags": ["registration"],
         "summary": "Finds and displays information of all branches.",
@@ -897,7 +897,7 @@
         }
       }
     },
-    "/registration/branch/{id}": {
+    "/registration/branches/{id}": {
       "get": {
         "tags": ["registration"],
         "summary": "Finds and displays information of branches by id.",
