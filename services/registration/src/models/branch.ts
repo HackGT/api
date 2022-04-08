@@ -11,7 +11,7 @@ export interface Branch {
   uiSchema: object;
 }
 
-export const branchSchema = new Schema<Branch>({
+const branchSchema = new Schema<Branch>({
   name: { type: String, required: true },
   type: { type: String, required: true },
   settings: {

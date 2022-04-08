@@ -43,7 +43,7 @@ app.get("/status", (req, res) => {
 });
 
 app.use(isAuthenticated);
-app.use("/", defaultRouter);
+app.use("/registration", defaultRouter);
 
 app.use(handleError);
 

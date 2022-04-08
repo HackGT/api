@@ -1,15 +1,35 @@
 import { asyncHandler } from "@api/common";
 import express from "express";
 import Ajv from "ajv";
+import addFormats from "ajv-formats";
 
 import { ApplicationModel } from "../models/application";
-import { branchSchema } from "../models/branch";
 
 export const applicationRouter = express.Router();
 
 const ajv = new Ajv();
+addFormats(ajv);
 
-const validateApplicationData = (branchSchema: any, applicationData: any) => {
+const branchSchema = {
+  type: "object",
+  properties: {
+    name: { type: "string" },
+    type: { type: "string" },
+    settings: {
+      type: "object",
+      properties: {
+        open: { type: "string", format: "date-time" },
+        close: { type: "string", format: "date-time" },
+      },
+      required: ["open", "close"],
+    },
+    jsonSchema: { type: "object", default: {} },
+    uiSchema: { type: "object", default: {} },
+  },
+  required: ["name", "type", "settings", "jsonSchema", "uiSchema"],
+};
+
+const validateApplicationData = (applicationData: any) => {
   const validate = ajv.compile(branchSchema);
   const valid = validate(applicationData);
   if (!valid) {
@@ -36,7 +56,7 @@ applicationRouter.route("/:id").get(
 
 applicationRouter.route("/").post(
   asyncHandler(async (req, res) => {
-    if (!validateApplicationData(branchSchema, req.body.applicationData)) {
+    if (!validateApplicationData(req.body.applicationData)) {
       return res.status(400).send("Failure validating application data");
     }
     const newApplication = await ApplicationModel.create({
@@ -58,7 +78,7 @@ applicationRouter.route("/").post(
 
 applicationRouter.route("/:id").patch(
   asyncHandler(async (req, res) => {
-    if (!validateApplicationData(branchSchema, req.body.applicationData)) {
+    if (!validateApplicationData(req.body.applicationData)) {
       return res.status(400).send("Failure validating application data");
     }
     const updatedApplication = await ApplicationModel.findByIdAndUpdate(
