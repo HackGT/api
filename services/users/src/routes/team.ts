@@ -141,3 +141,27 @@ teamRoutes.route("/leave").post(
     res.status(200).send("User left team!");
   })
 );
+
+teamRoutes.route("/update").put(
+  isAuthenticated,
+  asyncHandler(async (req, res) => {
+    const { id, name, description, publicTeam } = req.body;
+
+    const team = await TeamModel.findOne({ _id: id });
+    const userId = req.user?.uid;
+
+    if (!team) {
+      throw new BadRequestError("Team doesn't exist!");
+    }
+
+    if (!team.members.includes(userId as string)) {
+      throw new BadRequestError("User isn't a member of the team!");
+    }
+
+    if (name) await team.update({ name });
+    if (description) await team.update({ description });
+    if (publicTeam != null) await team.update({ public: publicTeam });
+
+    res.status(200).send("Team updated!");
+  })
+);
