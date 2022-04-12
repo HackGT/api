@@ -142,12 +142,12 @@ teamRoutes.route("/leave").post(
   })
 );
 
-teamRoutes.route("/update").put(
+teamRoutes.route("/update/:id").put(
   isAuthenticated,
   asyncHandler(async (req, res) => {
-    const { id, name, description, publicTeam } = req.body;
+    const { id } = req.params;
 
-    const team = await TeamModel.findOne({ _id: id });
+    const team = await TeamModel.findById(id);
     const userId = req.user?.uid;
 
     if (!team) {
@@ -158,10 +158,10 @@ teamRoutes.route("/update").put(
       throw new BadRequestError("User isn't a member of the team!");
     }
 
-    if (name) await team.update({ name });
-    if (description) await team.update({ description });
-    if (publicTeam != null) await team.update({ public: publicTeam });
+    const updatedTeam = await TeamModel.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
 
-    res.status(200).send("Team updated!");
+    res.status(200).send(updatedTeam);
   })
 );
