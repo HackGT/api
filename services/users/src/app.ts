@@ -40,6 +40,7 @@ app.use(
     origin: true,
     preflightContinue: true,
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   })
 );
 app.use(express.json());
