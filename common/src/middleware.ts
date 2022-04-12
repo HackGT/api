@@ -56,6 +56,12 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
     return;
   }
 
+  // Allow pre-flight requests per https://stackoverflow.com/questions/15734031/why-does-the-preflight-options-request-of-an-authenticated-cors-request-work-in
+  if (req.method === "OPTIONS") {
+    next();
+    return;
+  }
+
   next(new ForbiddenError("User is not authenticated. Please authenticate and try again."));
 };
 
