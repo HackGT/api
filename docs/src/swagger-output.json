@@ -2,7 +2,8 @@
   "swagger": "2.0",
   "info": {
     "description": "This is HexLabs' API Documentation.",
-    "title": "API Reference"
+    "title": "API Reference",
+    "version": "1.0.0"
   },
   "tags": [
     {
@@ -637,27 +638,23 @@
               "type": "object",
               "properties": {
                 "user": {
-                  "type": "string",
-                  "required": true
+                  "type": "string"
                 },
                 "hexathon": {
                   "type": "array",
                   "items": {
                     "$ref": "#/definitions/Hexathon"
-                  },
-                  "required": true
+                  }
                 },
                 "applicationBranch": {
-                  "type": "object",
-                  "required": true
+                  "type": "object"
                 },
                 "applicationData": {
                   "type": "object"
                 },
                 "applicationStartTime": {
                   "type": "string",
-                  "format": "date-time",
-                  "required": true
+                  "format": "date-time"
                 },
                 "applicationSubmitTime": {
                   "type": "string",
@@ -750,27 +747,23 @@
               "type": "object",
               "properties": {
                 "user": {
-                  "type": "string",
-                  "required": true
+                  "type": "string"
                 },
                 "hexathon": {
                   "type": "array",
                   "items": {
                     "$ref": "#/definitions/Hexathon"
-                  },
-                  "required": true
+                  }
                 },
                 "applicationBranch": {
-                  "type": "object",
-                  "required": true
+                  "type": "object"
                 },
                 "applicationData": {
                   "type": "object"
                 },
                 "applicationStartTime": {
                   "type": "string",
-                  "format": "date-time",
-                  "required": true
+                  "format": "date-time"
                 },
                 "applicationSubmitTime": {
                   "type": "string",
@@ -847,12 +840,10 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "type": "string",
-                  "required": true
+                  "type": "string"
                 },
                 "type": {
-                  "type": "string",
-                  "required": true
+                  "type": "string"
                 },
                 "settings": {
                   "type": "object",
@@ -940,12 +931,10 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "type": "string",
-                  "required": true
+                  "type": "string"
                 },
                 "type": {
-                  "type": "string",
-                  "required": true
+                  "type": "string"
                 },
                 "settings": {
                   "type": "object",
@@ -1018,9 +1007,12 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "array",
-              "items": {
-                "customToken": ""
+              "type": "object",
+              "properties": {
+                "customToken": {
+                  "type": "string",
+                  "description": "Custom token for a user"
+                }
               }
             }
           },
@@ -1063,8 +1055,7 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "type": "string",
-                  "required": true
+                  "type": "string"
                 },
                 "defaultEmailDomains": {
                   "type": "array",
@@ -1408,10 +1399,19 @@
             "required": true
           },
           {
-            "name": "disabled",
+            "name": "body",
             "in": "body",
-            "description": "",
-            "required": false
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "disabled": {
+                  "type": "boolean",
+                  "description": "To enable/disable a user"
+                }
+              }
+            }
           }
         ],
         "responses": {
@@ -1529,16 +1529,14 @@
           "format": "int64"
         },
         "user": {
-          "type": "string",
-          "required": true
+          "type": "string"
         },
         "hexathon": {
           "type": "integer"
         },
         "status": {
           "type": "string",
-          "default": "NOT_CHECKED_IN",
-          "required": true
+          "default": "NOT_CHECKED_IN"
         },
         "createdAt": {
           "type": "string",
@@ -1561,20 +1559,16 @@
           "format": "int64"
         },
         "userId": {
-          "type": "string",
-          "required": true
+          "type": "string"
         },
         "mimeType": {
-          "type": "string",
-          "required": true
+          "type": "string"
         },
         "fileName": {
-          "type": "string",
-          "required": true
+          "type": "string"
         },
         "storageId": {
-          "type": "string",
-          "required": true
+          "type": "string"
         }
       },
       "xml": {
@@ -1589,12 +1583,10 @@
           "format": "int64"
         },
         "name": {
-          "type": "string",
-          "required": true
+          "type": "string"
         },
         "isActive": {
           "type": "boolean",
-          "required": true,
           "default": true
         }
       },
@@ -1610,25 +1602,21 @@
           "format": "int64"
         },
         "userId": {
-          "type": "string",
-          "required": true
+          "type": "string"
         },
         "type": {
           "type": "string",
-          "enum": ["event", "scavengerHunt"],
-          "required": true
+          "enum": ["event", "scavengerHunt"]
         },
         "identifier": {
           "type": "string"
         },
         "timeStamp": {
           "type": "string",
-          "format": "date-time",
-          "required": true
+          "format": "date-time"
         },
         "hackathon": {
-          "type": "string",
-          "required": true
+          "type": "string"
         }
       },
       "xml": {
@@ -1643,16 +1631,13 @@
           "format": "int64"
         },
         "user": {
-          "type": "string",
-          "required": true
+          "type": "string"
         },
         "hexathon": {
-          "type": "integer",
-          "required": true
+          "type": "integer"
         },
         "applicationBranch": {
-          "type": "object",
-          "required": true
+          "type": "object"
         },
         "applicationStartTime": {
           "type": "string",
@@ -1697,25 +1682,21 @@
           "format": "int64"
         },
         "name": {
-          "type": "string",
-          "required": true
+          "type": "string"
         },
         "type": {
-          "type": "string",
-          "required": true
+          "type": "string"
         },
         "settings": {
           "type": "object",
           "properties": {
             "open": {
               "type": "string",
-              "format": "date-time",
-              "required": true
+              "format": "date-time"
             },
             "closed": {
               "type": "string",
-              "format": "date-time",
-              "required": true
+              "format": "date-time"
             }
           }
         }
@@ -1732,11 +1713,13 @@
           "format": "int64"
         },
         "name": {
-          "type": "string",
-          "required": true
+          "type": "string"
         },
         "defaultEmailDomains": {
           "type": "array",
+          "items": {
+            "type": "string"
+          },
           "default": []
         },
         "hasResumeAccess": {
@@ -1745,6 +1728,9 @@
         },
         "employees": {
           "type": "array",
+          "items": {
+            "type": "string"
+          },
           "default": []
         }
       },
@@ -1760,24 +1746,19 @@
           "format": "int64"
         },
         "user": {
-          "type": "string",
-          "required": true,
-          "unique": true
+          "type": "string"
         },
         "name": {
           "type": "object",
           "properties": {
             "first": {
-              "type": "string",
-              "required": true
+              "type": "string"
             },
             "middle": {
-              "type": "string",
-              "required": true
+              "type": "string"
             },
             "last": {
-              "type": "string",
-              "required": true
+              "type": "string"
             }
           }
         },
