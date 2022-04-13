@@ -7,8 +7,8 @@
   },
   "tags": [
     {
-      "name": "auth",
-      "description": "Everything about auth."
+      "name": "users",
+      "description": "Everything about users."
     },
     {
       "name": "checkin",
@@ -35,8 +35,8 @@
       "description": "Everything about registration."
     },
     {
-      "name": "users",
-      "description": "Everything about users."
+      "name": "auth",
+      "description": "Everything about auth."
     }
   ],
   "schemes": ["https", "http"],
