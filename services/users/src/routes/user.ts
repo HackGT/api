@@ -1,6 +1,5 @@
 import { asyncHandler, checkApiKey } from "@api/common";
 import express from "express";
-import admin from "firebase-admin";
 import RE2 from "re2";
 
 import { ProfileModel } from "../models/profile";
@@ -9,49 +8,47 @@ export const userRoutes = express.Router();
 
 userRoutes.route("/").get(
   asyncHandler(async (req, res) => {
-    let pageSize = parseInt(req.query.pageSize as string) || 1000;
+    const userIds = (req.query.userIds as string).split(",");
 
-    if (pageSize > 1000) {
-      pageSize = 1000;
-    } else if (pageSize < 1) {
-      pageSize = 100;
-    }
-
-    const usersResult = await admin
-      .auth()
-      .listUsers(pageSize, req.query.pageToken as string | undefined);
-
-    return res.status(200).json({
-      pageSize: usersResult.users.length,
-      pageToken: usersResult.pageToken,
-      users: usersResult.users,
+    const profiles = await ProfileModel.find({
+      user: userIds,
     });
+
+    return res.status(200).json(profiles);
+  })
+);
+
+userRoutes.route("/").post(
+  asyncHandler(async (req, res) => {
+    const profile = await ProfileModel.create({
+      ...req.body,
+    });
+
+    return res.send(profile);
   })
 );
 
 userRoutes.route("/:userId").get(
   asyncHandler(async (req, res) => {
-    const user = await admin.auth().getUser(req.params.userId);
-
-    return res.status(200).json(user);
-  })
-);
-
-userRoutes.route("/:userId").patch(
-  asyncHandler(async (req, res) => {
-    const user = await admin.auth().updateUser(req.params.userId, {
-      disabled: req.body.disabled ?? undefined,
+    const profile = await ProfileModel.findOne({
+      user: req.params.userId,
     });
 
-    return res.status(200).json(user);
+    res.send(profile || {});
   })
 );
 
-userRoutes.route("/:userId").delete(
+userRoutes.route("/:userId").put(
   asyncHandler(async (req, res) => {
-    await admin.auth().deleteUser(req.params.userId);
+    const updatedProfile = await ProfileModel.findOneAndUpdate(
+      { user: req.params.userId },
+      req.body,
+      {
+        new: true,
+      }
+    );
 
-    return res.status(204).end();
+    res.send(updatedProfile);
   })
 );
 
