@@ -4,4 +4,4 @@ import { interactionRoutes } from "./interaction";
 
 export const defaultRouter = express.Router();
 
-defaultRouter.use("/", interactionRoutes);
+defaultRouter.use("/interactions", interactionRoutes);

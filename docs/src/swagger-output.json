@@ -279,7 +279,7 @@
         }
       }
     },
-    "/checkin/": {
+    "/checkin": {
       "get": {
         "tags": ["checkin"],
         "summary": "Gets the checkin information of every user.",
@@ -494,7 +494,7 @@
         }
       }
     },
-    "/hexathons/": {
+    "/hexathons": {
       "get": {
         "tags": ["hexathons"],
         "summary": "Finds and displays information of all hexathons.",
@@ -617,7 +617,7 @@
         }
       }
     },
-    "/interactions/": {
+    "/interactions": {
       "get": {
         "tags": ["interactions"],
         "summary": "Finds and displays information of all iteractions.",
@@ -746,7 +746,7 @@
         }
       }
     },
-    "/notifications/email/": {
+    "/email": {
       "get": {
         "tags": ["notifications"],
         "summary": "",
@@ -759,7 +759,7 @@
         }
       }
     },
-    "/notifications/email/send": {
+    "/email/send": {
       "post": {
         "tags": ["notifications"],
         "summary": "Send an email.",
@@ -804,7 +804,7 @@
         }
       }
     },
-    "/notifications/text/send": {
+    "/text/send": {
       "post": {
         "tags": ["notifications"],
         "summary": "Send a text.",
@@ -843,7 +843,7 @@
         }
       }
     },
-    "/registration/applications/": {
+    "/applications": {
       "get": {
         "tags": ["registration"],
         "summary": "Finds and displays information of all applications.",
@@ -936,7 +936,7 @@
         }
       }
     },
-    "/registration/applications/{id}": {
+    "/applications/{id}": {
       "get": {
         "tags": ["registration"],
         "summary": "Finds and displays application by id.",
@@ -1045,7 +1045,7 @@
         }
       }
     },
-    "/registration/branches/": {
+    "/branches": {
       "get": {
         "tags": ["registration"],
         "summary": "Finds and displays information of all branches.",
@@ -1128,7 +1128,7 @@
         }
       }
     },
-    "/registration/branches/{id}": {
+    "/branches/{id}": {
       "get": {
         "tags": ["registration"],
         "summary": "Finds and displays information of branches by id.",

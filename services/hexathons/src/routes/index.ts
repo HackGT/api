@@ -4,4 +4,4 @@ import { hexathonRouter } from "./hexathon";
 
 export const defaultRouter = express.Router();
 
-defaultRouter.use("/", hexathonRouter);
+defaultRouter.use("/hexathons", hexathonRouter);
