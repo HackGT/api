@@ -76,7 +76,11 @@ export const isMember: RequestHandler = async (req, res, next) => {
     return;
   }
 
-  next(new ForbiddenError("Sorry, you don't have permission to access this endpoint"));
+  next(
+    new ForbiddenError(
+      "Sorry, you don't have permission to access this endpoint as you are not a HexLabs member."
+    )
+  );
 };
 
 /**
