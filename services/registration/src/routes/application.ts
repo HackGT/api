@@ -3,34 +3,19 @@ import express from "express";
 import Ajv from "ajv";
 
 import { ApplicationModel } from "../models/application";
+import { BranchModel } from "../models/branch";
 
 export const applicationRouter = express.Router();
-
 const ajv = new Ajv();
 
-const jsonSchema = {
-  type: "object",
-  required: ["firstName", "lastName"],
-  properties: {
-    firstName: {
-      type: "string",
-      title: "First name",
-    },
-    lastName: {
-      type: "string",
-      title: "Last name",
-    },
-    telephone: {
-      type: "string",
-      title: "Telephone",
-      minLength: 10,
-    },
-  },
-};
-
-const validateApplicationData = (applicationData: any) => {
-  const validate = ajv.compile(jsonSchema);
+const validateApplicationData = async (branchId: any, applicationData: any) => {
+  const branch = await BranchModel.findById(branchId);
+  if (branch == null) {
+    throw new BadRequestError("Branch not found.");
+  }
+  const validate = ajv.compile(branch.jsonSchema);
   const valid = validate(applicationData);
+  console.log(valid);
   if (!valid) {
     throw new BadRequestError(`${validate.errors}`);
   }
@@ -54,8 +39,8 @@ applicationRouter.route("/:id").get(
 
 applicationRouter.route("/").post(
   asyncHandler(async (req, res) => {
-    validateApplicationData(req.body.applicationData);
-    const newApplication = await ApplicationModel.create({
+    validateApplicationData(req.body.branch, req.body.applicationData);
+    const newApplication = ApplicationModel.create({
       user: req.body.user,
       hexathon: req.body.hexathon,
       applicationBranch: req.body.applicationBranch,
@@ -74,24 +59,23 @@ applicationRouter.route("/").post(
 
 applicationRouter.route("/:id").patch(
   asyncHandler(async (req, res) => {
-    validateApplicationData(req.body.applicationData);
-    const updatedApplication = await ApplicationModel.findByIdAndUpdate(
+    validateApplicationData(req.body.applicationBranch, req.body.applicationData);
+    const updatedApplication = ApplicationModel.findByIdAndUpdate(
       req.params.id,
       {
         user: req.body.user,
         hexathon: req.body.hexathon,
         applicationBranch: req.body.applicationBranch,
         applicationData: req.body.applicationData,
-        applicationStartTime: req.body.appplicationStartTime,
-        applicationSubmitTime: req.body.appplicationSubmitTime,
+        applicationStartTime: req.body.applicationStartTime,
+        applicationSubmitTime: req.body.applicationSubmitTime,
         confirmationBranch: req.body.confirmationBranch,
         confirmationData: req.body.confirmationData,
-        confirmationStartTime: req.body.appplicationStartTime,
-        confirmationSubmitTime: req.body.appplicationSubmitTime,
+        confirmationStartTime: req.body.applicationStartTime,
+        confirmationSubmitTime: req.body.applicationSubmitTime,
       },
       { new: true }
     );
-
     return res.send(updatedApplication);
   })
 );
