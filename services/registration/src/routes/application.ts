@@ -15,7 +15,6 @@ const validateApplicationData = async (branchId: any, applicationData: any) => {
   }
   const validate = ajv.compile(branch.jsonSchema);
   const valid = validate(applicationData);
-  console.log(valid);
   if (!valid) {
     throw new BadRequestError(`${validate.errors}`);
   }
@@ -39,8 +38,8 @@ applicationRouter.route("/:id").get(
 
 applicationRouter.route("/").post(
   asyncHandler(async (req, res) => {
-    validateApplicationData(req.body.branch, req.body.applicationData);
-    const newApplication = ApplicationModel.create({
+    await validateApplicationData(req.body.branch, req.body.applicationData);
+    const newApplication = await ApplicationModel.create({
       user: req.body.user,
       hexathon: req.body.hexathon,
       applicationBranch: req.body.applicationBranch,
@@ -59,8 +58,8 @@ applicationRouter.route("/").post(
 
 applicationRouter.route("/:id").patch(
   asyncHandler(async (req, res) => {
-    validateApplicationData(req.body.applicationBranch, req.body.applicationData);
-    const updatedApplication = ApplicationModel.findByIdAndUpdate(
+    await validateApplicationData(req.body.applicationBranch, req.body.applicationData);
+    const updatedApplication = await ApplicationModel.findByIdAndUpdate(
       req.params.id,
       {
         user: req.body.user,
