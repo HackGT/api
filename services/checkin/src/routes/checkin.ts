@@ -16,7 +16,7 @@ checkinRouter.route("/").get(
 checkinRouter.route("/").post(
   asyncHandler(async (req, res) => {
     const newCheckin = await CheckinModel.create({
-      user: req.body.user,
+      userId: req.body.userId,
       hexathon: req.body.hexathon,
       status: req.body.status,
     });

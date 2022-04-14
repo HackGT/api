@@ -4,7 +4,7 @@ import autopopulate from "mongoose-autopopulate";
 import { BranchModel } from "./branch";
 
 export interface Application {
-  user: string;
+  userId: string;
   hexathon: Types.ObjectId;
   applicationBranch: Types.ObjectId;
   applicationData: Mixed;
@@ -20,7 +20,7 @@ export interface Application {
 
 const applicationSchema = new Schema<Application>(
   {
-    user: {
+    userId: {
       type: String,
       required: true,
     },

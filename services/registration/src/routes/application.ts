@@ -42,7 +42,7 @@ applicationRouter.route("/").post(
     await validateApplicationData(req.body.applicationBranch, req.body.applicationData);
 
     const newApplication = await ApplicationModel.create({
-      user: req.body.user,
+      userId: req.body.userId,
       hexathon: req.body.hexathon,
       applicationBranch: req.body.applicationBranch,
       applicationData: req.body.applicationData,
@@ -65,7 +65,7 @@ applicationRouter.route("/:id").patch(
     const updatedApplication = await ApplicationModel.findByIdAndUpdate(
       req.params.id,
       {
-        user: req.body.user,
+        userId: req.body.userId,
         hexathon: req.body.hexathon,
         applicationBranch: req.body.applicationBranch,
         applicationData: req.body.applicationData,

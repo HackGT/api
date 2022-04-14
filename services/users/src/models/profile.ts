@@ -1,7 +1,7 @@
 import { Schema, model, Types } from "mongoose";
 
 export interface Profile {
-  user: string;
+  userId: string;
   name: {
     first: string;
     middle: string;
@@ -13,7 +13,7 @@ export interface Profile {
 }
 
 const profileSchema = new Schema<Profile>({
-  user: {
+  userId: {
     type: String,
     required: true,
     unique: true,
