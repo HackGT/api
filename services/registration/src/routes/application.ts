@@ -13,6 +13,7 @@ const validateApplicationData = async (branchId: any, applicationData: any) => {
   if (branch == null) {
     throw new BadRequestError("Branch not found.");
   }
+
   const validate = ajv.compile(branch.jsonSchema);
   const valid = validate(applicationData);
   if (!valid) {
@@ -30,7 +31,7 @@ applicationRouter.route("/").get(
 
 applicationRouter.route("/:id").get(
   asyncHandler(async (req, res) => {
-    const application = await ApplicationModel.find({ _id: req.query.id });
+    const application = await ApplicationModel.findById(req.params.id);
 
     return res.send(application);
   })
@@ -38,7 +39,8 @@ applicationRouter.route("/:id").get(
 
 applicationRouter.route("/").post(
   asyncHandler(async (req, res) => {
-    await validateApplicationData(req.body.branch, req.body.applicationData);
+    await validateApplicationData(req.body.applicationBranch, req.body.applicationData);
+
     const newApplication = await ApplicationModel.create({
       user: req.body.user,
       hexathon: req.body.hexathon,
@@ -59,6 +61,7 @@ applicationRouter.route("/").post(
 applicationRouter.route("/:id").patch(
   asyncHandler(async (req, res) => {
     await validateApplicationData(req.body.applicationBranch, req.body.applicationData);
+
     const updatedApplication = await ApplicationModel.findByIdAndUpdate(
       req.params.id,
       {

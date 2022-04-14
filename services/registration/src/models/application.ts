@@ -1,4 +1,7 @@
 import { Schema, model, Types, Mixed } from "mongoose";
+import autopopulate from "mongoose-autopopulate";
+
+import { BranchModel } from "./branch";
 
 export interface Application {
   user: string;
@@ -27,7 +30,9 @@ const applicationSchema = new Schema<Application>(
     },
     applicationBranch: {
       type: Schema.Types.ObjectId,
+      ref: BranchModel,
       required: true,
+      autopopulate: true,
     },
     applicationData: {
       type: Schema.Types.Mixed,
@@ -41,6 +46,8 @@ const applicationSchema = new Schema<Application>(
     },
     confirmationBranch: {
       type: Schema.Types.ObjectId,
+      ref: BranchModel,
+      autopopulate: true,
     },
     confirmationData: {
       type: Schema.Types.Mixed,
@@ -56,5 +63,7 @@ const applicationSchema = new Schema<Application>(
     timestamps: true,
   }
 );
+
+applicationSchema.plugin(autopopulate);
 
 export const ApplicationModel = model<Application>("Application", applicationSchema);
