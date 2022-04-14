@@ -20,21 +20,17 @@ fileRoutes.route("/upload").post(
   asyncHandler(async (req, res) => {
     const { type } = req.body;
 
-    if (!req.user) {
-      throw new BadRequestError("User must be logged in");
-    }
-
     if (!req.file) {
       throw new BadRequestError("No file uploaded!");
     }
 
-    const id = await uploadFile(req.file, req.user.uid, type);
+    const id = await uploadFile(req.file, req.user?.uid, type);
 
     if (type && type === "resume") {
       apiCall(
         Service.USERS,
         {
-          url: `/users/${req.user.uid}/profile`,
+          url: `/users/${req.user?.uid}/profile`,
           method: "PUT",
           data: {
             resume: id,

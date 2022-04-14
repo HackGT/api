@@ -11,7 +11,7 @@ const bucket = storage.bucket(config.services.FILES.storageBucket || "");
 
 export const uploadFile = async (
   file: Express.Multer.File,
-  userId: string,
+  userId: string | undefined,
   fileType: string
 ): Promise<string> => {
   const { originalname, buffer } = file;

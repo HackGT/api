@@ -316,7 +316,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "user": {
+                "userId": {
                   "type": "string"
                 },
                 "hexathon": {
@@ -879,7 +879,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "user": {
+                "userId": {
                   "type": "string"
                 },
                 "hexathon": {
@@ -988,7 +988,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "user": {
+                "userId": {
                   "type": "string"
                 },
                 "hexathon": {
@@ -1583,7 +1583,7 @@
           "type": "integer",
           "format": "int64"
         },
-        "user": {
+        "userId": {
           "type": "string"
         },
         "hexathon": {
@@ -1685,7 +1685,7 @@
           "type": "integer",
           "format": "int64"
         },
-        "user": {
+        "userId": {
           "type": "string"
         },
         "hexathon": {
@@ -1808,7 +1808,7 @@
           "type": "integer",
           "format": "int64"
         },
-        "user": {
+        "userId": {
           "type": "string"
         },
         "name": {
