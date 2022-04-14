@@ -23,7 +23,7 @@ const email = new Email({
   },
 });
 
-const sendgridApiKey = config.services.NOTIFICATIONS.pluginConfig?.email.sendgridApiKey || "";
+const sendgridApiKey = config.services.NOTIFICATIONS.pluginConfig?.email.sendgridApiKey || "SG.";
 const from = config.services.NOTIFICATIONS.pluginConfig?.email.from || "";
 const headerImage = config.services.NOTIFICATIONS.pluginConfig?.email.headerImage || "";
 const twitterHandle = config.common.socialMedia.twitterHandle || "";
