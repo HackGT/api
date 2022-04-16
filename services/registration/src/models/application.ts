@@ -7,7 +7,28 @@ export interface Application {
   userId: string;
   hexathon: Types.ObjectId;
   applicationBranch: Types.ObjectId;
-  applicationData: Mixed;
+  applicationData: {
+    adult: boolean;
+    occupation: string;
+    school: string;
+    graduationYear: number;
+    major: string;
+    shirtSize: string;
+    dietaryRestrictions: string;
+    phoneNumber: string;
+    gender: string;
+    ethnicity: string;
+    address: {
+      line1: string;
+      line2: string;
+      city: string;
+      state: string;
+      zip: number;
+      country: string;
+    };
+    website: string;
+    linkedin: string;
+  };
   applicationStartTime: Date;
   applicationSubmitTime: Date;
   confirmationBranch: Types.ObjectId;
@@ -35,7 +56,80 @@ const applicationSchema = new Schema<Application>(
       autopopulate: true,
     },
     applicationData: {
-      type: Schema.Types.Mixed,
+      adult: {
+        type: Boolean,
+        required: true,
+      },
+      occupation: {
+        type: String,
+        required: true,
+      },
+      school: {
+        type: String,
+        required: true,
+      },
+      graduationYear: {
+        type: String,
+        required: true,
+      },
+      major: {
+        type: String,
+        required: true,
+      },
+      shirtSize: {
+        type: String,
+        required: true,
+      },
+      dietaryRestrictions: {
+        type: String,
+        required: true,
+      },
+      phoneNumber: {
+        type: String,
+        required: true,
+      },
+      gender: {
+        type: String,
+        required: true,
+      },
+      ethnicity: {
+        type: String,
+        required: true,
+      },
+      address: {
+        line1: {
+          type: String,
+          required: true,
+        },
+        line2: {
+          type: String,
+          required: true,
+        },
+        city: {
+          type: String,
+          required: true,
+        },
+        state: {
+          type: String,
+          required: true,
+        },
+        zip: {
+          type: Number,
+          required: true,
+        },
+        country: {
+          type: String,
+          required: true,
+        },
+      },
+      website: {
+        type: String,
+        required: false,
+      },
+      linkedin: {
+        type: String,
+        required: false,
+      },
     },
     applicationStartTime: {
       type: Date,
