@@ -28,6 +28,9 @@ export interface Application {
     };
     website: string;
     linkedin: string;
+    extraInfo: [Types.ObjectId];
+    confirmChecks: Types.ObjectId;
+    essays: [Types.ObjectId];
   };
   applicationStartTime: Date;
   applicationSubmitTime: Date;
@@ -128,6 +131,18 @@ const applicationSchema = new Schema<Application>(
       },
       linkedin: {
         type: String,
+        required: false,
+      },
+      extraInfo: {
+        type: Schema.Types.Array,
+        required: false,
+      },
+      confirmChecks: {
+        type: Schema.Types.ObjectId,
+        required: false,
+      },
+      essays: {
+        type: Schema.Types.Array,
         required: false,
       },
     },
