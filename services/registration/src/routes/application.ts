@@ -41,18 +41,27 @@ applicationRouter.route("/").post(
   asyncHandler(async (req, res) => {
     await validateApplicationData(req.body.applicationBranch, req.body.applicationData);
 
-    const newApplication = await ApplicationModel.create({
-      userId: req.body.userId,
-      hexathon: req.body.hexathon,
-      applicationBranch: req.body.applicationBranch,
-      applicationData: req.body.applicationData,
-      applicationStartTime: req.body.applicationStartTime,
-      applicationSubmitTime: req.body.applicationSubmitTime,
-      confirmationBranch: req.body.confirmationBranch,
-      confirmationData: req.body.confirmationData,
-      confirmationStartTime: req.body.confirmationStartTime,
-      confirmationSubmitTime: req.body.confirmationSubmitTime,
-    });
+    let newApplication;
+    if (req.body.applicationStatus === "SUBMIT") {
+      newApplication = await ApplicationModel.create({
+        userId: req.body.userId,
+        hexathon: req.body.hexathon,
+        applicationBranch: req.body.applicationBranch,
+        applicationData: req.body.applicationData,
+        applicationStartTime: req.body.applicationStartTime,
+        applicationSubmitTime: req.body.applicationSubmitTime,
+        applicationStatus: req.body.applicationStatus,
+      });
+    } else {
+      newApplication = await ApplicationModel.create({
+        userId: req.body.userId,
+        hexathon: req.body.hexathon,
+        applicationBranch: req.body.applicationBranch,
+        applicationData: req.body.applicationData,
+        applicationStartTime: req.body.applicationStartTime,
+        applicationStatus: req.body.applicationStatus,
+      });
+    }
 
     return res.send(newApplication);
   })
@@ -62,22 +71,50 @@ applicationRouter.route("/:id").patch(
   asyncHandler(async (req, res) => {
     await validateApplicationData(req.body.applicationBranch, req.body.applicationData);
 
-    const updatedApplication = await ApplicationModel.findByIdAndUpdate(
-      req.params.id,
-      {
-        userId: req.body.userId,
-        hexathon: req.body.hexathon,
-        applicationBranch: req.body.applicationBranch,
-        applicationData: req.body.applicationData,
-        applicationStartTime: req.body.applicationStartTime,
-        applicationSubmitTime: req.body.applicationSubmitTime,
-        confirmationBranch: req.body.confirmationBranch,
-        confirmationData: req.body.confirmationData,
-        confirmationStartTime: req.body.applicationStartTime,
-        confirmationSubmitTime: req.body.applicationSubmitTime,
-      },
-      { new: true }
-    );
+    let updatedApplication;
+    if (req.body.applicationStatus === "SUBMIT") {
+      await ApplicationModel.findByIdAndUpdate(
+        req.params.id,
+        {
+          userId: req.body.userId,
+          hexathon: req.body.hexathon,
+          applicationBranch: req.body.applicationBranch,
+          applicationData: req.body.applicationData,
+          applicationSubmitTime: req.body.applicationSubmitTime,
+          applicationStatus: req.body.applicationStatus,
+        },
+        { new: true }
+      );
+    } else {
+      await ApplicationModel.findByIdAndUpdate(
+        req.params.id,
+        {
+          userId: req.body.userId,
+          hexathon: req.body.hexathon,
+          applicationBranch: req.body.applicationBranch,
+          applicationData: req.body.applicationData,
+          applicationStatus: req.body.applicationStatus,
+        },
+        { new: true }
+      );
+    }
     return res.send(updatedApplication);
+  })
+);
+
+applicationRouter.route("/:id/confirmation").post(
+  asyncHandler(async (req, res) => {
+    await validateApplicationData(req.body.applicationBranch, req.body.applicationData);
+
+    const confirmedApplication = await ApplicationModel.create({
+      userId: req.body.userId,
+      hexathon: req.body.hexathon,
+      confirmationBranch: req.body.confirmationBranch,
+      confirmationData: req.body.confirmationData,
+      confirmationStartTime: req.body.confirmationStartTime,
+      confirmationSubmitTime: req.body.confirmationSubmitTime,
+    });
+
+    return res.send(confirmedApplication);
   })
 );
