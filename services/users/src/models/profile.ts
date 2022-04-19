@@ -1,4 +1,5 @@
-import { Schema, model, Types } from "mongoose";
+import { Schema, model, Types, PaginateModel } from "mongoose";
+import mongoosePaginate from "mongoose-paginate-v2";
 
 export interface Profile {
   userId: string;
@@ -40,4 +41,6 @@ const profileSchema = new Schema<Profile>({
   resume: Types.ObjectId,
 });
 
-export const ProfileModel = model<Profile>("Profile", profileSchema);
+profileSchema.plugin(mongoosePaginate);
+
+export const ProfileModel = model<Profile, PaginateModel<Profile>>("Profile", profileSchema);
