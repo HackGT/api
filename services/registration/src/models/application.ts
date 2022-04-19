@@ -1,16 +1,17 @@
-import { Schema, model, Types, Mixed } from "mongoose";
-import autopopulate from "mongoose-autopopulate";
+import { Schema, Types, Mixed, PaginateModel, model } from "mongoose";
+import mongooseAutopopulate from "mongoose-autopopulate";
+import mongoosePaginate from "mongoose-paginate-v2";
 
-import { BranchModel } from "./branch";
+import { Branch, BranchModel } from "./branch";
 
 export interface Application {
   userId: string;
   hexathon: Types.ObjectId;
-  applicationBranch: Types.ObjectId;
+  applicationBranch: Branch;
   applicationData: Mixed;
   applicationStartTime: Date;
   applicationSubmitTime: Date;
-  confirmationBranch: Types.ObjectId;
+  confirmationBranch: Branch;
   confirmationData: Mixed;
   confirmationStartTime: Date;
   confirmationSubmitTime: Date;
@@ -64,6 +65,10 @@ const applicationSchema = new Schema<Application>(
   }
 );
 
-applicationSchema.plugin(autopopulate);
+applicationSchema.plugin(mongooseAutopopulate);
+applicationSchema.plugin(mongoosePaginate);
 
-export const ApplicationModel = model<Application>("Application", applicationSchema);
+export const ApplicationModel = model<Application, PaginateModel<Application>>(
+  "Application",
+  applicationSchema
+);

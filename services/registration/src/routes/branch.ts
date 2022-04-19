@@ -29,7 +29,7 @@ branchRouter.route("/").post(
 
 branchRouter.route("/:id").get(
   asyncHandler(async (req, res) => {
-    const newBranch = await BranchModel.findById(req.query.id);
+    const newBranch = await BranchModel.findById(req.params.id);
 
     return res.send(newBranch);
   })
