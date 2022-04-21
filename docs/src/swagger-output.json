@@ -1227,6 +1227,54 @@
         }
       }
     },
+    "/statistics": {
+      "get": {
+        "tags": ["registration"],
+        "summary": "Displays registration statistics.",
+        "description": "",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "general": {
+                  "type": "object",
+                  "properties": {
+                    "applicationStarted": {
+                      "type": "integer"
+                    },
+                    "applicationSubmitted": {
+                      "type": "integer"
+                    },
+                    "confirmed": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "applications": {
+                  "type": "object",
+                  "properties": {
+                    "branch": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "confirmations": {
+                  "type": "object",
+                  "properties": {
+                    "branch": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/companies": {
       "post": {
         "tags": ["users"],
