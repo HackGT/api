@@ -1,13 +1,14 @@
 import { asyncHandler, BadRequestError } from "@api/common";
 import express from "express";
-import RE2 from "re2";
+import { FilterQuery } from "mongoose";
 
-import { ProfileModel } from "../models/profile";
+import { Profile, ProfileModel } from "../models/profile";
 
 export const userRoutes = express.Router();
 
 userRoutes.route("/").get(
   asyncHandler(async (req, res) => {
+    const filter: FilterQuery<Profile> = {};
     const limit = parseInt(req.query.limit as string);
     const offset = parseInt(req.query.offset as string);
     const regex = (req.query.regex as string) === "true";
@@ -23,25 +24,25 @@ userRoutes.route("/").get(
       re = new RegExp(search, "i");
     }
 
-    const matchCount = await ProfileModel.find({
-      $or: [
-        { "name.first": { $regex: re } },
-        { "name.middle": { $regex: re } },
-        { "name.last": { $regex: re } },
-        { phoneNumber: { $regex: re } },
-      ],
-    }).count();
+    if (req.query.member != null) {
+      filter.permissions.member = req.query.member;
+    }
+    if (req.query.admin != null) {
+      filter.permissions.admin = req.query.admin;
+    }
+    if (req.query.exec != null) {
+      filter.permissions.exec = req.query.exec;
+    }
+    filter.$or = [
+      { "name.first": { $regex: re } },
+      { "name.middle": { $regex: re } },
+      { "name.last": { $regex: re } },
+      { phoneNumber: { $regex: re } },
+    ];
 
-    const profiles = await ProfileModel.find({
-      $or: [
-        { "name.first": { $regex: re } },
-        { "name.middle": { $regex: re } },
-        { "name.last": { $regex: re } },
-        { phoneNumber: { $regex: re } },
-      ],
-    })
-      .skip(offset)
-      .limit(limit);
+    const matchCount = await ProfileModel.find(filter).count();
+
+    const profiles = await ProfileModel.find(filter).skip(offset).limit(limit);
 
     return res.status(200).json({
       offset: offset + profiles.length,
@@ -55,7 +56,15 @@ userRoutes.route("/").get(
 userRoutes.route("/").post(
   asyncHandler(async (req, res) => {
     const profile = await ProfileModel.create({
-      ...req.body,
+      userId: req.user?.uid,
+      name: {
+        first: req.body.name.first,
+        middle: req.body.name.middle,
+        last: req.body.name.last,
+      },
+      phoneNumber: req.body.phoneNumber,
+      gender: req.body.gender,
+      resume: req.body.resume,
     });
 
     return res.send(profile);
@@ -74,6 +83,16 @@ userRoutes.route("/:userId").get(
 
 userRoutes.route("/:userId").put(
   asyncHandler(async (req, res) => {
+    if (req.body.permissions) {
+      const profile = await ProfileModel.findOne({
+        user: req.user?.uid,
+      });
+
+      if (!profile || !(profile.permissions.exec || profile.permissions.admin)) {
+        throw new BadRequestError("Unauthorized to modify permissions");
+      }
+    }
+
     const updatedProfile = await ProfileModel.findOneAndUpdate(
       { user: req.params.userId },
       req.body,
