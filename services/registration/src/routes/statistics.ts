@@ -5,8 +5,6 @@ import express from "express";
 import { ApplicationModel } from "src/models/application";
 import { BranchModel, BranchType } from "src/models/branch";
 
-const { APPLICATION, CONFIRMATION } = BranchType;
-
 export const statisticsRouter = express.Router();
 
 statisticsRouter.route("/").get(
@@ -48,7 +46,7 @@ statisticsRouter.route("/").get(
       const branchName = branch.name;
 
       switch (branch.type) {
-        case APPLICATION:
+        case BranchType.APPLICATION:
           for (const application of aggregatedApplicationBranches) {
             totalUsers += application.count;
             if (application._id && application._id.equals(branch._id)) {
@@ -56,7 +54,7 @@ statisticsRouter.route("/").get(
             }
           }
           break;
-        case CONFIRMATION:
+        case BranchType.CONFIRMATION:
           for (const confirmation of aggregatedConfirmationBranches) {
             confirmedUsers += confirmation.count;
             if (confirmation._id && confirmation._id.equals(branch._id)) {
