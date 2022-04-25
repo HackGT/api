@@ -41,28 +41,23 @@ applicationRouter.route("/").post(
   asyncHandler(async (req, res) => {
     await validateApplicationData(req.body.applicationBranch, req.body.applicationData);
 
-    let newApplication;
-    if (req.body.applicationStatus === "SUBMIT") {
-      newApplication = await ApplicationModel.create({
-        userId: req.body.userId,
-        hexathon: req.body.hexathon,
-        applicationBranch: req.body.applicationBranch,
-        applicationData: req.body.applicationData,
-        applicationStartTime: req.body.applicationStartTime,
-        applicationSubmitTime: req.body.applicationSubmitTime,
-        applicationStatus: req.body.applicationStatus,
-      });
-    } else {
-      newApplication = await ApplicationModel.create({
-        userId: req.body.userId,
-        hexathon: req.body.hexathon,
-        applicationBranch: req.body.applicationBranch,
-        applicationData: req.body.applicationData,
-        applicationStartTime: req.body.applicationStartTime,
-        applicationStatus: req.body.applicationStatus,
-      });
+    interface Application {
+      [key: string]: any;
     }
 
+    const application: Application = {
+      userId: req.user?.uid,
+      hexathon: req.body.hexathon,
+      applicationBranch: req.body.applicationBranch,
+      applicationData: req.body.applicationData,
+      applicationStartTime: req.body.applicationStartTime,
+      applicationStatus: req.body.applicationStatus,
+    };
+    if (req.body.applicationStatus === "SUBMIT") {
+      application.applicationSubmitTime = req.body.applicationSubmitTime;
+    }
+
+    const newApplication = await ApplicationModel.create(application);
     return res.send(newApplication);
   })
 );
@@ -71,33 +66,27 @@ applicationRouter.route("/:id").patch(
   asyncHandler(async (req, res) => {
     await validateApplicationData(req.body.applicationBranch, req.body.applicationData);
 
-    let updatedApplication;
-    if (req.body.applicationStatus === "SUBMIT") {
-      await ApplicationModel.findByIdAndUpdate(
-        req.params.id,
-        {
-          userId: req.body.userId,
-          hexathon: req.body.hexathon,
-          applicationBranch: req.body.applicationBranch,
-          applicationData: req.body.applicationData,
-          applicationSubmitTime: req.body.applicationSubmitTime,
-          applicationStatus: req.body.applicationStatus,
-        },
-        { new: true }
-      );
-    } else {
-      await ApplicationModel.findByIdAndUpdate(
-        req.params.id,
-        {
-          userId: req.body.userId,
-          hexathon: req.body.hexathon,
-          applicationBranch: req.body.applicationBranch,
-          applicationData: req.body.applicationData,
-          applicationStatus: req.body.applicationStatus,
-        },
-        { new: true }
-      );
+    interface Application {
+      [key: string]: any;
     }
+
+    const application: Application = {
+      userId: req.user?.uid,
+      hexathon: req.body.hexathon,
+      applicationBranch: req.body.applicationBranch,
+      applicationData: req.body.applicationData,
+      applicationStatus: req.body.applicationStatus,
+    };
+
+    if (req.body.applicationStatus === "SUBMIT") {
+      application.applicationSubmitTime = req.body.applicationSubmitTime;
+    }
+
+    const updatedApplication = await ApplicationModel.findByIdAndUpdate(
+      req.params.id,
+      application,
+      { new: true }
+    );
     return res.send(updatedApplication);
   })
 );
@@ -107,7 +96,7 @@ applicationRouter.route("/:id/confirmation").post(
     await validateApplicationData(req.body.applicationBranch, req.body.applicationData);
 
     const confirmedApplication = await ApplicationModel.create({
-      userId: req.body.userId,
+      userId: req.user?.uid,
       hexathon: req.body.hexathon,
       confirmationBranch: req.body.confirmationBranch,
       confirmationData: req.body.confirmationData,
