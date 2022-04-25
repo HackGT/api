@@ -65,6 +65,28 @@ teamRoutes.route("/:id").get(
   })
 );
 
+teamRoutes.route("/:id/accept-user").post(
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { userId } = req.body;
+
+    const team = await TeamModel.findOne({ _id: id, members: req.user?.uid });
+
+    if (!team) {
+      throw new BadRequestError("User must be a member of the team to accept requests!");
+    }
+
+    await team.update({
+      members: [...team.members, userId],
+      $pull: {
+        memberRequests: { userId },
+      },
+    });
+
+    res.status(200).send("Accepted user!");
+  })
+);
+
 teamRoutes.route("/user/:userId").get(
   asyncHandler(async (req, res) => {
     const { userId } = req.params;
@@ -87,8 +109,7 @@ teamRoutes.route("/user/:userId").get(
 teamRoutes.route("/join").post(
   isAuthenticated,
   asyncHandler(async (req, res) => {
-    const { name } = req.body;
-    const { event } = req.query;
+    const { name, event, message } = req.body;
 
     const team = await TeamModel.findOne({ name, event });
 
@@ -102,19 +123,39 @@ teamRoutes.route("/join").post(
 
     const userId = req.user?.uid;
 
-    const teams = await TeamModel.find({ event, members: req.user?.uid });
+    const teams = await TeamModel.findOne({ event, members: req.user?.uid });
 
-    if (teams.length !== 0) {
+    if (teams) {
       throw new BadRequestError(
-        "User cannot join an team for an event they are already in a team for!"
+        "User cannot join a team for an event they are already in a team for!"
       );
     }
 
-    await team.update({
-      members: [...team.members, userId],
+    const teamPendingReq = await TeamModel.findOne({
+      event,
+      memberRequests: {
+        $elemMatch: {
+          userId,
+        },
+      },
     });
 
-    res.status(200).send("User added to team!");
+    if (teamPendingReq) {
+      if (team._id.equals(teamPendingReq._id)) {
+        throw new BadRequestError("User has already requested to join this team!");
+      }
+      await teamPendingReq.updateOne({
+        $pull: {
+          memberRequests: { userId },
+        },
+      });
+    }
+
+    await team.update({
+      memberRequests: [...team.memberRequests, { userId, message }],
+    });
+
+    res.status(200).send("Join Request has been sent!");
   })
 );
 
@@ -139,5 +180,29 @@ teamRoutes.route("/leave").post(
     });
 
     res.status(200).send("User left team!");
+  })
+);
+
+teamRoutes.route("/update/:id").put(
+  isAuthenticated,
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const team = await TeamModel.findById(id);
+    const userId = req.user?.uid;
+
+    if (!team) {
+      throw new BadRequestError("Team doesn't exist!");
+    }
+
+    if (!team.members.includes(userId as string)) {
+      throw new BadRequestError("User isn't a member of the team!");
+    }
+
+    const updatedTeam = await TeamModel.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
+
+    res.status(200).send(updatedTeam);
   })
 );

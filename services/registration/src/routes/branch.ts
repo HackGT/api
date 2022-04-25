@@ -19,6 +19,8 @@ branchRouter.route("/").post(
       name: req.body.name,
       type: req.body.type,
       settings: req.body.settings,
+      jsonSchema: req.body.jsonSchema,
+      uiSchema: req.body.uiSchema,
     });
 
     return res.send(newBranch);
@@ -27,9 +29,9 @@ branchRouter.route("/").post(
 
 branchRouter.route("/:id").get(
   asyncHandler(async (req, res) => {
-    const newBranch = await BranchModel.findById(req.query.id);
+    const branch = await BranchModel.findById(req.params.id);
 
-    return res.send(newBranch);
+    return res.send(branch);
   })
 );
 
@@ -41,6 +43,8 @@ branchRouter.route("/:id").patch(
         name: req.body.name,
         type: req.body.type,
         settings: req.body.settings,
+        jsonSchema: req.body.jsonSchema,
+        uiSchema: req.body.uiSchema,
       },
       { new: true }
     );

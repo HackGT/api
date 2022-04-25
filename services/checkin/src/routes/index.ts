@@ -4,4 +4,4 @@ import { checkinRouter } from "./checkin";
 
 export const defaultRouter = express.Router();
 
-defaultRouter.use("/", checkinRouter);
+defaultRouter.use("/checkin", checkinRouter);

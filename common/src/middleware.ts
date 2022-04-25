@@ -13,15 +13,33 @@ import { BadRequestError, ForbiddenError } from "./errors";
 declare global {
   namespace Express {
     interface Request {
+      /**
+       * Represents the user that is currently authenticated.
+       */
       user: DecodedIdToken | null;
+
+      /**
+       * Used to set an error when decoding the user token. This is used so that when isAuthenticated
+       * is called, the middleware can check if the user is authenticated or not, and if not, throw
+       * an appropriate error.
+       */
+      userError: any;
     }
   }
 }
 
 /**
+ * Middleware to handle and catch errors in async methods
+ */
+export const asyncHandler =
+  (fn: (req: Request, res: Response, next: NextFunction) => any) =>
+  (req: Request, res: Response, next: NextFunction) =>
+    Promise.resolve(fn(req, res, next)).catch(next);
+
+/**
  * Middleware to decode JWT from Google Cloud Identity Provider
  */
-export const decodeToken: RequestHandler = async (req, res, next) => {
+export const decodeToken: RequestHandler = asyncHandler(async (req, res, next) => {
   req.user = null;
 
   let isUserDecoded = false;
@@ -33,7 +51,9 @@ export const decodeToken: RequestHandler = async (req, res, next) => {
       const decodedIdToken = await admin.auth().verifyIdToken(idToken);
       req.user = decodedIdToken;
       isUserDecoded = true;
-    } catch {}
+    } catch (err) {
+      req.userError = err;
+    }
   }
 
   if (!isUserDecoded && req.cookies.session) {
@@ -41,28 +61,41 @@ export const decodeToken: RequestHandler = async (req, res, next) => {
       const decodedIdToken = await admin.auth().verifySessionCookie(req.cookies.session || "");
       req.user = decodedIdToken;
       isUserDecoded = true;
-    } catch {}
+    } catch (err) {
+      req.userError = err;
+    }
   }
 
   next();
-};
+});
 
 /**
  * Checks that a user is authenticated and logged in
  */
-export const isAuthenticated: RequestHandler = async (req, res, next) => {
+export const isAuthenticated: RequestHandler = asyncHandler(async (req, res, next) => {
   if (req.user) {
     next();
     return;
   }
 
+  // Allow pre-flight requests per https://stackoverflow.com/questions/15734031/why-does-the-preflight-options-request-of-an-authenticated-cors-request-work-in
+  if (req.method === "OPTIONS") {
+    next();
+    return;
+  }
+
+  // Throw an error from firebase if the user authentication fails
+  if (req.userError) {
+    throw req.userError;
+  }
+
   next(new ForbiddenError("User is not authenticated. Please authenticate and try again."));
-};
+});
 
 /*
  * Checks if a user is a member or not depending on if their email domain matches the config
  */
-export const isMember: RequestHandler = async (req, res, next) => {
+export const isMember: RequestHandler = asyncHandler(async (req, res, next) => {
   const domain = req.user?.email?.split("@").pop();
 
   if (domain && config.common.memberEmailDomains.includes(domain)) {
@@ -70,13 +103,17 @@ export const isMember: RequestHandler = async (req, res, next) => {
     return;
   }
 
-  next(new ForbiddenError("Sorry, you don't have permission to access this endpoint"));
-};
+  next(
+    new ForbiddenError(
+      "Sorry, you don't have permission to access this endpoint as you are not a HexLabs member."
+    )
+  );
+});
 
 /**
  * Middleware to check that API key is provided, otherwise throw a forbidden error. Only check API key in production.
  */
-export const checkApiKey: RequestHandler = async (req, res, next) => {
+export const checkApiKey: RequestHandler = asyncHandler(async (req, res, next) => {
   if (!config.common.production) {
     next();
     return;
@@ -92,15 +129,7 @@ export const checkApiKey: RequestHandler = async (req, res, next) => {
   }
 
   next(new ForbiddenError("Request does not have valid API Key"));
-};
-
-/**
- * Middleware to handle and catch errors in async methods
- */
-export const asyncHandler =
-  (fn: (req: Request, res: Response, next: NextFunction) => any) =>
-  (req: Request, res: Response, next: NextFunction) =>
-    Promise.resolve(fn(req, res, next)).catch(next);
+});
 
 /**
  * Middleware to parse errors and response with error messages

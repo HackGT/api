@@ -2,9 +2,14 @@
   "swagger": "2.0",
   "info": {
     "description": "This is HexLabs' API Documentation.",
-    "title": "API Reference"
+    "title": "API Reference",
+    "version": "1.0.0"
   },
   "tags": [
+    {
+      "name": "users",
+      "description": "Everything about users."
+    },
     {
       "name": "checkin",
       "description": "Everything about checkin."
@@ -30,13 +35,251 @@
       "description": "Everything about registration."
     },
     {
-      "name": "users",
-      "description": "Everything about users."
+      "name": "auth",
+      "description": "Everything about auth."
     }
   ],
   "schemes": ["https", "http"],
   "paths": {
-    "/checkin/": {
+    "/auth/login": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Create the session cookie for a user.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "idToken",
+            "in": "body",
+            "description": "ID Token.",
+            "required": true,
+            "schema": {
+              "$ref": ""
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Cookie policy successfully set"
+          },
+          "400": {
+            "description": "Recent sign in is required"
+          }
+        }
+      }
+    },
+    "/auth/status": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "User status.",
+        "description": "",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "customToken": {
+                  "type": "string",
+                  "description": "Custom token for a user"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "User logout.",
+        "description": "",
+        "produces": ["application/json"],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      }
+    },
+    "/firebase-users": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "Finds and displays all users.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "pageSize",
+            "in": "query",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "name": "pageToken",
+            "in": "query",
+            "type": "string",
+            "description": "",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pageSize": {
+                  "type": "integer"
+                },
+                "pageToken": {
+                  "type": "string"
+                },
+                "users": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/User"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/firebase-users/{userId}": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "Finds a user by user ID.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "type": "integer",
+            "description": "User ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["auth"],
+        "summary": "Updates existing user by ID.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "type": "integer",
+            "description": "User ID",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "disabled": {
+                  "type": "boolean",
+                  "description": "To enable/disable a user"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["auth"],
+        "summary": "Deletes a user by ID.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "type": "integer",
+            "description": "User ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully deleted"
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/firebase-users/email/{email}": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "Finds a user by email",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "type": "integer",
+            "description": "User's email",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/checkin": {
       "get": {
         "tags": ["checkin"],
         "summary": "Gets the checkin information of every user.",
@@ -73,7 +316,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "user": {
+                "userId": {
                   "type": "string"
                 },
                 "hexathon": {
@@ -251,7 +494,7 @@
         }
       }
     },
-    "/hexathons/": {
+    "/hexathons": {
       "get": {
         "tags": ["hexathons"],
         "summary": "Finds and displays information of all hexathons.",
@@ -374,7 +617,7 @@
         }
       }
     },
-    "/interactions/": {
+    "/interactions": {
       "get": {
         "tags": ["interactions"],
         "summary": "Finds and displays information of all iteractions.",
@@ -503,7 +746,7 @@
         }
       }
     },
-    "/notifications/email/": {
+    "/email": {
       "get": {
         "tags": ["notifications"],
         "summary": "",
@@ -516,7 +759,7 @@
         }
       }
     },
-    "/notifications/email/send": {
+    "/email/send": {
       "post": {
         "tags": ["notifications"],
         "summary": "Send an email.",
@@ -561,7 +804,7 @@
         }
       }
     },
-    "/notifications/text/send": {
+    "/text/send": {
       "post": {
         "tags": ["notifications"],
         "summary": "Send a text.",
@@ -600,7 +843,7 @@
         }
       }
     },
-    "/registration/application/": {
+    "/applications": {
       "get": {
         "tags": ["registration"],
         "summary": "Finds and displays information of all applications.",
@@ -636,28 +879,24 @@
             "schema": {
               "type": "object",
               "properties": {
-                "user": {
-                  "type": "string",
-                  "required": true
+                "userId": {
+                  "type": "string"
                 },
                 "hexathon": {
                   "type": "array",
                   "items": {
                     "$ref": "#/definitions/Hexathon"
-                  },
-                  "required": true
+                  }
                 },
                 "applicationBranch": {
-                  "type": "object",
-                  "required": true
+                  "type": "object"
                 },
                 "applicationData": {
                   "type": "object"
                 },
                 "applicationStartTime": {
                   "type": "string",
-                  "format": "date-time",
-                  "required": true
+                  "format": "date-time"
                 },
                 "applicationSubmitTime": {
                   "type": "string",
@@ -697,7 +936,7 @@
         }
       }
     },
-    "/registration/application/{id}": {
+    "/applications/{id}": {
       "get": {
         "tags": ["registration"],
         "summary": "Finds and displays application by id.",
@@ -749,28 +988,24 @@
             "schema": {
               "type": "object",
               "properties": {
-                "user": {
-                  "type": "string",
-                  "required": true
+                "userId": {
+                  "type": "string"
                 },
                 "hexathon": {
                   "type": "array",
                   "items": {
                     "$ref": "#/definitions/Hexathon"
-                  },
-                  "required": true
+                  }
                 },
                 "applicationBranch": {
-                  "type": "object",
-                  "required": true
+                  "type": "object"
                 },
                 "applicationData": {
                   "type": "object"
                 },
                 "applicationStartTime": {
                   "type": "string",
-                  "format": "date-time",
-                  "required": true
+                  "format": "date-time"
                 },
                 "applicationSubmitTime": {
                   "type": "string",
@@ -810,7 +1045,7 @@
         }
       }
     },
-    "/registration/branch/": {
+    "/branches": {
       "get": {
         "tags": ["registration"],
         "summary": "Finds and displays information of all branches.",
@@ -847,12 +1082,10 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "type": "string",
-                  "required": true
+                  "type": "string"
                 },
                 "type": {
-                  "type": "string",
-                  "required": true
+                  "type": "string"
                 },
                 "settings": {
                   "type": "object",
@@ -866,6 +1099,14 @@
                       "format": "date-time"
                     }
                   }
+                },
+                "jsonSchema": {
+                  "type": "object",
+                  "default": {}
+                },
+                "uiSchema": {
+                  "type": "object",
+                  "default": {}
                 }
               }
             }
@@ -887,7 +1128,7 @@
         }
       }
     },
-    "/registration/branch/{id}": {
+    "/branches/{id}": {
       "get": {
         "tags": ["registration"],
         "summary": "Finds and displays information of branches by id.",
@@ -940,12 +1181,10 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "type": "string",
-                  "required": true
+                  "type": "string"
                 },
                 "type": {
-                  "type": "string",
-                  "required": true
+                  "type": "string"
                 },
                 "settings": {
                   "type": "object",
@@ -959,6 +1198,14 @@
                       "format": "date-time"
                     }
                   }
+                },
+                "jsonSchema": {
+                  "type": "object",
+                  "default": {}
+                },
+                "uiSchema": {
+                  "type": "object",
+                  "default": {}
                 }
               }
             }
@@ -980,73 +1227,55 @@
         }
       }
     },
-    "/users/auth/login": {
-      "post": {
-        "tags": ["users"],
-        "summary": "Create the session cookie for a user.",
-        "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "idToken",
-            "in": "body",
-            "description": "ID Token.",
-            "required": true,
-            "schema": {
-              "$ref": ""
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Cookie policy successfully set"
-          },
-          "400": {
-            "description": "Recent sign in is required"
-          }
-        }
-      }
-    },
-    "/users/auth/status": {
+    "/statistics": {
       "get": {
-        "tags": ["users"],
-        "summary": "User status.",
+        "tags": ["registration"],
+        "summary": "Displays registration statistics.",
         "description": "",
         "produces": ["application/json"],
         "responses": {
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "array",
-              "items": {
-                "customToken": ""
+              "type": "object",
+              "properties": {
+                "general": {
+                  "type": "object",
+                  "properties": {
+                    "applicationStarted": {
+                      "type": "integer"
+                    },
+                    "applicationSubmitted": {
+                      "type": "integer"
+                    },
+                    "confirmed": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "applications": {
+                  "type": "object",
+                  "properties": {
+                    "branch": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "confirmations": {
+                  "type": "object",
+                  "properties": {
+                    "branch": {
+                      "type": "integer"
+                    }
+                  }
+                }
               }
             }
-          },
-          "400": {
-            "description": "Invalid status"
           }
         }
       }
     },
-    "/users/auth/logout": {
-      "get": {
-        "tags": ["users"],
-        "summary": "User logout.",
-        "description": "",
-        "produces": ["application/json"],
-        "responses": {
-          "204": {
-            "description": "successful operation"
-          },
-          "400": {
-            "description": "Invalid status"
-          }
-        }
-      }
-    },
-    "/users/companies/": {
+    "/companies": {
       "post": {
         "tags": ["users"],
         "summary": "Create a new company.",
@@ -1063,8 +1292,7 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "type": "string",
-                  "required": true
+                  "type": "string"
                 },
                 "defaultEmailDomains": {
                   "type": "array",
@@ -1104,7 +1332,7 @@
         }
       }
     },
-    "/users/companies/{id}": {
+    "/companies/{id}": {
       "get": {
         "tags": ["users"],
         "summary": "Finds and displays company by id.",
@@ -1164,7 +1392,7 @@
         }
       }
     },
-    "/users/companies/{id}/employees/add": {
+    "/companies/{id}/employees/add": {
       "post": {
         "tags": ["users"],
         "summary": "Adds an employee to the company.",
@@ -1195,7 +1423,7 @@
         }
       }
     },
-    "/users/companies/{id}/employees/": {
+    "/companies/{id}/employees/": {
       "put": {
         "tags": ["users"],
         "summary": "Updates an employee in the company.",
@@ -1226,237 +1454,10 @@
         }
       }
     },
-    "/users/users/{userId}/profile/": {
+    "/users": {
       "get": {
         "tags": ["users"],
-        "summary": "Finds and displays profile by user ID.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "type": "integer",
-            "description": "User ID",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Profile"
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      },
-      "post": {
-        "tags": ["users"],
-        "summary": "Create a user's profile.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "type": "integer",
-            "description": "User ID",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Profile"
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      },
-      "put": {
-        "tags": ["users"],
-        "summary": "Update a user's profile.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "type": "integer",
-            "description": "User ID",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Profile"
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/users/users/": {
-      "get": {
-        "tags": ["users"],
-        "summary": "Finds and displays all users.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "pageSize",
-            "in": "query",
-            "type": "string",
-            "description": "",
-            "required": false
-          },
-          {
-            "name": "pageToken",
-            "in": "query",
-            "type": "string",
-            "description": "",
-            "required": false
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "pageSize": {
-                  "type": "integer"
-                },
-                "pageToken": {
-                  "type": "string"
-                },
-                "users": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/Profile"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/users/users/{userId}": {
-      "get": {
-        "tags": ["users"],
-        "summary": "Finds and displays all users by user ID.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "type": "integer",
-            "description": "User ID",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Profile"
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      },
-      "patch": {
-        "tags": ["users"],
-        "summary": "Updates existing user by ID.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "type": "integer",
-            "description": "User ID",
-            "required": true
-          },
-          {
-            "name": "disabled",
-            "in": "body",
-            "description": "",
-            "required": false
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Profile"
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      },
-      "delete": {
-        "tags": ["users"],
-        "summary": "Deletes a user by ID.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "type": "integer",
-            "description": "User ID",
-            "required": true
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "successfully deleted"
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/users/users/actions/search": {
-      "get": {
-        "tags": ["users"],
-        "summary": "Search for profile.",
+        "summary": "Search for a user profile.",
         "description": "",
         "produces": ["application/json"],
         "parameters": [
@@ -1517,6 +1518,118 @@
             "description": "Invalid Status"
           }
         }
+      },
+      "post": {
+        "tags": ["users"],
+        "summary": "Create a user's profile.",
+        "description": "",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Profile"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/users/{userId}": {
+      "get": {
+        "tags": ["users"],
+        "summary": "Finds and displays profile by user ID.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "type": "integer",
+            "description": "User ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Profile"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "put": {
+        "tags": ["users"],
+        "summary": "Update a user's profile.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "type": "integer",
+            "description": "User ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Profile"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/users/actions/retrieve": {
+      "post": {
+        "tags": ["users"],
+        "summary": "Gets user profiles by list of userIds",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "userIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Profile"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
       }
     }
   },
@@ -1528,17 +1641,15 @@
           "type": "integer",
           "format": "int64"
         },
-        "user": {
-          "type": "string",
-          "required": true
+        "userId": {
+          "type": "string"
         },
         "hexathon": {
           "type": "integer"
         },
         "status": {
           "type": "string",
-          "default": "NOT_CHECKED_IN",
-          "required": true
+          "default": "NOT_CHECKED_IN"
         },
         "createdAt": {
           "type": "string",
@@ -1561,20 +1672,16 @@
           "format": "int64"
         },
         "userId": {
-          "type": "string",
-          "required": true
+          "type": "string"
         },
         "mimeType": {
-          "type": "string",
-          "required": true
+          "type": "string"
         },
         "fileName": {
-          "type": "string",
-          "required": true
+          "type": "string"
         },
         "storageId": {
-          "type": "string",
-          "required": true
+          "type": "string"
         }
       },
       "xml": {
@@ -1589,12 +1696,10 @@
           "format": "int64"
         },
         "name": {
-          "type": "string",
-          "required": true
+          "type": "string"
         },
         "isActive": {
           "type": "boolean",
-          "required": true,
           "default": true
         }
       },
@@ -1610,25 +1715,21 @@
           "format": "int64"
         },
         "userId": {
-          "type": "string",
-          "required": true
+          "type": "string"
         },
         "type": {
           "type": "string",
-          "enum": ["event", "scavengerHunt"],
-          "required": true
+          "enum": ["event", "scavengerHunt"]
         },
         "identifier": {
           "type": "string"
         },
         "timeStamp": {
           "type": "string",
-          "format": "date-time",
-          "required": true
+          "format": "date-time"
         },
         "hackathon": {
-          "type": "string",
-          "required": true
+          "type": "string"
         }
       },
       "xml": {
@@ -1642,17 +1743,14 @@
           "type": "integer",
           "format": "int64"
         },
-        "user": {
-          "type": "string",
-          "required": true
+        "userId": {
+          "type": "string"
         },
         "hexathon": {
-          "type": "integer",
-          "required": true
+          "type": "integer"
         },
         "applicationBranch": {
-          "type": "object",
-          "required": true
+          "type": "object"
         },
         "applicationStartTime": {
           "type": "string",
@@ -1697,27 +1795,31 @@
           "format": "int64"
         },
         "name": {
-          "type": "string",
-          "required": true
+          "type": "string"
         },
         "type": {
-          "type": "string",
-          "required": true
+          "type": "string"
         },
         "settings": {
           "type": "object",
           "properties": {
             "open": {
               "type": "string",
-              "format": "date-time",
-              "required": true
+              "format": "date-time"
             },
             "closed": {
               "type": "string",
-              "format": "date-time",
-              "required": true
+              "format": "date-time"
             }
           }
+        },
+        "jsonSchema": {
+          "type": "object",
+          "default": {}
+        },
+        "uiSchema": {
+          "type": "object",
+          "default": {}
         }
       },
       "xml": {
@@ -1732,11 +1834,13 @@
           "format": "int64"
         },
         "name": {
-          "type": "string",
-          "required": true
+          "type": "string"
         },
         "defaultEmailDomains": {
           "type": "array",
+          "items": {
+            "type": "string"
+          },
           "default": []
         },
         "hasResumeAccess": {
@@ -1745,6 +1849,9 @@
         },
         "employees": {
           "type": "array",
+          "items": {
+            "type": "string"
+          },
           "default": []
         }
       },
@@ -1759,25 +1866,20 @@
           "type": "integer",
           "format": "int64"
         },
-        "user": {
-          "type": "string",
-          "required": true,
-          "unique": true
+        "userId": {
+          "type": "string"
         },
         "name": {
           "type": "object",
           "properties": {
             "first": {
-              "type": "string",
-              "required": true
+              "type": "string"
             },
             "middle": {
-              "type": "string",
-              "required": true
+              "type": "string"
             },
             "last": {
-              "type": "string",
-              "required": true
+              "type": "string"
             }
           }
         },
@@ -1790,6 +1892,49 @@
       },
       "xml": {
         "name": "Profile"
+      }
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "emailVerified": {
+          "type": "boolean"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "disabled": {
+          "type": "boolean"
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "lastSignInTime": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "creationTime": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "providerData": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "default": []
+        }
+      },
+      "xml": {
+        "name": "User"
       }
     }
   }

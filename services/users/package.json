@@ -34,6 +34,7 @@
     "helmet": "^5.0.2",
     "mongodb": "^4.4.1",
     "mongoose": "^6.1.9",
+    "mongoose-paginate-v2": "^1.6.3",
     "morgan": "^1.10.0",
     "path": "^0.12.7",
     "re2": "^1.17.4",

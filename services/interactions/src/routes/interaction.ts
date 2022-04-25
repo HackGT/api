@@ -1,4 +1,4 @@
-import { asyncHandler, BadRequestError, checkApiKey } from "@api/common";
+import { asyncHandler, BadRequestError } from "@api/common";
 import express from "express";
 import { FilterQuery } from "mongoose";
 
@@ -11,11 +11,15 @@ interactionRoutes.route("/").get(
     const filter: FilterQuery<Interaction> = {};
 
     if (req.query.hackathon) {
-      filter.event = String(req.query.hackathon);
+      filter.hackathon = String(req.query.hackathon);
     }
 
     if (req.query.userId) {
       filter.userId = String(req.query.userId);
+    }
+
+    if (req.query.identifier) {
+      filter.identifier = String(req.query.identifier);
     }
 
     const interactions = await EventInteraction.find(filter);
@@ -62,5 +66,43 @@ interactionRoutes.route("/:id").put(
     );
 
     res.send(interaction);
+  })
+);
+
+interactionRoutes.route("/statistics").get(
+  asyncHandler(async (req, res) => {
+    const interactions = await EventInteraction.find({
+      hackathon: String(req.query.hackathon),
+    });
+
+    const interactionsSummary: any = {};
+
+    if (interactions.length !== 0) {
+      interactions.forEach((interaction: Interaction) => {
+        if (interaction.identifier != null) {
+          if (!(interaction.identifier in interactionsSummary)) {
+            interactionsSummary[interaction.identifier] = {
+              type: interaction.type,
+              count: 1,
+              firstTimestamp: interaction.timestamp,
+              lastTimestamp: interaction.timestamp,
+            };
+          } else {
+            interactionsSummary[interaction.identifier].count++;
+            if (
+              interaction.timestamp < interactionsSummary[interaction.identifier].firstTimestamp
+            ) {
+              interactionsSummary[interaction.identifier].firstTimestamp = interaction.timestamp;
+            } else if (
+              interaction.timestamp > interactionsSummary[interaction.identifier].lastTimestamp
+            ) {
+              interactionsSummary[interaction.identifier].lastTimestamp = interaction.timestamp;
+            }
+          }
+        }
+      });
+    }
+
+    return res.send(interactionsSummary);
   })
 );

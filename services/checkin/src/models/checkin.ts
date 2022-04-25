@@ -1,7 +1,7 @@
 import { Schema, model, Types } from "mongoose";
 
 export interface Checkin {
-  user: string;
+  userId: string;
   status: string;
   hexathon: Types.ObjectId;
   createdAt: Date;
@@ -10,7 +10,7 @@ export interface Checkin {
 
 const checkinSchema = new Schema<Checkin>(
   {
-    user: {
+    userId: {
       type: String,
       required: true,
     },

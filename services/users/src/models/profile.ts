@@ -1,13 +1,14 @@
-import { Schema, model, Types } from "mongoose";
+import { Schema, model, Types, PaginateModel } from "mongoose";
+import mongoosePaginate from "mongoose-paginate-v2";
 
 export interface Profile {
-  user: string;
-  job: string;
+  userId: string;
   name: {
     first: string;
     middle: string;
     last: string;
   };
+  job: string;
   school: {
     name: string;
     year: string;
@@ -18,10 +19,15 @@ export interface Profile {
   phoneNumber: string;
   gender: string;
   resume: Types.ObjectId;
+  permissions: {
+    member: boolean;
+    exec: boolean;
+    admin: boolean;
+  };
 }
 
 const profileSchema = new Schema<Profile>({
-  user: {
+  userId: {
     type: String,
     required: true,
     unique: true,
@@ -38,6 +44,10 @@ const profileSchema = new Schema<Profile>({
       type: String,
       required: true,
     },
+  },
+  job: {
+    type: String,
+    required: false,
   },
   school: {
     type: {
@@ -71,6 +81,22 @@ const profileSchema = new Schema<Profile>({
     type: String,
   },
   resume: Types.ObjectId,
+  permissions: {
+    member: {
+      type: Boolean,
+      default: false,
+    },
+    exec: {
+      type: Boolean,
+      default: false,
+    },
+    admin: {
+      type: Boolean,
+      default: false,
+    },
+  },
 });
 
-export const ProfileModel = model<Profile>("Profile", profileSchema);
+profileSchema.plugin(mongoosePaginate);
+
+export const ProfileModel = model<Profile, PaginateModel<Profile>>("Profile", profileSchema);
