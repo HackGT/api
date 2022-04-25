@@ -28,9 +28,9 @@ export interface Application {
     };
     website: string;
     linkedin: string;
-    extraInfo: [Types.ObjectId];
-    confirmChecks: Types.ObjectId;
-    essays: [Types.ObjectId];
+    extraInfo: [Schema.Types.Mixed];
+    confirmChecks: Schema.Types.Mixed;
+    essays: [Schema.Types.Mixed];
   };
   applicationStartTime: Date;
   applicationSubmitTime: Date;
