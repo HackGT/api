@@ -2,8 +2,8 @@
 import { asyncHandler } from "@api/common";
 import express from "express";
 
-import { ApplicationModel } from "src/models/application";
-import { BranchModel, BranchType } from "src/models/branch";
+import { ApplicationModel } from "../models/application";
+import { BranchModel, BranchType } from "../models/branch";
 
 export const statisticsRouter = express.Router();
 
