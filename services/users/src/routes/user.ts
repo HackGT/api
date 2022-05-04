@@ -74,7 +74,7 @@ userRoutes.route("/").post(
 userRoutes.route("/:userId").get(
   asyncHandler(async (req, res) => {
     const profile = await ProfileModel.findOne({
-      user: req.params.userId,
+      userId: req.params.userId,
     });
 
     res.send(profile || {});
@@ -85,7 +85,7 @@ userRoutes.route("/:userId").put(
   asyncHandler(async (req, res) => {
     if (req.body.permissions) {
       const profile = await ProfileModel.findOne({
-        user: req.user?.uid,
+        userId: req.user?.uid,
       });
 
       if (!profile || !(profile.permissions.exec || profile.permissions.admin)) {
@@ -94,7 +94,7 @@ userRoutes.route("/:userId").put(
     }
 
     const updatedProfile = await ProfileModel.findOneAndUpdate(
-      { user: req.params.userId },
+      { userId: req.params.userId },
       req.body,
       {
         new: true,
@@ -114,7 +114,7 @@ userRoutes.route("/actions/retrieve").post(
     }
 
     const profiles = await ProfileModel.find({
-      user: userIds,
+      userId: userIds,
     });
 
     return res.status(200).json(profiles);
