@@ -1,25 +1,10 @@
 import { asyncHandler, BadRequestError } from "@api/common";
 import express from "express";
-import Ajv from "ajv";
 
-import { ApplicationModel } from "../models/application";
-import { BranchModel } from "../models/branch";
+import { Application, ApplicationModel } from "../models/application";
+import { validateApplicationData } from "../util";
 
 export const applicationRouter = express.Router();
-const ajv = new Ajv();
-
-const validateApplicationData = async (branchId: any, applicationData: any) => {
-  const branch = await BranchModel.findById(branchId);
-  if (branch == null) {
-    throw new BadRequestError("Branch not found.");
-  }
-
-  const validate = ajv.compile(branch.jsonSchema);
-  const valid = validate(applicationData);
-  if (!valid) {
-    throw new BadRequestError(`${validate.errors}`);
-  }
-};
 
 applicationRouter.route("/").get(
   asyncHandler(async (req, res) => {
@@ -39,47 +24,54 @@ applicationRouter.route("/:id").get(
 
 applicationRouter.route("/").post(
   asyncHandler(async (req, res) => {
-    await validateApplicationData(req.body.applicationBranch, req.body.applicationData);
+    const existingApplication = await ApplicationModel.findOne({
+      userId: req.user?.uid,
+      hexathon: req.body.hexathon,
+    });
 
-    interface Application {
-      [key: string]: any;
+    if (existingApplication) {
+      throw new BadRequestError("User already has an existing application for this event");
     }
 
-    const application: Application = {
+    await validateApplicationData(req.body.applicationBranch, req.body.applicationData);
+
+    const application: Partial<Application> = {
       userId: req.user?.uid,
       hexathon: req.body.hexathon,
       applicationBranch: req.body.applicationBranch,
       applicationData: req.body.applicationData,
-      applicationStartTime: req.body.applicationStartTime,
-      applicationStatus: req.body.applicationStatus,
+      applicationStartTime: new Date(),
     };
+
     if (req.body.applicationStatus === "SUBMIT") {
-      application.applicationSubmitTime = req.body.applicationSubmitTime;
+      application.applicationSubmitTime = new Date();
     }
 
     const newApplication = await ApplicationModel.create(application);
+
     return res.send(newApplication);
   })
 );
 
 applicationRouter.route("/:id").patch(
   asyncHandler(async (req, res) => {
-    await validateApplicationData(req.body.applicationBranch, req.body.applicationData);
+    const existingApplication = await ApplicationModel.findById(req.params.id);
 
-    interface Application {
-      [key: string]: any;
+    if (!existingApplication) {
+      throw new BadRequestError("No application exists with this id");
     }
 
-    const application: Application = {
-      userId: req.user?.uid,
-      hexathon: req.body.hexathon,
-      applicationBranch: req.body.applicationBranch,
+    await validateApplicationData(
+      existingApplication.applicationBranch._id, // eslint-disable-line no-underscore-dangle
+      req.body.applicationData
+    );
+
+    const application: Partial<Application> = {
       applicationData: req.body.applicationData,
-      applicationStatus: req.body.applicationStatus,
     };
 
     if (req.body.applicationStatus === "SUBMIT") {
-      application.applicationSubmitTime = req.body.applicationSubmitTime;
+      application.applicationSubmitTime = new Date();
     }
 
     const updatedApplication = await ApplicationModel.findByIdAndUpdate(
@@ -87,6 +79,7 @@ applicationRouter.route("/:id").patch(
       application,
       { new: true }
     );
+
     return res.send(updatedApplication);
   })
 );
@@ -95,15 +88,22 @@ applicationRouter.route("/:id/confirmation").post(
   asyncHandler(async (req, res) => {
     await validateApplicationData(req.body.applicationBranch, req.body.applicationData);
 
-    const confirmedApplication = await ApplicationModel.create({
-      userId: req.user?.uid,
-      hexathon: req.body.hexathon,
+    const confirmation: Partial<Application> = {
       confirmationBranch: req.body.confirmationBranch,
       confirmationData: req.body.confirmationData,
-      confirmationStartTime: req.body.confirmationStartTime,
-      confirmationSubmitTime: req.body.confirmationSubmitTime,
-    });
+      confirmationStartTime: new Date(),
+    };
 
-    return res.send(confirmedApplication);
+    if (req.body.confirmationStatus === "SUBMIT") {
+      confirmation.confirmationSubmitTime = new Date();
+    }
+
+    const updatedApplication = await ApplicationModel.findByIdAndUpdate(
+      req.params.id,
+      confirmation,
+      { new: true }
+    );
+
+    return res.send(updatedApplication);
   })
 );
