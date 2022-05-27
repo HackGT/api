@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import { asyncHandler, BadRequestError } from "@api/common";
 import express from "express";
 
@@ -62,7 +63,7 @@ applicationRouter.route("/:id").patch(
     }
 
     await validateApplicationData(
-      existingApplication.applicationBranch._id, // eslint-disable-line no-underscore-dangle
+      existingApplication.applicationBranch._id,
       req.body.applicationData
     );
 
@@ -86,12 +87,47 @@ applicationRouter.route("/:id").patch(
 
 applicationRouter.route("/:id/confirmation").post(
   asyncHandler(async (req, res) => {
-    await validateApplicationData(req.body.applicationBranch, req.body.applicationData);
+    await validateApplicationData(req.body.confirmationBranch, req.body.confirmationData);
 
     const confirmation: Partial<Application> = {
       confirmationBranch: req.body.confirmationBranch,
       confirmationData: req.body.confirmationData,
       confirmationStartTime: new Date(),
+    };
+
+    if (req.body.confirmationStatus === "SUBMIT") {
+      confirmation.confirmationSubmitTime = new Date();
+    }
+
+    const updatedApplication = await ApplicationModel.findByIdAndUpdate(
+      req.params.id,
+      confirmation,
+      { new: true }
+    );
+
+    return res.send(updatedApplication);
+  })
+);
+
+applicationRouter.route("/:id/confirmation").patch(
+  asyncHandler(async (req, res) => {
+    const existingApplication = await ApplicationModel.findById(req.params.id);
+
+    if (!existingApplication) {
+      throw new BadRequestError("No application exists with this id");
+    }
+
+    if (!existingApplication.confirmationBranch) {
+      throw new BadRequestError("No confirmation branch exists for this application");
+    }
+
+    await validateApplicationData(
+      existingApplication.confirmationBranch._id,
+      req.body.confirmationData
+    );
+
+    const confirmation: Partial<Application> = {
+      confirmationData: req.body.confirmationData,
     };
 
     if (req.body.confirmationStatus === "SUBMIT") {
