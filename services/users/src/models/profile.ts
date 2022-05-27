@@ -1,4 +1,5 @@
-import { Schema, model, Types } from "mongoose";
+import { Schema, model, Types, PaginateModel } from "mongoose";
+import mongoosePaginate from "mongoose-paginate-v2";
 
 export interface Profile {
   userId: string;
@@ -10,6 +11,11 @@ export interface Profile {
   phoneNumber: string;
   gender: string;
   resume: Types.ObjectId;
+  permissions: {
+    member: boolean;
+    exec: boolean;
+    admin: boolean;
+  };
 }
 
 const profileSchema = new Schema<Profile>({
@@ -38,6 +44,22 @@ const profileSchema = new Schema<Profile>({
     type: String,
   },
   resume: Types.ObjectId,
+  permissions: {
+    member: {
+      type: Boolean,
+      default: false,
+    },
+    exec: {
+      type: Boolean,
+      default: false,
+    },
+    admin: {
+      type: Boolean,
+      default: false,
+    },
+  },
 });
 
-export const ProfileModel = model<Profile>("Profile", profileSchema);
+profileSchema.plugin(mongoosePaginate);
+
+export const ProfileModel = model<Profile, PaginateModel<Profile>>("Profile", profileSchema);

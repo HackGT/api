@@ -9,7 +9,7 @@ checkinRouter.route("/").get(
   asyncHandler(async (req, res) => {
     const checkins = await CheckinModel.find({});
 
-    return res.send(checkins);
+    return res.json(checkins);
   })
 );
 
@@ -21,7 +21,7 @@ checkinRouter.route("/").post(
       status: req.body.status,
     });
 
-    return res.send(newCheckin);
+    return res.json(newCheckin);
   })
 );
 
@@ -29,7 +29,7 @@ checkinRouter.route("/:id").get(
   asyncHandler(async (req, res) => {
     const checkin = await CheckinModel.findById(req.params.id);
 
-    return res.send(checkin);
+    return res.json(checkin);
   })
 );
 
@@ -43,6 +43,6 @@ checkinRouter.route("/:id").patch(
       { new: true }
     );
 
-    return res.send(checkin);
+    return res.json(checkin);
   })
 );

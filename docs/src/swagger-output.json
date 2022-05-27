@@ -1227,6 +1227,54 @@
         }
       }
     },
+    "/statistics": {
+      "get": {
+        "tags": ["registration"],
+        "summary": "Displays registration statistics.",
+        "description": "",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "general": {
+                  "type": "object",
+                  "properties": {
+                    "applicationStarted": {
+                      "type": "integer"
+                    },
+                    "applicationSubmitted": {
+                      "type": "integer"
+                    },
+                    "confirmed": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "applications": {
+                  "type": "object",
+                  "properties": {
+                    "branch": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "confirmations": {
+                  "type": "object",
+                  "properties": {
+                    "branch": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/companies": {
       "post": {
         "tags": ["users"],
@@ -1409,25 +1457,60 @@
     "/users": {
       "get": {
         "tags": ["users"],
-        "summary": "Gets user profiles by userIds",
+        "summary": "Search for a user profile.",
         "description": "",
         "produces": ["application/json"],
         "parameters": [
           {
-            "name": "userIds",
+            "name": "limit",
             "in": "query",
             "type": "string",
-            "description": "Comma separated userIds to get",
-            "required": false
+            "description": "specifies the number of valid objects to return",
+            "required": true
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "string",
+            "description": "specifies offset in pagination",
+            "required": true
+          },
+          {
+            "name": "regex",
+            "in": "query",
+            "type": "string",
+            "description": "specifies if search term uses regex or not",
+            "required": true
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "type": "string",
+            "description": "search term",
+            "required": true
           }
         ],
         "responses": {
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Profile"
+              "type": "object",
+              "properties": {
+                "offset": {
+                  "type": "integer"
+                },
+                "total": {
+                  "type": "integer"
+                },
+                "count": {
+                  "type": "integer"
+                },
+                "profiles": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Profile"
+                  }
+                }
               }
             }
           },
@@ -1508,63 +1591,38 @@
         }
       }
     },
-    "/users/actions/search": {
-      "get": {
+    "/users/actions/retrieve": {
+      "post": {
         "tags": ["users"],
-        "summary": "Search for a user profile.",
+        "summary": "Gets user profiles by list of userIds",
         "description": "",
         "produces": ["application/json"],
         "parameters": [
           {
-            "name": "limit",
-            "in": "query",
-            "type": "string",
-            "description": "specifies the number of valid objects to return",
-            "required": true
-          },
-          {
-            "name": "offset",
-            "in": "query",
-            "type": "string",
-            "description": "specifies offset in pagination",
-            "required": true
-          },
-          {
-            "name": "regex",
-            "in": "query",
-            "type": "string",
-            "description": "specifies if search term uses regex or not",
-            "required": true
-          },
-          {
-            "name": "search",
-            "in": "query",
-            "type": "string",
-            "description": "search term",
-            "required": true
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "userIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "object",
-              "properties": {
-                "offset": {
-                  "type": "integer"
-                },
-                "total": {
-                  "type": "integer"
-                },
-                "count": {
-                  "type": "integer"
-                },
-                "profiles": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/Profile"
-                  }
-                }
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Profile"
               }
             }
           },

@@ -1,12 +1,16 @@
-import { Schema, model, Types, Mixed } from "mongoose";
-import autopopulate from "mongoose-autopopulate";
+import { Schema, Types, Mixed, PaginateModel, model } from "mongoose";
+import mongooseAutopopulate from "mongoose-autopopulate";
+import mongoosePaginate from "mongoose-paginate-v2";
+import { AutoPopulatedDoc } from "@api/common";
 
-import { BranchModel } from "./branch";
+import { Branch, BranchModel } from "./branch";
 
 export interface Application {
   userId: string;
   hexathon: Types.ObjectId;
-  applicationBranch: Types.ObjectId;
+  applicationBranch: AutoPopulatedDoc<Branch>;
+  applicationStartTime: Date;
+  applicationSubmitTime?: Date;
   applicationData: {
     adult?: boolean;
     occupation?: string;
@@ -32,12 +36,10 @@ export interface Application {
     confirmChecks?: Schema.Types.Mixed;
     essays?: [Schema.Types.Mixed];
   };
-  applicationStartTime: Date;
-  applicationSubmitTime?: Date;
-  confirmationBranch: Types.ObjectId;
-  confirmationData: Mixed;
-  confirmationStartTime: Date;
+  confirmationBranch?: AutoPopulatedDoc<Branch>;
+  confirmationStartTime?: Date;
   confirmationSubmitTime?: Date;
+  confirmationData?: Mixed;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -152,6 +154,10 @@ const applicationSchema = new Schema<Application>(
   }
 );
 
-applicationSchema.plugin(autopopulate);
+applicationSchema.plugin(mongooseAutopopulate);
+applicationSchema.plugin(mongoosePaginate);
 
-export const ApplicationModel = model<Application>("Application", applicationSchema);
+export const ApplicationModel = model<Application, PaginateModel<Application>>(
+  "Application",
+  applicationSchema
+);
