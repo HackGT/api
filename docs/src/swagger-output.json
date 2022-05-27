@@ -879,42 +879,17 @@
             "schema": {
               "type": "object",
               "properties": {
-                "userId": {
+                "hexathon": {
                   "type": "string"
                 },
-                "hexathon": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/Hexathon"
-                  }
-                },
                 "applicationBranch": {
-                  "type": "object"
+                  "type": "string"
                 },
                 "applicationData": {
-                  "type": "object"
+                  "$ref": "#/definitions/ApplicationData"
                 },
-                "applicationStartTime": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "applicationSubmitTime": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "confirmationBranch": {
-                  "type": "object"
-                },
-                "confirmationData": {
-                  "type": "object"
-                },
-                "confirmationStartTime": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "confirmationSubmitTime": {
-                  "type": "string",
-                  "format": "date-time"
+                "applicationStatus": {
+                  "type": "string"
                 }
               }
             }
@@ -924,10 +899,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Application"
-              }
+              "$ref": "#/definitions/Application"
             }
           },
           "400": {
@@ -955,10 +927,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Application"
-              }
+              "$ref": "#/definitions/Application"
             }
           },
           "400": {
@@ -968,7 +937,7 @@
       },
       "patch": {
         "tags": ["registration"],
-        "summary": "Create a new application.",
+        "summary": "Updates an application.",
         "description": "",
         "consumes": ["application/json"],
         "produces": ["application/json"],
@@ -988,42 +957,11 @@
             "schema": {
               "type": "object",
               "properties": {
-                "userId": {
-                  "type": "string"
-                },
-                "hexathon": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/Hexathon"
-                  }
-                },
-                "applicationBranch": {
-                  "type": "object"
-                },
                 "applicationData": {
-                  "type": "object"
+                  "$ref": "#/definitions/ApplicationData"
                 },
-                "applicationStartTime": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "applicationSubmitTime": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "confirmationBranch": {
-                  "type": "object"
-                },
-                "confirmationData": {
-                  "type": "object"
-                },
-                "confirmationStartTime": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "confirmationSubmitTime": {
-                  "type": "string",
-                  "format": "date-time"
+                "applicationStatus": {
+                  "type": "string"
                 }
               }
             }
@@ -1033,10 +971,100 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Application"
+              "$ref": "#/definitions/Application"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/applications/{id}/confirmation": {
+      "post": {
+        "tags": ["registration"],
+        "summary": "Create a new confirmation for an application.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "description": "Application id.",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "confirmationBranch": {
+                  "type": "string"
+                },
+                "confirmationData": {
+                  "type": "object"
+                },
+                "confirmationStatus": {
+                  "type": "string"
+                }
               }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Application"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["registration"],
+        "summary": "Updates a confirmation for an application.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "description": "Application id.",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "confirmationData": {
+                  "type": "object"
+                },
+                "confirmationStatus": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Application"
             }
           },
           "400": {
@@ -1116,10 +1144,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Branch"
-              }
+              "$ref": "#/definitions/Branch"
             }
           },
           "400": {
@@ -1131,7 +1156,7 @@
     "/branches/{id}": {
       "get": {
         "tags": ["registration"],
-        "summary": "Finds and displays information of branches by id.",
+        "summary": "Find a branch by id.",
         "description": "",
         "produces": ["application/json"],
         "parameters": [
@@ -1147,10 +1172,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Branch"
-              }
+              "$ref": "#/definitions/Branch"
             }
           },
           "400": {
@@ -1215,10 +1237,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Branch"
-              }
+              "$ref": "#/definitions/Branch"
             }
           },
           "400": {
@@ -1254,20 +1273,10 @@
                   }
                 },
                 "applications": {
-                  "type": "object",
-                  "properties": {
-                    "branch": {
-                      "type": "integer"
-                    }
-                  }
+                  "type": "object"
                 },
                 "confirmations": {
-                  "type": "object",
-                  "properties": {
-                    "branch": {
-                      "type": "integer"
-                    }
-                  }
+                  "type": "object"
                 }
               }
             }
@@ -1750,7 +1759,7 @@
           "type": "integer"
         },
         "applicationBranch": {
-          "type": "object"
+          "$ref": "#/definitions/Branch"
         },
         "applicationStartTime": {
           "type": "string",
@@ -1760,11 +1769,11 @@
           "type": "string",
           "format": "date-time"
         },
-        "confirmationBranch": {
-          "type": "object"
+        "applicationData": {
+          "$ref": "#/definitions/ApplicationData"
         },
-        "confirmationData": {
-          "type": "object"
+        "confirmationBranch": {
+          "$ref": "#/definitions/Branch"
         },
         "confirmationStartTime": {
           "type": "string",
@@ -1773,6 +1782,9 @@
         "confirmationSubmitTime": {
           "type": "string",
           "format": "date-time"
+        },
+        "confirmationData": {
+          "type": "object"
         },
         "createdAt": {
           "type": "string",
@@ -1785,6 +1797,88 @@
       },
       "xml": {
         "name": "Application"
+      }
+    },
+    "ApplicationData": {
+      "type": "object",
+      "properties": {
+        "adult": {
+          "type": "boolean"
+        },
+        "occupation": {
+          "type": "string"
+        },
+        "school": {
+          "type": "string"
+        },
+        "graduationYear": {
+          "type": "number"
+        },
+        "major": {
+          "type": "string"
+        },
+        "shirtSize": {
+          "type": "string"
+        },
+        "dietaryRestriction": {
+          "type": "string"
+        },
+        "phoneNumber": {
+          "type": "string"
+        },
+        "gender": {
+          "type": "string"
+        },
+        "ethnicity": {
+          "type": "string"
+        },
+        "address": {
+          "type": "object",
+          "properties": {
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string"
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            },
+            "zip": {
+              "type": "number"
+            },
+            "country": {
+              "type": "string"
+            }
+          }
+        },
+        "website": {
+          "type": "string"
+        },
+        "linknedin": {
+          "type": "string"
+        },
+        "extraInfo": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "confirmChecks": {
+          "type": "object"
+        },
+        "essays": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      },
+      "xml": {
+        "name": "ApplicationData"
       }
     },
     "Branch": {

@@ -1,25 +1,11 @@
+/* eslint-disable no-underscore-dangle */
 import { asyncHandler, BadRequestError } from "@api/common";
 import express from "express";
-import Ajv from "ajv";
 
-import { ApplicationModel } from "../models/application";
-import { BranchModel } from "../models/branch";
+import { Application, ApplicationModel } from "../models/application";
+import { validateApplicationData } from "../util";
 
 export const applicationRouter = express.Router();
-const ajv = new Ajv();
-
-const validateApplicationData = async (branchId: any, applicationData: any) => {
-  const branch = await BranchModel.findById(branchId);
-  if (branch == null) {
-    throw new BadRequestError("Branch not found.");
-  }
-
-  const validate = ajv.compile(branch.jsonSchema);
-  const valid = validate(applicationData);
-  if (!valid) {
-    throw new BadRequestError(`${validate.errors}`);
-  }
-};
 
 applicationRouter.route("/").get(
   asyncHandler(async (req, res) => {
@@ -39,20 +25,30 @@ applicationRouter.route("/:id").get(
 
 applicationRouter.route("/").post(
   asyncHandler(async (req, res) => {
+    const existingApplication = await ApplicationModel.findOne({
+      userId: req.user?.uid,
+      hexathon: req.body.hexathon,
+    });
+
+    if (existingApplication) {
+      throw new BadRequestError("User already has an existing application for this event");
+    }
+
     await validateApplicationData(req.body.applicationBranch, req.body.applicationData);
 
-    const newApplication = await ApplicationModel.create({
-      userId: req.body.userId,
+    const application: Partial<Application> = {
+      userId: req.user?.uid,
       hexathon: req.body.hexathon,
       applicationBranch: req.body.applicationBranch,
       applicationData: req.body.applicationData,
-      applicationStartTime: req.body.applicationStartTime,
-      applicationSubmitTime: req.body.applicationSubmitTime,
-      confirmationBranch: req.body.confirmationBranch,
-      confirmationData: req.body.confirmationData,
-      confirmationStartTime: req.body.confirmationStartTime,
-      confirmationSubmitTime: req.body.confirmationSubmitTime,
-    });
+      applicationStartTime: new Date(),
+    };
+
+    if (req.body.applicationStatus === "SUBMIT") {
+      application.applicationSubmitTime = new Date();
+    }
+
+    const newApplication = await ApplicationModel.create(application);
 
     return res.send(newApplication);
   })
@@ -60,24 +56,90 @@ applicationRouter.route("/").post(
 
 applicationRouter.route("/:id").patch(
   asyncHandler(async (req, res) => {
-    await validateApplicationData(req.body.applicationBranch, req.body.applicationData);
+    const existingApplication = await ApplicationModel.findById(req.params.id);
+
+    if (!existingApplication) {
+      throw new BadRequestError("No application exists with this id");
+    }
+
+    await validateApplicationData(
+      existingApplication.applicationBranch._id,
+      req.body.applicationData
+    );
+
+    const application: Partial<Application> = {
+      applicationData: req.body.applicationData,
+    };
+
+    if (req.body.applicationStatus === "SUBMIT") {
+      application.applicationSubmitTime = new Date();
+    }
 
     const updatedApplication = await ApplicationModel.findByIdAndUpdate(
       req.params.id,
-      {
-        userId: req.body.userId,
-        hexathon: req.body.hexathon,
-        applicationBranch: req.body.applicationBranch,
-        applicationData: req.body.applicationData,
-        applicationStartTime: req.body.applicationStartTime,
-        applicationSubmitTime: req.body.applicationSubmitTime,
-        confirmationBranch: req.body.confirmationBranch,
-        confirmationData: req.body.confirmationData,
-        confirmationStartTime: req.body.applicationStartTime,
-        confirmationSubmitTime: req.body.applicationSubmitTime,
-      },
+      application,
       { new: true }
     );
+
+    return res.send(updatedApplication);
+  })
+);
+
+applicationRouter.route("/:id/confirmation").post(
+  asyncHandler(async (req, res) => {
+    await validateApplicationData(req.body.confirmationBranch, req.body.confirmationData);
+
+    const confirmation: Partial<Application> = {
+      confirmationBranch: req.body.confirmationBranch,
+      confirmationData: req.body.confirmationData,
+      confirmationStartTime: new Date(),
+    };
+
+    if (req.body.confirmationStatus === "SUBMIT") {
+      confirmation.confirmationSubmitTime = new Date();
+    }
+
+    const updatedApplication = await ApplicationModel.findByIdAndUpdate(
+      req.params.id,
+      confirmation,
+      { new: true }
+    );
+
+    return res.send(updatedApplication);
+  })
+);
+
+applicationRouter.route("/:id/confirmation").patch(
+  asyncHandler(async (req, res) => {
+    const existingApplication = await ApplicationModel.findById(req.params.id);
+
+    if (!existingApplication) {
+      throw new BadRequestError("No application exists with this id");
+    }
+
+    if (!existingApplication.confirmationBranch) {
+      throw new BadRequestError("No confirmation branch exists for this application");
+    }
+
+    await validateApplicationData(
+      existingApplication.confirmationBranch._id,
+      req.body.confirmationData
+    );
+
+    const confirmation: Partial<Application> = {
+      confirmationData: req.body.confirmationData,
+    };
+
+    if (req.body.confirmationStatus === "SUBMIT") {
+      confirmation.confirmationSubmitTime = new Date();
+    }
+
+    const updatedApplication = await ApplicationModel.findByIdAndUpdate(
+      req.params.id,
+      confirmation,
+      { new: true }
+    );
+
     return res.send(updatedApplication);
   })
 );

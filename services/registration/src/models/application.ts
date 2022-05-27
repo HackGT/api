@@ -1,20 +1,45 @@
 import { Schema, Types, Mixed, PaginateModel, model } from "mongoose";
 import mongooseAutopopulate from "mongoose-autopopulate";
 import mongoosePaginate from "mongoose-paginate-v2";
+import { AutoPopulatedDoc } from "@api/common";
 
 import { Branch, BranchModel } from "./branch";
 
 export interface Application {
   userId: string;
   hexathon: Types.ObjectId;
-  applicationBranch: Branch;
-  applicationData: Mixed;
+  applicationBranch: AutoPopulatedDoc<Branch>;
   applicationStartTime: Date;
-  applicationSubmitTime: Date;
-  confirmationBranch: Branch;
-  confirmationData: Mixed;
-  confirmationStartTime: Date;
-  confirmationSubmitTime: Date;
+  applicationSubmitTime?: Date;
+  applicationData: {
+    adult?: boolean;
+    occupation?: string;
+    school?: string;
+    graduationYear?: number;
+    major?: string;
+    shirtSize?: string;
+    dietaryRestrictions?: string;
+    phoneNumber?: string;
+    gender?: string;
+    ethnicity?: string;
+    address?: {
+      line1?: string;
+      line2?: string;
+      city?: string;
+      state?: string;
+      zip?: number;
+      country?: string;
+    };
+    website?: string;
+    linkedin?: string;
+    extraInfo?: [Schema.Types.Mixed];
+    confirmChecks?: Schema.Types.Mixed;
+    essays?: [Schema.Types.Mixed];
+  };
+  confirmationBranch?: AutoPopulatedDoc<Branch>;
+  confirmationStartTime?: Date;
+  confirmationSubmitTime?: Date;
+  confirmationData?: Mixed;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -36,7 +61,71 @@ const applicationSchema = new Schema<Application>(
       autopopulate: true,
     },
     applicationData: {
-      type: Schema.Types.Mixed,
+      adult: {
+        type: Boolean,
+      },
+      occupation: {
+        type: String,
+      },
+      school: {
+        type: String,
+      },
+      graduationYear: {
+        type: String,
+      },
+      major: {
+        type: String,
+      },
+      shirtSize: {
+        type: String,
+      },
+      dietaryRestrictions: {
+        type: String,
+      },
+      phoneNumber: {
+        type: String,
+      },
+      gender: {
+        type: String,
+      },
+      ethnicity: {
+        type: String,
+      },
+      address: {
+        line1: {
+          type: String,
+        },
+        line2: {
+          type: String,
+        },
+        city: {
+          type: String,
+        },
+        state: {
+          type: String,
+        },
+        zip: {
+          type: Number,
+        },
+        country: {
+          type: String,
+        },
+      },
+      website: {
+        type: String,
+      },
+      linkedin: {
+        type: String,
+      },
+      extraInfo: {
+        type: Schema.Types.Array,
+      },
+      confirmChecks: {
+        type: Schema.Types.Mixed,
+      },
+      essays: {
+        type: Schema.Types.Array,
+      },
     },
     applicationStartTime: {
       type: Date,
