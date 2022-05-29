@@ -1907,13 +1907,20 @@
             }
           }
         },
-        "jsonSchema": {
-          "type": "object",
-          "default": {}
-        },
-        "uiSchema": {
-          "type": "object",
-          "default": {}
+        "formPages": {
+          "type": "array",
+          "items": {
+            "properties": {
+              "jsonSchema": {
+                "type": "object",
+                "default": {}
+              },
+              "uiSchema": {
+                "type": "object",
+                "default": {}
+              }
+            }
+          }
         }
       },
       "xml": {

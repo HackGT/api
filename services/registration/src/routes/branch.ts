@@ -15,13 +15,7 @@ branchRouter.route("/").get(
 
 branchRouter.route("/").post(
   asyncHandler(async (req, res) => {
-    const newBranch = await BranchModel.create({
-      name: req.body.name,
-      type: req.body.type,
-      settings: req.body.settings,
-      jsonSchema: req.body.jsonSchema,
-      uiSchema: req.body.uiSchema,
-    });
+    const newBranch = await BranchModel.create(req.body);
 
     return res.send(newBranch);
   })
@@ -37,17 +31,9 @@ branchRouter.route("/:id").get(
 
 branchRouter.route("/:id").patch(
   asyncHandler(async (req, res) => {
-    const updatedBranch = await BranchModel.findByIdAndUpdate(
-      req.params.id,
-      {
-        name: req.body.name,
-        type: req.body.type,
-        settings: req.body.settings,
-        jsonSchema: req.body.jsonSchema,
-        uiSchema: req.body.uiSchema,
-      },
-      { new: true }
-    );
+    const updatedBranch = await BranchModel.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
 
     return res.send(updatedBranch);
   })
