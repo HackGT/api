@@ -3,6 +3,8 @@ import { Schema, model } from "mongoose";
 export interface Hexathon {
   name: string;
   isActive: boolean;
+  startDate: Date;
+  endDate: Date;
 }
 
 const hexathonSchema = new Schema<Hexathon>({
@@ -14,6 +16,14 @@ const hexathonSchema = new Schema<Hexathon>({
     type: Boolean,
     required: true,
     default: true,
+  },
+  startDate: {
+    type: Date,
+    required: true,
+  },
+  endDate: {
+    type: Date,
+    required: true,
   },
 });
 
