@@ -28,6 +28,7 @@ mongoose
   .catch(err => {
     throw err;
   });
+mongoose.set("runValidators", true);
 
 app.use(helmet());
 app.use(rateLimiter());
