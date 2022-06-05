@@ -535,6 +535,16 @@
                 },
                 "isActive": {
                   "type": "boolean"
+                },
+                "startDate": {
+                  "type": "string",
+                  "format": "date-time",
+                  "required": true
+                },
+                "endDate": {
+                  "type": "string",
+                  "format": "date-time",
+                  "required": true
                 }
               }
             }
@@ -1719,6 +1729,16 @@
         "isActive": {
           "type": "boolean",
           "default": true
+        },
+        "startDate": {
+          "type": "string",
+          "format": "date-time",
+          "required": true
+        },
+        "endDate": {
+          "type": "string",
+          "format": "date-time",
+          "required": true
         }
       },
       "xml": {
