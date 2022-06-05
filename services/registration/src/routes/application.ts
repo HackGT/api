@@ -23,7 +23,7 @@ applicationRouter.route("/:id").get(
   })
 );
 
-applicationRouter.route("/").post(
+applicationRouter.route("/actions/choose-application-branch").post(
   asyncHandler(async (req, res) => {
     const existingApplication = await ApplicationModel.findOne({
       userId: req.user?.uid,
@@ -31,30 +31,33 @@ applicationRouter.route("/").post(
     });
 
     if (existingApplication) {
-      throw new BadRequestError("User already has an existing application for this event");
+      if (existingApplication.applied) {
+        throw new BadRequestError(
+          "Cannot select an application branch. You have already submitted an application."
+        );
+      }
+
+      existingApplication.applicationBranch = req.body.applicationBranch;
+      existingApplication.applicationStartTime = new Date();
+      existingApplication.applicationData = {};
+
+      await existingApplication.save();
+
+      return res.send(existingApplication);
     }
 
-    await validateApplicationData(req.body.applicationBranch, req.body.applicationData);
-
-    const application: Partial<Application> = {
+    const newApplication = await ApplicationModel.create({
       userId: req.user?.uid,
       hexathon: req.body.hexathon,
       applicationBranch: req.body.applicationBranch,
-      applicationData: req.body.applicationData,
       applicationStartTime: new Date(),
-    };
-
-    if (req.body.applicationStatus === "SUBMIT") {
-      application.applicationSubmitTime = new Date();
-    }
-
-    const newApplication = await ApplicationModel.create(application);
+    });
 
     return res.send(newApplication);
   })
 );
 
-applicationRouter.route("/:id").patch(
+applicationRouter.route("/:id/actions/save-application-data").post(
   asyncHandler(async (req, res) => {
     const existingApplication = await ApplicationModel.findById(req.params.id);
 
@@ -62,18 +65,25 @@ applicationRouter.route("/:id").patch(
       throw new BadRequestError("No application exists with this id");
     }
 
+    if (existingApplication.applied) {
+      throw new BadRequestError(
+        "Cannot save application data. You have already submitted an application."
+      );
+    }
+
     await validateApplicationData(
+      req.body.applicationData,
       existingApplication.applicationBranch._id,
-      req.body.applicationData
+      req.body.branchFormPage,
+      false
     );
 
     const application: Partial<Application> = {
-      applicationData: req.body.applicationData,
+      applicationData: {
+        ...existingApplication.applicationData,
+        ...req.body.applicationData,
+      },
     };
-
-    if (req.body.applicationStatus === "SUBMIT") {
-      application.applicationSubmitTime = new Date();
-    }
 
     const updatedApplication = await ApplicationModel.findByIdAndUpdate(
       req.params.id,
@@ -85,23 +95,39 @@ applicationRouter.route("/:id").patch(
   })
 );
 
-applicationRouter.route("/:id/confirmation").post(
+applicationRouter.route("/:id/actions/submit-application").post(
   asyncHandler(async (req, res) => {
-    await validateApplicationData(req.body.confirmationBranch, req.body.confirmationData);
+    const existingApplication = await ApplicationModel.findById(req.params.id);
 
-    const confirmation: Partial<Application> = {
-      confirmationBranch: req.body.confirmationBranch,
-      confirmationData: req.body.confirmationData,
-      confirmationStartTime: new Date(),
-    };
-
-    if (req.body.confirmationStatus === "SUBMIT") {
-      confirmation.confirmationSubmitTime = new Date();
+    if (!existingApplication) {
+      throw new BadRequestError("No application exists with this id");
     }
+
+    if (existingApplication.applied) {
+      throw new BadRequestError(
+        "Cannot submit an application. You have already submitted an application."
+      );
+    }
+
+    await Promise.all(
+      existingApplication.applicationBranch.formPages.map(async (formPage, index) => {
+        await validateApplicationData(
+          existingApplication.applicationData,
+          existingApplication.applicationBranch._id,
+          index,
+          true
+        );
+      })
+    );
+
+    const application: Partial<Application> = {
+      applicationSubmitTime: new Date(),
+      applied: true,
+    };
 
     const updatedApplication = await ApplicationModel.findByIdAndUpdate(
       req.params.id,
-      confirmation,
+      application,
       { new: true }
     );
 
@@ -109,7 +135,7 @@ applicationRouter.route("/:id/confirmation").post(
   })
 );
 
-applicationRouter.route("/:id/confirmation").patch(
+applicationRouter.route("/:id/actions/save-confirmation-data").post(
   asyncHandler(async (req, res) => {
     const existingApplication = await ApplicationModel.findById(req.params.id);
 
@@ -118,25 +144,76 @@ applicationRouter.route("/:id/confirmation").patch(
     }
 
     if (!existingApplication.confirmationBranch) {
-      throw new BadRequestError("No confirmation branch exists for this application");
+      throw new BadRequestError("No confirmation branch is selected.");
+    }
+
+    if (existingApplication.confirmed) {
+      throw new BadRequestError(
+        "Cannot save confirmation data. You have already submitted your confirmation."
+      );
     }
 
     await validateApplicationData(
+      req.body.confirmationData,
       existingApplication.confirmationBranch._id,
-      req.body.confirmationData
+      req.body.branchFormPage,
+      false
     );
 
-    const confirmation: Partial<Application> = {
-      confirmationData: req.body.confirmationData,
+    const application: Partial<Application> = {
+      confirmationData: {
+        ...existingApplication.confirmationData,
+        ...req.body.confirmationData,
+      },
     };
-
-    if (req.body.confirmationStatus === "SUBMIT") {
-      confirmation.confirmationSubmitTime = new Date();
-    }
 
     const updatedApplication = await ApplicationModel.findByIdAndUpdate(
       req.params.id,
-      confirmation,
+      application,
+      { new: true }
+    );
+
+    return res.send(updatedApplication);
+  })
+);
+
+applicationRouter.route("/:id/actions/submit-confirmation").post(
+  asyncHandler(async (req, res) => {
+    const existingApplication = await ApplicationModel.findById(req.params.id);
+
+    if (!existingApplication) {
+      throw new BadRequestError("No application exists with this id");
+    }
+
+    if (!existingApplication.confirmationBranch) {
+      throw new BadRequestError("No confirmation branch is selected.");
+    }
+
+    if (existingApplication.confirmed) {
+      throw new BadRequestError(
+        "Cannot submit a confirmation. You have already submitted a confirmation."
+      );
+    }
+
+    await Promise.all(
+      existingApplication.confirmationBranch.formPages.map(async (formPage, index) => {
+        await validateApplicationData(
+          existingApplication.confirmationData,
+          existingApplication.confirmationBranch?._id,
+          index,
+          true
+        );
+      })
+    );
+
+    const application: Partial<Application> = {
+      confirmationSubmitTime: new Date(),
+      confirmed: true,
+    };
+
+    const updatedApplication = await ApplicationModel.findByIdAndUpdate(
+      req.params.id,
+      application,
       { new: true }
     );
 

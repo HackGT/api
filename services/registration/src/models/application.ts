@@ -11,6 +11,7 @@ export interface Application {
   applicationBranch: AutoPopulatedDoc<Branch>;
   applicationStartTime: Date;
   applicationSubmitTime?: Date;
+  applied: boolean;
   applicationData: {
     adult?: boolean;
     occupation?: string;
@@ -40,6 +41,7 @@ export interface Application {
   confirmationStartTime?: Date;
   confirmationSubmitTime?: Date;
   confirmationData?: Mixed;
+  confirmed: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -134,6 +136,11 @@ const applicationSchema = new Schema<Application>(
     applicationSubmitTime: {
       type: Date,
     },
+    applied: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
     confirmationBranch: {
       type: Schema.Types.ObjectId,
       ref: BranchModel,
@@ -147,6 +154,11 @@ const applicationSchema = new Schema<Application>(
     },
     confirmationSubmitTime: {
       type: Date,
+    },
+    confirmed: {
+      type: Boolean,
+      required: true,
+      default: false,
     },
   },
   {

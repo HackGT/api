@@ -1,8 +1,8 @@
 import { Schema, model } from "mongoose";
 
 export enum BranchType {
-  APPLICATION = "application",
-  CONFIRMATION = "confirmation",
+  APPLICATION = "APPLICATION",
+  CONFIRMATION = "CONFIRMATION",
 }
 
 export interface Branch {
@@ -13,22 +13,24 @@ export interface Branch {
     close: Date;
   };
   formPages: {
-    jsonSchema: object;
-    uiSchema: object;
+    title: string;
+    jsonSchema: string;
+    uiSchema: string;
   }[];
 }
 
 const branchSchema = new Schema<Branch>({
   name: { type: String, required: true },
-  type: { type: String, required: true, enum: Object.values(BranchType) },
+  type: { type: String, required: true, enum: BranchType },
   settings: {
     open: { type: Date, required: true },
     close: { type: Date, required: true },
   },
   formPages: [
     {
-      jsonSchema: { type: Object, required: true, default: {} },
-      uiSchema: { type: Object, required: true, default: {} },
+      title: { type: String, required: true },
+      jsonSchema: { type: String, required: true },
+      uiSchema: { type: String, required: true },
     },
   ],
 });

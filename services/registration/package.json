@@ -38,6 +38,7 @@
     "mongoose-paginate-v2": "^1.6.3",
     "morgan": "^1.10.0",
     "path": "^0.12.7",
+    "safe-json-stringify": "^1.2.0",
     "typescript": "^4.5.5"
   }
 }
