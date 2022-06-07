@@ -9,19 +9,29 @@ export const userRoutes = express.Router();
 userRoutes.route("/").get(
   asyncHandler(async (req, res) => {
     const filter: FilterQuery<Profile> = {};
-    const limit = parseInt(req.query.limit as string);
-    const offset = parseInt(req.query.offset as string);
-    const regex = (req.query.regex as string) === "true";
-    const searchLength = (req.query.search as string).length;
-    let search =
-      searchLength > 75 ? (req.query.search as string).slice(0, 75) : (req.query.search as string);
-    let re;
 
-    if (regex) {
-      search = search.split(/\s+/).join("");
-      re = new RegExp(search);
-    } else {
-      re = new RegExp(search, "i");
+    if (req.query.search) {
+      const searchLength = (req.query.search as string).length;
+      let search =
+        searchLength > 75
+          ? (req.query.search as string).slice(0, 75)
+          : (req.query.search as string);
+      let re;
+
+      const regex = (req.query.regex as string) === "true";
+
+      if (regex) {
+        search = search.split(/\s+/).join("");
+        re = new RegExp(search);
+      } else {
+        re = new RegExp(search, "i");
+      }
+      filter.$or = [
+        { "name.first": { $regex: re } },
+        { "name.middle": { $regex: re } },
+        { "name.last": { $regex: re } },
+        { phoneNumber: { $regex: re } },
+      ];
     }
 
     if (req.query.member != null) {
@@ -33,15 +43,11 @@ userRoutes.route("/").get(
     if (req.query.exec != null) {
       filter.permissions.exec = req.query.exec;
     }
-    filter.$or = [
-      { "name.first": { $regex: re } },
-      { "name.middle": { $regex: re } },
-      { "name.last": { $regex: re } },
-      { phoneNumber: { $regex: re } },
-    ];
 
     const matchCount = await ProfileModel.find(filter).count();
 
+    const limit = parseInt(req.query.limit as string);
+    const offset = parseInt(req.query.offset as string);
     const profiles = await ProfileModel.find(filter).skip(offset).limit(limit);
 
     return res.status(200).json({
