@@ -2009,6 +2009,10 @@
         "userId": {
           "type": "string"
         },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
         "name": {
           "type": "object",
           "properties": {

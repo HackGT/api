@@ -31,6 +31,7 @@ userRoutes.route("/").get(
         { "name.middle": { $regex: re } },
         { "name.last": { $regex: re } },
         { phoneNumber: { $regex: re } },
+        { email: { $regex: re } },
       ];
     }
 
@@ -59,10 +60,13 @@ userRoutes.route("/").get(
   })
 );
 
+// TODO: Change this post request to be created when
+// a user is created through Google Cloud Functions
 userRoutes.route("/").post(
   asyncHandler(async (req, res) => {
     const profile = await ProfileModel.create({
       userId: req.user?.uid,
+      email: req.user?.email,
       name: {
         first: req.body.name.first,
         middle: req.body.name.middle,
@@ -99,13 +103,9 @@ userRoutes.route("/:userId").put(
       }
     }
 
-    const updatedProfile = await ProfileModel.findOneAndUpdate(
-      { userId: req.params.userId },
-      req.body,
-      {
-        new: true,
-      }
-    );
+    const updatedProfile = await ProfileModel.findByIdAndUpdate(req.params.userId, req.body, {
+      new: true,
+    });
 
     res.send(updatedProfile);
   })
