@@ -1131,6 +1131,9 @@
                 "name": {
                   "type": "string"
                 },
+                "hexathon": {
+                  "type": "integer"
+                },
                 "type": {
                   "type": "string"
                 },
@@ -1223,6 +1226,9 @@
               "properties": {
                 "name": {
                   "type": "string"
+                },
+                "hexathon": {
+                  "type": "integer"
                 },
                 "type": {
                   "type": "string"
@@ -1732,13 +1738,11 @@
         },
         "startDate": {
           "type": "string",
-          "format": "date-time",
-          "required": true
+          "format": "date-time"
         },
         "endDate": {
           "type": "string",
-          "format": "date-time",
-          "required": true
+          "format": "date-time"
         }
       },
       "xml": {
@@ -1925,6 +1929,9 @@
         },
         "name": {
           "type": "string"
+        },
+        "hexathon": {
+          "type": "integer"
         },
         "type": {
           "type": "string",
