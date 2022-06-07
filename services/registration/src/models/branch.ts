@@ -32,7 +32,7 @@ const branchSchema = new Schema<Branch>({
   type: {
     type: String,
     required: true,
-    enum: Object.values(BranchType),
+    enum: BranchType,
   },
   settings: {
     open: {
@@ -53,12 +53,10 @@ const branchSchema = new Schema<Branch>({
       jsonSchema: {
         type: Object,
         required: true,
-        default: {},
       },
       uiSchema: {
         type: Object,
         required: true,
-        default: {},
       },
     },
   ],
