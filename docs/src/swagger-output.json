@@ -1726,6 +1726,9 @@
         "name": {
           "type": "string"
         },
+        "shortCode": {
+          "type": "string"
+        },
         "isActive": {
           "type": "boolean",
           "default": true
