@@ -22,7 +22,13 @@ app.use(helmet());
 app.use(cookieParser());
 app.use(morgan("dev"));
 app.use(compression());
-app.use(cors());
+app.use(
+  cors({
+    origin: true,
+    preflightContinue: true,
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.use("/", swaggerUi.serve, swaggerUi.setup(swaggerFile, swaggerOptions));
