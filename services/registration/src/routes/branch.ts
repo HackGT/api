@@ -14,7 +14,7 @@ branchRouter.route("/").get(
       filter.hexathon = req.query.hexathon;
     }
 
-    const branches = await BranchModel.find({});
+    const branches = await BranchModel.find(filter);
 
     return res.send(branches);
   })

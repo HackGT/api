@@ -1098,6 +1098,15 @@
         "summary": "Finds and displays information of all branches.",
         "description": "",
         "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hackathon",
+            "in": "query",
+            "description": "Hackathon id that needs to be considered for filter.",
+            "type": "integer",
+            "collectionFormat": "multi"
+          }
+        ],
         "responses": {
           "200": {
             "description": "successful operation",

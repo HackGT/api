@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { model, Schema, Types } from "mongoose";
 
 export enum BranchType {
   APPLICATION = "APPLICATION",
@@ -7,7 +7,7 @@ export enum BranchType {
 
 export interface Branch {
   name: string;
-  hexathon: number;
+  hexathon: Types.ObjectId;
   type: BranchType;
   settings: {
     open: Date;
@@ -26,7 +26,7 @@ const branchSchema = new Schema<Branch>({
     required: true,
   },
   hexathon: {
-    type: Number,
+    type: Schema.Types.ObjectId,
     required: true,
   },
   type: {
@@ -51,11 +51,11 @@ const branchSchema = new Schema<Branch>({
         required: true,
       },
       jsonSchema: {
-        type: Object,
+        type: String,
         required: true,
       },
       uiSchema: {
-        type: Object,
+        type: String,
         required: true,
       },
     },
