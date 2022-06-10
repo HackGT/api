@@ -1732,6 +1732,9 @@
         "name": {
           "type": "string"
         },
+        "shortCode": {
+          "type": "string"
+        },
         "isActive": {
           "type": "boolean",
           "default": true
@@ -2015,6 +2018,10 @@
         },
         "userId": {
           "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
         },
         "name": {
           "type": "object",

@@ -28,7 +28,6 @@ app.use(morgan("dev"));
 app.use(compression());
 app.use(
   cors({
-    // allowedHeaders: ["Content-Type", "set-cookie"],
     origin: true,
     preflightContinue: true,
     credentials: true,

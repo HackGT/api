@@ -3,6 +3,7 @@ import mongoosePaginate from "mongoose-paginate-v2";
 
 export interface Profile {
   userId: string;
+  email: string;
   name: {
     first: string;
     middle: string;
@@ -23,6 +24,13 @@ const profileSchema = new Schema<Profile>({
     type: String,
     required: true,
     unique: true,
+    immutable: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    immutable: true,
   },
   name: {
     first: {

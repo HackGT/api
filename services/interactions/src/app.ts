@@ -36,7 +36,13 @@ app.use(cookieParser());
 app.use(decodeToken);
 app.use(morgan("dev"));
 app.use(compression());
-app.use(cors());
+app.use(
+  cors({
+    origin: true,
+    preflightContinue: true,
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.get("/status", (req, res) => {
