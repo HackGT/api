@@ -1569,20 +1569,6 @@
         "produces": ["application/json"],
         "parameters": [
           {
-            "name": "userId",
-            "in": "user",
-            "type": "string",
-            "description": "User ID",
-            "required": true
-          },
-          {
-            "name": "email",
-            "in": "user",
-            "type": "string",
-            "description": "Email",
-            "required": true
-          },
-          {
             "name": "body",
             "in": "body",
             "description": "Request body",
