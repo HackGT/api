@@ -1,13 +1,20 @@
 import { asyncHandler } from "@api/common";
 import express from "express";
+import { FilterQuery } from "mongoose";
 
-import { BranchModel } from "../models/branch";
+import { Branch, BranchModel } from "../models/branch";
 
 export const branchRouter = express.Router();
 
 branchRouter.route("/").get(
   asyncHandler(async (req, res) => {
-    const branches = await BranchModel.find({});
+    const filter: FilterQuery<Branch> = {};
+
+    if (req.query.hexathon) {
+      filter.hexathon = req.query.hexathon;
+    }
+
+    const branches = await BranchModel.find(filter);
 
     return res.send(branches);
   })
