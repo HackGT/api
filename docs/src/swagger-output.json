@@ -1569,6 +1569,20 @@
         "produces": ["application/json"],
         "parameters": [
           {
+            "name": "userId",
+            "in": "user",
+            "type": "string",
+            "description": "User ID",
+            "required": true
+          },
+          {
+            "name": "email",
+            "in": "user",
+            "type": "string",
+            "description": "Email",
+            "required": true
+          },
+          {
             "name": "body",
             "in": "body",
             "description": "Request body",
@@ -1576,12 +1590,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "userId": {
-                  "type": "string"
-                },
-                "email": {
-                  "type": "string"
-                },
                 "name": {
                   "type": "object",
                   "properties": {
@@ -1600,6 +1608,9 @@
                   "type": "string"
                 },
                 "gender": {
+                  "type": "string"
+                },
+                "resume": {
                   "type": "string"
                 }
               }
@@ -2089,6 +2100,9 @@
           "type": "string"
         },
         "gender": {
+          "type": "string"
+        },
+        "resume": {
           "type": "string"
         }
       },
