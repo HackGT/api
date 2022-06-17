@@ -533,6 +533,11 @@
                 "name": {
                   "type": "string"
                 },
+                "shortCode": {
+                  "type": "string",
+                  "required": true,
+                  "unique": true
+                },
                 "isActive": {
                   "type": "boolean"
                 },
