@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
-import { asyncHandler, BadRequestError } from "@api/common";
 import express from "express";
+import { apiCall, asyncHandler, BadRequestError } from "@api/common";
+import { Service } from "@api/config";
 
 import { Application, ApplicationModel } from "../models/application";
 import { validateApplicationData } from "../util";
@@ -10,16 +11,40 @@ export const applicationRouter = express.Router();
 applicationRouter.route("/").get(
   asyncHandler(async (req, res) => {
     const applications = await ApplicationModel.find({});
+    const userIdArray: string[] = [];
+    for (const application of applications) {
+      userIdArray.push(application.userId);
+    }
 
-    return res.send(applications);
+    const userInfo = apiCall(
+      Service.USERS,
+      { method: "POST", url: `users/actions/retrieve`, data: userIdArray },
+      req
+    );
+
+    const finalApps = {
+      ...applications,
+      users: userInfo,
+    };
+
+    return res.send(finalApps);
   })
 );
 
 applicationRouter.route("/:id").get(
   asyncHandler(async (req, res) => {
     const application = await ApplicationModel.findById(req.params.id);
+    let user = {};
+    if (application) {
+      user = apiCall(Service.USERS, { method: "GET", url: `users/${application.userId}` }, req);
+    }
 
-    return res.send(application);
+    const finalApp = {
+      ...application,
+      user,
+    };
+
+    return res.send(finalApp);
   })
 );
 
