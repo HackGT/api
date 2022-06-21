@@ -107,5 +107,101 @@ shopRoutes.route("/:shopId/item").post(async (req, res) => {
   } catch (err) {
     throw new BadRequestError("Item could not be made.");
   }
-  return res.status(200).send("Item added to shop.");
+  res.status(200).send("Item added to shop.");
+});
+
+shopRoutes.route("/item/:itemName").put(async (req, res) => {
+  const { itemName } = req.params;
+  const item = await ItemModel.findOne({ name: itemName });
+
+  const updatedItemName = req.body.newName;
+  const updatedItemDesc = req.body.newDescription;
+  const updatedItemShop_id = req.body.newShop_id;
+  const updatedItemCapacity = req.body.newCapacity;
+  const updatedItemPoints = req.body.newPoints;
+  const updatedItemStatus = req.body.newStatus;
+  const updatedItemShippable = req.body.newShippable;
+  const updatedItemNumRequested = req.body.newNumRequested;
+  const updatedItemImage_url = req.body.newImage_url;
+  if (!req.user) {
+    res.status(400).send({ error: true, message: "User does not exist" });
+  } else if (!item) {
+    res.status(400).send({
+      error: true,
+      message: `Could not find item type with name: '${itemName}' `,
+    });
+  }
+
+  try {
+    await ItemModel.updateOne(
+      { name: itemName },
+      {
+        $set: {
+          name: updatedItemName,
+          description: updatedItemDesc,
+          shop_id: updatedItemShop_id,
+          // number is deprecated
+          capacity: updatedItemCapacity,
+          points: updatedItemPoints,
+          status: updatedItemStatus,
+          shippable: updatedItemShippable,
+          totalNumRequested: updatedItemNumRequested,
+          image_url: updatedItemImage_url,
+        },
+      }
+    );
+  } catch (err) {
+    throw new BadRequestError("Could not update item.");
+  }
+
+  res.status(201).send("Item updated successfully.");
+});
+
+shopRoutes.route("/item/:itemId").delete(async (req, res) => {
+  const { itemId } = req.params;
+  const item = await ItemModel.findOne({ id: itemId });
+
+  if (item) {
+    const shopId = item.shop_id;
+    await ShopModel.update({ shop_id: shopId }, { $pull: { items: itemId } });
+  } else {
+    res.status(400).send({ error: true, message: "Item does not exist." });
+  }
+
+  await ItemModel.deleteOne({ id: itemId })
+    .then(() => res.sendStatus(200))
+    .catch(error => res.status(400).send({ error: true, message: "Item could not be deleted." }));
+});
+
+shopRoutes.route("/").get(async (req, res) => {
+  const shops = await ShopModel.find({});
+  res.send(shops);
+});
+
+shopRoutes.route("/get-shop/:shopId").get(async (req, res) => {
+  const { shopId } = req.params;
+  const shop = await ShopModel.find({ shop_id: shopId });
+  // error handling, lmao
+  res.send(shop);
+});
+
+shopRoutes.route("/create-shop/:shopId").post(async (req, res) => {
+  const { owner } = req.params; // probably change this to the user's uuid
+  const { shopId } = req.params;
+
+  const new_shop = new ShopModel({ shop_id: shopId, owner, items: [] });
+  if (!owner) {
+    res.status(400).send({ error: true, message: "Owner does not exist." });
+  }
+  if (!shopId) {
+    res.status(400).send({ error: true, message: "ShopID does not exist." });
+  }
+
+  await new_shop.save(err => {
+    if (err) {
+      console.log(err);
+      res.status(400).send({ error: true, message: "Shop could not be made." });
+    }
+    res.sendStatus(200);
+  });
 });
