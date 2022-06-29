@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import { asyncHandler, BadRequestError } from "@api/common";
 import express from "express";
+import { FilterQuery } from "mongoose";
 
 import { Application, ApplicationModel } from "../models/application";
 import { validateApplicationData } from "../util";
@@ -9,7 +10,17 @@ export const applicationRouter = express.Router();
 
 applicationRouter.route("/").get(
   asyncHandler(async (req, res) => {
-    const applications = await ApplicationModel.find({});
+    const filter: FilterQuery<Application> = {};
+
+    if (req.query.hexathon) {
+      filter.hexathon = req.query.hexathon;
+    }
+
+    if (req.query.userId) {
+      filter.userId = req.query.userId;
+    }
+
+    const applications = await ApplicationModel.find(filter);
 
     return res.send(applications);
   })
