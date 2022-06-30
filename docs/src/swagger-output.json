@@ -864,6 +864,24 @@
         "summary": "Finds and displays information of all applications.",
         "description": "",
         "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathon",
+            "in": "query",
+            "description": "Hexathon id that needs to be considered for filter.",
+            "required": true,
+            "type": "string",
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "User id that needs to be considered for filter.",
+            "required": true,
+            "type": "string",
+            "collectionFormat": "multi"
+          }
+        ],
         "responses": {
           "200": {
             "description": "successful operation",
@@ -1105,10 +1123,10 @@
         "produces": ["application/json"],
         "parameters": [
           {
-            "name": "hackathon",
+            "name": "hexathon",
             "in": "query",
-            "description": "Hackathon id that needs to be considered for filter.",
-            "type": "integer",
+            "description": "Hexathon id that needs to be considered for filter.",
+            "type": "string",
             "collectionFormat": "multi"
           }
         ],
