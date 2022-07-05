@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import express from "express";
+import { FilterQuery } from "mongoose";
 import { apiCall, asyncHandler, BadRequestError } from "@api/common";
 import { Service } from "@api/config";
 
@@ -10,22 +11,39 @@ export const applicationRouter = express.Router();
 
 applicationRouter.route("/").get(
   asyncHandler(async (req, res) => {
-    const applications = await ApplicationModel.find({});
+    const filter: FilterQuery<Application> = {};
+
+    if (req.query.hexathon) {
+      filter.hexathon = req.query.hexathon;
+    }
+
+    if (req.query.userId) {
+      filter.userId = req.query.userId;
+    }
+
+    const applications = await ApplicationModel.find(filter);
     const userIdArray: string[] = [];
     for (const application of applications) {
       userIdArray.push(application.userId);
     }
 
-    const userInfo = apiCall(
+    const userInfo = await apiCall(
       Service.USERS,
       { method: "POST", url: `users/actions/retrieve`, data: userIdArray },
       req
     );
 
-    const finalApps = {
-      ...applications,
-      users: userInfo,
-    };
+    const finalApps = [];
+
+    for (const info of userInfo) {
+      for (const application of applications) {
+        const totApp = {
+          ...application,
+          userInfo: info,
+        };
+        finalApps.push(totApp);
+      }
+    }
 
     return res.send(finalApps);
   })
@@ -34,14 +52,14 @@ applicationRouter.route("/").get(
 applicationRouter.route("/:id").get(
   asyncHandler(async (req, res) => {
     const application = await ApplicationModel.findById(req.params.id);
-    let user = {};
+    let userInfo = {};
     if (application) {
-      user = apiCall(Service.USERS, { method: "GET", url: `users/${application.userId}` }, req);
+      userInfo = apiCall(Service.USERS, { method: "GET", url: `users/${application.userId}` }, req);
     }
 
     const finalApp = {
       ...application,
-      user,
+      user: userInfo,
     };
 
     return res.send(finalApp);
