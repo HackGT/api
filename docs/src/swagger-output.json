@@ -1119,10 +1119,10 @@
         "produces": ["application/json"],
         "parameters": [
           {
-            "name": "hackathon",
+            "name": "hexathon",
             "in": "query",
-            "description": "Hackathon id that needs to be considered for filter.",
-            "type": "integer",
+            "description": "Hexathon id that needs to be considered for filter.",
+            "type": "string",
             "collectionFormat": "multi"
           }
         ],
