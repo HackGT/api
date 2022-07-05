@@ -864,6 +864,20 @@
         "summary": "Finds and displays information of all applications.",
         "description": "",
         "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathon",
+            "in": "query",
+            "description": "Filter applications by hexathon id",
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "Filter applications by user id",
+            "type": "string"
+          }
+        ],
         "responses": {
           "200": {
             "description": "successful operation",

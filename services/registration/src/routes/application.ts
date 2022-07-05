@@ -22,47 +22,51 @@ applicationRouter.route("/").get(
     }
 
     const applications = await ApplicationModel.find(filter);
-    const userIdArray: string[] = [];
-    for (const application of applications) {
-      userIdArray.push(application.userId);
-    }
+    const userIds = applications.map(application => application.userId).filter(Boolean); // Filters falsy values
 
-    const userInfo = await apiCall(
+    const userInfos = await apiCall(
       Service.USERS,
-      { method: "POST", url: `users/actions/retrieve`, data: userIdArray },
+      { method: "POST", url: `/users/actions/retrieve`, data: { userIds } },
       req
     );
 
-    const finalApps = [];
+    const combinedApplications = [];
 
-    for (const info of userInfo) {
-      for (const application of applications) {
-        const totApp = {
-          ...application,
-          userInfo: info,
-        };
-        finalApps.push(totApp);
-      }
+    for (const application of applications) {
+      const matchedUserInfo = userInfos.find(
+        (userInfo: any) => userInfo.userId === application.userId
+      );
+
+      combinedApplications.push({
+        ...application.toObject(),
+        userInfo: matchedUserInfo || {},
+      });
     }
 
-    return res.send(finalApps);
+    return res.send(combinedApplications);
   })
 );
 
 applicationRouter.route("/:id").get(
   asyncHandler(async (req, res) => {
     const application = await ApplicationModel.findById(req.params.id);
-    let userInfo = {};
-    if (application) {
-      userInfo = apiCall(Service.USERS, { method: "GET", url: `users/${application.userId}` }, req);
+
+    if (!application) {
+      throw new BadRequestError("Application not found");
     }
 
-    const finalApp = {
-      ...application,
-      user: userInfo,
+    const userInfo = await apiCall(
+      Service.USERS,
+      { method: "GET", url: `users/${application.userId}` },
+      req
+    );
+
+    const combinedApplication = {
+      ...application.toObject(),
+      userInfo: userInfo || {},
     };
 
-    return res.send(finalApp);
+    return res.send(combinedApplication);
   })
 );
 
