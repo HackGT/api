@@ -116,7 +116,7 @@ userRoutes.route("/actions/retrieve").post(
     const { userIds }: { userIds: string[] } = req.body;
 
     if (!userIds || userIds.length === 0) {
-      throw new BadRequestError("Must provide at least one userId to retrieve");
+      return res.status(200).json([]);
     }
 
     const profiles = await ProfileModel.find({

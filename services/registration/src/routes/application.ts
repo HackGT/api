@@ -1,7 +1,8 @@
 /* eslint-disable no-underscore-dangle */
-import { asyncHandler, BadRequestError } from "@api/common";
 import express from "express";
 import { FilterQuery } from "mongoose";
+import { apiCall, asyncHandler, BadRequestError } from "@api/common";
+import { Service } from "@api/config";
 
 import { Application, ApplicationModel } from "../models/application";
 import { validateApplicationData } from "../util";
@@ -21,8 +22,28 @@ applicationRouter.route("/").get(
     }
 
     const applications = await ApplicationModel.find(filter);
+    const userIds = applications.map(application => application.userId).filter(Boolean); // Filters falsy values
 
-    return res.send(applications);
+    const userInfos = await apiCall(
+      Service.USERS,
+      { method: "POST", url: `/users/actions/retrieve`, data: { userIds } },
+      req
+    );
+
+    const combinedApplications = [];
+
+    for (const application of applications) {
+      const matchedUserInfo = userInfos.find(
+        (userInfo: any) => userInfo.userId === application.userId
+      );
+
+      combinedApplications.push({
+        ...application.toObject(),
+        userInfo: matchedUserInfo || {},
+      });
+    }
+
+    return res.send(combinedApplications);
   })
 );
 
@@ -30,7 +51,22 @@ applicationRouter.route("/:id").get(
   asyncHandler(async (req, res) => {
     const application = await ApplicationModel.findById(req.params.id);
 
-    return res.send(application);
+    if (!application) {
+      throw new BadRequestError("Application not found");
+    }
+
+    const userInfo = await apiCall(
+      Service.USERS,
+      { method: "GET", url: `users/${application.userId}` },
+      req
+    );
+
+    const combinedApplication = {
+      ...application.toObject(),
+      userInfo: userInfo || {},
+    };
+
+    return res.send(combinedApplication);
   })
 );
 

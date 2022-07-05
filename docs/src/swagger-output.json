@@ -868,18 +868,14 @@
           {
             "name": "hexathon",
             "in": "query",
-            "description": "Hexathon id that needs to be considered for filter.",
-            "required": true,
-            "type": "string",
-            "collectionFormat": "multi"
+            "description": "Filter applications by hexathon id",
+            "type": "string"
           },
           {
             "name": "userId",
             "in": "query",
-            "description": "User id that needs to be considered for filter.",
-            "required": true,
-            "type": "string",
-            "collectionFormat": "multi"
+            "description": "Filter applications by user id",
+            "type": "string"
           }
         ],
         "responses": {
