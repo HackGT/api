@@ -1,5 +1,5 @@
-import { asyncHandler, BadRequestError } from "@api/common";
-import config from "@api/config";
+import { apiCall, asyncHandler, BadRequestError } from "@api/common";
+import config, { Service } from "@api/config";
 import express from "express";
 import admin from "firebase-admin";
 
@@ -45,8 +45,15 @@ authRoutes.route("/status").get(
     const decodedIdToken = await admin.auth().verifySessionCookie(req.cookies.session || "");
     const customToken = await admin.auth().createCustomToken(decodedIdToken.uid);
 
+    const profile = await apiCall(
+      Service.USERS,
+      { method: "GET", url: `/users/${decodedIdToken.uid}` },
+      req
+    );
+
     return res.json({
       customToken,
+      profile,
     });
   })
 );
