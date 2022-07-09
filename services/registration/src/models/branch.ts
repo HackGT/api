@@ -1,5 +1,7 @@
 import { model, Schema, Types } from "mongoose";
 
+import { commonDefinitions } from "../common";
+
 export enum BranchType {
   APPLICATION = "APPLICATION",
   CONFIRMATION = "CONFIRMATION",
@@ -18,48 +20,57 @@ export interface Branch {
     jsonSchema: string;
     uiSchema: string;
   }[];
+  commonDefinitionsSchema: string;
 }
 
-const branchSchema = new Schema<Branch>({
-  name: {
-    type: String,
-    required: true,
-  },
-  hexathon: {
-    type: Schema.Types.ObjectId,
-    required: true,
-  },
-  type: {
-    type: String,
-    required: true,
-    enum: BranchType,
-  },
-  settings: {
-    open: {
-      type: Date,
+const branchSchema = new Schema<Branch>(
+  {
+    name: {
+      type: String,
       required: true,
     },
-    close: {
-      type: Date,
+    hexathon: {
+      type: Schema.Types.ObjectId,
       required: true,
     },
-  },
-  formPages: [
-    {
-      title: {
-        type: String,
+    type: {
+      type: String,
+      required: true,
+      enum: BranchType,
+    },
+    settings: {
+      open: {
+        type: Date,
         required: true,
       },
-      jsonSchema: {
-        type: String,
-        required: true,
-      },
-      uiSchema: {
-        type: String,
+      close: {
+        type: Date,
         required: true,
       },
     },
-  ],
-});
+    formPages: [
+      {
+        title: {
+          type: String,
+          required: true,
+        },
+        jsonSchema: {
+          type: String,
+          required: true,
+        },
+        uiSchema: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
+  },
+  {
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true },
+  }
+);
+
+branchSchema.virtual("commonDefinitionsSchema").get(() => JSON.stringify(commonDefinitions));
 
 export const BranchModel = model<Branch>("Branch", branchSchema);
