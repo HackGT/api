@@ -50,10 +50,18 @@ authRoutes.route("/status").get(
       { method: "GET", url: `/users/${decodedIdToken.uid}` },
       req
     );
+    // Determine if a user has a valid profile. If not, they need to be redirected
+    // to fill in the profile before accessing any services
+    const validProfile =
+      Object.keys(profile).length > 0 &&
+      !!profile.name?.first &&
+      !!profile.name?.last &&
+      !!profile.email;
 
     return res.json({
       customToken,
       profile,
+      validProfile,
     });
   })
 );
