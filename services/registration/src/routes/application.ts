@@ -78,19 +78,37 @@ applicationRouter.route("/actions/choose-application-branch").post(
     });
 
     if (existingApplication) {
-      if (existingApplication.status === StatusType.APPLIED) {
-        throw new BadRequestError(
-          "Cannot select an application branch. You have already submitted an application."
-        );
+      switch (existingApplication.status) {
+        case StatusType.APPLIED: {
+          throw new BadRequestError(
+            "Cannot select an application branch. You have already submitted an application."
+          );
+        }
+        case StatusType.ACCEPTED: {
+          throw new BadRequestError(
+            "Cannot select an application branch. Your application has already been accepted."
+          );
+        }
+        case StatusType.CONFIRMED: {
+          throw new BadRequestError(
+            "Cannot select an application branch. Your application has already been confirmed."
+          );
+        }
+        case StatusType.DENIED: {
+          throw new BadRequestError(
+            "Cannot select an application branch. Your application has already been denied."
+          );
+        }
+        default: {
+          existingApplication.applicationBranch = req.body.applicationBranch;
+          existingApplication.applicationStartTime = new Date();
+          existingApplication.applicationData = {};
+
+          await existingApplication.save();
+
+          return res.send(existingApplication);
+        }
       }
-
-      existingApplication.applicationBranch = req.body.applicationBranch;
-      existingApplication.applicationStartTime = new Date();
-      existingApplication.applicationData = {};
-
-      await existingApplication.save();
-
-      return res.send(existingApplication);
     }
 
     const newApplication = await ApplicationModel.create({
@@ -112,33 +130,51 @@ applicationRouter.route("/:id/actions/save-application-data").post(
       throw new BadRequestError("No application exists with this id");
     }
 
-    if (existingApplication.status === StatusType.APPLIED) {
-      throw new BadRequestError(
-        "Cannot save application data. You have already submitted an application."
-      );
+    switch (existingApplication.status) {
+      case StatusType.APPLIED: {
+        throw new BadRequestError(
+          "Cannot save application data. You have already submitted an application."
+        );
+      }
+      case StatusType.ACCEPTED: {
+        throw new BadRequestError(
+          "Cannot save application data. Your application has already been accepted."
+        );
+      }
+      case StatusType.CONFIRMED: {
+        throw new BadRequestError(
+          "Cannot save application data. Your application has already been confirmed."
+        );
+      }
+      case StatusType.DENIED: {
+        throw new BadRequestError(
+          "Cannot save application data. Your application has already been denied."
+        );
+      }
+      default: {
+        await validateApplicationData(
+          req.body.applicationData,
+          existingApplication.applicationBranch._id,
+          req.body.branchFormPage,
+          false
+        );
+
+        const application: Partial<Application> = {
+          applicationData: {
+            ...existingApplication.applicationData,
+            ...req.body.applicationData,
+          },
+        };
+
+        const updatedApplication = await ApplicationModel.findByIdAndUpdate(
+          req.params.id,
+          application,
+          { new: true }
+        );
+
+        return res.send(updatedApplication);
+      }
     }
-
-    await validateApplicationData(
-      req.body.applicationData,
-      existingApplication.applicationBranch._id,
-      req.body.branchFormPage,
-      false
-    );
-
-    const application: Partial<Application> = {
-      applicationData: {
-        ...existingApplication.applicationData,
-        ...req.body.applicationData,
-      },
-    };
-
-    const updatedApplication = await ApplicationModel.findByIdAndUpdate(
-      req.params.id,
-      application,
-      { new: true }
-    );
-
-    return res.send(updatedApplication);
   })
 );
 
@@ -150,35 +186,53 @@ applicationRouter.route("/:id/actions/submit-application").post(
       throw new BadRequestError("No application exists with this id");
     }
 
-    if (existingApplication.status === StatusType.APPLIED) {
-      throw new BadRequestError(
-        "Cannot submit an application. You have already submitted an application."
-      );
-    }
-
-    await Promise.all(
-      existingApplication.applicationBranch.formPages.map(async (formPage, index) => {
-        await validateApplicationData(
-          existingApplication.applicationData,
-          existingApplication.applicationBranch._id,
-          index,
-          true
+    switch (existingApplication.status) {
+      case StatusType.APPLIED: {
+        throw new BadRequestError(
+          "Cannot submit an application. You have already submitted an application."
         );
-      })
-    );
+      }
+      case StatusType.ACCEPTED: {
+        throw new BadRequestError(
+          "Cannot submit an application. Your application has already been accepted."
+        );
+      }
+      case StatusType.CONFIRMED: {
+        throw new BadRequestError(
+          "Cannot submit an application. Your application has already been confirmed."
+        );
+      }
+      case StatusType.DENIED: {
+        throw new BadRequestError(
+          "Cannot submit an application. Your application has already been denied."
+        );
+      }
+      default: {
+        await Promise.all(
+          existingApplication.applicationBranch.formPages.map(async (formPage, index) => {
+            await validateApplicationData(
+              existingApplication.applicationData,
+              existingApplication.applicationBranch._id,
+              index,
+              true
+            );
+          })
+        );
 
-    const application: Partial<Application> = {
-      applicationSubmitTime: new Date(),
-      status: StatusType.APPLIED,
-    };
+        const application: Partial<Application> = {
+          applicationSubmitTime: new Date(),
+          status: StatusType.APPLIED,
+        };
 
-    const updatedApplication = await ApplicationModel.findByIdAndUpdate(
-      req.params.id,
-      application,
-      { new: true }
-    );
+        const updatedApplication = await ApplicationModel.findByIdAndUpdate(
+          req.params.id,
+          application,
+          { new: true }
+        );
 
-    return res.send(updatedApplication);
+        return res.send(updatedApplication);
+      }
+    }
   })
 );
 
@@ -197,6 +251,11 @@ applicationRouter.route("/:id/actions/save-confirmation-data").post(
     if (existingApplication.status === StatusType.CONFIRMED) {
       throw new BadRequestError(
         "Cannot save confirmation data. You have already submitted your confirmation."
+      );
+    }
+    if (existingApplication.status !== StatusType.ACCEPTED) {
+      throw new BadRequestError(
+        "Cannot save confirmation data. Your application has not been accepted."
       );
     }
 
@@ -239,6 +298,11 @@ applicationRouter.route("/:id/actions/submit-confirmation").post(
     if (existingApplication.status === StatusType.CONFIRMED) {
       throw new BadRequestError(
         "Cannot submit a confirmation. You have already submitted a confirmation."
+      );
+    }
+    if (existingApplication.status !== StatusType.ACCEPTED) {
+      throw new BadRequestError(
+        "Cannot submit a confirmation. Your application has not been accepted."
       );
     }
 

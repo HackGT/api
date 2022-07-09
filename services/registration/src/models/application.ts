@@ -160,6 +160,7 @@ const applicationSchema = new Schema<Application>(
     status: {
       type: String,
       required: true,
+      default: StatusType.DRAFT,
       enum: StatusType,
     },
   },
