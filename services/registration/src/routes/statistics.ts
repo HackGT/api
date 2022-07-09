@@ -9,91 +9,107 @@ export const statisticsRouter = express.Router();
 
 statisticsRouter.route("/").get(
   asyncHandler(async (req, res) => {
-    let totalUsers = 0;
-    let confirmedUsers = 0;
-    const submittedUsers = await ApplicationModel.countDocuments({
-      applicationSubmitTime: { $exists: true, $ne: null },
-    });
-    let applications = {};
-    let confirmations = {};
-
-    const applicationBranchAggregator = [
+    // from the status field, get applied, accepted, confirmed and non-confirmed users
+    const aggregatedUsers = await ApplicationModel.aggregate([
       {
         $group: {
-          _id: "$applicationBranch",
+          _id: "$status",
           count: { $sum: 1 },
         },
       },
-    ];
-    const confirmationBranchAggregator = [
+    ]);
+
+    const aggregatedApplicationBranches = await BranchModel.aggregate([
+      {
+        $match: { type: BranchType.APPLICATION },
+      },
       {
         $group: {
-          _id: "$confirmationBranch",
+          _id: "$name",
           count: { $sum: 1 },
         },
       },
-    ];
+    ]);
 
-    const aggregatedApplicationBranches = await ApplicationModel.aggregate(
-      applicationBranchAggregator
-    );
-    const aggregatedConfirmationBranches = await ApplicationModel.aggregate(
-      confirmationBranchAggregator
-    );
+    const aggregatedConfirmationBranches = await BranchModel.aggregate([
+      {
+        $match: { type: BranchType.CONFIRMATION },
+      },
+      {
+        $group: {
+          _id: "$name",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
 
-    const allBranches = await BranchModel.find({});
-    allBranches.forEach(branch => {
-      const branchName = branch.name;
+    const aggregatedRejections = await BranchModel.aggregate([
+      {
+        $match: { status: "DENIED" },
+      },
+      {
+        $group: {
+          _id: "$name",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
 
-      switch (branch.type) {
-        case BranchType.APPLICATION:
-          for (const application of aggregatedApplicationBranches) {
-            totalUsers += application.count;
-            if (application._id && application._id.equals(branch._id)) {
-              applications = { ...applications, [branchName]: application.count };
-            }
-          }
+    let [draftUsers, appliedUsers, acceptedUsers, confirmedUsers, deniedUsers] = Array(5).fill(0);
+    for (const element of aggregatedUsers) {
+      switch (element._id) {
+        // switch to StatusType.whatever after PR gets approved
+        case "DRAFT":
+          draftUsers = element.count;
           break;
-        case BranchType.CONFIRMATION:
-          for (const confirmation of aggregatedConfirmationBranches) {
-            confirmedUsers += confirmation.count;
-            if (confirmation._id && confirmation._id.equals(branch._id)) {
-              confirmations = { ...confirmations, [branchName]: confirmation.count };
-            }
-          }
+        case "APPLIED":
+          appliedUsers = element.count;
+          break;
+        case "ACCEPTED":
+          acceptedUsers = element.count;
+          break;
+        case "CONFIRMED":
+          confirmedUsers = element.count;
+          break;
+        case "DENIED":
+          deniedUsers = element.count;
           break;
         default:
-          console.log(`Branch ${branchName} is not of type application or confirmation.`);
-          break;
+        // do nothing
       }
+    }
+    const userStatistics = {
+      totalUsers: draftUsers + appliedUsers,
+      appliedUsers,
+      acceptedUsers,
+      confirmedUsers,
+      nonConfirmedUsers: acceptedUsers - confirmedUsers,
+      deniedUsers,
+    };
 
-      if (branch.type === BranchType.APPLICATION) {
-        for (const application of aggregatedApplicationBranches) {
-          totalUsers += application.count;
-          if (application._id && application._id.equals(branch._id)) {
-            applications = { ...applications, [branchName]: application.count };
-          }
-        }
-      }
-      if (branch.type === BranchType.CONFIRMATION) {
-        for (const confirmation of aggregatedConfirmationBranches) {
-          confirmedUsers += confirmation.count;
-          if (confirmation._id && confirmation._id.equals(branch._id)) {
-            confirmations = { ...confirmations, [branchName]: confirmation.count };
-          }
-        }
-      }
-    });
+    let applicationStatistics: Record<string, number> = {};
+    let confirmationStatistics: Record<string, number> = {};
+
+    for (const element of aggregatedApplicationBranches) {
+      const branch: string = element._id;
+      applicationStatistics = { ...applicationStatistics, [branch]: element.count };
+    }
+
+    for (const element of aggregatedConfirmationBranches) {
+      const branch: string = element._id;
+      confirmationStatistics = { ...confirmationStatistics, [branch]: element.count };
+    }
+    for (const element of aggregatedRejections) {
+      const branch: string = element._id;
+      confirmationStatistics = { ...confirmationStatistics, [branch]: element.count };
+    }
 
     const statistics = {
-      general: {
-        applicationStarted: totalUsers - submittedUsers,
-        applicationSubmitted: submittedUsers,
-        confirmed: confirmedUsers,
-      },
-      applications,
-      confirmations,
+      userStatistics,
+      applicationStatistics,
+      confirmationStatistics,
     };
+
     return res.send(statistics);
   })
 );
