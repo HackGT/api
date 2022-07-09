@@ -14,8 +14,8 @@ authRoutes.route("/login").post(
   asyncHandler(async (req, res) => {
     const { idToken } = req.body;
 
-    // Set session expiration to 5 days.
-    const expiresIn = 60 * 60 * 24 * 5 * 1000;
+    // Set session expiration to 14 days.
+    const expiresIn = 60 * 60 * 24 * 14 * 1000;
 
     const decodedIdToken = await admin.auth().verifyIdToken(idToken);
 
