@@ -5,13 +5,20 @@ import { AutoPopulatedDoc } from "@api/common";
 
 import { Branch, BranchModel } from "./branch";
 
+export enum StatusType {
+  DRAFT = "DRAFT",
+  APPLIED = "APPLIED",
+  ACCEPTED = "ACCEPTED",
+  CONFIRMED = "CONFIRMED",
+  DENIED = "DENIED",
+}
+
 export interface Application {
   userId: string;
   hexathon: Types.ObjectId;
   applicationBranch: AutoPopulatedDoc<Branch>;
   applicationStartTime: Date;
   applicationSubmitTime?: Date;
-  applied: boolean;
   applicationData: {
     adult?: boolean;
     occupation?: string;
@@ -41,7 +48,7 @@ export interface Application {
   confirmationStartTime?: Date;
   confirmationSubmitTime?: Date;
   confirmationData?: Mixed;
-  confirmed: boolean;
+  status: StatusType;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -136,11 +143,6 @@ const applicationSchema = new Schema<Application>(
     applicationSubmitTime: {
       type: Date,
     },
-    applied: {
-      type: Boolean,
-      required: true,
-      default: false,
-    },
     confirmationBranch: {
       type: Schema.Types.ObjectId,
       ref: BranchModel,
@@ -155,10 +157,10 @@ const applicationSchema = new Schema<Application>(
     confirmationSubmitTime: {
       type: Date,
     },
-    confirmed: {
-      type: Boolean,
+    status: {
+      type: String,
       required: true,
-      default: false,
+      enum: StatusType,
     },
   },
   {

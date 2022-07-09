@@ -4,7 +4,7 @@ import { FilterQuery } from "mongoose";
 import { apiCall, asyncHandler, BadRequestError } from "@api/common";
 import { Service } from "@api/config";
 
-import { Application, ApplicationModel } from "../models/application";
+import { Application, ApplicationModel, StatusType } from "../models/application";
 import { validateApplicationData } from "../util";
 
 export const applicationRouter = express.Router();
@@ -78,7 +78,7 @@ applicationRouter.route("/actions/choose-application-branch").post(
     });
 
     if (existingApplication) {
-      if (existingApplication.applied) {
+      if (existingApplication.status === StatusType.APPLIED) {
         throw new BadRequestError(
           "Cannot select an application branch. You have already submitted an application."
         );
@@ -112,7 +112,7 @@ applicationRouter.route("/:id/actions/save-application-data").post(
       throw new BadRequestError("No application exists with this id");
     }
 
-    if (existingApplication.applied) {
+    if (existingApplication.status === StatusType.APPLIED) {
       throw new BadRequestError(
         "Cannot save application data. You have already submitted an application."
       );
@@ -150,7 +150,7 @@ applicationRouter.route("/:id/actions/submit-application").post(
       throw new BadRequestError("No application exists with this id");
     }
 
-    if (existingApplication.applied) {
+    if (existingApplication.status === StatusType.APPLIED) {
       throw new BadRequestError(
         "Cannot submit an application. You have already submitted an application."
       );
@@ -169,7 +169,7 @@ applicationRouter.route("/:id/actions/submit-application").post(
 
     const application: Partial<Application> = {
       applicationSubmitTime: new Date(),
-      applied: true,
+      status: StatusType.APPLIED,
     };
 
     const updatedApplication = await ApplicationModel.findByIdAndUpdate(
@@ -194,7 +194,7 @@ applicationRouter.route("/:id/actions/save-confirmation-data").post(
       throw new BadRequestError("No confirmation branch is selected.");
     }
 
-    if (existingApplication.confirmed) {
+    if (existingApplication.status === StatusType.CONFIRMED) {
       throw new BadRequestError(
         "Cannot save confirmation data. You have already submitted your confirmation."
       );
@@ -236,7 +236,7 @@ applicationRouter.route("/:id/actions/submit-confirmation").post(
       throw new BadRequestError("No confirmation branch is selected.");
     }
 
-    if (existingApplication.confirmed) {
+    if (existingApplication.status === StatusType.CONFIRMED) {
       throw new BadRequestError(
         "Cannot submit a confirmation. You have already submitted a confirmation."
       );
@@ -255,7 +255,7 @@ applicationRouter.route("/:id/actions/submit-confirmation").post(
 
     const application: Partial<Application> = {
       confirmationSubmitTime: new Date(),
-      confirmed: true,
+      status: StatusType.CONFIRMED,
     };
 
     const updatedApplication = await ApplicationModel.findByIdAndUpdate(
