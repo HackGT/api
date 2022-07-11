@@ -103,9 +103,13 @@ userRoutes.route("/:userId").put(
       }
     }
 
-    const updatedProfile = await ProfileModel.findByIdAndUpdate(req.params.userId, req.body, {
-      new: true,
-    });
+    const updatedProfile = await ProfileModel.findOneAndUpdate(
+      { userId: req.params.userId },
+      req.body,
+      {
+        new: true,
+      }
+    );
 
     res.send(updatedProfile);
   })

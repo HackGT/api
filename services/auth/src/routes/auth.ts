@@ -1,5 +1,5 @@
-import { asyncHandler, BadRequestError } from "@api/common";
-import config from "@api/config";
+import { apiCall, asyncHandler, BadRequestError, isAuthenticated } from "@api/common";
+import config, { Service } from "@api/config";
 import express from "express";
 import admin from "firebase-admin";
 
@@ -14,8 +14,8 @@ authRoutes.route("/login").post(
   asyncHandler(async (req, res) => {
     const { idToken } = req.body;
 
-    // Set session expiration to 5 days.
-    const expiresIn = 60 * 60 * 24 * 5 * 1000;
+    // Set session expiration to 14 days.
+    const expiresIn = 60 * 60 * 24 * 14 * 1000;
 
     const decodedIdToken = await admin.auth().verifyIdToken(idToken);
 
@@ -40,17 +40,6 @@ authRoutes.route("/login").post(
   })
 );
 
-authRoutes.route("/status").get(
-  asyncHandler(async (req, res) => {
-    const decodedIdToken = await admin.auth().verifySessionCookie(req.cookies.session || "");
-    const customToken = await admin.auth().createCustomToken(decodedIdToken.uid);
-
-    return res.json({
-      customToken,
-    });
-  })
-);
-
 authRoutes.route("/logout").all(
   asyncHandler(async (req, res) => {
     res.clearCookie("session", {
@@ -61,5 +50,35 @@ authRoutes.route("/logout").all(
       sameSite: "none",
     });
     res.sendStatus(204);
+  })
+);
+
+authRoutes.route("/status").get(
+  isAuthenticated,
+  asyncHandler(async (req, res) => {
+    if (!req.user) {
+      throw new BadRequestError("User must be authenticated");
+    }
+
+    const customToken = await admin.auth().createCustomToken(req.user.uid);
+
+    const profile = await apiCall(
+      Service.USERS,
+      { method: "GET", url: `/users/${req.user.uid}` },
+      req
+    );
+    // Determine if a user has a valid profile. If not, they need to be redirected
+    // to fill in the profile before accessing any services
+    const validProfile =
+      Object.keys(profile).length > 0 &&
+      !!profile.name?.first &&
+      !!profile.name?.last &&
+      !!profile.email;
+
+    return res.json({
+      customToken,
+      profile,
+      validProfile,
+    });
   })
 );

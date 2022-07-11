@@ -1872,9 +1872,6 @@
         "applicationData": {
           "$ref": "#/definitions/ApplicationData"
         },
-        "applied": {
-          "type": "boolean"
-        },
         "confirmationBranch": {
           "$ref": "#/definitions/Branch"
         },
@@ -1889,8 +1886,9 @@
         "confirmationData": {
           "type": "object"
         },
-        "confirmed": {
-          "type": "boolean"
+        "status": {
+          "type": "string",
+          "enum": ["DRAFT", "APPLIED", "ACCEPTED", "CONFIRMED", "DENIED"]
         },
         "createdAt": {
           "type": "string",
