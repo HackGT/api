@@ -1,4 +1,4 @@
-import { apiCall, asyncHandler, BadRequestError } from "@api/common";
+import { apiCall, asyncHandler, BadRequestError, isAuthenticated } from "@api/common";
 import config, { Service } from "@api/config";
 import express from "express";
 import admin from "firebase-admin";
@@ -40,14 +40,31 @@ authRoutes.route("/login").post(
   })
 );
 
-authRoutes.route("/status").get(
+authRoutes.route("/logout").all(
   asyncHandler(async (req, res) => {
-    const decodedIdToken = await admin.auth().verifySessionCookie(req.cookies.session || "");
-    const customToken = await admin.auth().createCustomToken(decodedIdToken.uid);
+    res.clearCookie("session", {
+      expires: new Date(),
+      httpOnly: true,
+      secure: config.common.production,
+      domain: config.common.production ? ".hexlabs.org" : "",
+      sameSite: "none",
+    });
+    res.sendStatus(204);
+  })
+);
+
+authRoutes.route("/status").get(
+  isAuthenticated,
+  asyncHandler(async (req, res) => {
+    if (!req.user) {
+      throw new BadRequestError("User must be authenticated");
+    }
+
+    const customToken = await admin.auth().createCustomToken(req.user.uid);
 
     const profile = await apiCall(
       Service.USERS,
-      { method: "GET", url: `/users/${decodedIdToken.uid}` },
+      { method: "GET", url: `/users/${req.user.uid}` },
       req
     );
     // Determine if a user has a valid profile. If not, they need to be redirected
@@ -63,18 +80,5 @@ authRoutes.route("/status").get(
       profile,
       validProfile,
     });
-  })
-);
-
-authRoutes.route("/logout").all(
-  asyncHandler(async (req, res) => {
-    res.clearCookie("session", {
-      expires: new Date(),
-      httpOnly: true,
-      secure: config.common.production,
-      domain: config.common.production ? ".hexlabs.org" : "",
-      sameSite: "none",
-    });
-    res.sendStatus(204);
   })
 );
