@@ -18,26 +18,22 @@ statisticsRouter.route("/").get(
       },
     ]);
 
-    const aggregatedApplicationBranches = await BranchModel.aggregate([
-      {
-        $match: { type: BranchType.APPLICATION },
-      },
+    const aggregatedApplicationData = await ApplicationModel.aggregate([
       {
         $group: {
-          _id: "$name",
-          count: { $sum: 1 },
+          _id: "$applicationBranch",
+          branchName: { $first: "$applicationBranch.name" },
+          data: { $push: "$applicationData" },
         },
       },
     ]);
 
-    const aggregatedConfirmationBranches = await BranchModel.aggregate([
-      {
-        $match: { type: BranchType.CONFIRMATION },
-      },
+    const aggregatedBranches = await BranchModel.aggregate([
       {
         $group: {
           _id: "$name",
           count: { $sum: 1 },
+          type: { $first: "$type" },
         },
       },
     ]);
@@ -89,15 +85,20 @@ statisticsRouter.route("/").get(
     let confirmationStatistics: Record<string, number> = {};
     let rejectionStatistics: Record<string, number> = {};
 
-    for (const element of aggregatedApplicationBranches) {
+    for (const element of aggregatedBranches) {
       const branch: string = element._id;
-      applicationStatistics = { ...applicationStatistics, [branch]: element.count };
+      switch (element.type) {
+        case BranchType.APPLICATION:
+          applicationStatistics = { ...applicationStatistics, [branch]: element.count };
+          break;
+        case BranchType.CONFIRMATION:
+          confirmationStatistics = { ...confirmationStatistics, [branch]: element.count };
+          break;
+        default:
+        // do nothing
+      }
     }
 
-    for (const element of aggregatedConfirmationBranches) {
-      const branch: string = element._id;
-      confirmationStatistics = { ...confirmationStatistics, [branch]: element.count };
-    }
     for (const element of aggregatedRejections) {
       const branch: string = element._id;
       rejectionStatistics = { ...rejectionStatistics, [branch]: element.count };
@@ -108,6 +109,7 @@ statisticsRouter.route("/").get(
       applicationStatistics,
       confirmationStatistics,
       rejectionStatistics,
+      aggregatedApplicationData,
     };
 
     return res.send(statistics);
