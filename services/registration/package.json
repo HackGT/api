@@ -33,6 +33,7 @@
     "express": "^4.17.2",
     "fs": "^0.0.1-security",
     "helmet": "^5.0.2",
+    "kill-port": "^2.0.1",
     "mongoose": "^6.3.0",
     "mongoose-autopopulate": "^0.16.1",
     "mongoose-paginate-v2": "^1.6.3",

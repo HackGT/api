@@ -2,7 +2,7 @@
 import { asyncHandler } from "@api/common";
 import express from "express";
 
-import { ApplicationModel } from "../models/application";
+import { ApplicationModel, StatusType } from "../models/application";
 import { BranchModel, BranchType } from "../models/branch";
 
 export const statisticsRouter = express.Router();
@@ -18,6 +18,8 @@ statisticsRouter.route("/").get(
         },
       },
     ]);
+
+    console.log(aggregatedUsers);
 
     const aggregatedApplicationBranches = await BranchModel.aggregate([
       {
@@ -45,7 +47,7 @@ statisticsRouter.route("/").get(
 
     const aggregatedRejections = await BranchModel.aggregate([
       {
-        $match: { status: "DENIED" },
+        $match: { status: StatusType.DENIED },
       },
       {
         $group: {
@@ -58,20 +60,19 @@ statisticsRouter.route("/").get(
     let [draftUsers, appliedUsers, acceptedUsers, confirmedUsers, deniedUsers] = Array(5).fill(0);
     for (const element of aggregatedUsers) {
       switch (element._id) {
-        // switch to StatusType.whatever after PR gets approved
-        case "DRAFT":
+        case StatusType.DRAFT:
           draftUsers = element.count;
           break;
-        case "APPLIED":
+        case StatusType.APPLIED:
           appliedUsers = element.count;
           break;
-        case "ACCEPTED":
+        case StatusType.ACCEPTED:
           acceptedUsers = element.count;
           break;
-        case "CONFIRMED":
+        case StatusType.CONFIRMED:
           confirmedUsers = element.count;
           break;
-        case "DENIED":
+        case StatusType.DENIED:
           deniedUsers = element.count;
           break;
         default:
@@ -89,7 +90,9 @@ statisticsRouter.route("/").get(
 
     let applicationStatistics: Record<string, number> = {};
     let confirmationStatistics: Record<string, number> = {};
-
+    let rejectionStatistics: Record<string, number> = {};
+    console.log("aggregatedApplicationBranches down:");
+    console.log(aggregatedApplicationBranches);
     for (const element of aggregatedApplicationBranches) {
       const branch: string = element._id;
       applicationStatistics = { ...applicationStatistics, [branch]: element.count };
@@ -101,13 +104,14 @@ statisticsRouter.route("/").get(
     }
     for (const element of aggregatedRejections) {
       const branch: string = element._id;
-      confirmationStatistics = { ...confirmationStatistics, [branch]: element.count };
+      rejectionStatistics = { ...rejectionStatistics, [branch]: element.count };
     }
 
     const statistics = {
       userStatistics,
       applicationStatistics,
       confirmationStatistics,
+      rejectionStatistics,
     };
 
     return res.send(statistics);
