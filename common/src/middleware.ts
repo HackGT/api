@@ -1,32 +1,16 @@
 /* eslint-disable no-empty */
 import { ErrorRequestHandler, NextFunction, Request, RequestHandler, Response } from "express";
 import admin, { FirebaseError } from "firebase-admin";
-import { DecodedIdToken } from "firebase-admin/auth"; // eslint-disable-line import/no-unresolved
 import { StatusCodes } from "http-status-codes";
 import mongoose from "mongoose";
-import config from "@api/config";
+import config, { Service } from "@api/config";
 import multer from "multer";
 import axios from "axios";
+import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
 
 import { BadRequestError, ForbiddenError } from "./errors";
-
-declare global {
-  namespace Express {
-    interface Request {
-      /**
-       * Represents the user that is currently authenticated.
-       */
-      user: DecodedIdToken | null;
-
-      /**
-       * Used to set an error when decoding the user token. This is used so that when isAuthenticated
-       * is called, the middleware can check if the user is authenticated or not, and if not, throw
-       * an appropriate error.
-       */
-      userError: any;
-    }
-  }
-}
+import { DEFAULT_USER_ROLES, UserRoles } from "./types";
+import { apiCall } from "./apiCall";
 
 /**
  * Middleware to handle and catch errors in async methods
@@ -39,35 +23,62 @@ export const asyncHandler =
 /**
  * Middleware to decode JWT from Google Cloud Identity Provider
  */
-export const decodeToken: RequestHandler = asyncHandler(async (req, res, next) => {
-  req.user = null;
+export const decodeToken = (service: Service) =>
+  asyncHandler(async (req, res, next) => {
+    let decodedIdToken: DecodedIdToken | null = null;
+    let isUserDecoded = false;
 
-  let isUserDecoded = false;
+    if (!isUserDecoded && req.headers?.authorization?.startsWith("Bearer ")) {
+      const idToken = req.headers.authorization.split("Bearer ")[1];
 
-  if (!isUserDecoded && req.headers?.authorization?.startsWith("Bearer ")) {
-    const idToken = req.headers.authorization.split("Bearer ")[1];
+      try {
+        decodedIdToken = await admin.auth().verifyIdToken(idToken);
+        isUserDecoded = true;
+      } catch (err) {
+        req.userError = err;
+      }
+    }
+    if (!isUserDecoded && req.cookies.session) {
+      try {
+        decodedIdToken = await admin.auth().verifySessionCookie(req.cookies.session || "");
+        isUserDecoded = true;
+      } catch (err) {
+        req.userError = err;
+      }
+    }
 
+    // If decodedIdToken is null, it means the user is not authenticated
+    if (decodedIdToken === null) {
+      req.user = null;
+      next();
+      return;
+    }
+
+    // Manage and retrieve user role permissions
     try {
-      const decodedIdToken = await admin.auth().verifyIdToken(idToken);
-      req.user = decodedIdToken;
-      isUserDecoded = true;
+      let roles: UserRoles;
+      // Add special checkcase for permissions to prevent infinite loop
+      if (service === Service.AUTH && req.path.includes("/permissions")) {
+        roles = DEFAULT_USER_ROLES;
+      } else {
+        roles = await apiCall(
+          Service.AUTH,
+          { method: "GET", url: `/permissions/${decodedIdToken.uid}` },
+          req
+        );
+      }
+
+      req.user = {
+        ...decodedIdToken,
+        roles,
+      };
     } catch (err) {
+      req.user = null;
       req.userError = err;
     }
-  }
 
-  if (!isUserDecoded && req.cookies.session) {
-    try {
-      const decodedIdToken = await admin.auth().verifySessionCookie(req.cookies.session || "");
-      req.user = decodedIdToken;
-      isUserDecoded = true;
-    } catch (err) {
-      req.userError = err;
-    }
-  }
-
-  next();
-});
+    next();
+  });
 
 /**
  * Checks that a user is authenticated and logged in
@@ -135,6 +146,8 @@ export const checkApiKey: RequestHandler = asyncHandler(async (req, res, next) =
  * Middleware to parse errors and response with error messages
  */
 export const handleError: ErrorRequestHandler = (err, req, res, next) => {
+  console.error(err);
+
   if (
     err instanceof mongoose.Error.CastError ||
     err instanceof mongoose.Error.ValidationError ||
@@ -158,6 +171,14 @@ export const handleError: ErrorRequestHandler = (err, req, res, next) => {
   ) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       status: StatusCodes.INTERNAL_SERVER_ERROR,
+      type: "mongo_error",
+      message: err.message,
+      stack: err.stack,
+    });
+  } else if (err.name === "MongoServerError" && err.code === 11000) {
+    // Add special handler for duplicate key error on unique fields
+    res.status(StatusCodes.BAD_REQUEST).json({
+      status: StatusCodes.BAD_REQUEST,
       type: "mongo_error",
       message: err.message,
       stack: err.stack,
@@ -205,6 +226,4 @@ export const handleError: ErrorRequestHandler = (err, req, res, next) => {
       stack: err.stack,
     });
   }
-
-  console.error(err);
 };
