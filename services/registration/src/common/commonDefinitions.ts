@@ -1,7 +1,7 @@
-{
-  "university": {
-    "type": "string",
-    "enum": [
+const commonDefinitions = {
+  university: {
+    type: "string",
+    enum: [
       "Georgia Institute of Technology",
       "Abraham Baldwin Agricultural College",
       "Albany Medical College",
@@ -245,16 +245,16 @@
       "West Virginia University",
       "Wright State University",
       "Yale University",
-      "Yeshiva University"
-    ]
+      "Yeshiva University",
+    ],
   },
-  "year": {
-    "type": "string",
-    "enum": ["1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year+", "Master's", "PhD"]
+  year: {
+    type: "string",
+    enum: ["1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year+", "Master's", "PhD"],
   },
-  "major": {
-    "type": "string",
-    "enum": [
+  major: {
+    type: "string",
+    enum: [
       "Aerospace Engineering",
       "Applied Language and Intercultural Studies",
       "Applied Physics",
@@ -290,12 +290,12 @@
       "Nuclear and Radiological Engineering",
       "Physics",
       "Psychology",
-      "Public Policy"
-    ]
+      "Public Policy",
+    ],
   },
-  "ethnicity": {
-    "type": "string",
-    "enum": [
+  ethnicity: {
+    type: "string",
+    enum: [
       "Non-Hispanic Caucasian",
       "Black or African American",
       "Latinx or Hispanic American",
@@ -304,12 +304,12 @@
       "East Asian or Asian American",
       "Middle Eastern or Arab American",
       "Native American or Alaskan Native",
-      "Hawaiian or Pacific Islander"
-    ]
+      "Hawaiian or Pacific Islander",
+    ],
   },
-  "marketing": {
-    "type": "string",
-    "enum": [
+  marketing: {
+    type: "string",
+    enum: [
       "MLH",
       "Facebook",
       "Instagram",
@@ -318,7 +318,9 @@
       "Friend",
       "Class/Professor/TA",
       "University Relations",
-      "Corporate Sponsor"
-    ]
-  }
-}
+      "Corporate Sponsor",
+    ],
+  },
+};
+
+export default commonDefinitions;

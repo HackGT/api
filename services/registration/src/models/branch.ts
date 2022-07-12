@@ -1,6 +1,6 @@
 import { model, Schema, Types } from "mongoose";
 
-import { commonDefinitions } from "../common";
+import commonDefinitions from "../common/commonDefinitions";
 
 export enum BranchType {
   APPLICATION = "APPLICATION",
