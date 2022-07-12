@@ -9,7 +9,6 @@ export const statisticsRouter = express.Router();
 
 statisticsRouter.route("/").get(
   asyncHandler(async (req, res) => {
-    // from the status field, get applied, accepted, confirmed and non-confirmed users
     const aggregatedUsers = await ApplicationModel.aggregate([
       {
         $group: {
@@ -18,8 +17,6 @@ statisticsRouter.route("/").get(
         },
       },
     ]);
-
-    console.log(aggregatedUsers);
 
     const aggregatedApplicationBranches = await BranchModel.aggregate([
       {
@@ -91,8 +88,7 @@ statisticsRouter.route("/").get(
     let applicationStatistics: Record<string, number> = {};
     let confirmationStatistics: Record<string, number> = {};
     let rejectionStatistics: Record<string, number> = {};
-    console.log("aggregatedApplicationBranches down:");
-    console.log(aggregatedApplicationBranches);
+
     for (const element of aggregatedApplicationBranches) {
       const branch: string = element._id;
       applicationStatistics = { ...applicationStatistics, [branch]: element.count };
