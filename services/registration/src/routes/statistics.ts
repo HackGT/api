@@ -35,7 +35,6 @@ statisticsRouter.route("/").get(
             {
               $group: {
                 _id: "$applicationBranch",
-                branchName: { $first: "$applicationBranch.name" },
                 data: { $push: "$applicationData" },
               },
             },
@@ -65,6 +64,7 @@ statisticsRouter.route("/").get(
                 _id: "$name",
                 count: { $sum: 1 },
                 type: { $first: "$type" },
+                branchId: { $first: "$_id" },
               },
             },
           ],
@@ -120,9 +120,10 @@ statisticsRouter.route("/").get(
     let applicationStatistics: Record<string, number> = {};
     let confirmationStatistics: Record<string, number> = {};
     let rejectionStatistics: Record<string, number> = {};
-
+    const branchMap: Record<string, string> = {};
     for (const element of aggregatedBranchNames) {
       const branch: string = element._id;
+      branchMap[element.branchId.toString()] = branch;
       switch (element.type) {
         case BranchType.APPLICATION:
           applicationStatistics = { ...applicationStatistics, [branch]: element.count };
@@ -146,6 +147,7 @@ statisticsRouter.route("/").get(
       confirmationStatistics,
       rejectionStatistics,
       aggregatedApplicationData,
+      branchMap,
     };
 
     return res.send(statistics);
