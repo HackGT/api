@@ -1681,7 +1681,8 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "#/definitions/Profile"
+              "type": "object",
+              "allOf": [{ "$ref": "#/definitions/Profile" }, { "$ref": "#/definitions/Permission" }]
             }
           },
           "400": {
@@ -2138,6 +2139,31 @@
       },
       "xml": {
         "name": "Profile"
+      }
+    },
+    "Permission": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "roles": {
+          "type": "object",
+          "properties": {
+            "member": {
+              "type": "boolean"
+            },
+            "exec": {
+              "type": "boolean"
+            },
+            "admin": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "xml": {
+        "name": "Permission"
       }
     },
     "User": {

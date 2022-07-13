@@ -154,6 +154,10 @@ export const SERVICES: Record<Service, ServiceConfig> = {
         [`^/auth`]: "",
       },
     },
+    database: {
+      type: "mongo",
+      name: "auth",
+    },
   },
 };
 

@@ -3,7 +3,7 @@ import compression from "compression";
 import morgan from "morgan";
 import cors from "cors";
 import helmet from "helmet";
-import config from "@api/config";
+import config, { Service } from "@api/config";
 import { decodeToken, handleError, isAuthenticated, rateLimiter } from "@api/common";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
@@ -33,7 +33,7 @@ mongoose.set("runValidators", true);
 app.use(helmet());
 app.use(rateLimiter());
 app.use(cookieParser());
-app.use(decodeToken);
+app.use(decodeToken(Service.USERS));
 app.use(morgan("dev"));
 app.use(compression());
 app.use(
