@@ -1,4 +1,5 @@
-import { asyncHandler, BadRequestError } from "@api/common";
+import { apiCall, asyncHandler } from "@api/common";
+import { Service } from "@api/config";
 import express from "express";
 import { FilterQuery } from "mongoose";
 
@@ -33,16 +34,6 @@ userRoutes.route("/").get(
         { phoneNumber: { $regex: re } },
         { email: { $regex: re } },
       ];
-    }
-
-    if (req.query.member != null) {
-      filter.permissions.member = req.query.member;
-    }
-    if (req.query.admin != null) {
-      filter.permissions.admin = req.query.admin;
-    }
-    if (req.query.exec != null) {
-      filter.permissions.exec = req.query.exec;
     }
 
     const matchCount = await ProfileModel.find(filter).count();
@@ -87,25 +78,30 @@ userRoutes.route("/:userId").get(
       userId: req.params.userId,
     });
 
-    res.send(profile || {});
+    const permission = await apiCall(
+      Service.AUTH,
+      { method: "GET", url: `/permissions/${req.params.userId}` },
+      req
+    );
+
+    const combinedProfile = {
+      ...profile?.toObject(),
+      ...permission,
+    };
+
+    res.send(combinedProfile || {});
   })
 );
 
 userRoutes.route("/:userId").put(
   asyncHandler(async (req, res) => {
-    if (req.body.permissions) {
-      const profile = await ProfileModel.findOne({
-        userId: req.user?.uid,
-      });
-
-      if (!profile || !(profile.permissions.exec || profile.permissions.admin)) {
-        throw new BadRequestError("Unauthorized to modify permissions");
+    const updatedProfile = await ProfileModel.findOneAndUpdate(
+      { userId: req.params.userId },
+      req.body,
+      {
+        new: true,
       }
-    }
-
-    const updatedProfile = await ProfileModel.findByIdAndUpdate(req.params.userId, req.body, {
-      new: true,
-    });
+    );
 
     res.send(updatedProfile);
   })
@@ -116,7 +112,7 @@ userRoutes.route("/actions/retrieve").post(
     const { userIds }: { userIds: string[] } = req.body;
 
     if (!userIds || userIds.length === 0) {
-      throw new BadRequestError("Must provide at least one userId to retrieve");
+      return res.status(200).json([]);
     }
 
     const profiles = await ProfileModel.find({

@@ -25,7 +25,6 @@ export const rateLimiter = () => {
       standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
       legacyHeaders: false, // Disable the `X-RateLimit-*` headers
       message: {
-        //
         status: StatusCodes.TOO_MANY_REQUESTS,
         type: "rate_limit_error",
         message: "Too many requests sent. Please try again later.",

@@ -4,12 +4,13 @@ import { Service } from "@api/config";
 import express from "express";
 import fs from "fs";
 import path from "path";
+import { FilterQuery } from "mongoose";
 
-import { getGroup, getInitialGroupsLeft , validateApplicationData } from "src/util";
-import { getScoreMapping } from "src/mapScores";
-import { Application, ApplicationModel } from "../models/application";
-import { GraderModel } from "src/models/grader";
-import { CriteriaModel } from "src/models/criteria";
+import { getGroup, getInitialGroupsLeft, validateApplicationData } from "../util";
+import { getScoreMapping } from "../mapScores";
+import { Application, ApplicationModel, StatusType } from "../models/application";
+import { GraderModel } from "../models/grader";
+import { CriteriaModel } from "../models/criteria";
 
 export const applicationRouter = express.Router();
 
@@ -33,7 +34,7 @@ applicationRouter.route("/question").get(
 
     // let allGroups = Object.keys(groupmapping); // generalGroup and emergingGroup
 
-    const {user} = req;
+    const { user } = req;
     if (!user) {
       throw new BadRequestError("User is null");
     }
@@ -70,7 +71,7 @@ applicationRouter.route("/question").get(
       grader.calibrationScores = [];
     }
 
-    let {group} = grader;
+    let { group } = grader;
     if (!group) {
       grader.group = getGroup(grader.email);
       group = grader.group;
@@ -92,7 +93,7 @@ applicationRouter.route("/question").get(
       response = questions[group][lengthbygroup];
     } else {
       let responses: string | any[];
-      const {tracks} = groupmapping[group];
+      const { tracks } = groupmapping[group];
       if (!tracks) {
         throw new BadRequestError("Group name is incorrect. getGroup returned an invalid answer");
       }
@@ -171,7 +172,7 @@ applicationRouter.route("/question").get(
 // /graded takes care of submitting the review
 applicationRouter.route("/graded").post(
   asyncHandler(async (req, res) => {
-    const {user} = req;
+    const { user } = req;
     if (!user) {
       throw new BadRequestError("User is null");
     }
@@ -185,11 +186,11 @@ applicationRouter.route("/graded").post(
       fs.readFileSync(path.resolve(__dirname, "../config/calibrationmapping.json"), "utf8")
     );
 
-    const {score} = req.body;
-    const {criteriaId} = req.body;
+    const { score } = req.body;
+    const { criteriaId } = req.body;
 
     if (score && criteriaId) {
-      const {group} = grader;
+      const { group } = grader;
       if (!group) {
         throw new BadRequestError("Please refresh the page. Grader's group is not found");
       } else if (!questions[group]) {
@@ -261,7 +262,7 @@ applicationRouter.route("/graded").post(
 
 applicationRouter.route("/skip").get(
   asyncHandler(async (req, res) => {
-    const {user} = req;
+    const { user } = req;
     if (!user) {
       throw new BadRequestError("User is null");
     }
@@ -311,7 +312,7 @@ applicationRouter.route("/leaderboard").get(
     const userNames = await Promise.all(promiseArr);
     for (let i = 0; i < userNames.length; i++) {
       if (userNames[i]) {
-        userNames[i] = `${userNames[i].first  } ${  userNames[i].last}`;
+        userNames[i] = `${userNames[i].first} ${userNames[i].last}`;
         names.push(userNames[i]);
 
         if (topGraders[i] && topGraders[i].graded) {
@@ -330,9 +331,39 @@ applicationRouter.route("/leaderboard").get(
 
 applicationRouter.route("/").get(
   asyncHandler(async (req, res) => {
-    const applications = await ApplicationModel.find({});
+    const filter: FilterQuery<Application> = {};
 
-    return res.send(applications);
+    if (req.query.hexathon) {
+      filter.hexathon = req.query.hexathon;
+    }
+
+    if (req.query.userId) {
+      filter.userId = req.query.userId;
+    }
+
+    const applications = await ApplicationModel.find(filter);
+    const userIds = applications.map(application => application.userId).filter(Boolean); // Filters falsy values
+
+    const userInfos = await apiCall(
+      Service.USERS,
+      { method: "POST", url: `/users/actions/retrieve`, data: { userIds } },
+      req
+    );
+
+    const combinedApplications = [];
+
+    for (const application of applications) {
+      const matchedUserInfo = userInfos.find(
+        (userInfo: any) => userInfo.userId === application.userId
+      );
+
+      combinedApplications.push({
+        ...application.toObject(),
+        userInfo: matchedUserInfo || {},
+      });
+    }
+
+    return res.send(combinedApplications);
   })
 );
 
@@ -340,7 +371,22 @@ applicationRouter.route("/:id").get(
   asyncHandler(async (req, res) => {
     const application = await ApplicationModel.findById(req.params.id);
 
-    return res.send(application);
+    if (!application) {
+      throw new BadRequestError("Application not found");
+    }
+
+    const userInfo = await apiCall(
+      Service.USERS,
+      { method: "GET", url: `users/${application.userId}` },
+      req
+    );
+
+    const combinedApplication = {
+      ...application.toObject(),
+      userInfo: userInfo || {},
+    };
+
+    return res.send(combinedApplication);
   })
 );
 
@@ -352,7 +398,7 @@ applicationRouter.route("/actions/choose-application-branch").post(
     });
 
     if (existingApplication) {
-      if (existingApplication.applied) {
+      if (existingApplication.status !== StatusType.DRAFT) {
         throw new BadRequestError(
           "Cannot select an application branch. You have already submitted an application."
         );
@@ -386,7 +432,7 @@ applicationRouter.route("/:id/actions/save-application-data").post(
       throw new BadRequestError("No application exists with this id");
     }
 
-    if (existingApplication.applied) {
+    if (existingApplication.status !== StatusType.DRAFT) {
       throw new BadRequestError(
         "Cannot save application data. You have already submitted an application."
       );
@@ -424,12 +470,11 @@ applicationRouter.route("/:id/actions/submit-application").post(
       throw new BadRequestError("No application exists with this id");
     }
 
-    if (existingApplication.applied) {
+    if (existingApplication.status !== StatusType.DRAFT) {
       throw new BadRequestError(
         "Cannot submit an application. You have already submitted an application."
       );
     }
-
     await Promise.all(
       existingApplication.applicationBranch.formPages.map(async (formPage, index) => {
         await validateApplicationData(
@@ -443,7 +488,7 @@ applicationRouter.route("/:id/actions/submit-application").post(
 
     const application: Partial<Application> = {
       applicationSubmitTime: new Date(),
-      applied: true,
+      status: StatusType.APPLIED,
     };
 
     const updatedApplication = await ApplicationModel.findByIdAndUpdate(
@@ -468,9 +513,14 @@ applicationRouter.route("/:id/actions/save-confirmation-data").post(
       throw new BadRequestError("No confirmation branch is selected.");
     }
 
-    if (existingApplication.confirmed) {
+    if (existingApplication.status === StatusType.CONFIRMED) {
       throw new BadRequestError(
         "Cannot save confirmation data. You have already submitted your confirmation."
+      );
+    }
+    if (existingApplication.status !== StatusType.ACCEPTED) {
+      throw new BadRequestError(
+        "Cannot save confirmation data. Your application has not been accepted."
       );
     }
 
@@ -510,9 +560,14 @@ applicationRouter.route("/:id/actions/submit-confirmation").post(
       throw new BadRequestError("No confirmation branch is selected.");
     }
 
-    if (existingApplication.confirmed) {
+    if (existingApplication.status === StatusType.CONFIRMED) {
       throw new BadRequestError(
         "Cannot submit a confirmation. You have already submitted a confirmation."
+      );
+    }
+    if (existingApplication.status !== StatusType.ACCEPTED) {
+      throw new BadRequestError(
+        "Cannot submit a confirmation. Your application has not been accepted."
       );
     }
 
@@ -529,7 +584,7 @@ applicationRouter.route("/:id/actions/submit-confirmation").post(
 
     const application: Partial<Application> = {
       confirmationSubmitTime: new Date(),
-      confirmed: true,
+      status: StatusType.CONFIRMED,
     };
 
     const updatedApplication = await ApplicationModel.findByIdAndUpdate(

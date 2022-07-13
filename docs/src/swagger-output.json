@@ -533,6 +533,11 @@
                 "name": {
                   "type": "string"
                 },
+                "shortCode": {
+                  "type": "string",
+                  "required": true,
+                  "unique": true
+                },
                 "isActive": {
                   "type": "boolean"
                 },
@@ -859,6 +864,20 @@
         "summary": "Finds and displays information of all applications.",
         "description": "",
         "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathon",
+            "in": "query",
+            "description": "Filter applications by hexathon id",
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "Filter applications by user id",
+            "type": "string"
+          }
+        ],
         "responses": {
           "200": {
             "description": "successful operation",
@@ -1098,6 +1117,15 @@
         "summary": "Finds and displays information of all branches.",
         "description": "",
         "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathon",
+            "in": "query",
+            "description": "Hexathon id that needs to be considered for filter.",
+            "type": "string",
+            "collectionFormat": "multi"
+          }
+        ],
         "responses": {
           "200": {
             "description": "successful operation",
@@ -1130,6 +1158,9 @@
               "properties": {
                 "name": {
                   "type": "string"
+                },
+                "hexathon": {
+                  "type": "integer"
                 },
                 "type": {
                   "type": "string"
@@ -1224,6 +1255,9 @@
                 "name": {
                   "type": "string"
                 },
+                "hexathon": {
+                  "type": "integer"
+                },
                 "type": {
                   "type": "string"
                 },
@@ -1271,30 +1305,57 @@
         "summary": "Displays registration statistics.",
         "description": "",
         "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathon",
+            "in": "query",
+            "type": "integer",
+            "description": "Hexathon ID for filter.",
+            "required": true
+          }
+        ],
         "responses": {
           "200": {
             "description": "successful operation",
             "schema": {
               "type": "object",
               "properties": {
-                "general": {
+                "userStatistics": {
                   "type": "object",
                   "properties": {
-                    "applicationStarted": {
+                    "totalUsers": {
                       "type": "integer"
                     },
-                    "applicationSubmitted": {
+                    "appliedUsers": {
                       "type": "integer"
                     },
-                    "confirmed": {
+                    "acceptedUsers": {
+                      "type": "integer"
+                    },
+                    "confirmedUsers": {
+                      "type": "integer"
+                    },
+                    "nonConfirmedUsers": {
+                      "type": "integer"
+                    },
+                    "deniedUsers": {
                       "type": "integer"
                     }
                   }
                 },
-                "applications": {
+                "applicationStatistics": {
                   "type": "object"
                 },
-                "confirmations": {
+                "confirmationStatistics": {
+                  "type": "object"
+                },
+                "rejectionStatistics": {
+                  "type": "object"
+                },
+                "aggregatedApplicationData": {
+                  "type": "object"
+                },
+                "branchMap": {
                   "type": "object"
                 }
               }
@@ -1552,6 +1613,42 @@
         "summary": "Create a user's profile.",
         "description": "",
         "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "object",
+                  "properties": {
+                    "first": {
+                      "type": "string"
+                    },
+                    "middle": {
+                      "type": "string"
+                    },
+                    "last": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "phoneNumber": {
+                  "type": "string"
+                },
+                "gender": {
+                  "type": "string"
+                },
+                "resume": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "successful operation",
@@ -1584,7 +1681,8 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "#/definitions/Profile"
+              "type": "object",
+              "allOf": [{ "$ref": "#/definitions/Profile" }, { "$ref": "#/definitions/Permission" }]
             }
           },
           "400": {
@@ -1735,13 +1833,11 @@
         },
         "startDate": {
           "type": "string",
-          "format": "date-time",
-          "required": true
+          "format": "date-time"
         },
         "endDate": {
           "type": "string",
-          "format": "date-time",
-          "required": true
+          "format": "date-time"
         }
       },
       "xml": {
@@ -1804,9 +1900,6 @@
         "applicationData": {
           "$ref": "#/definitions/ApplicationData"
         },
-        "applied": {
-          "type": "boolean"
-        },
         "confirmationBranch": {
           "$ref": "#/definitions/Branch"
         },
@@ -1821,8 +1914,9 @@
         "confirmationData": {
           "type": "object"
         },
-        "confirmed": {
-          "type": "boolean"
+        "status": {
+          "type": "string",
+          "enum": ["DRAFT", "APPLIED", "ACCEPTED", "CONFIRMED", "DENIED"]
         },
         "createdAt": {
           "type": "string",
@@ -1928,6 +2022,9 @@
         },
         "name": {
           "type": "string"
+        },
+        "hexathon": {
+          "type": "integer"
         },
         "type": {
           "type": "string",
@@ -2035,10 +2132,38 @@
         },
         "gender": {
           "type": "string"
+        },
+        "resume": {
+          "type": "string"
         }
       },
       "xml": {
         "name": "Profile"
+      }
+    },
+    "Permission": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "roles": {
+          "type": "object",
+          "properties": {
+            "member": {
+              "type": "boolean"
+            },
+            "exec": {
+              "type": "boolean"
+            },
+            "admin": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "xml": {
+        "name": "Permission"
       }
     },
     "User": {

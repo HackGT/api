@@ -6,17 +6,12 @@ export interface Profile {
   email: string;
   name: {
     first: string;
-    middle: string;
+    middle?: string;
     last: string;
   };
-  phoneNumber: string;
-  gender: string;
-  resume: Types.ObjectId;
-  permissions: {
-    member: boolean;
-    exec: boolean;
-    admin: boolean;
-  };
+  phoneNumber?: string;
+  gender?: string;
+  resume?: Types.ObjectId;
 }
 
 const profileSchema = new Schema<Profile>({
@@ -52,20 +47,6 @@ const profileSchema = new Schema<Profile>({
     type: String,
   },
   resume: Types.ObjectId,
-  permissions: {
-    member: {
-      type: Boolean,
-      default: false,
-    },
-    exec: {
-      type: Boolean,
-      default: false,
-    },
-    admin: {
-      type: Boolean,
-      default: false,
-    },
-  },
 });
 
 profileSchema.plugin(mongoosePaginate);
