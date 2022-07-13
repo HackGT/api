@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import { asyncHandler } from "@api/common";
 import express from "express";
+import mongoose from "mongoose";
 
 import { ApplicationModel, StatusType } from "../models/application";
 import { BranchModel, BranchType } from "../models/branch";
@@ -9,46 +10,81 @@ export const statisticsRouter = express.Router();
 
 statisticsRouter.route("/").get(
   asyncHandler(async (req, res) => {
-    const aggregatedUsers = await ApplicationModel.aggregate([
+    const { hexathon } = req.query;
+
+    /**
+     * This aggregate gets users grouped by their application status as well as users' application data grouped by application branch for the given hexathon.
+     */
+    const aggregatedApplications = await ApplicationModel.aggregate([
       {
-        $group: {
-          _id: "$status",
-          count: { $sum: 1 },
+        $match: {
+          hexathon: new mongoose.Types.ObjectId(hexathon as string),
+        },
+      },
+      {
+        $facet: {
+          users: [
+            {
+              $group: {
+                _id: "$status",
+                count: { $sum: 1 },
+              },
+            },
+          ],
+          applicationData: [
+            {
+              $group: {
+                _id: "$applicationBranch",
+                branchName: { $first: "$applicationBranch.name" },
+                data: { $push: "$applicationData" },
+              },
+            },
+          ],
         },
       },
     ]);
 
-    const aggregatedApplicationData = await ApplicationModel.aggregate([
-      {
-        $group: {
-          _id: "$applicationBranch",
-          branchName: { $first: "$applicationBranch.name" },
-          data: { $push: "$applicationData" },
-        },
-      },
-    ]);
+    const aggregatedUsers = aggregatedApplications[0].users;
+    const aggregatedApplicationData = aggregatedApplications[0].applicationData;
+
+    /**
+     * This aggregate gets the frequency of branches and rejections grouped by branch name.
+     */
 
     const aggregatedBranches = await BranchModel.aggregate([
       {
-        $group: {
-          _id: "$name",
-          count: { $sum: 1 },
-          type: { $first: "$type" },
+        $match: {
+          hexathon: new mongoose.Types.ObjectId(hexathon as string),
+        },
+      },
+      {
+        $facet: {
+          branches: [
+            {
+              $group: {
+                _id: "$name",
+                count: { $sum: 1 },
+                type: { $first: "$type" },
+              },
+            },
+          ],
+          rejections: [
+            {
+              $match: { status: StatusType.DENIED },
+            },
+            {
+              $group: {
+                _id: "$name",
+                count: { $sum: 1 },
+              },
+            },
+          ],
         },
       },
     ]);
 
-    const aggregatedRejections = await BranchModel.aggregate([
-      {
-        $match: { status: StatusType.DENIED },
-      },
-      {
-        $group: {
-          _id: "$name",
-          count: { $sum: 1 },
-        },
-      },
-    ]);
+    const aggregatedBranchNames = aggregatedBranches[0].branches;
+    const aggregatedRejections = aggregatedBranches[0].rejections;
 
     let [draftUsers, appliedUsers, acceptedUsers, confirmedUsers, deniedUsers] = Array(5).fill(0);
     for (const element of aggregatedUsers) {
@@ -85,7 +121,7 @@ statisticsRouter.route("/").get(
     let confirmationStatistics: Record<string, number> = {};
     let rejectionStatistics: Record<string, number> = {};
 
-    for (const element of aggregatedBranches) {
+    for (const element of aggregatedBranchNames) {
       const branch: string = element._id;
       switch (element.type) {
         case BranchType.APPLICATION:
