@@ -1305,30 +1305,57 @@
         "summary": "Displays registration statistics.",
         "description": "",
         "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathon",
+            "in": "query",
+            "type": "integer",
+            "description": "Hexathon ID for filter.",
+            "required": true
+          }
+        ],
         "responses": {
           "200": {
             "description": "successful operation",
             "schema": {
               "type": "object",
               "properties": {
-                "general": {
+                "userStatistics": {
                   "type": "object",
                   "properties": {
-                    "applicationStarted": {
+                    "totalUsers": {
                       "type": "integer"
                     },
-                    "applicationSubmitted": {
+                    "appliedUsers": {
                       "type": "integer"
                     },
-                    "confirmed": {
+                    "acceptedUsers": {
+                      "type": "integer"
+                    },
+                    "confirmedUsers": {
+                      "type": "integer"
+                    },
+                    "nonConfirmedUsers": {
+                      "type": "integer"
+                    },
+                    "deniedUsers": {
                       "type": "integer"
                     }
                   }
                 },
-                "applications": {
+                "applicationStatistics": {
                   "type": "object"
                 },
-                "confirmations": {
+                "confirmationStatistics": {
+                  "type": "object"
+                },
+                "rejectionStatistics": {
+                  "type": "object"
+                },
+                "aggregatedApplicationData": {
+                  "type": "object"
+                },
+                "branchMap": {
                   "type": "object"
                 }
               }
