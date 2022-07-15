@@ -1352,10 +1352,7 @@
                 "rejectionStatistics": {
                   "type": "object"
                 },
-                "aggregatedApplicationData": {
-                  "type": "object"
-                },
-                "branchMap": {
+                "applicationDataStatistics": {
                   "type": "object"
                 }
               }
