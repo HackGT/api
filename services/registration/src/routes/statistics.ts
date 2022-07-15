@@ -139,6 +139,7 @@ statisticsRouter.route("/").get(
     let applicationStatistics: Record<string, number> = {};
     let confirmationStatistics: Record<string, number> = {};
     let rejectionStatistics: Record<string, number> = {};
+    let applicationDataStatistics: Record<string, number> = {};
 
     for (const element of aggregatedApplicationBranches) {
       const branch: string = branchMap[element._id];
@@ -157,12 +158,17 @@ statisticsRouter.route("/").get(
       rejectionStatistics = { ...rejectionStatistics, [branch]: element.count };
     }
 
+    for (const element of aggregatedApplicationData) {
+      const branch: string = branchMap[element._id];
+      applicationDataStatistics = { ...applicationDataStatistics, [branch]: element.data };
+    }
+
     const statistics = {
       userStatistics,
       applicationStatistics,
       confirmationStatistics,
       rejectionStatistics,
-      aggregatedApplicationData,
+      applicationDataStatistics,
     };
 
     return res.send(statistics);
