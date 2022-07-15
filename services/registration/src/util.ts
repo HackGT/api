@@ -30,7 +30,10 @@ export const validateApplicationData = async (
     throw new BadRequestError("Invalid branchFormPage field provided. It is not an integer.");
   }
 
-  const validate = ajv.compile(JSON.parse(branch.formPages[branchFormPage].jsonSchema));
+  // Use the common definitions for all branches and include in validation
+  const parsedSchema = JSON.parse(branch.formPages[branchFormPage].jsonSchema);
+  parsedSchema.definitions = JSON.parse(branch.commonDefinitionsSchema);
+  const validate = ajv.compile(parsedSchema);
   const valid = validate(data);
 
   let { errors } = validate;
