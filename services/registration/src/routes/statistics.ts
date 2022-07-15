@@ -39,9 +39,38 @@ statisticsRouter.route("/").get(
               },
             },
           ],
+          applicationBranches: [
+            {
+              $group: {
+                _id: "$applicationBranch",
+                count: { $sum: 1 },
+              },
+            },
+          ],
+          confirmationBranches: [
+            {
+              $group: {
+                _id: "$confirmationBranch",
+                count: { $sum: 1 },
+              },
+            },
+          ],
+          rejections: [
+            {
+              $match: { status: StatusType.DENIED },
+            },
+            {
+              $group: {
+                _id: "$applicationBranch",
+                count: { $sum: 1 },
+              },
+            },
+          ],
         },
       },
     ]);
+
+    console.log(aggregatedApplications);
 
     const aggregatedUsers = aggregatedApplications[0].users;
     const aggregatedApplicationData = aggregatedApplications[0].applicationData;
