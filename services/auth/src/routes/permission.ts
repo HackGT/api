@@ -19,7 +19,8 @@ permissionRoutes.route("/:userId").get(
         userId: req.user?.uid,
       });
       if (!currentUserPermissions?.roles?.member) {
-        throw new ForbiddenError("You do not have permission to access this endpoint.");
+        res.send({});
+        return;
       }
     }
 
