@@ -13,7 +13,12 @@ statisticsRouter.route("/").get(
     const { hexathon } = req.query;
 
     /**
-     * This aggregate gets users grouped by their application status as well as users' application data grouped by application branch for the given hexathon.
+     * This aggregate gets:
+     * a) users grouped by application status with frequency
+     * b) an array of application data of the applications
+     * c) application branches grouped by id with frequency
+     * d) confirmation branches grouped by id with frequency
+     * e) rejections grouped by application branch with frequency
      */
     const aggregatedApplications = await ApplicationModel.aggregate([
       {
@@ -70,13 +75,14 @@ statisticsRouter.route("/").get(
       },
     ]);
 
-    console.log(aggregatedApplications);
-
     const aggregatedUsers = aggregatedApplications[0].users;
+    const aggregatedApplicationBranches = aggregatedApplications[0].applicationBranches;
+    const aggregatedConfirmationBranches = aggregatedApplications[0].confirmationBranches;
     const aggregatedApplicationData = aggregatedApplications[0].applicationData;
+    const aggregatedRejections = aggregatedApplications[0].rejections;
 
     /**
-     * This aggregate gets the frequency of branches and rejections grouped by branch name.
+     * This aggregate gets the frequency of branches grouped by branch name.
      */
 
     const aggregatedBranches = await BranchModel.aggregate([
@@ -86,34 +92,18 @@ statisticsRouter.route("/").get(
         },
       },
       {
-        $facet: {
-          branches: [
-            {
-              $group: {
-                _id: "$name",
-                count: { $sum: 1 },
-                type: { $first: "$type" },
-                branchId: { $first: "$_id" },
-              },
-            },
-          ],
-          rejections: [
-            {
-              $match: { status: StatusType.DENIED },
-            },
-            {
-              $group: {
-                _id: "$name",
-                count: { $sum: 1 },
-              },
-            },
-          ],
+        $group: {
+          _id: "$name",
+          branchId: { $first: "$_id" },
         },
       },
     ]);
 
-    const aggregatedBranchNames = aggregatedBranches[0].branches;
-    const aggregatedRejections = aggregatedBranches[0].rejections;
+    const branchMap: Record<string, string> = {};
+    for (const element of aggregatedBranches) {
+      const branch: string = element._id;
+      branchMap[element.branchId.toString()] = branch;
+    }
 
     let [draftUsers, appliedUsers, acceptedUsers, confirmedUsers, deniedUsers] = Array(5).fill(0);
     for (const element of aggregatedUsers) {
@@ -149,24 +139,21 @@ statisticsRouter.route("/").get(
     let applicationStatistics: Record<string, number> = {};
     let confirmationStatistics: Record<string, number> = {};
     let rejectionStatistics: Record<string, number> = {};
-    const branchMap: Record<string, string> = {};
-    for (const element of aggregatedBranchNames) {
-      const branch: string = element._id;
-      branchMap[element.branchId.toString()] = branch;
-      switch (element.type) {
-        case BranchType.APPLICATION:
-          applicationStatistics = { ...applicationStatistics, [branch]: element.count };
-          break;
-        case BranchType.CONFIRMATION:
-          confirmationStatistics = { ...confirmationStatistics, [branch]: element.count };
-          break;
-        default:
-        // do nothing
+
+    for (const element of aggregatedApplicationBranches) {
+      const branch: string = branchMap[element._id];
+      applicationStatistics = { ...applicationStatistics, [branch]: element.count };
+    }
+
+    for (const element of aggregatedConfirmationBranches) {
+      if (branchMap[element._id]) {
+        const branch: string = branchMap[element._id];
+        confirmationStatistics = { ...confirmationStatistics, [branch]: element.count };
       }
     }
 
     for (const element of aggregatedRejections) {
-      const branch: string = element._id;
+      const branch: string = branchMap[element._id];
       rejectionStatistics = { ...rejectionStatistics, [branch]: element.count };
     }
 
@@ -176,7 +163,6 @@ statisticsRouter.route("/").get(
       confirmationStatistics,
       rejectionStatistics,
       aggregatedApplicationData,
-      branchMap,
     };
 
     return res.send(statistics);
