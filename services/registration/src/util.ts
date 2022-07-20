@@ -45,5 +45,5 @@ export const validateApplicationData = async (
     return;
   }
 
-  throw new BadRequestError(`${validate.errors}`);
+  throw new BadRequestError(JSON.stringify(validate.errors, null, 4));
 };
