@@ -8,7 +8,7 @@ import { getScoreMapping } from "../mapScores";
 import { ApplicationModel, Essay, StatusType } from "../models/application";
 import { GraderModel } from "../models/grader";
 import { Review, ReviewModel } from "../models/review";
-import { BranchModel } from "src/models/branch";
+import { BranchModel } from "../models/branch";
 
 // TODO: Update the config imports once they are uploaded to secret manager
 const calibrationQuestionMapping: any = {};
