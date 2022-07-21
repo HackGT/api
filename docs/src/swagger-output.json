@@ -23,10 +23,6 @@
       "description": "Everything about hexathons."
     },
     {
-      "name": "interactions",
-      "description": "Everything about interactions."
-    },
-    {
       "name": "notifications",
       "description": "Everything about notifications."
     },
@@ -634,8 +630,8 @@
     },
     "/interactions": {
       "get": {
-        "tags": ["interactions"],
-        "summary": "Finds and displays information of all iteractions.",
+        "tags": ["hexathons"],
+        "summary": "Finds and displays information of all interactions.",
         "description": "",
         "produces": ["application/json"],
         "parameters": [
@@ -672,7 +668,7 @@
         }
       },
       "post": {
-        "tags": ["interactions"],
+        "tags": ["hexathons"],
         "summary": "Create a new interaction.",
         "description": "",
         "consumes": ["application/json"],
@@ -714,7 +710,7 @@
     },
     "/interactions/{id}": {
       "put": {
-        "tags": ["interactions"],
+        "tags": ["hexathons"],
         "summary": "Update an existing interaction by id.",
         "description": "",
         "consumes": ["application/json"],
@@ -755,19 +751,6 @@
               }
             }
           },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/email": {
-      "get": {
-        "tags": ["notifications"],
-        "summary": "",
-        "description": "Redirects to https://interactions.api.hexlabs.org.",
-        "produces": ["application/json"],
-        "responses": {
           "400": {
             "description": "Invalid Status"
           }

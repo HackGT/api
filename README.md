@@ -62,7 +62,6 @@ our current services, their URL, and description:
 - hexathons ([hexathons.api.hexlabs.org](https://hexathons.api.hexlabs.org))
   - generic service to manage our events (hexathon covers hackathon, makeathon, etc.)
   - manages the event name and whether it's active or not
-- interactions ([interactions.api.hexlabs.org](https://interactions.api.hexlabs.org))
   - keeps track of participant interaction during an event (ie. when they visit a workshop, get
     food, attend a tech talk)
 - notifications ([notifications.api.hexlabs.org](https://notifications.api.hexlabs.org))

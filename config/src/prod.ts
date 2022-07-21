@@ -82,22 +82,6 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       name: "registration",
     },
   },
-  INTERACTIONS: {
-    url: "/interactions",
-    port: parseInt(process.env.PORT || "8080"),
-    auth: false,
-    proxy: {
-      target: "https://interactions.api.hexlabs.org",
-      changeOrigin: true,
-      pathRewrite: {
-        [`^/interactions`]: "",
-      },
-    },
-    database: {
-      type: "mongo",
-      name: "interactions",
-    },
-  },
   NOTIFICATIONS: {
     url: "/notifications",
     port: parseInt(process.env.PORT || "8080"),
