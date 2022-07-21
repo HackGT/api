@@ -1361,6 +1361,151 @@
         }
       }
     },
+    "/grading/actions/retrieve-question": {
+      "post": {
+        "tags": ["registration"],
+        "summary": "Gets a question for grading",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "hexathon": {
+                  "type": "string",
+                  "description": "Hexathon ID"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "applicationId": {
+                  "type": "string"
+                },
+                "essayId": {
+                  "type": "string"
+                },
+                "branch": {
+                  "type": "string"
+                },
+                "criteria": {
+                  "type": "string"
+                },
+                "question": {
+                  "type": "string"
+                },
+                "answer": {
+                  "type": "string"
+                },
+                "rubricLink": {
+                  "type": "string"
+                },
+                "gradingRubric": {
+                  "type": "object"
+                },
+                "isCalibrationQuestion": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/grading/actions/submit-review": {
+      "post": {
+        "tags": ["registration"],
+        "summary": "Submits a graded question",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "aplicationId": {
+                  "type": "string"
+                },
+                "essayId": {
+                  "type": "string"
+                },
+                "score": {
+                  "type": "integer"
+                },
+                "isCalibrationQuestion": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/grading/actions/skip-question": {
+      "post": {
+        "tags": ["registration"],
+        "summary": "Skips a question to grade",
+        "description": "",
+        "produces": ["application/json"],
+        "responses": {
+          "201": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/grading/leaderboard": {
+      "get": {
+        "tags": ["registration"],
+        "summary": "Gets the current grading leaderboard",
+        "description": "",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "leaderboard": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "numGraded": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/companies": {
       "post": {
         "tags": ["users"],
@@ -1915,6 +2060,12 @@
           "type": "string",
           "enum": ["DRAFT", "APPLIED", "ACCEPTED", "CONFIRMED", "DENIED"]
         },
+        "finalScore": {
+          "type": "number"
+        },
+        "gradingComplete": {
+          "type": "number"
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time"
@@ -2002,7 +2153,15 @@
         "essays": {
           "type": "array",
           "items": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "criteria": {
+                "type": "string"
+              },
+              "answer": {
+                "type": "string"
+              }
+            }
           }
         }
       },
@@ -2061,6 +2220,88 @@
       },
       "xml": {
         "name": "Branch"
+      }
+    },
+    "Grader": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "graded": {
+          "type": "number"
+        },
+        "skipped": {
+          "type": "number"
+        },
+        "currentGradingGroup": {
+          "type": "string"
+        },
+        "completedGradingGroups": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "calibrationScores": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "group": {
+                "type": "string"
+              },
+              "score": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "calibrationMapping": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "criteria": {
+                "type": "string"
+              },
+              "scoreMappings": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "Review": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "reviewerId": {
+          "type": "string"
+        },
+        "essayId": {
+          "type": "string"
+        },
+        "score": {
+          "type": "number"
+        },
+        "adjustedScore": {
+          "type": "number"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
       }
     },
     "Company": {

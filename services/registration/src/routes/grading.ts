@@ -42,7 +42,7 @@ export const gradingRouter = express.Router();
   -> Checks if needs to do calibration questions (first-time graders have to do these) (keep returning these until all are answered)
   -> checks groups -> return questions to grade
 */
-gradingRouter.route("actions/retrieve-question").post(
+gradingRouter.route("/actions/retrieve-question").post(
   asyncHandler(async (req, res) => {
     if (!req.user) {
       throw new BadRequestError("User is null");
@@ -238,7 +238,7 @@ gradingRouter.route("/actions/submit-review").post(
     // is for a calibration question
     if (
       numCalibrationScoresForGroup < calibrationQuestionMapping[currentGradingGroup].length &&
-      (!req.body.calibrationQuestion || req.body.applicationId)
+      (!req.body.isCalibrationQuestion || req.body.applicationId)
     ) {
       throw new BadRequestError(
         "Cannot submit a score for this group yet. Calibration questions are not complete."
