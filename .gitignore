@@ -129,6 +129,9 @@ build/
 tmp/
 temp/
 
+# Config folder with important grading stuff
+services/registration/src/config
+
 # End of https://www.toptal.com/developers/gitignore/api/node
 
 .DS_Store

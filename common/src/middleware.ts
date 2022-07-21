@@ -8,7 +8,7 @@ import multer from "multer";
 import axios from "axios";
 import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
 
-import { BadRequestError, ForbiddenError } from "./errors";
+import { BadRequestError, ConfigError, ForbiddenError } from "./errors";
 import { DEFAULT_USER_ROLES, UserRoles } from "./types";
 import { apiCall } from "./apiCall";
 
@@ -208,6 +208,13 @@ export const handleError: ErrorRequestHandler = (err, req, res, next) => {
     res.status(StatusCodes.FORBIDDEN).json({
       status: StatusCodes.FORBIDDEN,
       type: "user_error",
+      message: err.message,
+      stack: err.stack,
+    });
+  } else if (err instanceof ConfigError) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      status: StatusCodes.INTERNAL_SERVER_ERROR,
+      type: "server_error",
       message: err.message,
       stack: err.stack,
     });

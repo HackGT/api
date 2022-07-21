@@ -1,11 +1,11 @@
 /* eslint-disable no-underscore-dangle */
-import express from "express";
-import { FilterQuery } from "mongoose";
 import { apiCall, asyncHandler, BadRequestError } from "@api/common";
 import { Service } from "@api/config";
+import express from "express";
+import { FilterQuery, Types } from "mongoose";
 
-import { Application, ApplicationModel, StatusType } from "../models/application";
 import { validateApplicationData } from "../util";
+import { Application, ApplicationModel, Essay, StatusType } from "../models/application";
 
 export const applicationRouter = express.Router();
 
@@ -125,10 +125,23 @@ applicationRouter.route("/:id/actions/save-application-data").post(
       false
     );
 
+    // Need to do extra formatting for essays since they are subdocuments in Mongoose
+    let { essays } = existingApplication.applicationData;
+    if (req.body.applicationData.essays) {
+      essays = new Types.DocumentArray<Essay>([]);
+      for (const [name, answer] of Object.entries<any>(req.body.applicationData.essays)) {
+        essays.push({
+          name,
+          answer,
+        });
+      }
+    }
+
     const application: Partial<Application> = {
       applicationData: {
         ...existingApplication.applicationData,
         ...req.body.applicationData,
+        essays,
       },
     };
 
