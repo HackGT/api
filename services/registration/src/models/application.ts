@@ -13,6 +13,11 @@ export enum StatusType {
   DENIED = "DENIED",
 }
 
+export interface Essay extends Types.Subdocument {
+  criteria: string;
+  answer: string;
+}
+
 export interface Application {
   userId: string;
   hexathon: Types.ObjectId;
@@ -42,13 +47,15 @@ export interface Application {
     linkedin?: string;
     extraInfo?: [Schema.Types.Mixed];
     confirmChecks?: Schema.Types.Mixed;
-    essays?: [Schema.Types.Mixed];
+    essays?: Types.DocumentArray<Essay>;
   };
   confirmationBranch?: AutoPopulatedDoc<Branch>;
   confirmationStartTime?: Date;
   confirmationSubmitTime?: Date;
   confirmationData?: Mixed;
   status: StatusType;
+  finalScore?: number;
+  gradingComplete: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -132,9 +139,18 @@ const applicationSchema = new Schema<Application>(
       confirmChecks: {
         type: Schema.Types.Mixed,
       },
-      essays: {
-        type: Schema.Types.Array,
-      },
+      essays: [
+        {
+          criteria: {
+            type: String,
+            required: true,
+          },
+          answer: {
+            type: String,
+            required: true,
+          },
+        },
+      ],
     },
     applicationStartTime: {
       type: Date,
@@ -162,6 +178,14 @@ const applicationSchema = new Schema<Application>(
       required: true,
       default: StatusType.DRAFT,
       enum: StatusType,
+    },
+    finalScore: {
+      type: Number,
+    },
+    gradingComplete: {
+      type: Boolean,
+      required: true,
+      default: false,
     },
   },
   {

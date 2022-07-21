@@ -1,7 +1,5 @@
-import { BadRequestError } from "@api/common";
+import { BadRequestError, ConfigError } from "@api/common";
 import Ajv from "ajv";
-import fs from "fs";
-import path from "path";
 
 import { BranchModel } from "./models/branch";
 
@@ -47,57 +45,36 @@ export const validateApplicationData = async (
   throw new BadRequestError(`${validate.errors}`);
 };
 
-export function getGroup(email: string) {
-  const groupmapping = JSON.parse(
-    fs.readFileSync(path.resolve(__dirname, "./config/groupmapping.json"), "utf8")
-  );
-  const criteriamapping = JSON.parse(
-    fs.readFileSync(path.resolve(__dirname, "./config/criteriamapping.json"), "utf8")
-  );
-  let criterias = Object.keys(criteriamapping);
-  const groups = Object.keys(groupmapping);
+/**
+ * Get initial grading group for a user by reading the config .json file. If a user email is specifically assigned to a
+ * grading group, then that group is returned. Otherwise, the default grading group is returned. This is the grading group
+ * specified with "emails": "rest".
+ * @param email the user's email address
+ * @param gradingGroupMapping the grading group mapping read from the config file
+ * @returns the specified user's grading group
+ */
+export function getUserInitialGradingGroup(email: string, gradingGroupMapping: any) {
+  let initialGradingGroup: string | undefined;
+  let restGradingGroup: string | undefined;
 
-  let initialGroup;
-  let restGroup;
-  /*
-    code done below is assuming json object keys not necessarily be ordered.
-    But not needed in ES2015 which node should be using. Either change code 
-    to use maps or just assume object is ordered!
-  */
-
-  // What does this do?
-  for (const grp of groups) {
-    criterias = criterias.filter((x) => groupmapping[grp].tracks.indexOf(x) < 0);
-
-    if (groupmapping[grp].emails === "rest") {
-      restGroup = grp;
-    } else if (groupmapping[grp].emails.includes(email)) {
-      initialGroup = grp;
+  for (const gradingGroup of Object.keys(gradingGroupMapping)) {
+    if (gradingGroupMapping[gradingGroup].emails === "rest") {
+      restGradingGroup = gradingGroup;
+    } else if (
+      Array.isArray(gradingGroupMapping[gradingGroup].emails) &&
+      gradingGroupMapping[gradingGroup].emails.includes(email)
+    ) {
+      initialGradingGroup = gradingGroup;
     }
   }
+  // If no specific grading group is found, set the default rest grading group
+  initialGradingGroup = initialGradingGroup ?? restGradingGroup;
 
-  if (!initialGroup) {
-    initialGroup = restGroup;
+  if (!initialGradingGroup) {
+    throw new ConfigError(
+      "User grading group not set. Please ask a tech team member to update the config mapping."
+    );
   }
 
-  // if (criterias.length != 0) {
-  //   throw new Error('criteriamapping.json formatted incorrectly. The criterias potentially do not match.');
-  // }
-
-  if (!initialGroup) {
-    throw new Error("Group not set! Ask tech team to look at utils.ts code");
-  }
-
-  return initialGroup;
-}
-
-export function getInitialGroupsLeft(group: string) {
-  const groupmapping = JSON.parse(
-    fs.readFileSync(path.resolve(__dirname, "./config/groupmapping.json"), "utf8")
-  );
-  let groups = Object.keys(groupmapping);
-
-  groups = groups.filter((x) => x !== group);
-
-  return groups;
+  return initialGradingGroup;
 }

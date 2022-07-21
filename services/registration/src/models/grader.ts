@@ -2,11 +2,10 @@ import { Schema, model } from "mongoose";
 
 export interface Grader {
   userId: string;
-  email: string; // remove this, use apiCall() to users/_id to get email
   graded: number;
-  skipped: number | undefined;
-  group: string;
-  groupsLeft: string[];
+  skipped: number;
+  currentGradingGroup?: string;
+  completedGradingGroups: string[];
   calibrationScores: {
     group: string;
     score: number;
@@ -20,26 +19,34 @@ export interface Grader {
 }
 
 const graderSchema = new Schema<Grader>({
-  userId: String,
-  email: String,
-  graded: Number,
-  skipped: Number,
+  userId: {
+    type: String,
+    required: true,
+  },
+  graded: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  skipped: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
   calibrationScores: [
     {
       group: String,
       score: Number,
     },
   ],
-  group: {
+  currentGradingGroup: {
     type: String,
-    required: false,
   },
-  groupsLeft: [
-    {
-      type: String,
-      required: false,
-    },
-  ],
+  completedGradingGroups: {
+    type: [String],
+    default: [],
+    required: true,
+  },
   calibrationMapping: [
     {
       criteria: String,

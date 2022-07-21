@@ -19,6 +19,7 @@
   "dependencies": {
     "@api/common": "*",
     "@api/config": "*",
+    "@google-cloud/secret-manager": "^4.0.0",
     "@types/compression": "^1.7.2",
     "@types/cookie-parser": "^1.4.2",
     "@types/cors": "^2.8.12",
