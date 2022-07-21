@@ -2,8 +2,6 @@
 import { apiCall, asyncHandler, BadRequestError } from "@api/common";
 import { Service } from "@api/config";
 import express from "express";
-import fs from "fs";
-import path from "path";
 
 import { getUserInitialGradingGroup } from "../util";
 import { getScoreMapping } from "../mapScores";
@@ -12,15 +10,19 @@ import { GraderModel } from "../models/grader";
 import { Review, ReviewModel } from "../models/review";
 import { BranchModel } from "src/models/branch";
 
-const calibrationQuestionMapping = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, "./config/calibration_question_mapping.json"), "utf8")
-);
-const gradingGroupMapping = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, "./config/grading_group_mapping.json"), "utf8")
-);
-const rubricMapping = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, "./config/rubric_mapping.json"), "utf8")
-);
+// TODO: Update the config imports once they are uploaded to secret manager
+const calibrationQuestionMapping: any = {};
+const gradingGroupMapping: any = {};
+const rubricMapping: any = {};
+// const calibrationQuestionMapping = JSON.parse(
+//   fs.readFileSync(path.resolve(__dirname, "./config/calibration_question_mapping.json"), "utf8")
+// );
+// const gradingGroupMapping = JSON.parse(
+//   fs.readFileSync(path.resolve(__dirname, "./config/grading_group_mapping.json"), "utf8")
+// );
+// const rubricMapping = JSON.parse(
+//   fs.readFileSync(path.resolve(__dirname, "./config/rubric_mapping.json"), "utf8")
+// );
 
 const MAX_REVIEWS_PER_ESSAY = 2;
 
