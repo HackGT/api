@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, Types } from "mongoose";
 
 enum InteractionType {
   EVENT = "event",
@@ -7,15 +7,19 @@ enum InteractionType {
 
 export interface Interaction {
   userId: string;
+  hexathon: Types.ObjectId;
   type: InteractionType;
   identifier?: string;
   timestamp: Date;
-  hackathon: string;
 }
 
 const interactionSchema = new Schema<Interaction>({
   userId: {
     type: String,
+    required: true,
+  },
+  hexathon: {
+    type: Schema.Types.ObjectId,
     required: true,
   },
   type: {
@@ -28,10 +32,6 @@ const interactionSchema = new Schema<Interaction>({
   },
   timestamp: {
     type: Date,
-    required: true,
-  },
-  hackathon: {
-    type: String,
     required: true,
   },
 });

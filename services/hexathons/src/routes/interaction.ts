@@ -10,14 +10,12 @@ interactionRoutes.route("/").get(
   asyncHandler(async (req, res) => {
     const filter: FilterQuery<Interaction> = {};
 
-    if (req.query.hackathon) {
-      filter.hackathon = String(req.query.hackathon);
+    if (req.query.hexathon) {
+      filter.hexathon = String(req.query.hexathon);
     }
-
     if (req.query.userId) {
       filter.userId = String(req.query.userId);
     }
-
     if (req.query.identifier) {
       filter.identifier = String(req.query.identifier);
     }
@@ -44,7 +42,7 @@ interactionRoutes.route("/").post(
       userId: req.body.userId,
       type: req.body.type,
       timestamp: new Date(),
-      hackathon: req.body.hackathon,
+      hexathon: req.body.hexathon,
     });
 
     return res.send(interaction);
@@ -72,7 +70,7 @@ interactionRoutes.route("/:id").put(
 interactionRoutes.route("/statistics").get(
   asyncHandler(async (req, res) => {
     const interactions = await EventInteraction.find({
-      hackathon: String(req.query.hackathon),
+      hexathon: String(req.query.hexathon),
     });
 
     const interactionsSummary: any = {};

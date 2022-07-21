@@ -636,9 +636,9 @@
         "produces": ["application/json"],
         "parameters": [
           {
-            "name": "hackathon",
+            "name": "hexathon",
             "in": "query",
-            "description": "Hackathon id that needs to be considered for filter.",
+            "description": "hexathon id that needs to be considered for filter.",
             "required": true,
             "type": "integer",
             "collectionFormat": "multi"
@@ -1990,7 +1990,7 @@
           "type": "string",
           "format": "date-time"
         },
-        "hackathon": {
+        "hexathon": {
           "type": "string"
         }
       },
