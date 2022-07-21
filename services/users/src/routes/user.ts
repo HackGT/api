@@ -38,12 +38,12 @@ userRoutes.route("/").get(
 
     const matchCount = await ProfileModel.find(filter).count();
 
-    const limit = parseInt(req.query.limit as string);
-    const offset = parseInt(req.query.offset as string);
+    const limit = parseInt(req.query.limit as string) || 200;
+    const offset = parseInt(req.query.offset as string) || 0;
     const profiles = await ProfileModel.find(filter).skip(offset).limit(limit);
 
     return res.status(200).json({
-      offset: offset + profiles.length,
+      offset,
       total: matchCount,
       count: profiles.length,
       profiles,
