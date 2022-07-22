@@ -2074,6 +2074,12 @@
         "school": {
           "type": "string"
         },
+        "schoolEmail": {
+          "type": "string"
+        },
+        "schoolYear": {
+          "type": "string"
+        },
         "graduationYear": {
           "type": "number"
         },
@@ -2117,6 +2123,9 @@
               "type": "string"
             }
           }
+        },
+        "marketing": {
+          "type": "string"
         },
         "website": {
           "type": "string"
