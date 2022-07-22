@@ -28,6 +28,8 @@ export interface Application {
     adult?: boolean;
     occupation?: string;
     school?: string;
+    schoolEmail?: string;
+    schoolYear?: string;
     graduationYear?: number;
     major?: string;
     shirtSize?: string;
@@ -43,6 +45,7 @@ export interface Application {
       zip?: number;
       country?: string;
     };
+    marketing?: string;
     website?: string;
     linkedin?: string;
     extraInfo?: [Schema.Types.Mixed];
@@ -86,6 +89,12 @@ const applicationSchema = new Schema<Application>(
       school: {
         type: String,
       },
+      schoolEmail: {
+        type: String,
+      },
+      schoolYear: {
+        type: String,
+      },
       graduationYear: {
         type: String,
       },
@@ -126,6 +135,9 @@ const applicationSchema = new Schema<Application>(
         country: {
           type: String,
         },
+      },
+      marketing: {
+        type: String,
       },
       website: {
         type: String,
