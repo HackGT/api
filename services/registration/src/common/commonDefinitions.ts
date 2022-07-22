@@ -307,6 +307,13 @@ const commonDefinitions = {
       "Hawaiian or Pacific Islander",
     ],
   },
+  adult: {
+    type: "boolean",
+    enum: [
+      true,
+      false,
+    ],
+  },
   gender: {
     type: "string",
     enum: [
