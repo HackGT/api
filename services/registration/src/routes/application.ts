@@ -129,9 +129,9 @@ applicationRouter.route("/:id/actions/save-application-data").post(
     let { essays } = existingApplication.applicationData;
     if (req.body.applicationData.essays) {
       essays = new Types.DocumentArray<Essay>([]);
-      for (const [name, answer] of Object.entries<any>(req.body.applicationData.essays)) {
+      for (const [criteria, answer] of Object.entries<any>(req.body.applicationData.essays)) {
         essays.push({
-          name,
+          criteria,
           answer,
         });
       }
