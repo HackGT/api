@@ -307,6 +307,15 @@ const commonDefinitions = {
       "Hawaiian or Pacific Islander",
     ],
   },
+  gender: {
+    type: "string",
+    enum: [
+      "Male",
+      "Female",
+      "Non-Binary",
+      "Other",
+    ],
+  },
   marketing: {
     type: "string",
     enum: [
