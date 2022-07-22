@@ -48,7 +48,7 @@ export interface Application {
     marketing?: string;
     website?: string;
     linkedin?: string;
-    extraInfo?: [Schema.Types.Mixed];
+    extraInfo?: string;
     confirmChecks?: Schema.Types.Mixed;
     essays?: Types.DocumentArray<Essay>;
   };
@@ -146,7 +146,7 @@ const applicationSchema = new Schema<Application>(
         type: String,
       },
       extraInfo: {
-        type: Schema.Types.Array,
+        type: String,
       },
       confirmChecks: {
         type: Schema.Types.Mixed,

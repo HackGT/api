@@ -2134,10 +2134,7 @@
           "type": "string"
         },
         "extraInfo": {
-          "type": "array",
-          "items": {
-            "type": "object"
-          }
+          "type": "string"
         },
         "confirmChecks": {
           "type": "object"
