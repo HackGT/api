@@ -1,7 +1,7 @@
-import { Schema, Types, Mixed, PaginateModel, model } from "mongoose";
+import mongoose, { Schema, Types, Mixed, model } from "mongoose";
 import mongooseAutopopulate from "mongoose-autopopulate";
-import mongoosePaginate from "mongoose-paginate-v2";
 import { AutoPopulatedDoc } from "@api/common";
+import { accessibleRecordsPlugin, AccessibleRecordModel } from "@casl/mongoose";
 
 import { Branch, BranchModel } from "./branch";
 
@@ -18,7 +18,7 @@ export interface Essay extends Types.Subdocument {
   answer: string;
 }
 
-export interface Application {
+export interface Application extends mongoose.Document {
   userId: string;
   hexathon: Types.ObjectId;
   applicationBranch: AutoPopulatedDoc<Branch>;
@@ -57,7 +57,6 @@ export interface Application {
   confirmationSubmitTime?: Date;
   confirmationData?: Mixed;
   status: StatusType;
-  finalScore?: number;
   gradingComplete: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -191,9 +190,6 @@ const applicationSchema = new Schema<Application>(
       default: StatusType.DRAFT,
       enum: StatusType,
     },
-    finalScore: {
-      type: Number,
-    },
     gradingComplete: {
       type: Boolean,
       required: true,
@@ -206,9 +202,9 @@ const applicationSchema = new Schema<Application>(
 );
 
 applicationSchema.plugin(mongooseAutopopulate);
-applicationSchema.plugin(mongoosePaginate);
+applicationSchema.plugin(accessibleRecordsPlugin);
 
-export const ApplicationModel = model<Application, PaginateModel<Application>>(
+export const ApplicationModel = model<Application, AccessibleRecordModel<Application>>(
   "Application",
   applicationSchema
 );

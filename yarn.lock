@@ -20,6 +20,18 @@
     "@babel/helper-validator-identifier" "^7.16.7"
     to-fast-properties "^2.0.0"
 
+"@casl/ability@^5.4.4":
+  version "5.4.4"
+  resolved "https://registry.yarnpkg.com/@casl/ability/-/ability-5.4.4.tgz#fbe54340c156248e73804942eed350903b27b9f3"
+  integrity sha512-7+GOnMUq6q4fqtDDesymBXTS9LSDVezYhFiSJ8Rn3f0aQLeRm7qHn66KWbej4niCOvm0XzNj9jzpkK0yz6hUww==
+  dependencies:
+    "@ucast/mongo2js" "^1.3.0"
+
+"@casl/mongoose@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@casl/mongoose/-/mongoose-6.0.0.tgz#11e510e32d9519f0d4851063b12976c4bd5da039"
+  integrity sha512-DBx/9/FHJLvi+f+uRex/Aq+TAyCrx46NTDQXXBTmw7WLKwjg5zb6x6RSozYhpNKhXzQn/ZYz/DpYaV3vt/XdCA==
+
 "@cspotcode/source-map-consumer@0.8.0":
   version "0.8.0"
   resolved "https://registry.yarnpkg.com/@cspotcode/source-map-consumer/-/source-map-consumer-0.8.0.tgz#33bf4b7b39c178821606f669bbc447a6a629786b"
@@ -782,6 +794,34 @@
   dependencies:
     "@typescript-eslint/types" "5.13.0"
     eslint-visitor-keys "^3.0.0"
+
+"@ucast/core@^1.0.0", "@ucast/core@^1.4.1", "@ucast/core@^1.6.1":
+  version "1.10.1"
+  resolved "https://registry.yarnpkg.com/@ucast/core/-/core-1.10.1.tgz#03a77a7804bcb5002a5cad3681e86cd1897e2e1f"
+  integrity sha512-sXKbvQiagjFh2JCpaHUa64P4UdJbOxYeC5xiZFn8y6iYdb0WkismduE+RmiJrIjw/eLDYmIEXiQeIYYowmkcAw==
+
+"@ucast/js@^3.0.0":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@ucast/js/-/js-3.0.2.tgz#862838ee68112c6c262d4f4693cc592ba83157e0"
+  integrity sha512-zxNkdIPVvqJjHI7D/iK8Aai1+59yqU+N7bpHFodVmiTN7ukeNiGGpNmmSjQgsUw7eNcEBnPrZHNzp5UBxwmaPw==
+  dependencies:
+    "@ucast/core" "^1.0.0"
+
+"@ucast/mongo2js@^1.3.0":
+  version "1.3.3"
+  resolved "https://registry.yarnpkg.com/@ucast/mongo2js/-/mongo2js-1.3.3.tgz#a683a59cea22887a72e4302f3826e41ccf51dbbe"
+  integrity sha512-sBPtMUYg+hRnYeVYKL+ATm8FaRPdlU9PijMhGYKgsPGjV9J4Ks41ytIjGayvKUnBOEhiCaKUUnY4qPeifdqATw==
+  dependencies:
+    "@ucast/core" "^1.6.1"
+    "@ucast/js" "^3.0.0"
+    "@ucast/mongo" "^2.4.0"
+
+"@ucast/mongo@^2.4.0":
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/@ucast/mongo/-/mongo-2.4.2.tgz#a8a1c32e65ccab623be023e6cedb11d136d50f19"
+  integrity sha512-/zH1TdBJlYGKKD+Wh0oyD+aBvDSWrwHcD8b4tUL9UgHLhzHtkEnMVFuxbw3SRIRsAa01wmy06+LWt+WoZdj1Bw==
+  dependencies:
+    "@ucast/core" "^1.4.1"
 
 abbrev@1:
   version "1.1.1"

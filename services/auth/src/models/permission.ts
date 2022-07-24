@@ -1,7 +1,8 @@
 import { UserRoles } from "@api/common";
-import { Schema, model } from "mongoose";
+import { AccessibleRecordModel, accessibleRecordsPlugin } from "@casl/mongoose";
+import mongoose, { Schema, model } from "mongoose";
 
-export interface Permission {
+export interface Permission extends mongoose.Document {
   userId: string;
   roles: UserRoles;
 }
@@ -28,4 +29,9 @@ const permissionSchema = new Schema<Permission>({
   },
 });
 
-export const PermissionModel = model<Permission>("Permission", permissionSchema);
+permissionSchema.plugin(accessibleRecordsPlugin);
+
+export const PermissionModel = model<Permission, AccessibleRecordModel<Permission>>(
+  "Permission",
+  permissionSchema
+);

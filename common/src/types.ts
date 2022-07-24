@@ -1,3 +1,4 @@
+import { Ability, AbilityTuple, Subject, MongoQuery } from "@casl/ability";
 import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
 import mongoose from "mongoose";
 
@@ -33,6 +34,8 @@ declare global {
        * an appropriate error.
        */
       userError: any;
+
+      ability: Ability<AbilityTuple<AbilityAction, Subject>, MongoQuery<any>>;
     }
   }
 }
@@ -42,3 +45,9 @@ declare global {
  * type to include the _id field when populated.
  */
 export type AutoPopulatedDoc<PopulatedType> = PopulatedType & { _id: mongoose.RefType };
+
+/**
+ * All the types of actions that can be performed on the system. Used for @casl/ability
+ * for managing permissions.
+ */
+export type AbilityAction = "read" | "create" | "update" | "delete" | "manage" | "aggregate";

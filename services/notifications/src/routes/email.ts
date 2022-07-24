@@ -1,4 +1,4 @@
-import { asyncHandler, isMember } from "@api/common";
+import { asyncHandler, checkAbility } from "@api/common";
 import express from "express";
 
 import { sendMessage } from "../plugins/Email";
@@ -7,9 +7,8 @@ import { EmailConfig } from "../plugins/types";
 
 export const emailRoutes = express.Router();
 
-emailRoutes.use(isMember);
-
 emailRoutes.route("/send").post(
+  checkAbility("manage", "Notification"),
   asyncHandler(async (req, res) => {
     try {
       const { message, emails, subject, headerImage } = req.body;

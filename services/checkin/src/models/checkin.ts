@@ -1,6 +1,7 @@
-import { Schema, model, Types } from "mongoose";
+import { AccessibleRecordModel, accessibleRecordsPlugin } from "@casl/mongoose";
+import mongoose, { Schema, model, Types } from "mongoose";
 
-export interface Checkin {
+export interface Checkin extends mongoose.Document {
   userId: string;
   status: string;
   hexathon: Types.ObjectId;
@@ -29,4 +30,9 @@ const checkinSchema = new Schema<Checkin>(
   }
 );
 
-export const CheckinModel = model<Checkin>("Checkin", checkinSchema);
+checkinSchema.plugin(accessibleRecordsPlugin);
+
+export const CheckinModel = model<Checkin, AccessibleRecordModel<Checkin>>(
+  "Checkin",
+  checkinSchema
+);

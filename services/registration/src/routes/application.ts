@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { apiCall, asyncHandler, BadRequestError } from "@api/common";
+import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import { Service } from "@api/config";
 import express from "express";
 import { FilterQuery, Types } from "mongoose";
@@ -10,6 +10,7 @@ import { Application, ApplicationModel, Essay, StatusType } from "../models/appl
 export const applicationRouter = express.Router();
 
 applicationRouter.route("/").get(
+  checkAbility("read", "Application"),
   asyncHandler(async (req, res) => {
     const filter: FilterQuery<Application> = {};
 
@@ -21,7 +22,7 @@ applicationRouter.route("/").get(
       filter.userId = req.query.userId;
     }
 
-    const applications = await ApplicationModel.find(filter);
+    const applications = await ApplicationModel.accessibleBy(req.ability).find(filter);
     const userIds = applications.map(application => application.userId).filter(Boolean); // Filters falsy values
 
     const userInfos = await apiCall(
@@ -48,11 +49,12 @@ applicationRouter.route("/").get(
 );
 
 applicationRouter.route("/:id").get(
+  checkAbility("read", "Application"),
   asyncHandler(async (req, res) => {
-    const application = await ApplicationModel.findById(req.params.id);
+    const application = await ApplicationModel.findById(req.params.id).accessibleBy(req.ability);
 
     if (!application) {
-      throw new BadRequestError("Application not found");
+      throw new BadRequestError("Application not found or you do not have permission to access.");
     }
 
     const userInfo = await apiCall(
@@ -71,11 +73,12 @@ applicationRouter.route("/:id").get(
 );
 
 applicationRouter.route("/actions/choose-application-branch").post(
+  checkAbility("create", "Application"),
   asyncHandler(async (req, res) => {
     const existingApplication = await ApplicationModel.findOne({
       userId: req.user?.uid,
       hexathon: req.body.hexathon,
-    });
+    }).accessibleBy(req.ability);
 
     if (existingApplication) {
       if (existingApplication.status !== StatusType.DRAFT) {
@@ -105,11 +108,16 @@ applicationRouter.route("/actions/choose-application-branch").post(
 );
 
 applicationRouter.route("/:id/actions/save-application-data").post(
+  checkAbility("update", "Application"),
   asyncHandler(async (req, res) => {
-    const existingApplication = await ApplicationModel.findById(req.params.id);
+    const existingApplication = await ApplicationModel.findById(req.params.id).accessibleBy(
+      req.ability
+    );
 
     if (!existingApplication) {
-      throw new BadRequestError("No application exists with this id");
+      throw new BadRequestError(
+        "No application exists with this id or you do not have permission."
+      );
     }
 
     if (existingApplication.status !== StatusType.DRAFT) {
@@ -156,11 +164,16 @@ applicationRouter.route("/:id/actions/save-application-data").post(
 );
 
 applicationRouter.route("/:id/actions/submit-application").post(
+  checkAbility("update", "Application"),
   asyncHandler(async (req, res) => {
-    const existingApplication = await ApplicationModel.findById(req.params.id);
+    const existingApplication = await ApplicationModel.findById(req.params.id).accessibleBy(
+      req.ability
+    );
 
     if (!existingApplication) {
-      throw new BadRequestError("No application exists with this id");
+      throw new BadRequestError(
+        "No application exists with this id or you do not have permission."
+      );
     }
 
     if (existingApplication.status !== StatusType.DRAFT) {
@@ -195,11 +208,16 @@ applicationRouter.route("/:id/actions/submit-application").post(
 );
 
 applicationRouter.route("/:id/actions/save-confirmation-data").post(
+  checkAbility("update", "Application"),
   asyncHandler(async (req, res) => {
-    const existingApplication = await ApplicationModel.findById(req.params.id);
+    const existingApplication = await ApplicationModel.findById(req.params.id).accessibleBy(
+      req.ability
+    );
 
     if (!existingApplication) {
-      throw new BadRequestError("No application exists with this id");
+      throw new BadRequestError(
+        "No application exists with this id or you do not have permission."
+      );
     }
 
     if (!existingApplication.confirmationBranch) {
@@ -242,11 +260,16 @@ applicationRouter.route("/:id/actions/save-confirmation-data").post(
 );
 
 applicationRouter.route("/:id/actions/submit-confirmation").post(
+  checkAbility("update", "Application"),
   asyncHandler(async (req, res) => {
-    const existingApplication = await ApplicationModel.findById(req.params.id);
+    const existingApplication = await ApplicationModel.findById(req.params.id).accessibleBy(
+      req.ability
+    );
 
     if (!existingApplication) {
-      throw new BadRequestError("No application exists with this id");
+      throw new BadRequestError(
+        "No application exists with this id or you do not have permission."
+      );
     }
 
     if (!existingApplication.confirmationBranch) {

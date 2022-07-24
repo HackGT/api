@@ -9,6 +9,7 @@ import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 
 import { defaultRouter } from "./routes";
+import { addAbilities } from "./permission";
 
 export const app = express();
 
@@ -34,6 +35,7 @@ app.use(helmet());
 app.use(rateLimiter());
 app.use(cookieParser());
 app.use(decodeToken(Service.FILES));
+app.use(addAbilities());
 app.use(morgan("dev"));
 app.use(compression());
 app.use(

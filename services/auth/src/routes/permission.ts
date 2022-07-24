@@ -1,4 +1,4 @@
-import { asyncHandler, DEFAULT_USER_ROLES, ForbiddenError } from "@api/common";
+import { asyncHandler, checkAbility, DEFAULT_USER_ROLES } from "@api/common";
 import express from "express";
 
 import { PermissionModel } from "../models/permission";
@@ -12,24 +12,14 @@ import { PermissionModel } from "../models/permission";
 export const permissionRoutes = express.Router();
 
 permissionRoutes.route("/:userId").get(
+  checkAbility("read", "Permission"),
   asyncHandler(async (req, res) => {
-    // If the user is not checking their own permissions, they must have the member role
-    if (req.params.userId !== req.user?.uid) {
-      const currentUserPermissions = await PermissionModel.findOne({
-        userId: req.user?.uid,
-      });
-      if (!currentUserPermissions?.roles?.member) {
-        res.send({});
-        return;
-      }
-    }
-
     const permission = await PermissionModel.findOne(
       {
         userId: req.params.userId,
       },
       { _id: false }
-    );
+    ).accessibleBy(req.ability);
 
     res.send(
       permission || {
@@ -41,14 +31,8 @@ permissionRoutes.route("/:userId").get(
 );
 
 permissionRoutes.route("/").post(
+  checkAbility("create", "Permission"),
   asyncHandler(async (req, res) => {
-    const currentUserPermissions = await PermissionModel.findOne({
-      userId: req.user?.uid,
-    });
-    if (!currentUserPermissions?.roles?.admin) {
-      throw new ForbiddenError("You do not have permission to access this endpoint.");
-    }
-
     const newPermission = await PermissionModel.create(req.body);
 
     res.send(newPermission);
@@ -56,18 +40,11 @@ permissionRoutes.route("/").post(
 );
 
 permissionRoutes.route("/:userId").patch(
+  checkAbility("update", "Permission"),
   asyncHandler(async (req, res) => {
-    const currentUserPermissions = await PermissionModel.findOne({
-      userId: req.user?.uid,
-    });
-    if (!currentUserPermissions?.roles?.admin) {
-      throw new ForbiddenError("You do not have permission to access this endpoint.");
-    }
-
-    const roles = req.body?.roles;
     const newPermission = await PermissionModel.findOneAndUpdate(
       { userId: req.params.userId },
-      { roles },
+      { roles: req.body },
       { new: true }
     );
 

@@ -1,12 +1,13 @@
-import { asyncHandler, BadRequestError } from "@api/common";
+import { asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import express from "express";
 import { FilterQuery } from "mongoose";
 
-import { EventInteraction, Interaction } from "../models/interaction";
+import { InteractionModel, Interaction } from "../models/interaction";
 
 export const interactionRoutes = express.Router();
 
 interactionRoutes.route("/").get(
+  checkAbility("read", "Interaction"),
   asyncHandler(async (req, res) => {
     const filter: FilterQuery<Interaction> = {};
 
@@ -20,15 +21,16 @@ interactionRoutes.route("/").get(
       filter.identifier = String(req.query.identifier);
     }
 
-    const interactions = await EventInteraction.find(filter);
+    const interactions = await InteractionModel.accessibleBy(req.ability).find(filter);
 
     return res.send(interactions);
   })
 );
 
 interactionRoutes.route("/").post(
+  checkAbility("create", "Interaction"),
   asyncHandler(async (req, res) => {
-    const existingInteraction = await EventInteraction.findOne({
+    const existingInteraction = await InteractionModel.findOne({
       userId: req.body.userId,
       identifier: req.body.identifier,
     });
@@ -37,7 +39,7 @@ interactionRoutes.route("/").post(
       throw new BadRequestError("Interaction already exists for this user and identifier");
     }
 
-    const interaction = await EventInteraction.create({
+    const interaction = await InteractionModel.create({
       ...(req.body.identifier && { identifier: req.body.identifier }),
       userId: req.body.userId,
       type: req.body.type,
@@ -50,8 +52,9 @@ interactionRoutes.route("/").post(
 );
 
 interactionRoutes.route("/:id").put(
+  checkAbility("update", "Interaction"),
   asyncHandler(async (req, res) => {
-    const interaction = await EventInteraction.findByIdAndUpdate(
+    const interaction = await InteractionModel.findByIdAndUpdate(
       req.params.id,
       {
         $set: {
@@ -68,9 +71,10 @@ interactionRoutes.route("/:id").put(
 );
 
 interactionRoutes.route("/statistics").get(
+  checkAbility("aggregate", "Interaction"),
   asyncHandler(async (req, res) => {
-    const interactions = await EventInteraction.find({
-      hexathon: String(req.query.hexathon),
+    const interactions = await InteractionModel.accessibleBy(req.ability).find({
+      hexathon: req.query.hexathon,
     });
 
     const interactionsSummary: any = {};

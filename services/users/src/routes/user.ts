@@ -1,4 +1,4 @@
-import { apiCall, asyncHandler } from "@api/common";
+import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import { Service } from "@api/config";
 import express from "express";
 import { FilterQuery } from "mongoose";
@@ -8,6 +8,7 @@ import { Profile, ProfileModel } from "../models/profile";
 export const userRoutes = express.Router();
 
 userRoutes.route("/").get(
+  checkAbility("read", "Profile"),
   asyncHandler(async (req, res) => {
     const filter: FilterQuery<Profile> = {};
 
@@ -36,7 +37,7 @@ userRoutes.route("/").get(
       ];
     }
 
-    const matchCount = await ProfileModel.find(filter).count();
+    const matchCount = await ProfileModel.find(filter).accessibleBy(req.ability).count();
 
     const limit = parseInt(req.query.limit as string);
     const offset = parseInt(req.query.offset as string);
@@ -51,9 +52,36 @@ userRoutes.route("/").get(
   })
 );
 
+userRoutes.route("/:userId").get(
+  checkAbility("read", "Profile"),
+  asyncHandler(async (req, res) => {
+    const profile = await ProfileModel.findOne({
+      userId: req.params.userId,
+    }).accessibleBy(req.ability);
+
+    if (!profile) {
+      throw new BadRequestError("Profile not found or you do not have permission.");
+    }
+
+    const permission = await apiCall(
+      Service.AUTH,
+      { method: "GET", url: `/permissions/${req.params.userId}` },
+      req
+    );
+
+    const combinedProfile = {
+      ...profile?.toObject(),
+      ...permission,
+    };
+
+    res.send(combinedProfile || {});
+  })
+);
+
 // TODO: Change this post request to be created when
 // a user is created through Google Cloud Functions
 userRoutes.route("/").post(
+  checkAbility("create", "Profile"),
   asyncHandler(async (req, res) => {
     const profile = await ProfileModel.create({
       userId: req.user?.uid,
@@ -72,28 +100,8 @@ userRoutes.route("/").post(
   })
 );
 
-userRoutes.route("/:userId").get(
-  asyncHandler(async (req, res) => {
-    const profile = await ProfileModel.findOne({
-      userId: req.params.userId,
-    });
-
-    const permission = await apiCall(
-      Service.AUTH,
-      { method: "GET", url: `/permissions/${req.params.userId}` },
-      req
-    );
-
-    const combinedProfile = {
-      ...profile?.toObject(),
-      ...permission,
-    };
-
-    res.send(combinedProfile || {});
-  })
-);
-
 userRoutes.route("/:userId").put(
+  checkAbility("update", "Profile"),
   asyncHandler(async (req, res) => {
     const updatedProfile = await ProfileModel.findOneAndUpdate(
       { userId: req.params.userId },
@@ -108,6 +116,7 @@ userRoutes.route("/:userId").put(
 );
 
 userRoutes.route("/actions/retrieve").post(
+  checkAbility("read", "Profile"),
   asyncHandler(async (req, res) => {
     const { userIds }: { userIds: string[] } = req.body;
 
@@ -115,7 +124,7 @@ userRoutes.route("/actions/retrieve").post(
       return res.status(200).json([]);
     }
 
-    const profiles = await ProfileModel.find({
+    const profiles = await ProfileModel.accessibleBy(req.ability).find({
       userId: userIds,
     });
 

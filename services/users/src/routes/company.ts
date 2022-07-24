@@ -1,4 +1,4 @@
-import { asyncHandler, BadRequestError } from "@api/common";
+import { asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import express from "express";
 import { getAuth } from "firebase-admin/auth"; // eslint-disable-line import/no-unresolved
 
@@ -7,6 +7,7 @@ import { CompanyModel } from "../models/company";
 export const companyRoutes = express.Router();
 
 companyRoutes.route("/").post(
+  checkAbility("create", "Company"),
   asyncHandler(async (req, res) => {
     const { name, defaultEmailDomains, hasResumeAccess, employees } = req.body;
 
@@ -26,27 +27,22 @@ companyRoutes.route("/").post(
 );
 
 companyRoutes.route("/:id").get(
+  checkAbility("read", "Company"),
   asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const company = await CompanyModel.findById(id);
+    const company = await CompanyModel.findById(req.params.id).accessibleBy(req.ability);
 
     if (!company) {
-      throw new BadRequestError("Company not found");
+      throw new BadRequestError("Company not found or you do not have permission.");
     }
+
     return res.status(200).send(company);
   })
 );
 
 companyRoutes.route("/:id").put(
+  checkAbility("update", "Company"),
   asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const company = CompanyModel.findById(id);
-
-    if (!company) {
-      throw new BadRequestError("Company not found");
-    }
-
-    const updatedCompany = await CompanyModel.findByIdAndUpdate(id, req.body, {
+    const updatedCompany = await CompanyModel.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
 
@@ -55,12 +51,12 @@ companyRoutes.route("/:id").put(
 );
 
 companyRoutes.route("/:id/employees/add").post(
+  checkAbility("update", "Company"),
   asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const company = await CompanyModel.findById(id);
+    const company = await CompanyModel.findById(req.params.id).accessibleBy(req.ability);
 
     if (!company) {
-      throw new BadRequestError("Company not found");
+      throw new BadRequestError("Company not found or you do not have permission.");
     }
 
     const emails = req.body.employees.split(",");
@@ -75,7 +71,7 @@ companyRoutes.route("/:id/employees/add").post(
     });
 
     const currEmployees = await CompanyModel.findByIdAndUpdate(
-      id,
+      req.params.id,
       {
         employees: uniqueEmployees,
       },
@@ -87,16 +83,16 @@ companyRoutes.route("/:id/employees/add").post(
 );
 
 companyRoutes.route("/:id/employees").put(
+  checkAbility("update", "Company"),
   asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const company = await CompanyModel.findById(id);
+    const company = await CompanyModel.findById(req.params.id).accessibleBy(req.ability);
 
     if (!company) {
-      throw new BadRequestError("Company not found");
+      throw new BadRequestError("Company not found or you do not have permission.");
     }
 
     const addEmployees = await CompanyModel.findByIdAndUpdate(
-      id,
+      req.params.id,
       {
         employees: req.body.employees,
       },

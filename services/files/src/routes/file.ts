@@ -1,9 +1,10 @@
-import { apiCall, asyncHandler, BadRequestError } from "@api/common";
+import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import express from "express";
 import multer from "multer";
 import { Service } from "@api/config";
 
 import { uploadFile, getFileUrl, getDownloadUrl } from "../storage";
+import { FileModel } from "../models/file";
 
 const multerMid = multer({
   storage: multer.memoryStorage(),
@@ -16,6 +17,7 @@ const multerMid = multer({
 export const fileRoutes = express.Router();
 
 fileRoutes.route("/upload").post(
+  checkAbility("create", "File"),
   multerMid.single("file"),
   asyncHandler(async (req, res) => {
     const { type } = req.body;
@@ -45,16 +47,30 @@ fileRoutes.route("/upload").post(
 );
 
 fileRoutes.route("/:id").get(
+  checkAbility("read", "File"),
   asyncHandler(async (req, res) => {
-    const fileUrl = await getFileUrl(req.params.id);
+    const file = await FileModel.findById(req.params.id).accessibleBy(req.ability);
+
+    if (!file || !file.storageId) {
+      throw new BadRequestError("You do not have access or invalid file id provided.");
+    }
+
+    const fileUrl = await getFileUrl(file);
 
     res.status(200).send(fileUrl);
   })
 );
 
 fileRoutes.route("/:id/download").get(
+  checkAbility("read", "File"),
   asyncHandler(async (req, res) => {
-    const downloadLink = await getDownloadUrl(req.params.id);
+    const file = await FileModel.findById(req.params.id).accessibleBy(req.ability);
+
+    if (!file || !file.storageId) {
+      throw new BadRequestError("You do not have access or invalid file id provided.");
+    }
+
+    const downloadLink = await getDownloadUrl(file);
 
     res.status(200).send(downloadLink);
   })

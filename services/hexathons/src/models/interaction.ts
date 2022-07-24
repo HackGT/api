@@ -1,11 +1,12 @@
-import { Schema, model, Types } from "mongoose";
+import { AccessibleRecordModel, accessibleRecordsPlugin } from "@casl/mongoose";
+import mongoose, { Schema, model, Types } from "mongoose";
 
 enum InteractionType {
   EVENT = "event",
   SCAVENGER_HUNT = "scavengerHunt",
 }
 
-export interface Interaction {
+export interface Interaction extends mongoose.Document {
   userId: string;
   hexathon: Types.ObjectId;
   type: InteractionType;
@@ -36,4 +37,9 @@ const interactionSchema = new Schema<Interaction>({
   },
 });
 
-export const EventInteraction = model<Interaction>("Interaction", interactionSchema);
+interactionSchema.plugin(accessibleRecordsPlugin);
+
+export const InteractionModel = model<Interaction, AccessibleRecordModel<Interaction>>(
+  "Interaction",
+  interactionSchema
+);

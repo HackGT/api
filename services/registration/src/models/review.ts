@@ -1,6 +1,7 @@
-import { Schema, Types, model } from "mongoose";
+import { accessibleRecordsPlugin, AccessibleRecordModel } from "@casl/mongoose";
+import mongoose, { Schema, Types, model } from "mongoose";
 
-export interface Review {
+export interface Review extends mongoose.Document {
   reviewerId: string;
   essayId: Types.ObjectId;
   score: number;
@@ -33,4 +34,6 @@ const reviewSchema = new Schema<Review>(
   }
 );
 
-export const ReviewModel = model<Review>("Review", reviewSchema);
+reviewSchema.plugin(accessibleRecordsPlugin);
+
+export const ReviewModel = model<Review, AccessibleRecordModel<Review>>("Review", reviewSchema);

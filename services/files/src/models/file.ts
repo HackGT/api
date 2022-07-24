@@ -1,6 +1,7 @@
-import { Schema, model } from "mongoose";
+import { AccessibleRecordModel, accessibleRecordsPlugin } from "@casl/mongoose";
+import mongoose, { Schema, model } from "mongoose";
 
-export interface File {
+export interface File extends mongoose.Document {
   userId: string;
   mimeType: string;
   fileName: string;
@@ -16,4 +17,6 @@ const fileSchema = new Schema<File>({
   type: { type: String, enum: ["resume", "other"], default: "other" },
 });
 
-export const FileModel = model<File>("File", fileSchema);
+fileSchema.plugin(accessibleRecordsPlugin);
+
+export const FileModel = model<File, AccessibleRecordModel<File>>("File", fileSchema);

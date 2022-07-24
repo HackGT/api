@@ -1,9 +1,8 @@
 import { GetSignedUrlConfig, Storage } from "@google-cloud/storage";
 import config from "@api/config";
 import path from "path";
-import { BadRequestError } from "@api/common";
 
-import { FileModel } from "./models/file";
+import { File, FileModel } from "./models/file";
 
 const storage = new Storage();
 
@@ -46,31 +45,18 @@ export const uploadFile = async (
   return id;
 };
 
-export const getFileUrl = async (mongoId: string): Promise<string> => {
+export const getFileUrl = async (file: File): Promise<string> => {
   const options: GetSignedUrlConfig = {
     version: "v4",
     action: "read",
     expires: Date.now() + 15 * 60 * 1000, // 15 minutes
   };
 
-  const file = await FileModel.findById(mongoId);
-
-  if (!file || !file.storageId) {
-    throw new BadRequestError("File not found!");
-  }
-
   const [url] = await bucket.file(file?.storageId).getSignedUrl(options);
-
   return url;
 };
 
-export const getDownloadUrl = async (mongoId: string): Promise<string> => {
-  const file = await FileModel.findById(mongoId);
-
-  if (!file || !file.storageId) {
-    throw new BadRequestError("File not found!");
-  }
-
+export const getDownloadUrl = async (file: File): Promise<string> => {
   const metaData = await bucket.file(file.storageId).getMetadata();
   return metaData[0].mediaLink;
 };

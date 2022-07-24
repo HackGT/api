@@ -2043,9 +2043,6 @@
           "type": "string",
           "enum": ["DRAFT", "APPLIED", "ACCEPTED", "CONFIRMED", "DENIED"]
         },
-        "finalScore": {
-          "type": "number"
-        },
         "gradingComplete": {
           "type": "number"
         },

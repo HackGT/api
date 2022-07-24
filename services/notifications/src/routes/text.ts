@@ -1,4 +1,4 @@
-import { asyncHandler, isMember } from "@api/common";
+import { asyncHandler, checkAbility } from "@api/common";
 import express from "express";
 
 import { sendMessages } from "../plugins/Twilio";
@@ -7,9 +7,8 @@ import { TwilioConfig } from "../plugins/types";
 
 export const textRoutes = express.Router();
 
-textRoutes.use(isMember);
-
 textRoutes.route("/send").post(
+  checkAbility("manage", "Notification"),
   asyncHandler(async (req, res) => {
     try {
       const { message, numbers } = req.body;

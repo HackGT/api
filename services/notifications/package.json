@@ -19,6 +19,8 @@
   "dependencies": {
     "@api/common": "*",
     "@api/config": "*",
+    "@casl/ability": "^5.4.4",
+    "@casl/mongoose": "^6.0.0",
     "@sendgrid/mail": "^7.6.1",
     "@types/compression": "^1.7.2",
     "@types/cookie-parser": "^1.4.2",
