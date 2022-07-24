@@ -43,11 +43,40 @@ userRoutes.route("/").get(
     const offset = parseInt(req.query.offset as string);
     const profiles = await ProfileModel.find(filter).skip(offset).limit(limit);
 
+    let combinedProfiles = [];
+
+    // If user is an admin, attach all the permissions to the profile
+    if (req.user?.roles.admin) {
+      const permissions = await apiCall(
+        Service.AUTH,
+        {
+          url: "/permissions/actions/retrieve",
+          method: "POST",
+          data: {
+            userIds: profiles.map(profile => profile.userId),
+          },
+        },
+        req
+      );
+
+      for (const profile of profiles) {
+        const userPermissions = permissions.find(
+          (permission: any) => permission.userId === profile.userId
+        );
+        combinedProfiles.push({
+          ...profile.toObject(),
+          ...(userPermissions ?? {}),
+        });
+      }
+    } else {
+      combinedProfiles = profiles;
+    }
+
     return res.status(200).json({
       offset: offset + profiles.length,
       total: matchCount,
       count: profiles.length,
-      profiles,
+      profiles: combinedProfiles,
     });
   })
 );

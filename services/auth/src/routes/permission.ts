@@ -1,4 +1,4 @@
-import { asyncHandler, checkAbility, DEFAULT_USER_ROLES } from "@api/common";
+import { asyncHandler, DEFAULT_USER_ROLES, ForbiddenError } from "@api/common";
 import express from "express";
 
 import { PermissionModel } from "../models/permission";
@@ -12,14 +12,24 @@ import { PermissionModel } from "../models/permission";
 export const permissionRoutes = express.Router();
 
 permissionRoutes.route("/:userId").get(
-  checkAbility("read", "Permission"),
   asyncHandler(async (req, res) => {
+    // If the user is not checking their own permissions, they must have the member role
+    if (req.params.userId !== req.user?.uid) {
+      const currentUserPermissions = await PermissionModel.findOne({
+        userId: req.user?.uid,
+      });
+      if (!currentUserPermissions?.roles?.member) {
+        res.send({});
+        return;
+      }
+    }
+
     const permission = await PermissionModel.findOne(
       {
         userId: req.params.userId,
       },
       { _id: false }
-    ).accessibleBy(req.ability);
+    );
 
     res.send(
       permission || {
@@ -30,24 +40,52 @@ permissionRoutes.route("/:userId").get(
   })
 );
 
-permissionRoutes.route("/").post(
-  checkAbility("create", "Permission"),
+permissionRoutes.route("/:userId").post(
   asyncHandler(async (req, res) => {
-    const newPermission = await PermissionModel.create(req.body);
+    // Need to have an admin role to update permissions
+    const currentUserPermissions = await PermissionModel.findOne({
+      userId: req.user?.uid,
+    });
+    if (!currentUserPermissions?.roles?.admin) {
+      throw new ForbiddenError("You do not have permission to update permissions.");
+    }
 
-    res.send(newPermission);
+    let permission = await PermissionModel.findOne({ userId: req.params.userId });
+
+    if (permission) {
+      permission.roles = { ...permission.roles, ...req.body.roles };
+      await permission.save();
+    } else {
+      permission = await PermissionModel.create({
+        userId: req.params.userId,
+        roles: req.body.roles,
+      });
+    }
+
+    res.send(permission);
   })
 );
 
-permissionRoutes.route("/:userId").patch(
-  checkAbility("update", "Permission"),
+permissionRoutes.route("/actions/retrieve").post(
   asyncHandler(async (req, res) => {
-    const newPermission = await PermissionModel.findOneAndUpdate(
-      { userId: req.params.userId },
-      { roles: req.body },
-      { new: true }
-    );
+    // Need to have an admin role to use batch retrieve
+    const currentUserPermissions = await PermissionModel.findOne({
+      userId: req.user?.uid,
+    });
+    if (!currentUserPermissions?.roles?.admin) {
+      throw new ForbiddenError("You do not have permission to update permissions.");
+    }
 
-    res.send(newPermission);
+    const { userIds }: { userIds: string[] } = req.body;
+
+    if (!userIds || userIds.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    const permissions = await PermissionModel.find({
+      userId: userIds,
+    });
+
+    return res.status(200).json(permissions);
   })
 );
