@@ -9,7 +9,7 @@ import axios from "axios";
 import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
 import { Subject } from "@casl/ability";
 
-import { BadRequestError, ConfigError, ForbiddenError } from "./errors";
+import { ApiCallError, BadRequestError, ConfigError, ForbiddenError } from "./errors";
 import { AbilityAction, DEFAULT_USER_ROLES, UserRoles } from "./types";
 import { apiCall } from "./apiCall";
 
@@ -233,6 +233,13 @@ export const handleError: ErrorRequestHandler = (err, req, res, next) => {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       status: StatusCodes.INTERNAL_SERVER_ERROR,
       type: "server_error",
+      message: err.message,
+      stack: err.stack,
+    });
+  } else if (err instanceof ApiCallError) {
+    res.status(err.status).json({
+      status: err.status,
+      type: err.type,
       message: err.message,
       stack: err.stack,
     });
