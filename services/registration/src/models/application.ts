@@ -51,6 +51,7 @@ export interface Application extends mongoose.Document {
     extraInfo?: string;
     confirmChecks?: Schema.Types.Mixed;
     essays?: Types.DocumentArray<Essay>;
+    resume?: Types.ObjectId;
   };
   confirmationBranch?: AutoPopulatedDoc<Branch>;
   confirmationStartTime?: Date;
@@ -162,6 +163,9 @@ const applicationSchema = new Schema<Application>(
           },
         },
       ],
+      resume: {
+        type: Schema.Types.ObjectId,
+      },
     },
     applicationStartTime: {
       type: Date,

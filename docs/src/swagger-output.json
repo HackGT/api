@@ -1928,7 +1928,7 @@
         "mimeType": {
           "type": "string"
         },
-        "fileName": {
+        "name": {
           "type": "string"
         },
         "storageId": {

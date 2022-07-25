@@ -23,7 +23,7 @@ export const uploadFile = async (
   });
 
   const { id } = await FileModel.create({
-    fileName: path.parse(originalname).name,
+    name: path.parse(originalname).name,
     mimeType: file.mimetype,
     userId,
     storageId: googleFileName,
