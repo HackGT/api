@@ -19,7 +19,7 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
     can("aggregate", "Interaction");
   }
 
-  can("read", "Hexathon");
+  can("read", "Hexathon", { isActive: true });
   can("read", "Interaction", { userId: req.user.uid });
 
   req.ability = build();
