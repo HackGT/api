@@ -145,17 +145,15 @@ applicationRouter.route("/:id/actions/save-application-data").post(
       }
     }
 
-    const application: Partial<Application> = {
-      applicationData: {
-        ...existingApplication.applicationData,
-        ...req.body.applicationData,
-        essays,
-      },
-    };
-
     const updatedApplication = await ApplicationModel.findByIdAndUpdate(
       req.params.id,
-      application,
+      {
+        applicationData: {
+          ...existingApplication.applicationData,
+          ...req.body.applicationData,
+          essays,
+        },
+      },
       { new: true }
     );
 

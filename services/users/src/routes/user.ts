@@ -89,7 +89,8 @@ userRoutes.route("/:userId").get(
     }).accessibleBy(req.ability);
 
     if (!profile) {
-      throw new BadRequestError("Profile not found or you do not have permission.");
+      res.send({});
+      return;
     }
 
     const permission = await apiCall(
