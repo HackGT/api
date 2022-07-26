@@ -209,10 +209,21 @@ applicationRouter.route("/:id/actions/submit-application").post(
       );
     }
 
+    // Need to do extra formatting for essays since they are subdocuments in Mongoose
+    const essays: any = {};
+    for (const essay of existingApplication.applicationData.essays ?? []) {
+      essays[essay.criteria] = essay.answer;
+    }
+
+    const applicationData = {
+      ...existingApplication.applicationData,
+      essays,
+    };
+
     await Promise.all(
       existingApplication.applicationBranch.formPages.map(async (formPage, index) => {
         await validateApplicationData(
-          existingApplication.applicationData,
+          applicationData,
           existingApplication.applicationBranch._id,
           index,
           true
