@@ -431,14 +431,14 @@
     "/files/{id}": {
       "get": {
         "tags": ["files"],
-        "summary": "Finds and displays file url by id.",
+        "summary": "Finds a file by id.",
         "description": "",
         "produces": ["application/json"],
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "File id that needs to be considered for filter.",
+            "description": "File id.",
             "required": true,
             "type": "integer"
           }
@@ -447,10 +447,35 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": ""
-              }
+              "$ref": "#/definitions/File"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/files/{id}/signed-url": {
+      "get": {
+        "tags": ["files"],
+        "summary": "Finds and displays file url by id.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "File id.",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
             }
           },
           "400": {
@@ -478,10 +503,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": ""
-              }
+              "type": "string"
             }
           },
           "400": {
@@ -844,7 +866,7 @@
     "/applications": {
       "get": {
         "tags": ["registration"],
-        "summary": "Finds and displays information of all applications.",
+        "summary": "Finds and displays information of all applications without data.",
         "description": "",
         "produces": ["application/json"],
         "parameters": [
@@ -1933,6 +1955,9 @@
         },
         "storageId": {
           "type": "string"
+        },
+        "type": {
+          "type": "string"
         }
       },
       "xml": {
@@ -1998,7 +2023,7 @@
         "name": "Interaction"
       }
     },
-    "Application": {
+    "BasicApplication": {
       "type": "object",
       "properties": {
         "id": {
@@ -2021,9 +2046,6 @@
         "applicationSubmitTime": {
           "type": "string",
           "format": "date-time"
-        },
-        "applicationData": {
-          "$ref": "#/definitions/ApplicationData"
         },
         "confirmationBranch": {
           "$ref": "#/definitions/Branch"
@@ -2055,6 +2077,27 @@
           "format": "date-time"
         }
       },
+      "xml": {
+        "name": "BasicApplication"
+      }
+    },
+    "Application": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/BasicApplication"
+        },
+        {
+          "properties": {
+            "applicationData": {
+              "$ref": "#/definitions/ApplicationData"
+            },
+            "confirmationData": {
+              "type": "object"
+            }
+          }
+        }
+      ],
       "xml": {
         "name": "Application"
       }

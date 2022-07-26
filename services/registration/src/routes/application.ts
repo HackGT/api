@@ -22,7 +22,10 @@ applicationRouter.route("/").get(
       filter.userId = req.query.userId;
     }
 
-    const applications = await ApplicationModel.accessibleBy(req.ability).find(filter);
+    // Find application and remove data fields for ease
+    const applications = await ApplicationModel.accessibleBy(req.ability)
+      .find(filter)
+      .select("-applicationData -confirmationData");
     const userIds = applications.map(application => application.userId).filter(Boolean); // Filters falsy values
 
     const userInfos = await apiCall(
@@ -63,8 +66,18 @@ applicationRouter.route("/:id").get(
       req
     );
 
+    const applicationData = { ...application.applicationData };
+    if (applicationData.resume) {
+      applicationData.resume = await apiCall(
+        Service.FILES,
+        { method: "GET", url: `files/${application.applicationData.resume}` },
+        req
+      );
+    }
+
     const combinedApplication = {
       ...application.toObject(),
+      applicationData,
       userInfo: userInfo || {},
     };
 

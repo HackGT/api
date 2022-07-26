@@ -51,6 +51,15 @@ fileRoutes.route("/:id").get(
   asyncHandler(async (req, res) => {
     const file = await FileModel.findById(req.params.id).accessibleBy(req.ability);
 
+    res.status(200).send(file);
+  })
+);
+
+fileRoutes.route("/:id/signed-url").get(
+  checkAbility("read", "File"),
+  asyncHandler(async (req, res) => {
+    const file = await FileModel.findById(req.params.id).accessibleBy(req.ability);
+
     if (!file || !file.storageId) {
       throw new BadRequestError("You do not have access or invalid file id provided.");
     }
