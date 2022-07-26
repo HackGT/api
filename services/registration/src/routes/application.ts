@@ -70,7 +70,7 @@ applicationRouter.route("/:id").get(
     if (applicationData.resume) {
       applicationData.resume = await apiCall(
         Service.FILES,
-        { method: "GET", url: `files/${application.applicationData.resume}` },
+        { method: "GET", url: `files/${applicationData.resume}` },
         req
       );
     }
@@ -168,9 +168,25 @@ applicationRouter.route("/:id/actions/save-application-data").post(
         },
       },
       { new: true }
-    );
+    ).select("userId hexathon applicationBranch applicationData");
 
-    return res.send(updatedApplication);
+    if (!updatedApplication) {
+      throw new BadRequestError("Error saving application data.");
+    }
+
+    const applicationData = { ...updatedApplication.applicationData };
+    if (applicationData.resume) {
+      applicationData.resume = await apiCall(
+        Service.FILES,
+        { method: "GET", url: `files/${applicationData.resume}` },
+        req
+      );
+    }
+
+    return res.send({
+      ...updatedApplication.toObject(),
+      applicationData,
+    });
   })
 );
 
@@ -192,6 +208,7 @@ applicationRouter.route("/:id/actions/submit-application").post(
         "Cannot submit an application. You have already submitted an application."
       );
     }
+
     await Promise.all(
       existingApplication.applicationBranch.formPages.map(async (formPage, index) => {
         await validateApplicationData(
@@ -203,18 +220,16 @@ applicationRouter.route("/:id/actions/submit-application").post(
       })
     );
 
-    const application: Partial<Application> = {
-      applicationSubmitTime: new Date(),
-      status: StatusType.APPLIED,
-    };
-
-    const updatedApplication = await ApplicationModel.findByIdAndUpdate(
+    await ApplicationModel.findByIdAndUpdate(
       req.params.id,
-      application,
+      {
+        applicationSubmitTime: new Date(),
+        status: StatusType.APPLIED,
+      },
       { new: true }
     );
 
-    return res.send(updatedApplication);
+    return res.status(204);
   })
 );
 
@@ -253,18 +268,16 @@ applicationRouter.route("/:id/actions/save-confirmation-data").post(
       false
     );
 
-    const application: Partial<Application> = {
-      confirmationData: {
-        ...existingApplication.confirmationData,
-        ...req.body.confirmationData,
-      },
-    };
-
     const updatedApplication = await ApplicationModel.findByIdAndUpdate(
       req.params.id,
-      application,
+      {
+        confirmationData: {
+          ...existingApplication.confirmationData,
+          ...req.body.confirmationData,
+        },
+      },
       { new: true }
-    );
+    ).select("userId hexathon confirmationBranch confirmationData");
 
     return res.send(updatedApplication);
   })
@@ -309,17 +322,15 @@ applicationRouter.route("/:id/actions/submit-confirmation").post(
       })
     );
 
-    const application: Partial<Application> = {
-      confirmationSubmitTime: new Date(),
-      status: StatusType.CONFIRMED,
-    };
-
-    const updatedApplication = await ApplicationModel.findByIdAndUpdate(
+    await ApplicationModel.findByIdAndUpdate(
       req.params.id,
-      application,
+      {
+        confirmationSubmitTime: new Date(),
+        status: StatusType.CONFIRMED,
+      },
       { new: true }
     );
 
-    return res.send(updatedApplication);
+    return res.status(204);
   })
 );
