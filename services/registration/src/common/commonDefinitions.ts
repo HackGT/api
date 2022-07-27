@@ -305,6 +305,7 @@ const commonDefinitions = {
       "Middle Eastern or Arab American",
       "Native American or Alaskan Native",
       "Hawaiian or Pacific Islander",
+      "Prefer not to answer",
     ],
   },
   age: {
@@ -313,7 +314,7 @@ const commonDefinitions = {
   },
   gender: {
     type: "string",
-    enum: ["Male", "Female", "Non-Binary", "Other"],
+    enum: ["Male", "Female", "Non-Binary", "Other", "Prefer not to answer"],
   },
   marketing: {
     type: "string",
