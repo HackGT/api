@@ -420,7 +420,10 @@
         "produces": ["application/json"],
         "responses": {
           "200": {
-            "description": "File successfully uploaded"
+            "description": "File successfully uploaded",
+            "schema": {
+              "$ref": "#/definitions/File"
+            }
           },
           "400": {
             "description": "No file uploaded!"

@@ -2,6 +2,7 @@ import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/commo
 import express from "express";
 import multer from "multer";
 import { Service } from "@api/config";
+import path from "path";
 
 import { uploadFile, getFileUrl, getDownloadUrl } from "../storage";
 import { FileModel } from "../models/file";
@@ -20,29 +21,35 @@ fileRoutes.route("/upload").post(
   checkAbility("create", "File"),
   multerMid.single("file"),
   asyncHandler(async (req, res) => {
-    const { type } = req.body;
-
     if (!req.file) {
       throw new BadRequestError("No file uploaded!");
     }
 
-    const id = await uploadFile(req.file, req.user?.uid, type);
+    const googleFileName = await uploadFile(req.file);
 
-    if (type && type === "resume") {
+    const file = await FileModel.create({
+      name: path.parse(req.file.originalname).name,
+      mimeType: req.file.mimetype,
+      userId: req.user?.uid,
+      storageId: googleFileName,
+      type: req.body.type,
+    });
+
+    if (req.body?.type === "resume") {
       apiCall(
         Service.USERS,
         {
           url: `/users/${req.user?.uid}/profile`,
           method: "PUT",
           data: {
-            resume: id,
+            resume: file.id,
           },
         },
         req
       );
     }
 
-    res.status(200).json({ id, message: "File successfully uploaded" });
+    res.status(200).json(file);
   })
 );
 

@@ -2,17 +2,13 @@ import { GetSignedUrlConfig, Storage } from "@google-cloud/storage";
 import config from "@api/config";
 import path from "path";
 
-import { File, FileModel } from "./models/file";
+import { File } from "./models/file";
 
 const storage = new Storage();
 
 const bucket = storage.bucket(config.services.FILES.storageBucket || "");
 
-export const uploadFile = async (
-  file: Express.Multer.File,
-  userId: string | undefined,
-  fileType: string
-): Promise<string> => {
+export const uploadFile = async (file: Express.Multer.File) => {
   const { originalname, buffer } = file;
 
   const googleFileName = `${path.parse(originalname).name}_${Date.now()}`;
@@ -20,14 +16,6 @@ export const uploadFile = async (
 
   const blobStream = blob.createWriteStream({
     resumable: false,
-  });
-
-  const { id } = await FileModel.create({
-    name: path.parse(originalname).name,
-    mimeType: file.mimetype,
-    userId,
-    storageId: googleFileName,
-    type: fileType,
   });
 
   blobStream
@@ -42,7 +30,7 @@ export const uploadFile = async (
     })
     .end(buffer);
 
-  return id;
+  return googleFileName;
 };
 
 export const getFileUrl = async (file: File): Promise<string> => {
