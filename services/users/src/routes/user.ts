@@ -37,11 +37,14 @@ userRoutes.route("/").get(
       ];
     }
 
-    const matchCount = await ProfileModel.find(filter).accessibleBy(req.ability).count();
+    const matchCount = await ProfileModel.accessibleBy(req.ability).find(filter).count();
 
     const limit = parseInt(req.query.limit as string);
     const offset = parseInt(req.query.offset as string);
-    const profiles = await ProfileModel.find(filter).skip(offset).limit(limit);
+    const profiles = await ProfileModel.accessibleBy(req.ability)
+      .find(filter)
+      .skip(offset)
+      .limit(limit);
 
     let combinedProfiles = [];
 
