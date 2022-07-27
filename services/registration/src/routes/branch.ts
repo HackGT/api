@@ -49,3 +49,12 @@ branchRouter.route("/:id").patch(
     return res.send(updatedBranch);
   })
 );
+
+branchRouter.route("/:id").delete(
+  checkAbility("delete", "Branch"),
+  asyncHandler(async (req, res) => {
+    await BranchModel.findByIdAndDelete(req.params.id);
+
+    return res.sendStatus(204);
+  })
+);
