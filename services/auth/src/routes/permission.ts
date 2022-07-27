@@ -34,7 +34,7 @@ permissionRoutes.route("/:userId").get(
     res.send(
       permission || {
         userId: req.params.userId,
-        ...DEFAULT_USER_ROLES,
+        roles: DEFAULT_USER_ROLES,
       }
     );
   })
