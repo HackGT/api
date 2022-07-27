@@ -240,7 +240,7 @@ applicationRouter.route("/:id/actions/submit-application").post(
       { new: true }
     );
 
-    return res.status(204);
+    return res.sendStatus(204);
   })
 );
 
@@ -342,6 +342,6 @@ applicationRouter.route("/:id/actions/submit-confirmation").post(
       { new: true }
     );
 
-    return res.status(204);
+    return res.sendStatus(204);
   })
 );
