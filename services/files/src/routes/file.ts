@@ -28,7 +28,7 @@ fileRoutes.route("/upload").post(
     const googleFileName = await uploadFile(req.file);
 
     const file = await FileModel.create({
-      name: path.parse(req.file.originalname).name,
+      name: req.file.originalname,
       mimeType: req.file.mimetype,
       userId: req.user?.uid,
       storageId: googleFileName,
