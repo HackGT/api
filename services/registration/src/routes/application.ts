@@ -159,7 +159,8 @@ applicationRouter.route("/:id/actions/save-application-data").post(
     }
 
     // Need to do extra formatting for resume since its submitted as a file object
-    const resume = req.body.applicationData.resume?._id ?? req.body.applicationData.resume;
+    const resume =
+      req.body.applicationData.resume?._id ?? (req.body.applicationData.resume || undefined);
 
     const updatedApplication = await ApplicationModel.findByIdAndUpdate(
       req.params.id,
