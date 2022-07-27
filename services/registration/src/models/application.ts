@@ -33,7 +33,8 @@ export interface Application extends mongoose.Document {
     graduationYear?: number;
     major?: string;
     shirtSize?: string;
-    dietaryRestrictions?: string;
+    dietaryRestrictions?: string[];
+    allergies?: string;
     phoneNumber?: string;
     gender?: string;
     ethnicity?: string;
@@ -104,7 +105,12 @@ const applicationSchema = new Schema<Application>(
       shirtSize: {
         type: String,
       },
-      dietaryRestrictions: {
+      dietaryRestrictions: [
+        {
+          type: String,
+        },
+      ],
+      allergies: {
         type: String,
       },
       phoneNumber: {
