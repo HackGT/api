@@ -49,6 +49,7 @@ export interface Application extends mongoose.Document {
     marketing?: string;
     website?: string;
     linkedin?: string;
+    travelReimbursement?: string;
     extraInfo?: string;
     confirmChecks?: Schema.Types.Mixed;
     essays?: Types.DocumentArray<Essay>;
@@ -149,6 +150,9 @@ const applicationSchema = new Schema<Application>(
         type: String,
       },
       linkedin: {
+        type: String,
+      },
+      travelReimbursement: {
         type: String,
       },
       extraInfo: {
