@@ -1,6 +1,7 @@
-import { Schema, model } from "mongoose";
+import { AccessibleRecordModel, accessibleRecordsPlugin } from "@casl/mongoose";
+import mongoose, { Schema, model } from "mongoose";
 
-export interface Grader {
+export interface Grader extends mongoose.Document {
   userId: string;
   graded: number;
   skipped: number;
@@ -57,4 +58,6 @@ const graderSchema = new Schema<Grader>({
   ],
 });
 
-export const GraderModel = model<Grader>("Grader", graderSchema);
+graderSchema.plugin(accessibleRecordsPlugin);
+
+export const GraderModel = model<Grader, AccessibleRecordModel<Grader>>("Grader", graderSchema);

@@ -1,14 +1,15 @@
 /* eslint-disable no-underscore-dangle */
-import { asyncHandler } from "@api/common";
+import { asyncHandler, checkAbility } from "@api/common";
 import express from "express";
 import mongoose from "mongoose";
 
 import { ApplicationModel, StatusType } from "../models/application";
-import { BranchModel, BranchType } from "../models/branch";
+import { BranchModel } from "../models/branch";
 
 export const statisticsRouter = express.Router();
 
 statisticsRouter.route("/").get(
+  checkAbility("aggregate", "Application"),
   asyncHandler(async (req, res) => {
     const { hexathon } = req.query;
 

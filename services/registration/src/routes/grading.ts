@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { apiCall, asyncHandler, BadRequestError } from "@api/common";
+import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import { Service } from "@api/config";
 import express from "express";
 
@@ -43,6 +43,7 @@ export const gradingRouter = express.Router();
   -> checks groups -> return questions to grade
 */
 gradingRouter.route("/actions/retrieve-question").post(
+  checkAbility("create", "Grader"),
   asyncHandler(async (req, res) => {
     if (!req.user) {
       throw new BadRequestError("User is null");
@@ -54,7 +55,7 @@ gradingRouter.route("/actions/retrieve-question").post(
       throw new BadRequestError("Hexathon field is required in body");
     }
 
-    let grader = await GraderModel.findOne({ userId: req.user.uid });
+    let grader = await GraderModel.accessibleBy(req.ability).findOne({ userId: req.user.uid });
 
     // First-time grader -> so get initial grading group & give calibration questions
     if (!grader) {
@@ -213,8 +214,9 @@ gradingRouter.route("/actions/retrieve-question").post(
 
 // /graded takes care of submitting the review
 gradingRouter.route("/actions/submit-review").post(
+  checkAbility("create", "Review"),
   asyncHandler(async (req, res) => {
-    const grader = await GraderModel.findOne({ userId: req.user?.uid });
+    const grader = await GraderModel.accessibleBy(req.ability).findOne({ userId: req.user?.uid });
     if (!grader) {
       throw new BadRequestError("Grader does not exist in database");
     }
@@ -312,8 +314,9 @@ gradingRouter.route("/actions/submit-review").post(
 );
 
 gradingRouter.route("/actions/skip-question").post(
+  checkAbility("update", "Grader"),
   asyncHandler(async (req, res) => {
-    const grader = await GraderModel.findOne({ userId: req.user?.uid });
+    const grader = await GraderModel.accessibleBy(req.ability).findOne({ userId: req.user?.uid });
 
     if (!grader) {
       throw new BadRequestError("Grader does not exist in database");
@@ -327,6 +330,7 @@ gradingRouter.route("/actions/skip-question").post(
 );
 
 gradingRouter.route("/leaderboard").get(
+  checkAbility("read", "Grader"),
   asyncHandler(async (req, res) => {
     // Get top 10 graders in descending order (top grader first)
     const topGraders = await GraderModel.find().sort({ graded: -1 }).limit(10);

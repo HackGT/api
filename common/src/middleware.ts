@@ -7,9 +7,10 @@ import config, { Service } from "@api/config";
 import multer from "multer";
 import axios from "axios";
 import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
+import { Subject } from "@casl/ability";
 
-import { BadRequestError, ConfigError, ForbiddenError } from "./errors";
-import { DEFAULT_USER_ROLES, UserRoles } from "./types";
+import { ApiCallError, BadRequestError, ConfigError, ForbiddenError } from "./errors";
+import { AbilityAction, DEFAULT_USER_ROLES, UserRoles } from "./types";
 import { apiCall } from "./apiCall";
 
 /**
@@ -61,11 +62,13 @@ export const decodeToken = (service: Service) =>
       if (service === Service.AUTH && req.path.includes("/permissions")) {
         roles = DEFAULT_USER_ROLES;
       } else {
-        roles = await apiCall(
-          Service.AUTH,
-          { method: "GET", url: `/permissions/${decodedIdToken.uid}` },
-          req
-        );
+        roles = (
+          await apiCall(
+            Service.AUTH,
+            { method: "GET", url: `/permissions/${decodedIdToken.uid}` },
+            req
+          )
+        ).roles;
       }
 
       req.user = {
@@ -143,6 +146,21 @@ export const checkApiKey: RequestHandler = asyncHandler(async (req, res, next) =
 });
 
 /**
+ * Middleware to check that the user has the correct permissions to access the
+ * endpoint. Uses @casl library for permission checking. Throws ForbiddenError
+ * if invalid permissions as defined per service.
+ */
+export const checkAbility =
+  (action: AbilityAction, subject: Subject, field?: string | undefined): RequestHandler =>
+  (req, res, next) => {
+    if (req.ability.can(action, subject, field)) {
+      next();
+    } else {
+      throw new ForbiddenError("You are not authorized to perform this action.");
+    }
+  };
+
+/**
  * Middleware to parse errors and response with error messages
  */
 export const handleError: ErrorRequestHandler = (err, req, res, next) => {
@@ -215,6 +233,13 @@ export const handleError: ErrorRequestHandler = (err, req, res, next) => {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       status: StatusCodes.INTERNAL_SERVER_ERROR,
       type: "server_error",
+      message: err.message,
+      stack: err.stack,
+    });
+  } else if (err instanceof ApiCallError) {
+    res.status(err.status).json({
+      status: err.status,
+      type: err.type,
       message: err.message,
       stack: err.stack,
     });

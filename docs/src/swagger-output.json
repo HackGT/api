@@ -420,7 +420,10 @@
         "produces": ["application/json"],
         "responses": {
           "200": {
-            "description": "File successfully uploaded"
+            "description": "File successfully uploaded",
+            "schema": {
+              "$ref": "#/definitions/File"
+            }
           },
           "400": {
             "description": "No file uploaded!"
@@ -431,14 +434,14 @@
     "/files/{id}": {
       "get": {
         "tags": ["files"],
-        "summary": "Finds and displays file url by id.",
+        "summary": "Finds a file by id.",
         "description": "",
         "produces": ["application/json"],
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "File id that needs to be considered for filter.",
+            "description": "File id.",
             "required": true,
             "type": "integer"
           }
@@ -447,10 +450,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": ""
-              }
+              "$ref": "#/definitions/File"
             }
           },
           "400": {
@@ -459,30 +459,24 @@
         }
       }
     },
-    "/files/{id}/download": {
+    "/files/{id}/view": {
       "get": {
         "tags": ["files"],
-        "summary": "Finds and displays file download url by id.",
+        "summary": "Finds and displays file url by id.",
         "description": "",
         "produces": ["application/json"],
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "File id that needs to be considered for filter.",
+            "description": "File id.",
             "required": true,
             "type": "integer"
           }
         ],
         "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": ""
-              }
-            }
+          "302": {
+            "description": "successful operation"
           },
           "400": {
             "description": "Invalid Status"
@@ -844,7 +838,7 @@
     "/applications": {
       "get": {
         "tags": ["registration"],
-        "summary": "Finds and displays information of all applications.",
+        "summary": "Finds and displays information of all applications without data.",
         "description": "",
         "produces": ["application/json"],
         "parameters": [
@@ -898,7 +892,7 @@
                 "applications": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/Application"
+                    "$ref": "#/definitions/BasicApplication"
                   }
                 }
               }
@@ -1005,6 +999,10 @@
                 },
                 "branchFormPage": {
                   "type": "number"
+                },
+                "validateData": {
+                  "type": "boolean",
+                  "description": "If true, then the data will be validated before saving."
                 }
               }
             }
@@ -1014,7 +1012,21 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "#/definitions/Application"
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string"
+                },
+                "hexathon": {
+                  "type": "string"
+                },
+                "applicationData": {
+                  "type": "object"
+                },
+                "applicationBranch": {
+                  "$ref": "#/definitions/Branch"
+                }
+              }
             }
           },
           "400": {
@@ -1040,11 +1052,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Application"
-            }
+          "204": {
+            "description": "successful operation"
           },
           "400": {
             "description": "Invalid Status"
@@ -1080,6 +1089,10 @@
                 },
                 "branchFormPage": {
                   "type": "number"
+                },
+                "validateData": {
+                  "type": "boolean",
+                  "description": "If true, then the data will be validated before saving."
                 }
               }
             }
@@ -1089,7 +1102,21 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "#/definitions/Application"
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string"
+                },
+                "hexathon": {
+                  "type": "string"
+                },
+                "confirmationData": {
+                  "type": "object"
+                },
+                "confirmationBranch": {
+                  "$ref": "#/definitions/Branch"
+                }
+              }
             }
           },
           "400": {
@@ -1115,11 +1142,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Application"
-            }
+          "204": {
+            "description": "successful operation"
           },
           "400": {
             "description": "Invalid Status"
@@ -1957,10 +1981,13 @@
         "mimeType": {
           "type": "string"
         },
-        "fileName": {
+        "name": {
           "type": "string"
         },
         "storageId": {
+          "type": "string"
+        },
+        "type": {
           "type": "string"
         }
       },
@@ -2027,7 +2054,7 @@
         "name": "Interaction"
       }
     },
-    "Application": {
+    "BasicApplication": {
       "type": "object",
       "properties": {
         "id": {
@@ -2057,9 +2084,6 @@
           "type": "string",
           "format": "date-time"
         },
-        "applicationData": {
-          "$ref": "#/definitions/ApplicationData"
-        },
         "confirmationBranch": {
           "$ref": "#/definitions/Branch"
         },
@@ -2078,9 +2102,6 @@
           "type": "string",
           "enum": ["DRAFT", "APPLIED", "ACCEPTED", "CONFIRMED", "DENIED"]
         },
-        "finalScore": {
-          "type": "number"
-        },
         "gradingComplete": {
           "type": "number"
         },
@@ -2093,6 +2114,27 @@
           "format": "date-time"
         }
       },
+      "xml": {
+        "name": "BasicApplication"
+      }
+    },
+    "Application": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/BasicApplication"
+        },
+        {
+          "properties": {
+            "applicationData": {
+              "$ref": "#/definitions/ApplicationData"
+            },
+            "confirmationData": {
+              "type": "object"
+            }
+          }
+        }
+      ],
       "xml": {
         "name": "Application"
       }
@@ -2107,6 +2149,12 @@
           "type": "string"
         },
         "school": {
+          "type": "string"
+        },
+        "schoolEmail": {
+          "type": "string"
+        },
+        "schoolYear": {
           "type": "string"
         },
         "graduationYear": {
@@ -2153,6 +2201,9 @@
             }
           }
         },
+        "marketing": {
+          "type": "string"
+        },
         "website": {
           "type": "string"
         },
@@ -2160,10 +2211,7 @@
           "type": "string"
         },
         "extraInfo": {
-          "type": "array",
-          "items": {
-            "type": "object"
-          }
+          "type": "string"
         },
         "confirmChecks": {
           "type": "object"

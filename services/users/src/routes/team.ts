@@ -1,12 +1,13 @@
 import express from "express";
-import { asyncHandler, BadRequestError, isAuthenticated } from "@api/common";
+import { asyncHandler, BadRequestError, checkAbility, ForbiddenError } from "@api/common";
+import { FilterQuery } from "mongoose";
 
-import { TeamModel } from "../models/team";
+import { Team, TeamModel } from "../models/team";
 
 export const teamRoutes = express.Router();
 
 teamRoutes.route("/").post(
-  isAuthenticated,
+  checkAbility("create", "Team"),
   asyncHandler(async (req, res) => {
     const { name, event, description, publicTeam } = req.body;
 
@@ -35,30 +36,27 @@ teamRoutes.route("/").post(
 );
 
 teamRoutes.route("/").get(
-  isAuthenticated,
+  checkAbility("read", "Team"),
   asyncHandler(async (req, res) => {
-    const { event } = req.query;
+    const filter: FilterQuery<Team> = {};
 
-    let teams;
-
-    if (!event) {
-      teams = await TeamModel.find();
-    } else {
-      teams = await TeamModel.find({ event });
+    if (req.query.hexathon) {
+      filter.hexathon = req.query.hexathon;
     }
+
+    const teams = await TeamModel.accessibleBy(req.ability).find(filter);
 
     res.status(200).json(teams);
   })
 );
 
 teamRoutes.route("/:id").get(
+  checkAbility("read", "Team"),
   asyncHandler(async (req, res) => {
-    const { id } = req.params;
-
-    const team = await TeamModel.findOne({ _id: id });
+    const team = await TeamModel.findById(req.params.id).accessibleBy(req.ability);
 
     if (!team) {
-      throw new BadRequestError("Team doesn't exist!");
+      throw new BadRequestError("Invalid team or you do not have permisison.");
     }
 
     res.status(200).json(team);
@@ -66,20 +64,22 @@ teamRoutes.route("/:id").get(
 );
 
 teamRoutes.route("/:id/accept-user").post(
+  checkAbility("update", "Team"),
   asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const { userId } = req.body;
-
-    const team = await TeamModel.findOne({ _id: id, members: req.user?.uid });
+    const team = await TeamModel.findById(req.params.id);
 
     if (!team) {
-      throw new BadRequestError("User must be a member of the team to accept requests!");
+      throw new BadRequestError("Invalid team or you do not have permisison.");
+    }
+
+    if (!req.user || !team.members.includes(req.user.uid)) {
+      throw new ForbiddenError("User must be member of the team to accept a user.");
     }
 
     await team.update({
-      members: [...team.members, userId],
+      members: [...team.members, req.body.userId],
       $pull: {
-        memberRequests: { userId },
+        memberRequests: { userId: req.body.userId },
       },
     });
 
@@ -88,16 +88,14 @@ teamRoutes.route("/:id/accept-user").post(
 );
 
 teamRoutes.route("/user/:userId").get(
+  checkAbility("read", "Team"),
   asyncHandler(async (req, res) => {
-    const { userId } = req.params;
-    const { event } = req.query;
-
-    const filter: any = {
-      members: userId,
+    const filter: FilterQuery<Team> = {
+      members: req.params.userId,
     };
 
-    if (event) {
-      filter.event = event;
+    if (req.query.hexathon) {
+      filter.hexathon = req.query.hexathon;
     }
 
     const teams = await TeamModel.find(filter);
@@ -107,7 +105,7 @@ teamRoutes.route("/user/:userId").get(
 );
 
 teamRoutes.route("/join").post(
-  isAuthenticated,
+  checkAbility("update", "Team"),
   asyncHandler(async (req, res) => {
     const { name, event, message } = req.body;
 
@@ -160,7 +158,7 @@ teamRoutes.route("/join").post(
 );
 
 teamRoutes.route("/leave").post(
-  isAuthenticated,
+  checkAbility("update", "Team"),
   asyncHandler(async (req, res) => {
     const { name, event } = req.body;
 
@@ -183,8 +181,8 @@ teamRoutes.route("/leave").post(
   })
 );
 
-teamRoutes.route("/update/:id").put(
-  isAuthenticated,
+teamRoutes.route("/:id").put(
+  checkAbility("update", "Team"),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
 

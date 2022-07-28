@@ -1,21 +1,18 @@
 import { BadRequestError, ConfigError } from "@api/common";
 import Ajv from "ajv";
+import addFormats from "ajv-formats";
 
 import { BranchModel } from "./models/branch";
 
 const ajv = new Ajv();
+addFormats(ajv);
 
 /**
  * Validates application data based on the branch type.
  * @param branchId Branch ID
  * @param data Application data to validate
  */
-export const validateApplicationData = async (
-  data: any,
-  branchId: any,
-  branchFormPage: number,
-  checkRequiredFields: boolean
-) => {
+export const validateApplicationData = async (data: any, branchId: any, branchFormPage: number) => {
   const branch = await BranchModel.findById(branchId);
 
   if (branch == null) {
@@ -36,12 +33,7 @@ export const validateApplicationData = async (
   const validate = ajv.compile(parsedSchema);
   const valid = validate(data);
 
-  let { errors } = validate;
-  if (!checkRequiredFields) {
-    errors = errors?.filter(error => error.keyword !== "required");
-  }
-
-  if (valid || errors?.length === 0) {
+  if (valid || validate.errors?.length === 0) {
     return;
   }
 

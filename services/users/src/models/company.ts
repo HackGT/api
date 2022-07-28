@@ -1,6 +1,7 @@
-import { Schema, model } from "mongoose";
+import { accessibleRecordsPlugin, AccessibleRecordModel } from "@casl/mongoose";
+import mongoose, { Schema, model } from "mongoose";
 
-export interface Company {
+export interface Company extends mongoose.Document {
   name: string;
   defaultEmailDomains: string[];
   hasResumeAccess: boolean;
@@ -26,4 +27,9 @@ const companySchema = new Schema<Company>({
   },
 });
 
-export const CompanyModel = model<Company>("Company", companySchema);
+companySchema.plugin(accessibleRecordsPlugin);
+
+export const CompanyModel = model<Company, AccessibleRecordModel<Company>>(
+  "Company",
+  companySchema
+);

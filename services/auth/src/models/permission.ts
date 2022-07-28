@@ -1,7 +1,7 @@
 import { UserRoles } from "@api/common";
-import { Schema, model } from "mongoose";
+import mongoose, { Schema, model } from "mongoose";
 
-export interface Permission {
+export interface Permission extends mongoose.Document {
   userId: string;
   roles: UserRoles;
 }

@@ -1,6 +1,7 @@
-import { Schema, model } from "mongoose";
+import { accessibleRecordsPlugin, AccessibleRecordModel } from "@casl/mongoose";
+import mongoose, { Schema, model } from "mongoose";
 
-export interface Hexathon {
+export interface Hexathon extends mongoose.Document {
   name: string;
   shortCode: string;
   isActive: boolean;
@@ -33,4 +34,9 @@ const hexathonSchema = new Schema<Hexathon>({
   },
 });
 
-export const HexathonModel = model<Hexathon>("Hexathon", hexathonSchema);
+hexathonSchema.plugin(accessibleRecordsPlugin);
+
+export const HexathonModel = model<Hexathon, AccessibleRecordModel<Hexathon>>(
+  "Hexathon",
+  hexathonSchema
+);

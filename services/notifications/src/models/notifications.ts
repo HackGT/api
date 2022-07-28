@@ -1,7 +1,13 @@
-import { Schema, model } from "mongoose";
+import { accessibleRecordsPlugin, AccessibleRecordModel } from "@casl/mongoose";
+import mongoose, { Schema, model } from "mongoose";
 
-export interface Notification {}
+export interface Notification extends mongoose.Document {}
 
 const notificationSchema = new Schema<Notification>({});
 
-export const NotificationModel = model<Notification>("Notification", notificationSchema);
+notificationSchema.plugin(accessibleRecordsPlugin);
+
+export const NotificationModel = model<Notification, AccessibleRecordModel<Notification>>(
+  "Notification",
+  notificationSchema
+);

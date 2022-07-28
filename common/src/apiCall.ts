@@ -2,6 +2,8 @@ import config, { Service } from "@api/config";
 import axios, { AxiosRequestConfig } from "axios";
 import express from "express";
 
+import { ApiCallError } from "./errors";
+
 /**
  * Allows making an api call to an external service. Returns the response data or throws an error.
  * Adds authorization from the current request and forwards to the next server.
@@ -14,15 +16,23 @@ export const apiCall = async (
   requestConfig: Omit<AxiosRequestConfig<any>, "baseUrl">,
   request: express.Request
 ) => {
-  const response = await axios.request({
-    ...requestConfig,
-    baseURL: config.services[service].proxy.target,
-    withCredentials: true,
-    headers: {
-      ...(request.headers.cookie && { cookie: request.headers.cookie }),
-      ...(request.headers.authorization && { authorization: request.headers.authorization }),
-    },
-  });
+  try {
+    const response = await axios.request({
+      ...requestConfig,
+      baseURL: config.services[service].proxy.target,
+      withCredentials: true,
+      headers: {
+        ...(request.headers.cookie && { cookie: request.headers.cookie }),
+        ...(request.headers.authorization && { authorization: request.headers.authorization }),
+      },
+    });
 
-  return response.data;
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new ApiCallError(error.response);
+    } else {
+      throw error;
+    }
+  }
 };

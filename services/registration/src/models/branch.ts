@@ -1,4 +1,5 @@
-import { model, Schema, Types } from "mongoose";
+import { AccessibleRecordModel, accessibleRecordsPlugin } from "@casl/mongoose";
+import mongoose, { model, Schema, Types } from "mongoose";
 
 import commonDefinitions from "../common/commonDefinitions";
 
@@ -7,7 +8,7 @@ export enum BranchType {
   CONFIRMATION = "CONFIRMATION",
 }
 
-export interface Branch {
+export interface Branch extends mongoose.Document {
   name: string;
   hexathon: Types.ObjectId;
   type: BranchType;
@@ -71,6 +72,8 @@ const branchSchema = new Schema<Branch>(
   }
 );
 
+branchSchema.plugin(accessibleRecordsPlugin);
+
 branchSchema.virtual("commonDefinitionsSchema").get(() => JSON.stringify(commonDefinitions));
 
-export const BranchModel = model<Branch>("Branch", branchSchema);
+export const BranchModel = model<Branch, AccessibleRecordModel<Branch>>("Branch", branchSchema);

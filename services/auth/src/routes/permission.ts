@@ -34,43 +34,58 @@ permissionRoutes.route("/:userId").get(
     res.send(
       permission || {
         userId: req.params.userId,
-        ...DEFAULT_USER_ROLES,
+        roles: DEFAULT_USER_ROLES,
       }
     );
   })
 );
 
-permissionRoutes.route("/").post(
+permissionRoutes.route("/:userId").post(
   asyncHandler(async (req, res) => {
+    // Need to have an admin role to update permissions
     const currentUserPermissions = await PermissionModel.findOne({
       userId: req.user?.uid,
     });
     if (!currentUserPermissions?.roles?.admin) {
-      throw new ForbiddenError("You do not have permission to access this endpoint.");
+      throw new ForbiddenError("You do not have permission to update permissions.");
     }
 
-    const newPermission = await PermissionModel.create(req.body);
+    let permission = await PermissionModel.findOne({ userId: req.params.userId });
 
-    res.send(newPermission);
+    if (permission) {
+      permission.roles = { ...permission.roles, ...req.body.roles };
+      await permission.save();
+    } else {
+      permission = await PermissionModel.create({
+        userId: req.params.userId,
+        roles: req.body.roles,
+      });
+    }
+
+    res.send(permission);
   })
 );
 
-permissionRoutes.route("/:userId").patch(
+permissionRoutes.route("/actions/retrieve").post(
   asyncHandler(async (req, res) => {
+    // Need to have an admin role to use batch retrieve
     const currentUserPermissions = await PermissionModel.findOne({
       userId: req.user?.uid,
     });
     if (!currentUserPermissions?.roles?.admin) {
-      throw new ForbiddenError("You do not have permission to access this endpoint.");
+      throw new ForbiddenError("You do not have permission to update permissions.");
     }
 
-    const roles = req.body?.roles;
-    const newPermission = await PermissionModel.findOneAndUpdate(
-      { userId: req.params.userId },
-      { roles },
-      { new: true }
-    );
+    const { userIds }: { userIds: string[] } = req.body;
 
-    res.send(newPermission);
+    if (!userIds || userIds.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    const permissions = await PermissionModel.find({
+      userId: userIds,
+    });
+
+    return res.status(200).json(permissions);
   })
 );

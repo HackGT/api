@@ -1,7 +1,7 @@
-import { Schema, model, Types, PaginateModel } from "mongoose";
-import mongoosePaginate from "mongoose-paginate-v2";
+import { AccessibleRecordModel, accessibleRecordsPlugin } from "@casl/mongoose";
+import mongoose, { Schema, model, Types } from "mongoose";
 
-export interface Profile {
+export interface Profile extends mongoose.Document {
   userId: string;
   email: string;
   name: {
@@ -49,6 +49,9 @@ const profileSchema = new Schema<Profile>({
   resume: Types.ObjectId,
 });
 
-profileSchema.plugin(mongoosePaginate);
+profileSchema.plugin(accessibleRecordsPlugin);
 
-export const ProfileModel = model<Profile, PaginateModel<Profile>>("Profile", profileSchema);
+export const ProfileModel = model<Profile, AccessibleRecordModel<Profile>>(
+  "Profile",
+  profileSchema
+);

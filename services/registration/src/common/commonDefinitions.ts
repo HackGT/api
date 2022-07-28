@@ -305,7 +305,16 @@ const commonDefinitions = {
       "Middle Eastern or Arab American",
       "Native American or Alaskan Native",
       "Hawaiian or Pacific Islander",
+      "Prefer not to answer",
     ],
+  },
+  age: {
+    type: "string",
+    enum: ["Yes", "No"],
+  },
+  gender: {
+    type: "string",
+    enum: ["Male", "Female", "Non-Binary", "Other", "Prefer not to answer"],
   },
   marketing: {
     type: "string",
@@ -320,6 +329,14 @@ const commonDefinitions = {
       "University Relations",
       "Corporate Sponsor",
     ],
+  },
+  shirtSize: {
+    type: "string",
+    enum: ["XS", "S", "M", "L", "XL", "2XL", "3XL"],
+  },
+  dietaryRestrictions: {
+    type: "string",
+    enum: ["Vegetarian", "Vegan", "Gluten Free", "Dairy Free", "No Pork", "No Beef"],
   },
 };
 

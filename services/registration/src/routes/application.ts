@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { apiCall, asyncHandler, BadRequestError, getFullName } from "@api/common";
+import { apiCall, asyncHandler, BadRequestError, getFullName, checkAbility } from "@api/common";
 import { Service } from "@api/config";
 import express from "express";
 import { FilterQuery, Types } from "mongoose";
@@ -11,6 +11,7 @@ import { BranchModel } from "src/models/branch";
 export const applicationRouter = express.Router();
 
 applicationRouter.route("/").get(
+  checkAbility("read", "Application"),
   asyncHandler(async (req, res) => {
     if (!req.query.hexathon) {
       throw new BadRequestError("Hexathon filter is required");
@@ -36,11 +37,15 @@ applicationRouter.route("/").get(
       ];
     }
 
-    const matchCount = await ApplicationModel.find(filter).count();
+    const matchCount = await ApplicationModel.accessibleBy(req.ability).find(filter).count();
 
     const limit = parseInt(req.query.limit as string) || 200;
     const offset = parseInt(req.query.offset as string) || 0;
-    const applications = await ApplicationModel.find(filter).skip(offset).limit(limit);
+    const applications = await ApplicationModel.accessibleBy(req.ability)
+      .find(filter)
+      .skip(offset)
+      .limit(limit)
+      .select("-applicationData -confirmationData");
 
     return res.status(200).json({
       offset,
@@ -52,23 +57,37 @@ applicationRouter.route("/").get(
 );
 
 applicationRouter.route("/:id").get(
+  checkAbility("read", "Application"),
   asyncHandler(async (req, res) => {
-    const application = await ApplicationModel.findById(req.params.id);
+    const application = await ApplicationModel.findById(req.params.id).accessibleBy(req.ability);
 
     if (!application) {
-      throw new BadRequestError("Application not found");
+      throw new BadRequestError("Application not found or you do not have permission to access.");
     }
 
-    return res.send(application);
+    const applicationData = { ...application.applicationData };
+    if (applicationData.resume) {
+      applicationData.resume = await apiCall(
+        Service.FILES,
+        { method: "GET", url: `files/${applicationData.resume}` },
+        req
+      );
+    }
+
+    return res.send({
+      ...application.toObject(),
+      applicationData,
+    });
   })
 );
 
 applicationRouter.route("/actions/choose-application-branch").post(
+  checkAbility("create", "Application"),
   asyncHandler(async (req, res) => {
     const existingApplication = await ApplicationModel.findOne({
       userId: req.user?.uid,
       hexathon: req.body.hexathon,
-    });
+    }).accessibleBy(req.ability);
 
     const userInfo = await apiCall(
       Service.USERS,
@@ -118,11 +137,16 @@ applicationRouter.route("/actions/choose-application-branch").post(
 );
 
 applicationRouter.route("/:id/actions/save-application-data").post(
+  checkAbility("update", "Application"),
   asyncHandler(async (req, res) => {
-    const existingApplication = await ApplicationModel.findById(req.params.id);
+    const existingApplication = await ApplicationModel.findById(req.params.id).accessibleBy(
+      req.ability
+    );
 
     if (!existingApplication) {
-      throw new BadRequestError("No application exists with this id");
+      throw new BadRequestError(
+        "No application exists with this id or you do not have permission."
+      );
     }
 
     if (existingApplication.status !== StatusType.DRAFT) {
@@ -131,49 +155,76 @@ applicationRouter.route("/:id/actions/save-application-data").post(
       );
     }
 
-    await validateApplicationData(
-      req.body.applicationData,
-      existingApplication.applicationBranch._id,
-      req.body.branchFormPage,
-      false
-    );
+    if (req.body.validateData === true) {
+      await validateApplicationData(
+        req.body.applicationData,
+        existingApplication.applicationBranch._id,
+        req.body.branchFormPage
+      );
+    }
 
     // Need to do extra formatting for essays since they are subdocuments in Mongoose
     let { essays } = existingApplication.applicationData;
     if (req.body.applicationData.essays) {
       essays = new Types.DocumentArray<Essay>([]);
-      for (const [name, answer] of Object.entries<any>(req.body.applicationData.essays)) {
+      for (const [criteria, answer] of Object.entries<any>(req.body.applicationData.essays)) {
         essays.push({
-          name,
+          criteria,
           answer,
         });
       }
     }
 
-    const application: Partial<Application> = {
-      applicationData: {
-        ...existingApplication.applicationData,
-        ...req.body.applicationData,
-        essays,
-      },
-    };
+    // Need to do extra formatting for resume since its submitted as a file object
+    let { resume } = existingApplication.applicationData;
+    if (req.body.applicationData.resume?._id) {
+      resume = req.body.applicationData.resume._id;
+    }
 
     const updatedApplication = await ApplicationModel.findByIdAndUpdate(
       req.params.id,
-      application,
+      {
+        applicationData: {
+          ...existingApplication.applicationData,
+          ...req.body.applicationData,
+          essays,
+          resume,
+        },
+      },
       { new: true }
-    );
+    ).select("userId hexathon applicationBranch applicationData");
 
-    return res.send(updatedApplication);
+    if (!updatedApplication) {
+      throw new BadRequestError("Error saving application data.");
+    }
+
+    const applicationData = { ...updatedApplication.applicationData };
+    if (applicationData.resume) {
+      applicationData.resume = await apiCall(
+        Service.FILES,
+        { method: "GET", url: `files/${applicationData.resume}` },
+        req
+      );
+    }
+
+    return res.send({
+      ...updatedApplication.toObject(),
+      applicationData,
+    });
   })
 );
 
 applicationRouter.route("/:id/actions/submit-application").post(
+  checkAbility("update", "Application"),
   asyncHandler(async (req, res) => {
-    const existingApplication = await ApplicationModel.findById(req.params.id);
+    const existingApplication = await ApplicationModel.findById(req.params.id).accessibleBy(
+      req.ability
+    );
 
     if (!existingApplication) {
-      throw new BadRequestError("No application exists with this id");
+      throw new BadRequestError(
+        "No application exists with this id or you do not have permission."
+      );
     }
 
     if (existingApplication.status !== StatusType.DRAFT) {
@@ -181,38 +232,52 @@ applicationRouter.route("/:id/actions/submit-application").post(
         "Cannot submit an application. You have already submitted an application."
       );
     }
+
+    // Need to do extra formatting for essays since they are subdocuments in Mongoose
+    const essays: any = {};
+    for (const essay of existingApplication.applicationData.essays ?? []) {
+      essays[essay.criteria] = essay.answer;
+    }
+
+    const applicationData = {
+      ...existingApplication.applicationData,
+      essays,
+    };
+
     await Promise.all(
       existingApplication.applicationBranch.formPages.map(async (formPage, index) => {
         await validateApplicationData(
-          existingApplication.applicationData,
+          applicationData,
           existingApplication.applicationBranch._id,
-          index,
-          true
+          index
         );
       })
     );
 
-    const application: Partial<Application> = {
-      applicationSubmitTime: new Date(),
-      status: StatusType.APPLIED,
-    };
-
-    const updatedApplication = await ApplicationModel.findByIdAndUpdate(
+    await ApplicationModel.findByIdAndUpdate(
       req.params.id,
-      application,
+      {
+        applicationSubmitTime: new Date(),
+        status: StatusType.APPLIED,
+      },
       { new: true }
     );
 
-    return res.send(updatedApplication);
+    return res.sendStatus(204);
   })
 );
 
 applicationRouter.route("/:id/actions/save-confirmation-data").post(
+  checkAbility("update", "Application"),
   asyncHandler(async (req, res) => {
-    const existingApplication = await ApplicationModel.findById(req.params.id);
+    const existingApplication = await ApplicationModel.findById(req.params.id).accessibleBy(
+      req.ability
+    );
 
     if (!existingApplication) {
-      throw new BadRequestError("No application exists with this id");
+      throw new BadRequestError(
+        "No application exists with this id or you do not have permission."
+      );
     }
 
     if (!existingApplication.confirmationBranch) {
@@ -230,36 +295,40 @@ applicationRouter.route("/:id/actions/save-confirmation-data").post(
       );
     }
 
-    await validateApplicationData(
-      req.body.confirmationData,
-      existingApplication.confirmationBranch._id,
-      req.body.branchFormPage,
-      false
-    );
-
-    const application: Partial<Application> = {
-      confirmationData: {
-        ...existingApplication.confirmationData,
-        ...req.body.confirmationData,
-      },
-    };
+    if (req.body.validateData === true) {
+      await validateApplicationData(
+        req.body.confirmationData,
+        existingApplication.confirmationBranch._id,
+        req.body.branchFormPage
+      );
+    }
 
     const updatedApplication = await ApplicationModel.findByIdAndUpdate(
       req.params.id,
-      application,
+      {
+        confirmationData: {
+          ...existingApplication.confirmationData,
+          ...req.body.confirmationData,
+        },
+      },
       { new: true }
-    );
+    ).select("userId hexathon confirmationBranch confirmationData");
 
     return res.send(updatedApplication);
   })
 );
 
 applicationRouter.route("/:id/actions/submit-confirmation").post(
+  checkAbility("update", "Application"),
   asyncHandler(async (req, res) => {
-    const existingApplication = await ApplicationModel.findById(req.params.id);
+    const existingApplication = await ApplicationModel.findById(req.params.id).accessibleBy(
+      req.ability
+    );
 
     if (!existingApplication) {
-      throw new BadRequestError("No application exists with this id");
+      throw new BadRequestError(
+        "No application exists with this id or you do not have permission."
+      );
     }
 
     if (!existingApplication.confirmationBranch) {
@@ -282,23 +351,20 @@ applicationRouter.route("/:id/actions/submit-confirmation").post(
         await validateApplicationData(
           existingApplication.confirmationData,
           existingApplication.confirmationBranch?._id,
-          index,
-          true
+          index
         );
       })
     );
 
-    const application: Partial<Application> = {
-      confirmationSubmitTime: new Date(),
-      status: StatusType.CONFIRMED,
-    };
-
-    const updatedApplication = await ApplicationModel.findByIdAndUpdate(
+    await ApplicationModel.findByIdAndUpdate(
       req.params.id,
-      application,
+      {
+        confirmationSubmitTime: new Date(),
+        status: StatusType.CONFIRMED,
+      },
       { new: true }
     );
 
-    return res.send(updatedApplication);
+    return res.sendStatus(204);
   })
 );

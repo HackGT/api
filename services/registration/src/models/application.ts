@@ -1,7 +1,7 @@
-import { Schema, Types, Mixed, PaginateModel, model } from "mongoose";
+import mongoose, { Schema, Types, Mixed, model } from "mongoose";
 import mongooseAutopopulate from "mongoose-autopopulate";
-import mongoosePaginate from "mongoose-paginate-v2";
 import { AutoPopulatedDoc } from "@api/common";
+import { accessibleRecordsPlugin, AccessibleRecordModel } from "@casl/mongoose";
 
 import { Branch, BranchModel } from "./branch";
 
@@ -18,7 +18,7 @@ export interface Essay extends Types.Subdocument {
   answer: string;
 }
 
-export interface Application {
+export interface Application extends mongoose.Document {
   userId: string;
   name: string;
   email: string;
@@ -30,10 +30,13 @@ export interface Application {
     adult?: boolean;
     occupation?: string;
     school?: string;
+    schoolEmail?: string;
+    schoolYear?: string;
     graduationYear?: number;
     major?: string;
     shirtSize?: string;
-    dietaryRestrictions?: string;
+    dietaryRestrictions?: string[];
+    allergies?: string;
     phoneNumber?: string;
     gender?: string;
     ethnicity?: string;
@@ -45,18 +48,20 @@ export interface Application {
       zip?: number;
       country?: string;
     };
+    marketing?: string;
     website?: string;
     linkedin?: string;
-    extraInfo?: [Schema.Types.Mixed];
+    travelReimbursement?: string;
+    extraInfo?: string;
     confirmChecks?: Schema.Types.Mixed;
     essays?: Types.DocumentArray<Essay>;
+    resume?: Types.ObjectId;
   };
   confirmationBranch?: AutoPopulatedDoc<Branch>;
   confirmationStartTime?: Date;
   confirmationSubmitTime?: Date;
   confirmationData?: Mixed;
   status: StatusType;
-  finalScore?: number;
   gradingComplete: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -100,6 +105,12 @@ const applicationSchema = new Schema<Application>(
       school: {
         type: String,
       },
+      schoolEmail: {
+        type: String,
+      },
+      schoolYear: {
+        type: String,
+      },
       graduationYear: {
         type: String,
       },
@@ -109,7 +120,12 @@ const applicationSchema = new Schema<Application>(
       shirtSize: {
         type: String,
       },
-      dietaryRestrictions: {
+      dietaryRestrictions: [
+        {
+          type: String,
+        },
+      ],
+      allergies: {
         type: String,
       },
       phoneNumber: {
@@ -141,14 +157,20 @@ const applicationSchema = new Schema<Application>(
           type: String,
         },
       },
+      marketing: {
+        type: String,
+      },
       website: {
         type: String,
       },
       linkedin: {
         type: String,
       },
+      travelReimbursement: {
+        type: String,
+      },
       extraInfo: {
-        type: Schema.Types.Array,
+        type: String,
       },
       confirmChecks: {
         type: Schema.Types.Mixed,
@@ -165,6 +187,9 @@ const applicationSchema = new Schema<Application>(
           },
         },
       ],
+      resume: {
+        type: Schema.Types.ObjectId,
+      },
     },
     applicationStartTime: {
       type: Date,
@@ -193,9 +218,6 @@ const applicationSchema = new Schema<Application>(
       default: StatusType.DRAFT,
       enum: StatusType,
     },
-    finalScore: {
-      type: Number,
-    },
     gradingComplete: {
       type: Boolean,
       required: true,
@@ -208,9 +230,9 @@ const applicationSchema = new Schema<Application>(
 );
 
 applicationSchema.plugin(mongooseAutopopulate);
-applicationSchema.plugin(mongoosePaginate);
+applicationSchema.plugin(accessibleRecordsPlugin);
 
-export const ApplicationModel = model<Application, PaginateModel<Application>>(
+export const ApplicationModel = model<Application, AccessibleRecordModel<Application>>(
   "Application",
   applicationSchema
 );

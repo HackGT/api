@@ -1,9 +1,10 @@
-import { apiCall, asyncHandler, BadRequestError } from "@api/common";
+import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import express from "express";
 import multer from "multer";
 import { Service } from "@api/config";
 
-import { uploadFile, getFileUrl, getDownloadUrl } from "../storage";
+import { uploadFile, getFileViewingUrl } from "../storage";
+import { FileModel } from "../models/file";
 
 const multerMid = multer({
   storage: multer.memoryStorage(),
@@ -16,46 +17,61 @@ const multerMid = multer({
 export const fileRoutes = express.Router();
 
 fileRoutes.route("/upload").post(
+  checkAbility("create", "File"),
   multerMid.single("file"),
   asyncHandler(async (req, res) => {
-    const { type } = req.body;
-
     if (!req.file) {
       throw new BadRequestError("No file uploaded!");
     }
 
-    const id = await uploadFile(req.file, req.user?.uid, type);
+    const googleFileName = await uploadFile(req.file);
 
-    if (type && type === "resume") {
+    const file = await FileModel.create({
+      name: req.file.originalname,
+      mimeType: req.file.mimetype,
+      userId: req.user?.uid,
+      storageId: googleFileName,
+      type: req.body.type,
+    });
+
+    if (req.body?.type === "resume") {
       apiCall(
         Service.USERS,
         {
           url: `/users/${req.user?.uid}/profile`,
           method: "PUT",
           data: {
-            resume: id,
+            resume: file.id,
           },
         },
         req
       );
     }
 
-    res.status(200).json({ id, message: "File successfully uploaded" });
+    res.status(200).json(file);
   })
 );
 
 fileRoutes.route("/:id").get(
+  checkAbility("read", "File"),
   asyncHandler(async (req, res) => {
-    const fileUrl = await getFileUrl(req.params.id);
+    const file = await FileModel.findById(req.params.id).accessibleBy(req.ability);
 
-    res.status(200).send(fileUrl);
+    res.status(200).send(file);
   })
 );
 
-fileRoutes.route("/:id/download").get(
+fileRoutes.route("/:id/view").get(
+  checkAbility("read", "File"),
   asyncHandler(async (req, res) => {
-    const downloadLink = await getDownloadUrl(req.params.id);
+    const file = await FileModel.findById(req.params.id).accessibleBy(req.ability);
 
-    res.status(200).send(downloadLink);
+    if (!file || !file.storageId) {
+      throw new BadRequestError("You do not have access or invalid file id provided.");
+    }
+
+    const fileUrl = await getFileViewingUrl(file);
+
+    res.status(302).redirect(fileUrl);
   })
 );

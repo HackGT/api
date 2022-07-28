@@ -1,38 +1,43 @@
-import { ObjectId } from "mongodb";
-import { Schema, model } from "mongoose";
+import { accessibleRecordsPlugin, AccessibleRecordModel } from "@casl/mongoose";
+import mongoose, { Schema, model, Types } from "mongoose";
 
-export interface Team {
+export interface Team extends mongoose.Document {
   name: string;
-  event: ObjectId;
+  hexathon: Types.ObjectId;
   members: string[];
   description: string;
   public: boolean;
-  memberRequests: memberReq[];
+  memberRequests: Types.DocumentArray<MemberRequest>;
 }
 
-export interface memberReq {
+export interface MemberRequest extends Types.Subdocument {
   userId: string;
   message: string;
 }
 
-const memberReqSchema = new Schema<memberReq>({
-  userId: {
-    type: String,
-    required: true,
-  },
-  message: {
-    type: String,
-    required: false,
-  },
-});
-
 const teamSchema = new Schema<Team>({
   name: { type: String, required: true },
-  event: { type: ObjectId, required: true },
+  hexathon: { type: Schema.Types.ObjectId, required: true },
   members: { type: [String], required: true, default: [] },
   description: { type: String, required: false },
   public: { type: Boolean, required: true, default: false },
-  memberRequests: { type: [memberReqSchema], default: [] },
+  memberRequests: {
+    type: [
+      {
+        userId: {
+          type: String,
+          required: true,
+        },
+        message: {
+          type: String,
+          required: false,
+        },
+      },
+    ],
+    default: [] as any,
+  },
 });
 
-export const TeamModel = model<Team>("Team", teamSchema);
+teamSchema.plugin(accessibleRecordsPlugin);
+
+export const TeamModel = model<Team, AccessibleRecordModel<Team>>("Team", teamSchema);
