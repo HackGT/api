@@ -978,6 +978,12 @@
         "produces": ["application/json"],
         "parameters": [
           {
+            "name": "validateData",
+            "in": "query",
+            "type": "string",
+            "description": "If \"true\", then the data will be validated before saving."
+          },
+          {
             "name": "id",
             "in": "path",
             "type": "integer",
@@ -1063,6 +1069,12 @@
         "consumes": ["application/json"],
         "produces": ["application/json"],
         "parameters": [
+          {
+            "name": "validateData",
+            "in": "query",
+            "type": "string",
+            "description": "If \"true\", then the data will be validated before saving."
+          },
           {
             "name": "id",
             "in": "path",

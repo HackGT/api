@@ -139,12 +139,13 @@ applicationRouter.route("/:id/actions/save-application-data").post(
       );
     }
 
-    await validateApplicationData(
-      req.body.applicationData,
-      existingApplication.applicationBranch._id,
-      req.body.branchFormPage,
-      false
-    );
+    if (req.query.validateDate === "true") {
+      await validateApplicationData(
+        req.body.applicationData,
+        existingApplication.applicationBranch._id,
+        req.body.branchFormPage
+      );
+    }
 
     // Need to do extra formatting for essays since they are subdocuments in Mongoose
     let { essays } = existingApplication.applicationData;
@@ -230,8 +231,7 @@ applicationRouter.route("/:id/actions/submit-application").post(
         await validateApplicationData(
           applicationData,
           existingApplication.applicationBranch._id,
-          index,
-          true
+          index
         );
       })
     );
@@ -277,12 +277,13 @@ applicationRouter.route("/:id/actions/save-confirmation-data").post(
       );
     }
 
-    await validateApplicationData(
-      req.body.confirmationData,
-      existingApplication.confirmationBranch._id,
-      req.body.branchFormPage,
-      false
-    );
+    if (req.query.validateDate === "true") {
+      await validateApplicationData(
+        req.body.confirmationData,
+        existingApplication.confirmationBranch._id,
+        req.body.branchFormPage
+      );
+    }
 
     const updatedApplication = await ApplicationModel.findByIdAndUpdate(
       req.params.id,
@@ -332,8 +333,7 @@ applicationRouter.route("/:id/actions/submit-confirmation").post(
         await validateApplicationData(
           existingApplication.confirmationData,
           existingApplication.confirmationBranch?._id,
-          index,
-          true
+          index
         );
       })
     );
