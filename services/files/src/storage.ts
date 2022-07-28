@@ -16,6 +16,7 @@ export const uploadFile = async (file: Express.Multer.File) => {
 
   const blobStream = blob.createWriteStream({
     resumable: false,
+    contentType: file.mimetype,
   });
 
   blobStream
@@ -33,7 +34,7 @@ export const uploadFile = async (file: Express.Multer.File) => {
   return googleFileName;
 };
 
-export const getFileUrl = async (file: File): Promise<string> => {
+export const getFileViewingUrl = async (file: File): Promise<string> => {
   const options: GetSignedUrlConfig = {
     version: "v4",
     action: "read",
@@ -42,9 +43,4 @@ export const getFileUrl = async (file: File): Promise<string> => {
 
   const [url] = await bucket.file(file?.storageId).getSignedUrl(options);
   return url;
-};
-
-export const getDownloadUrl = async (file: File): Promise<string> => {
-  const metaData = await bucket.file(file.storageId).getMetadata();
-  return metaData[0].mediaLink;
 };

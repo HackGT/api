@@ -459,7 +459,7 @@
         }
       }
     },
-    "/files/{id}/signed-url": {
+    "/files/{id}/view": {
       "get": {
         "tags": ["files"],
         "summary": "Finds and displays file url by id.",
@@ -475,39 +475,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/files/{id}/download": {
-      "get": {
-        "tags": ["files"],
-        "summary": "Finds and displays file download url by id.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "File id that needs to be considered for filter.",
-            "required": true,
-            "type": "integer"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "string"
-            }
+          "302": {
+            "description": "successful operation"
           },
           "400": {
             "description": "Invalid Status"
