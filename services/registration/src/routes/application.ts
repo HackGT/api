@@ -6,7 +6,7 @@ import { FilterQuery, Types } from "mongoose";
 
 import { validateApplicationData } from "../util";
 import { Application, ApplicationModel, Essay, StatusType } from "../models/application";
-import { BranchModel } from "src/models/branch";
+import { BranchModel } from "../models/branch";
 
 export const applicationRouter = express.Router();
 
