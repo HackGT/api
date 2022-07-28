@@ -22,6 +22,7 @@ const commonDefinitions = {
       "Brigham Young University",
       "Brown University",
       "California Institute of Technology",
+      "California State University, East Bay",
       "Carnegie Mellon University",
       "Case Western Reserve University",
       "City College of New York",
