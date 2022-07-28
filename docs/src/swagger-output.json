@@ -978,12 +978,6 @@
         "produces": ["application/json"],
         "parameters": [
           {
-            "name": "validateData",
-            "in": "query",
-            "type": "string",
-            "description": "If \"true\", then the data will be validated before saving."
-          },
-          {
             "name": "id",
             "in": "path",
             "type": "integer",
@@ -1003,6 +997,10 @@
                 },
                 "branchFormPage": {
                   "type": "number"
+                },
+                "validateData": {
+                  "type": "boolean",
+                  "description": "If true, then the data will be validated before saving."
                 }
               }
             }
@@ -1070,12 +1068,6 @@
         "produces": ["application/json"],
         "parameters": [
           {
-            "name": "validateData",
-            "in": "query",
-            "type": "string",
-            "description": "If \"true\", then the data will be validated before saving."
-          },
-          {
             "name": "id",
             "in": "path",
             "type": "integer",
@@ -1095,6 +1087,10 @@
                 },
                 "branchFormPage": {
                   "type": "number"
+                },
+                "validateData": {
+                  "type": "boolean",
+                  "description": "If true, then the data will be validated before saving."
                 }
               }
             }

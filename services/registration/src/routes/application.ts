@@ -139,7 +139,7 @@ applicationRouter.route("/:id/actions/save-application-data").post(
       );
     }
 
-    if (req.query.validateDate === "true") {
+    if (req.body.validateData === true) {
       await validateApplicationData(
         req.body.applicationData,
         existingApplication.applicationBranch._id,
@@ -277,7 +277,7 @@ applicationRouter.route("/:id/actions/save-confirmation-data").post(
       );
     }
 
-    if (req.query.validateDate === "true") {
+    if (req.body.validateData === true) {
       await validateApplicationData(
         req.body.confirmationData,
         existingApplication.confirmationBranch._id,
