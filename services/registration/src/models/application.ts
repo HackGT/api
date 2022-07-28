@@ -20,6 +20,8 @@ export interface Essay extends Types.Subdocument {
 
 export interface Application extends mongoose.Document {
   userId: string;
+  name: string;
+  email: string;
   hexathon: Types.ObjectId;
   applicationBranch: AutoPopulatedDoc<Branch>;
   applicationStartTime: Date;
@@ -70,10 +72,22 @@ const applicationSchema = new Schema<Application>(
     userId: {
       type: String,
       required: true,
+      index: true,
+    },
+    name: {
+      type: String,
+      required: true,
+      index: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      index: true,
     },
     hexathon: {
       type: Schema.Types.ObjectId,
       required: true,
+      index: true,
     },
     applicationBranch: {
       type: Schema.Types.ObjectId,

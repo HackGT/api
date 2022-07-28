@@ -1,53 +1,58 @@
 /* eslint-disable no-underscore-dangle */
-import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/common";
+import { apiCall, asyncHandler, BadRequestError, getFullName, checkAbility } from "@api/common";
 import { Service } from "@api/config";
 import express from "express";
 import { FilterQuery, Types } from "mongoose";
 
 import { validateApplicationData } from "../util";
 import { Application, ApplicationModel, Essay, StatusType } from "../models/application";
+import { BranchModel } from "src/models/branch";
 
 export const applicationRouter = express.Router();
 
 applicationRouter.route("/").get(
   checkAbility("read", "Application"),
   asyncHandler(async (req, res) => {
-    const filter: FilterQuery<Application> = {};
-
-    if (req.query.hexathon) {
-      filter.hexathon = req.query.hexathon;
+    if (!req.query.hexathon) {
+      throw new BadRequestError("Hexathon filter is required");
     }
+
+    const filter: FilterQuery<Application> = {};
+    filter.hexathon = req.query.hexathon;
 
     if (req.query.userId) {
       filter.userId = req.query.userId;
     }
 
-    // Find application and remove data fields for ease
-    const applications = await ApplicationModel.accessibleBy(req.ability)
-      .find(filter)
-      .select("-applicationData -confirmationData");
-    const userIds = applications.map(application => application.userId).filter(Boolean); // Filters falsy values
-
-    const userInfos = await apiCall(
-      Service.USERS,
-      { method: "POST", url: `/users/actions/retrieve`, data: { userIds } },
-      req
-    );
-
-    const combinedApplications = [];
-
-    for (const application of applications) {
-      const matchedUserInfo = userInfos.find(
-        (userInfo: any) => userInfo.userId === application.userId
-      );
-
-      combinedApplications.push({
-        ...application.toObject(),
-        userInfo: matchedUserInfo || {},
-      });
+    if (req.query.search) {
+      const searchLength = (req.query.search as string).length;
+      const search =
+        searchLength > 75
+          ? (req.query.search as string).slice(0, 75)
+          : (req.query.search as string);
+      filter.$or = [
+        { userId: { $regex: new RegExp(search) } },
+        { email: { $regex: new RegExp(search) } },
+        { name: { $regex: new RegExp(search) } },
+      ];
     }
 
-    return res.send(combinedApplications);
+    const matchCount = await ApplicationModel.accessibleBy(req.ability).find(filter).count();
+
+    const limit = parseInt(req.query.limit as string) || 200;
+    const offset = parseInt(req.query.offset as string) || 0;
+    const applications = await ApplicationModel.accessibleBy(req.ability)
+      .find(filter)
+      .skip(offset)
+      .limit(limit)
+      .select("-applicationData -confirmationData");
+
+    return res.status(200).json({
+      offset,
+      total: matchCount,
+      count: applications.length,
+      applications,
+    });
   })
 );
 
@@ -60,12 +65,6 @@ applicationRouter.route("/:id").get(
       throw new BadRequestError("Application not found or you do not have permission to access.");
     }
 
-    const userInfo = await apiCall(
-      Service.USERS,
-      { method: "GET", url: `users/${application.userId}` },
-      req
-    );
-
     const applicationData = { ...application.applicationData };
     if (applicationData.resume) {
       applicationData.resume = await apiCall(
@@ -75,13 +74,10 @@ applicationRouter.route("/:id").get(
       );
     }
 
-    const combinedApplication = {
+    return res.send({
       ...application.toObject(),
       applicationData,
-      userInfo: userInfo || {},
-    };
-
-    return res.send(combinedApplication);
+    });
   })
 );
 
@@ -93,6 +89,22 @@ applicationRouter.route("/actions/choose-application-branch").post(
       hexathon: req.body.hexathon,
     }).accessibleBy(req.ability);
 
+    const userInfo = await apiCall(
+      Service.USERS,
+      { method: "GET", url: `users/${req.user?.uid}` },
+      req
+    );
+    if (!userInfo || Object.keys(userInfo).length === 0) {
+      throw new BadRequestError("Please complete your user profile first.");
+    }
+
+    const branch = await BranchModel.findById(req.body.applicationBranch);
+    if (!branch || branch.hexathon.toString() !== req.body.hexathon) {
+      throw new BadRequestError(
+        "Invalid branch. Please select an application branch that is valid for this hexathon."
+      );
+    }
+
     if (existingApplication) {
       if (existingApplication.status !== StatusType.DRAFT) {
         throw new BadRequestError(
@@ -103,6 +115,8 @@ applicationRouter.route("/actions/choose-application-branch").post(
       existingApplication.applicationBranch = req.body.applicationBranch;
       existingApplication.applicationStartTime = new Date();
       existingApplication.applicationData = {};
+      existingApplication.name = getFullName(userInfo.name);
+      existingApplication.email = userInfo.email;
 
       await existingApplication.save();
 
@@ -111,6 +125,8 @@ applicationRouter.route("/actions/choose-application-branch").post(
 
     const newApplication = await ApplicationModel.create({
       userId: req.user?.uid,
+      name: getFullName(userInfo.name),
+      email: userInfo.email,
       hexathon: req.body.hexathon,
       applicationBranch: req.body.applicationBranch,
       applicationStartTime: new Date(),

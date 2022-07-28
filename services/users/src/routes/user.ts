@@ -39,8 +39,8 @@ userRoutes.route("/").get(
 
     const matchCount = await ProfileModel.accessibleBy(req.ability).find(filter).count();
 
-    const limit = parseInt(req.query.limit as string);
-    const offset = parseInt(req.query.offset as string);
+    const limit = parseInt(req.query.limit as string) || 200;
+    const offset = parseInt(req.query.offset as string) || 0;
     const profiles = await ProfileModel.accessibleBy(req.ability)
       .find(filter)
       .skip(offset)
@@ -76,7 +76,7 @@ userRoutes.route("/").get(
     }
 
     return res.status(200).json({
-      offset: offset + profiles.length,
+      offset,
       total: matchCount,
       count: profiles.length,
       profiles: combinedProfiles,

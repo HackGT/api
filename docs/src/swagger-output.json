@@ -846,22 +846,55 @@
             "name": "hexathon",
             "in": "query",
             "description": "Filter applications by hexathon id",
-            "type": "string"
+            "type": "string",
+            "required": true
           },
           {
             "name": "userId",
             "in": "query",
             "description": "Filter applications by user id",
             "type": "string"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "type": "string",
+            "description": "Search term"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "string",
+            "description": "Specifies the number of valid objects to return"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "string",
+            "description": "Specifies offset in pagination"
           }
         ],
         "responses": {
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/BasicApplication"
+              "type": "object",
+              "properties": {
+                "offset": {
+                  "type": "integer"
+                },
+                "total": {
+                  "type": "integer"
+                },
+                "count": {
+                  "type": "integer"
+                },
+                "applications": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/BasicApplication"
+                  }
+                }
               }
             }
           },
@@ -1700,32 +1733,28 @@
         "produces": ["application/json"],
         "parameters": [
           {
+            "name": "search",
+            "in": "query",
+            "type": "string",
+            "description": "Search term"
+          },
+          {
             "name": "limit",
             "in": "query",
             "type": "string",
-            "description": "specifies the number of valid objects to return",
-            "required": true
+            "description": "Specifies the number of valid objects to return"
           },
           {
             "name": "offset",
             "in": "query",
             "type": "string",
-            "description": "specifies offset in pagination",
-            "required": true
+            "description": "Specifies offset in pagination"
           },
           {
             "name": "regex",
             "in": "query",
             "type": "string",
-            "description": "specifies if search term uses regex or not",
-            "required": true
-          },
-          {
-            "name": "search",
-            "in": "query",
-            "type": "string",
-            "description": "search term",
-            "required": true
+            "description": "Specifies if search term uses regex or not"
           }
         ],
         "responses": {
@@ -2033,6 +2062,12 @@
           "format": "int64"
         },
         "userId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "email": {
           "type": "string"
         },
         "hexathon": {
