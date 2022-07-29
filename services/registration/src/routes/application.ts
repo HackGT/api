@@ -31,9 +31,9 @@ applicationRouter.route("/").get(
           ? (req.query.search as string).slice(0, 75)
           : (req.query.search as string);
       filter.$or = [
-        { userId: { $regex: new RegExp(search) } },
-        { email: { $regex: new RegExp(search) } },
-        { name: { $regex: new RegExp(search) } },
+        { userId: { $regex: new RegExp(search, "i") } },
+        { email: { $regex: new RegExp(search, "i") } },
+        { name: { $regex: new RegExp(search, "i") } },
       ];
     }
 
