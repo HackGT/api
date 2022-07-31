@@ -39,7 +39,7 @@ userRoutes.route("/").get(
 
     const matchCount = await ProfileModel.accessibleBy(req.ability).find(filter).count();
 
-    const limit = parseInt(req.query.limit as string) || 200;
+    const limit = parseInt(req.query.limit as string) || 50;
     const offset = parseInt(req.query.offset as string) || 0;
     const profiles = await ProfileModel.accessibleBy(req.ability)
       .find(filter)
