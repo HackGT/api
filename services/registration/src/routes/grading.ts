@@ -197,7 +197,7 @@ gradingRouter.route("/actions/retrieve-question").post(
       const branchName = (await BranchModel.findById(applicationQuestion?.applicationBranch))?.name;
       response = {
         applicationId: applicationQuestion?.applicationId,
-        essayId: applicationQuestion?.essay._id,
+        essayId: applicationQuestion?.essay.id,
         branch: branchName,
         criteria: applicationQuestion?.essay.criteria,
         question,

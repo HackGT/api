@@ -1014,7 +1014,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "_id": {
+                "id": {
                   "type": "string"
                 },
                 "hexathon": {
@@ -1104,7 +1104,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "_id": {
+                "id": {
                   "type": "string"
                 },
                 "hexathon": {

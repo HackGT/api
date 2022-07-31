@@ -75,7 +75,7 @@ applicationRouter.route("/:id").get(
     }
 
     return res.send({
-      ...application.toObject(),
+      ...application.toJSON(),
       applicationData,
     });
   })
@@ -208,7 +208,7 @@ applicationRouter.route("/:id/actions/save-application-data").post(
     }
 
     return res.send({
-      ...updatedApplication.toObject(),
+      ...updatedApplication.toJSON(),
       applicationData,
     });
   })

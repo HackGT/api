@@ -24,12 +24,9 @@ permissionRoutes.route("/:userId").get(
       }
     }
 
-    const permission = await PermissionModel.findOne(
-      {
-        userId: req.params.userId,
-      },
-      { _id: false }
-    );
+    const permission = await PermissionModel.findOne({
+      userId: req.params.userId,
+    });
 
     res.send(
       permission || {

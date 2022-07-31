@@ -24,53 +24,47 @@ export interface Branch extends mongoose.Document {
   commonDefinitionsSchema: string;
 }
 
-const branchSchema = new Schema<Branch>(
-  {
-    name: {
-      type: String,
-      required: true,
-    },
-    hexathon: {
-      type: Schema.Types.ObjectId,
-      required: true,
-    },
-    type: {
-      type: String,
-      required: true,
-      enum: BranchType,
-    },
-    settings: {
-      open: {
-        type: Date,
-        required: true,
-      },
-      close: {
-        type: Date,
-        required: true,
-      },
-    },
-    formPages: [
-      {
-        title: {
-          type: String,
-          required: true,
-        },
-        jsonSchema: {
-          type: String,
-          required: true,
-        },
-        uiSchema: {
-          type: String,
-          required: true,
-        },
-      },
-    ],
+const branchSchema = new Schema<Branch>({
+  name: {
+    type: String,
+    required: true,
   },
-  {
-    toObject: { virtuals: true },
-    toJSON: { virtuals: true },
-  }
-);
+  hexathon: {
+    type: Schema.Types.ObjectId,
+    required: true,
+  },
+  type: {
+    type: String,
+    required: true,
+    enum: BranchType,
+  },
+  settings: {
+    open: {
+      type: Date,
+      required: true,
+    },
+    close: {
+      type: Date,
+      required: true,
+    },
+  },
+  formPages: [
+    {
+      title: {
+        type: String,
+        required: true,
+      },
+      jsonSchema: {
+        type: String,
+        required: true,
+      },
+      uiSchema: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
+});
 
 branchSchema.plugin(accessibleRecordsPlugin);
 

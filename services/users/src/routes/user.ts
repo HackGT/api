@@ -67,7 +67,7 @@ userRoutes.route("/").get(
           (permission: any) => permission.userId === profile.userId
         );
         combinedProfiles.push({
-          ...profile.toObject(),
+          ...profile.toJSON(),
           ...(userPermissions ?? {}),
         });
       }
@@ -103,7 +103,7 @@ userRoutes.route("/:userId").get(
     );
 
     const combinedProfile = {
-      ...profile?.toObject(),
+      ...profile?.toJSON(),
       ...permission,
     };
 
