@@ -3,6 +3,7 @@ import { apiCall, asyncHandler, BadRequestError, getFullName, checkAbility } fro
 import { Service } from "@api/config";
 import express from "express";
 import { FilterQuery, Types } from "mongoose";
+import _ from "lodash";
 
 import { validateApplicationData } from "../util";
 import { Application, ApplicationModel, Essay, StatusType } from "../models/application";
@@ -177,8 +178,10 @@ applicationRouter.route("/:id/actions/save-application-data").post(
 
     // Need to do extra formatting for resume since its submitted as a file object
     let { resume } = existingApplication.applicationData;
-    if (req.body.applicationData.resume?._id) {
-      resume = req.body.applicationData.resume._id;
+    if (req.body.applicationData.resume?.id) {
+      resume = req.body.applicationData.resume.id;
+    } else if (_.isEmpty(req.body.applicationData.resume)) {
+      resume = undefined;
     }
 
     const updatedApplication = await ApplicationModel.findByIdAndUpdate(
