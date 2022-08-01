@@ -242,9 +242,20 @@ applicationRouter.route("/:id/actions/submit-application").post(
       essays[essay.criteria] = essay.answer;
     }
 
+    // Need to do extra formatting for resumes since they are string in Mongoose
+    let resume: any;
+    if (existingApplication.applicationData.resume) {
+      resume = await apiCall(
+        Service.FILES,
+        { method: "GET", url: `files/${existingApplication.applicationData.resume}` },
+        req
+      );
+    }
+
     const applicationData = {
       ...existingApplication.applicationData,
       essays,
+      resume,
     };
 
     await Promise.all(
