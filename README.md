@@ -54,8 +54,6 @@ our current services, their URL, and description:
 - auth ([auth.api.hexlabs.org](https://auth.api.hexlabs.org))
   - handles user authentication through Google Identity Provider / Google Firebase
   - allows frontend services to retrieve tokens and login/logout users
-- checkin ([checkin.api.hexlabs.org](https://checkin.api.hexlabs.org))
-  - handles checking in users to our events when they first arrive
 - files ([files.api.hexlabs.org](https://files.api.hexlabs.org))
   - handles uploading and managing files for user (like resume)
   - allows admins to view and download files
@@ -64,6 +62,7 @@ our current services, their URL, and description:
   - manages the event name and whether it's active or not
   - keeps track of participant interaction during an event (ie. when they visit a workshop, get
     food, attend a tech talk)
+  - handles checking in users to our events when they first arrive
 - notifications ([notifications.api.hexlabs.org](https://notifications.api.hexlabs.org))
   - manages sending user notifications to platforms like email, sms, slack
 - registration ([registration.api.hexlabs.org](https://registration.api.hexlabs.org))

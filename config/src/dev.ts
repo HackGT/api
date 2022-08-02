@@ -50,22 +50,6 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       name: "hexathons",
     },
   },
-  CHECKIN: {
-    url: "/checkin",
-    port: 8003,
-    auth: false,
-    proxy: {
-      target: "http://localhost:8003",
-      changeOrigin: false,
-      pathRewrite: {
-        [`^/checkin`]: "",
-      },
-    },
-    database: {
-      type: "mongo",
-      name: "checkin",
-    },
-  },
   REGISTRATION: {
     url: "/registration",
     port: 8004,

@@ -11,10 +11,6 @@
       "description": "Everything about users."
     },
     {
-      "name": "checkin",
-      "description": "Everything about checkin."
-    },
-    {
       "name": "files",
       "description": "Everything about files."
     },
@@ -267,142 +263,6 @@
             "description": "successful operation",
             "schema": {
               "$ref": "#/definitions/User"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/checkin": {
-      "get": {
-        "tags": ["checkin"],
-        "summary": "Gets the checkin information of every user.",
-        "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Checkin"
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      },
-      "post": {
-        "tags": ["checkin"],
-        "summary": "Checkin a new user.",
-        "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "userId": {
-                  "type": "string"
-                },
-                "hexathon": {
-                  "type": "integer"
-                },
-                "status": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Checkin"
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/checkin/{id}": {
-      "get": {
-        "tags": ["checkin"],
-        "summary": "Finds and displays checkin by id.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Checkin id that needs to be considered for filter.",
-            "required": true,
-            "type": "integer"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Checkin"
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      },
-      "patch": {
-        "tags": ["checkin"],
-        "summary": "Update an existing checkin.",
-        "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Checkin id that needs to be considered for filter.",
-            "required": true,
-            "type": "integer"
-          },
-          {
-            "name": "status",
-            "in": "body",
-            "description": "Status of checkin.",
-            "required": true,
-            "schema": {
-              "$ref": ""
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Checkin"
-              }
             }
           },
           "400": {
@@ -1542,6 +1402,142 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/checkin": {
+      "get": {
+        "tags": ["hexathons"],
+        "summary": "Gets the checkin information of every user.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Checkin"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "post": {
+        "tags": ["hexathons"],
+        "summary": "Checkin a new user.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "type": "string"
+                },
+                "hexathon": {
+                  "type": "integer"
+                },
+                "status": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Checkin"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/checkin/{id}": {
+      "get": {
+        "tags": ["hexathons"],
+        "summary": "Finds and displays checkin by id.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Checkin id that needs to be considered for filter.",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Checkin"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["hexathons"],
+        "summary": "Update an existing checkin.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Checkin id that needs to be considered for filter.",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "status",
+            "in": "body",
+            "description": "Status of checkin.",
+            "required": true,
+            "schema": {
+              "$ref": ""
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Checkin"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
           }
         }
       }

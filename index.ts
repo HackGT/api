@@ -7,7 +7,6 @@ concurrently([
   { command: "cd services/hexathons && yarn dev", name: "hexathons" },
   { command: "cd services/auth && yarn dev", name: "auth" },
   { command: "cd services/users && yarn dev", name: "users" },
-  { command: "cd services/checkin && yarn dev", name: "checkin" },
   { command: "cd services/registration && yarn dev", name: "registration" },
   { command: "cd services/notifications && yarn dev", name: "notifications" },
   { command: "cd services/files && yarn dev", name: "files" },

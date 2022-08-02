@@ -50,22 +50,6 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       name: "hexathons",
     },
   },
-  CHECKIN: {
-    url: "/checkin",
-    port: parseInt(process.env.PORT || "8080"),
-    auth: false,
-    proxy: {
-      target: "https://checkin.api.hexlabs.org",
-      changeOrigin: true,
-      pathRewrite: {
-        [`^/checkin`]: "",
-      },
-    },
-    database: {
-      type: "mongo",
-      name: "checkin",
-    },
-  },
   REGISTRATION: {
     url: "/registration",
     port: parseInt(process.env.PORT || "8080"),
