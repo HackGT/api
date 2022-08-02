@@ -29,7 +29,7 @@ authRoutes.route("/login").post(
         httpOnly: true,
         secure: config.common.production,
         domain: config.common.production ? ".hexlabs.org" : "",
-        sameSite: "none",
+        sameSite: config.common.production ? "none" : "lax",
       });
       res.sendStatus(204);
     } else {
@@ -47,7 +47,7 @@ authRoutes.route("/logout").all(
       httpOnly: true,
       secure: config.common.production,
       domain: config.common.production ? ".hexlabs.org" : "",
-      sameSite: "none",
+      sameSite: config.common.production ? "none" : "lax",
     });
     res.sendStatus(204);
   })
