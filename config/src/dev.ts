@@ -50,28 +50,12 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       name: "hexathons",
     },
   },
-  REGISTRATION: {
-    url: "/registration",
-    port: 8004,
-    auth: false,
-    proxy: {
-      target: "http://localhost:8004",
-      changeOrigin: false,
-      pathRewrite: {
-        [`^/registration`]: "",
-      },
-    },
-    database: {
-      type: "mongo",
-      name: "registration",
-    },
-  },
   NOTIFICATIONS: {
     url: "/notifications",
-    port: 8006,
+    port: 8003,
     auth: false,
     proxy: {
-      target: "http://localhost:8006",
+      target: "http://localhost:8003",
       changeOrigin: false,
       pathRewrite: {
         [`^/notifications`]: "",
@@ -94,12 +78,28 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       },
     },
   },
-  FILES: {
-    url: "/files",
-    port: 8007,
+  REGISTRATION: {
+    url: "/registration",
+    port: 8004,
     auth: false,
     proxy: {
-      target: "http://localhost:8007",
+      target: "http://localhost:8004",
+      changeOrigin: false,
+      pathRewrite: {
+        [`^/registration`]: "",
+      },
+    },
+    database: {
+      type: "mongo",
+      name: "registration",
+    },
+  },
+  FILES: {
+    url: "/files",
+    port: 8005,
+    auth: false,
+    proxy: {
+      target: "http://localhost:8005",
       changeOrigin: false,
       pathRewrite: {
         [`^/files`]: "",
@@ -113,10 +113,10 @@ export const SERVICES: Record<Service, ServiceConfig> = {
   },
   AUTH: {
     url: "/auth",
-    port: 8008,
+    port: 8006,
     auth: false,
     proxy: {
-      target: "http://localhost:8008",
+      target: "http://localhost:8006",
       changeOrigin: false,
       pathRewrite: {
         [`^/auth`]: "",

@@ -50,22 +50,6 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       name: "hexathons",
     },
   },
-  REGISTRATION: {
-    url: "/registration",
-    port: parseInt(process.env.PORT || "8080"),
-    auth: false,
-    proxy: {
-      target: "https://registration.api.hexlabs.org",
-      changeOrigin: true,
-      pathRewrite: {
-        [`^/registration`]: "",
-      },
-    },
-    database: {
-      type: "mongo",
-      name: "registration",
-    },
-  },
   NOTIFICATIONS: {
     url: "/notifications",
     port: parseInt(process.env.PORT || "8080"),
@@ -80,6 +64,22 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     database: {
       type: "mongo",
       name: "notifications",
+    },
+  },
+  REGISTRATION: {
+    url: "/registration",
+    port: parseInt(process.env.PORT || "8080"),
+    auth: false,
+    proxy: {
+      target: "https://registration.api.hexlabs.org",
+      changeOrigin: true,
+      pathRewrite: {
+        [`^/registration`]: "",
+      },
+    },
+    database: {
+      type: "mongo",
+      name: "registration",
     },
   },
   FILES: {

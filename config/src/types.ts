@@ -28,8 +28,8 @@ export interface DatabaseConfig {
 export enum Service {
   USERS = "USERS",
   HEXATHONS = "HEXATHONS",
-  REGISTRATION = "REGISTRATION",
   NOTIFICATIONS = "NOTIFICATIONS",
+  REGISTRATION = "REGISTRATION",
   FILES = "FILES",
   AUTH = "AUTH",
 }
