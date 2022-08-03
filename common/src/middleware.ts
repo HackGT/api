@@ -125,27 +125,6 @@ export const isMember: RequestHandler = asyncHandler(async (req, res, next) => {
 });
 
 /**
- * Middleware to check that API key is provided, otherwise throw a forbidden error. Only check API key in production.
- */
-export const checkApiKey: RequestHandler = asyncHandler(async (req, res, next) => {
-  if (!config.common.production) {
-    next();
-    return;
-  }
-
-  if (req.headers?.authorization?.startsWith("Bearer ")) {
-    const apiKey = req.headers.authorization.split("Bearer ")[1];
-
-    if (apiKey === config.common.apiKey) {
-      next();
-      return;
-    }
-  }
-
-  next(new ForbiddenError("Request does not have valid API Key"));
-});
-
-/**
  * Middleware to check that the user has the correct permissions to access the
  * endpoint. Uses @casl library for permission checking. Throws ForbiddenError
  * if invalid permissions as defined per service.

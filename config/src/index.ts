@@ -20,7 +20,6 @@ const COMMON: CommonConfig = {
     facebookHandle: "TheHexLabs",
   },
   memberEmailDomains: ["hack.gt", "hexlabs.org"],
-  apiKey: process.env.API_KEY,
 };
 
 // Initialize firebase admin with credentials

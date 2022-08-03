@@ -5,7 +5,6 @@ export interface CommonConfig {
     facebookHandle: string;
   };
   memberEmailDomains: string[];
-  apiKey?: string;
 }
 
 export interface GatewayConfig {
