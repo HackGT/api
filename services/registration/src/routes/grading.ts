@@ -9,20 +9,7 @@ import { ApplicationModel, Essay, StatusType } from "../models/application";
 import { GraderModel } from "../models/grader";
 import { Review, ReviewModel } from "../models/review";
 import { BranchModel } from "../models/branch";
-
-// TODO: Update the config imports once they are uploaded to secret manager
-const calibrationQuestionMapping: any = {};
-const gradingGroupMapping: any = {};
-const rubricMapping: any = {};
-// const calibrationQuestionMapping = JSON.parse(
-//   fs.readFileSync(path.resolve(__dirname, "./config/calibration_question_mapping.json"), "utf8")
-// );
-// const gradingGroupMapping = JSON.parse(
-//   fs.readFileSync(path.resolve(__dirname, "./config/grading_group_mapping.json"), "utf8")
-// );
-// const rubricMapping = JSON.parse(
-//   fs.readFileSync(path.resolve(__dirname, "./config/rubric_mapping.json"), "utf8")
-// );
+import { gradingGroupMapping, calibrationQuestionMapping, rubricMapping } from "../config";
 
 const MAX_REVIEWS_PER_ESSAY = 2;
 
@@ -108,6 +95,7 @@ gradingRouter.route("/actions/retrieve-question").post(
             applicationBranch: {
               $in: databaseBranches.map(branch => branch.id),
             },
+            hexathon: req.body.hexathon,
           },
         },
         {
@@ -175,11 +163,19 @@ gradingRouter.route("/actions/retrieve-question").post(
       }
     }
 
+    let branch;
+    let criteria;
+    // Set branch and criteria based on if calibration question or not
+    if (isCalibrationQuestion) {
+      branch = calibrationQuestion.branch;
+      criteria = calibrationQuestion.criteria;
+    } else {
+      branch = applicationQuestion?.applicationBranch;
+      criteria = applicationQuestion?.essay.criteria;
+    }
+
     // Retrive rubric link and grading rubric from the rubric mapping config
-    const criteria = isCalibrationQuestion
-      ? calibrationQuestion?.criteria
-      : applicationQuestion?.essay.criteria;
-    const { question, rubricLink, gradingRubric } = rubricMapping[currentGradingGroup][criteria];
+    const { question, rubricLink, gradingRubric } = rubricMapping[branch][criteria];
 
     let response;
     if (isCalibrationQuestion) {
@@ -259,12 +255,7 @@ gradingRouter.route("/actions/submit-review").post(
         numCalibrationScoresForGroup ===
         calibrationQuestionMapping[currentGradingGroup].length - 1
       ) {
-        grader.calibrationMapping = await getScoreMapping(
-          grader.calibrationScores,
-          calibrationQuestionMapping,
-          gradingGroupMapping,
-          rubricMapping
-        );
+        grader.calibrationMapping = await getScoreMapping(grader.calibrationScores);
       }
     } else {
       // Submit grading for an application

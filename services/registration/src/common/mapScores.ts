@@ -1,5 +1,7 @@
 import { ConfigError } from "@api/common";
 
+import { calibrationQuestionMapping, gradingGroupMapping, rubricMapping } from "../config";
+
 type UserScoresByGroup = {
   [group: string]: {
     score: number;
@@ -90,9 +92,7 @@ function interpolateValuePairs(points: [number, number][], from: number, to: num
  */
 function mapCalibrationScores(
   userScoresByGroup: UserScoresByGroup,
-  groundTruthScoresByGroup: GroundTruthScoresByGroup,
-  gradingGroupMapping: any,
-  rubricMapping: any
+  groundTruthScoresByGroup: GroundTruthScoresByGroup
 ) {
   // Gets score pairs for user and ground truth by criteria
   const scorePairsByCriteria: { [criteria: string]: [number, number][] } = {};
@@ -160,10 +160,7 @@ export async function getScoreMapping(
   userScores: {
     group: string;
     score: number;
-  }[],
-  calibrationQuestionMapping: any,
-  gradingGroupMapping: any,
-  rubricMapping: any
+  }[]
 ) {
   // Compute ground truth scores by group from calibration question mappings
   const groundTruthScoresByGroup: GroundTruthScoresByGroup = {};
@@ -188,10 +185,5 @@ export async function getScoreMapping(
     });
   }
 
-  return mapCalibrationScores(
-    userScoresByGroup,
-    groundTruthScoresByGroup,
-    gradingGroupMapping,
-    rubricMapping
-  );
+  return mapCalibrationScores(userScoresByGroup, groundTruthScoresByGroup);
 }

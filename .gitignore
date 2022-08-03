@@ -130,7 +130,7 @@ tmp/
 temp/
 
 # Config folder with important grading stuff
-services/registration/src/config
+services/registration/src/config/*.json
 
 # End of https://www.toptal.com/developers/gitignore/api/node
 
