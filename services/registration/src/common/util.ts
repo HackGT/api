@@ -2,7 +2,7 @@ import { BadRequestError, ConfigError } from "@api/common";
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
 
-import { BranchModel } from "./models/branch";
+import { BranchModel } from "../models/branch";
 
 const ajv = new Ajv();
 addFormats(ajv);

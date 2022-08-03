@@ -2,7 +2,7 @@ import { GetSignedUrlConfig, Storage } from "@google-cloud/storage";
 import config from "@api/config";
 import path from "path";
 
-import { File } from "./models/file";
+import { File } from "../models/file";
 
 const storage = new Storage();
 

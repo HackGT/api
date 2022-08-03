@@ -3,7 +3,7 @@ import express from "express";
 import multer from "multer";
 import { Service } from "@api/config";
 
-import { uploadFile, getFileViewingUrl } from "../storage";
+import { uploadFile, getFileViewingUrl } from "../common/storage";
 import { FileModel } from "../models/file";
 
 const multerMid = multer({

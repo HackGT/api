@@ -5,7 +5,7 @@ import express from "express";
 import { FilterQuery, Types } from "mongoose";
 import _ from "lodash";
 
-import { validateApplicationData } from "../util";
+import { validateApplicationData } from "../common/util";
 import { Application, ApplicationModel, Essay, StatusType } from "../models/application";
 import { BranchModel } from "../models/branch";
 

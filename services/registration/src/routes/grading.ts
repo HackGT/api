@@ -3,8 +3,8 @@ import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/commo
 import { Service } from "@api/config";
 import express from "express";
 
-import { getUserInitialGradingGroup } from "../util";
-import { getScoreMapping } from "../mapScores";
+import { getUserInitialGradingGroup } from "../common/util";
+import { getScoreMapping } from "../common/mapScores";
 import { ApplicationModel, Essay, StatusType } from "../models/application";
 import { GraderModel } from "../models/grader";
 import { Review, ReviewModel } from "../models/review";
