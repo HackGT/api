@@ -9,7 +9,8 @@
     "common",
     "config",
     "gateway",
-    "docs"
+    "docs",
+    "scripts"
   ],
   "scripts": {
     "test": "echo \"Tests coming soon...\"",

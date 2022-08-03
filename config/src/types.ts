@@ -4,6 +4,7 @@ export interface CommonConfig {
     twitterHandle: string;
     facebookHandle: string;
   };
+  googleCloudProject: string;
   memberEmailDomains: string[];
 }
 

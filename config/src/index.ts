@@ -19,6 +19,7 @@ const COMMON: CommonConfig = {
     twitterHandle: "thehexlabs",
     facebookHandle: "TheHexLabs",
   },
+  googleCloudProject: "hexlabs-cloud",
   memberEmailDomains: ["hack.gt", "hexlabs.org"],
 };
 
