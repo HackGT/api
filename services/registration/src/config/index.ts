@@ -10,10 +10,10 @@ export let rubricMapping: any = {};
 
 if (config.common.production) {
   calibrationQuestionMapping = JSON.parse(
-    fs.readFileSync("/tmp/calibration_question_mapping", "utf8")
+    fs.readFileSync("/tmp/calibration_question_mapping/latest", "utf8")
   );
-  gradingGroupMapping = JSON.parse(fs.readFileSync("/tmp/grading_group_mapping", "utf8"));
-  rubricMapping = JSON.parse(fs.readFileSync("/tmp/rubric_mapping", "utf8"));
+  gradingGroupMapping = JSON.parse(fs.readFileSync("/tmp/grading_group_mapping/latest", "utf8"));
+  rubricMapping = JSON.parse(fs.readFileSync("/tmp/rubric_mapping/latest", "utf8"));
 } else {
   try {
     calibrationQuestionMapping = JSON.parse(
