@@ -6,6 +6,7 @@ const commonDefinitions = {
       "Abraham Baldwin Agricultural College",
       "Albany Medical College",
       "Albany State University",
+      "Amrita University",
       "Arizona State University",
       "Armstrong State University",
       "Atlanta Metropolitan State College",
