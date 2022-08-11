@@ -244,6 +244,7 @@ const commonDefinitions = {
       "Wayne State University",
       "Wesleyan University",
       "West Virginia University",
+      "Western Illinois University",
       "Wright State University",
       "Yale University",
       "Yeshiva University",
