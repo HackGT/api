@@ -29,7 +29,7 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
     can("aggregate", "Application");
   }
 
-  can("manage", "Application", { userId: req.user.uid });
+  can(["create", "read", "update"], "Application", { userId: req.user.uid });
   can("read", "Branch");
 
   req.ability = build();

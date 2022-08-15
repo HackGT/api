@@ -5,9 +5,9 @@ import express from "express";
 import { FilterQuery, Types } from "mongoose";
 import _ from "lodash";
 
-import { validateApplicationData } from "../common/util";
+import { getBranch, validateApplicationData } from "../common/util";
 import { Application, ApplicationModel, Essay, StatusType } from "../models/application";
-import { BranchModel } from "../models/branch";
+import { BranchModel, BranchType } from "../models/branch";
 
 export const applicationRouter = express.Router();
 
@@ -150,18 +150,10 @@ applicationRouter.route("/:id/actions/save-application-data").post(
       );
     }
 
-    if (existingApplication.status !== StatusType.DRAFT) {
-      throw new BadRequestError(
-        "Cannot save application data. You have already submitted an application."
-      );
-    }
+    const [branch] = getBranch(existingApplication, req);
 
     if (req.body.validateData === true) {
-      await validateApplicationData(
-        req.body.applicationData,
-        existingApplication.applicationBranch._id,
-        req.body.branchFormPage
-      );
+      await validateApplicationData(req.body.applicationData, branch._id, req.body.branchFormPage);
     }
 
     // Need to do extra formatting for essays since they are subdocuments in Mongoose
@@ -195,7 +187,7 @@ applicationRouter.route("/:id/actions/save-application-data").post(
         },
       },
       { new: true }
-    ).select("userId hexathon applicationBranch applicationData");
+    ).select("userId hexathon applicationBranch confirmationBranch applicationData");
 
     if (!updatedApplication) {
       throw new BadRequestError("Error saving application data.");
@@ -224,17 +216,7 @@ applicationRouter.route("/:id/actions/submit-application").post(
       req.ability
     );
 
-    if (!existingApplication) {
-      throw new BadRequestError(
-        "No application exists with this id or you do not have permission."
-      );
-    }
-
-    if (existingApplication.status !== StatusType.DRAFT) {
-      throw new BadRequestError(
-        "Cannot submit an application. You have already submitted an application."
-      );
-    }
+    const [branch, branchType] = getBranch(existingApplication, req);
 
     // Need to do extra formatting for essays since they are subdocuments in Mongoose
     const essays: any = {};
@@ -259,20 +241,78 @@ applicationRouter.route("/:id/actions/submit-application").post(
     };
 
     await Promise.all(
-      existingApplication.applicationBranch.formPages.map(async (formPage, index) => {
-        await validateApplicationData(
-          applicationData,
-          existingApplication.applicationBranch._id,
-          index
-        );
+      branch.formPages.map(async (formPage, index) => {
+        await validateApplicationData(applicationData, branch._id, index);
       })
     );
+
+    switch (branchType) {
+      case BranchType.APPLICATION:
+        await ApplicationModel.findByIdAndUpdate(
+          req.params.id,
+          {
+            applicationSubmitTime: new Date(),
+            status: StatusType.APPLIED,
+          },
+          { new: true }
+        );
+        break;
+      case BranchType.CONFIRMATION:
+        await ApplicationModel.findByIdAndUpdate(
+          req.params.id,
+          {
+            confirmationSubmitTime: new Date(),
+            status: StatusType.CONFIRMED,
+          },
+          { new: true }
+        );
+        break;
+      // no default
+    }
+
+    return res.sendStatus(204);
+  })
+);
+
+applicationRouter.route("/:id/actions/update-status").post(
+  checkAbility("update", "Application"),
+  asyncHandler(async (req, res) => {
+    const existingApplication = await ApplicationModel.findById(req.params.id).accessibleBy(
+      req.ability
+    );
+
+    if (!existingApplication) {
+      throw new BadRequestError(
+        "No application exists with this id or you do not have permission."
+      );
+    }
+
+    const newStatus = StatusType[req.body.status as keyof typeof StatusType];
+
+    // Non-member users are restricted to changing status in only very limited circumstances
+    if (!req.user?.roles.member) {
+      if (
+        existingApplication.status === StatusType.ACCEPTED &&
+        existingApplication.confirmationBranch === undefined &&
+        newStatus === StatusType.CONFIRMED
+      ) {
+        // pass
+      }
+      if (
+        existingApplication.status === StatusType.ACCEPTED &&
+        newStatus === StatusType.NOT_ATTENDING
+      ) {
+        // pass
+      }
+      throw new BadRequestError(
+        "You do not have permission to change this application to the new status provided."
+      );
+    }
 
     await ApplicationModel.findByIdAndUpdate(
       req.params.id,
       {
-        applicationSubmitTime: new Date(),
-        status: StatusType.APPLIED,
+        status: newStatus,
       },
       { new: true }
     );
@@ -281,8 +321,8 @@ applicationRouter.route("/:id/actions/submit-application").post(
   })
 );
 
-applicationRouter.route("/:id/actions/save-confirmation-data").post(
-  checkAbility("update", "Application"),
+applicationRouter.route("/:id/actions/reset-application").post(
+  checkAbility("manage", "Application"),
   asyncHandler(async (req, res) => {
     const existingApplication = await ApplicationModel.findById(req.params.id).accessibleBy(
       req.ability
@@ -293,88 +333,13 @@ applicationRouter.route("/:id/actions/save-confirmation-data").post(
         "No application exists with this id or you do not have permission."
       );
     }
-
-    if (!existingApplication.confirmationBranch) {
-      throw new BadRequestError("No confirmation branch is selected.");
-    }
-
-    if (existingApplication.status === StatusType.CONFIRMED) {
-      throw new BadRequestError(
-        "Cannot save confirmation data. You have already submitted your confirmation."
-      );
-    }
-    if (existingApplication.status !== StatusType.ACCEPTED) {
-      throw new BadRequestError(
-        "Cannot save confirmation data. Your application has not been accepted."
-      );
-    }
-
-    if (req.body.validateData === true) {
-      await validateApplicationData(
-        req.body.confirmationData,
-        existingApplication.confirmationBranch._id,
-        req.body.branchFormPage
-      );
-    }
-
-    const updatedApplication = await ApplicationModel.findByIdAndUpdate(
-      req.params.id,
-      {
-        confirmationData: {
-          ...existingApplication.confirmationData,
-          ...req.body.confirmationData,
-        },
-      },
-      { new: true }
-    ).select("userId hexathon confirmationBranch confirmationData");
-
-    return res.send(updatedApplication);
-  })
-);
-
-applicationRouter.route("/:id/actions/submit-confirmation").post(
-  checkAbility("update", "Application"),
-  asyncHandler(async (req, res) => {
-    const existingApplication = await ApplicationModel.findById(req.params.id).accessibleBy(
-      req.ability
-    );
-
-    if (!existingApplication) {
-      throw new BadRequestError(
-        "No application exists with this id or you do not have permission."
-      );
-    }
-
-    if (!existingApplication.confirmationBranch) {
-      throw new BadRequestError("No confirmation branch is selected.");
-    }
-
-    if (existingApplication.status === StatusType.CONFIRMED) {
-      throw new BadRequestError(
-        "Cannot submit a confirmation. You have already submitted a confirmation."
-      );
-    }
-    if (existingApplication.status !== StatusType.ACCEPTED) {
-      throw new BadRequestError(
-        "Cannot submit a confirmation. Your application has not been accepted."
-      );
-    }
-
-    await Promise.all(
-      existingApplication.confirmationBranch.formPages.map(async (formPage, index) => {
-        await validateApplicationData(
-          existingApplication.confirmationData,
-          existingApplication.confirmationBranch?._id,
-          index
-        );
-      })
-    );
 
     await ApplicationModel.findByIdAndUpdate(
       req.params.id,
       {
-        confirmationSubmitTime: new Date(),
-        status: StatusType.CONFIRMED,
+        applicationSubmitTime: undefined,
+        confirmationSubmitTime: undefined,
+        status: StatusType.DRAFT,
       },
       { new: true }
     );

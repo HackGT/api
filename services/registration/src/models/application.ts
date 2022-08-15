@@ -1,4 +1,4 @@
-import mongoose, { Schema, Types, Mixed, model } from "mongoose";
+import mongoose, { Schema, Types, model } from "mongoose";
 import mongooseAutopopulate from "mongoose-autopopulate";
 import { AutoPopulatedDoc } from "@api/common";
 import { accessibleRecordsPlugin, AccessibleRecordModel } from "@casl/mongoose";
@@ -9,8 +9,10 @@ export enum StatusType {
   DRAFT = "DRAFT",
   APPLIED = "APPLIED",
   ACCEPTED = "ACCEPTED",
+  WAITLISTED = "WAITLISTED",
   CONFIRMED = "CONFIRMED",
   DENIED = "DENIED",
+  NOT_ATTENDING = "NOT_ATTENDING",
 }
 
 export interface Essay extends Types.Subdocument {
@@ -57,10 +59,12 @@ export interface Application extends mongoose.Document {
     essays?: Types.DocumentArray<Essay>;
     resume?: Types.ObjectId;
   };
+  decisionData?: {
+    travelReimbursement?: string;
+    travelReimbursementAmount?: number;
+  };
   confirmationBranch?: AutoPopulatedDoc<Branch>;
-  confirmationStartTime?: Date;
   confirmationSubmitTime?: Date;
-  confirmationData?: Mixed;
   status: StatusType;
   gradingComplete: boolean;
   createdAt: Date;
@@ -198,16 +202,18 @@ const applicationSchema = new Schema<Application>(
     applicationSubmitTime: {
       type: Date,
     },
+    decisionData: {
+      travelReimbursement: {
+        type: String,
+      },
+      travelReimbursementAmount: {
+        type: Number,
+      },
+    },
     confirmationBranch: {
       type: Schema.Types.ObjectId,
       ref: BranchModel,
       autopopulate: true,
-    },
-    confirmationData: {
-      type: Schema.Types.Mixed,
-    },
-    confirmationStartTime: {
-      type: Date,
     },
     confirmationSubmitTime: {
       type: Date,

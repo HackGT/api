@@ -857,6 +857,10 @@
                 "applicationData": {
                   "type": "object"
                 },
+                "branchType": {
+                  "type": "string",
+                  "enum": ["APPLICATION", "CONFIRMATION"]
+                },
                 "branchFormPage": {
                   "type": "number"
                 },
@@ -885,6 +889,9 @@
                 },
                 "applicationBranch": {
                   "$ref": "#/definitions/Branch"
+                },
+                "confirmationBranch": {
+                  "$ref": "#/definitions/Branch"
                 }
               }
             }
@@ -909,6 +916,21 @@
             "type": "integer",
             "description": "Application id.",
             "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "branchType": {
+                  "type": "string",
+                  "enum": ["APPLICATION", "CONFIRMATION"]
+                }
+              }
+            }
           }
         ],
         "responses": {
@@ -921,74 +943,10 @@
         }
       }
     },
-    "/applications/{id}/actions/save-confirmation-data": {
+    "/applications/{id}/actions/reset-application": {
       "post": {
         "tags": ["registration"],
-        "summary": "Saves confirmation data.",
-        "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "type": "integer",
-            "description": "Application id.",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "confirmationData": {
-                  "type": "object"
-                },
-                "branchFormPage": {
-                  "type": "number"
-                },
-                "validateData": {
-                  "type": "boolean",
-                  "description": "If true, then the data will be validated before saving."
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "hexathon": {
-                  "type": "string"
-                },
-                "confirmationData": {
-                  "type": "object"
-                },
-                "confirmationBranch": {
-                  "$ref": "#/definitions/Branch"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/applications/{id}/actions/submit-confirmation": {
-      "post": {
-        "tags": ["registration"],
-        "summary": "Submit a confirmation.",
+        "summary": "Reset an application back to draft.",
         "description": "",
         "consumes": ["application/json"],
         "produces": ["application/json"],
@@ -2096,7 +2054,7 @@
         },
         "status": {
           "type": "string",
-          "enum": ["DRAFT", "APPLIED", "ACCEPTED", "CONFIRMED", "DENIED"]
+          "enum": ["DRAFT", "APPLIED", "ACCEPTED", "WAITLISTED", "CONFIRMED", "DENIED"]
         },
         "gradingComplete": {
           "type": "number"
@@ -2248,6 +2206,10 @@
           "type": "string",
           "enum": ["APPLICATION", "CONFIRMATION"]
         },
+        "applicationGroup": {
+          "type": "string",
+          "enum": ["PARTICIPANT", "JUDGE", "MENTOR", "VOLUNTEER", "SPONSOR", "PARTNER", "STAFF"]
+        },
         "settings": {
           "type": "object",
           "properties": {
@@ -2275,6 +2237,26 @@
               "uiSchema": {
                 "type": "object",
                 "default": {}
+              }
+            }
+          }
+        },
+        "commonDefinitionsSchema": {
+          "type": "string"
+        },
+        "secret": {
+          "type": "boolean"
+        },
+        "automaticConfirmation": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "emails": {
+              "type": "array",
+              "items": {
+                "type": "string"
               }
             }
           }

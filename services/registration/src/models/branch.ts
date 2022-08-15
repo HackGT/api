@@ -8,10 +8,21 @@ export enum BranchType {
   CONFIRMATION = "CONFIRMATION",
 }
 
+export enum ApplicationGroupType {
+  PARTICIPANT = "PARTICIPANT",
+  JUDGE = "JUDGE",
+  MENTOR = "MENTOR",
+  VOLUNTEER = "VOLUNTEER",
+  SPONSOR = "SPONSOR",
+  PARTNER = "PARTNER",
+  STAFF = "STAFF",
+}
+
 export interface Branch extends mongoose.Document {
   name: string;
   hexathon: Types.ObjectId;
   type: BranchType;
+  applicationGroup: ApplicationGroupType;
   settings: {
     open: Date;
     close: Date;
@@ -22,6 +33,12 @@ export interface Branch extends mongoose.Document {
     uiSchema: string;
   }[];
   commonDefinitionsSchema: string;
+  secret: boolean;
+  automaticConfirmation?: {
+    enabled?: boolean;
+    confirmationBranch?: Types.ObjectId;
+    emails?: string[];
+  };
 }
 
 const branchSchema = new Schema<Branch>({
@@ -37,6 +54,11 @@ const branchSchema = new Schema<Branch>({
     type: String,
     required: true,
     enum: BranchType,
+  },
+  applicationGroup: {
+    type: String,
+    required: true,
+    enum: ApplicationGroupType,
   },
   settings: {
     open: {
@@ -64,6 +86,26 @@ const branchSchema = new Schema<Branch>({
       },
     },
   ],
+  secret: {
+    type: Boolean,
+    default: false,
+    required: true,
+  },
+});
+
+// Need this here since it uses a self reference to this schema
+branchSchema.add({
+  automaticConfirmation: {
+    enabled: {
+      type: Boolean,
+    },
+    confirmationBranch: {
+      type: branchSchema,
+    },
+    emails: {
+      type: [String],
+    },
+  },
 });
 
 branchSchema.plugin(accessibleRecordsPlugin);

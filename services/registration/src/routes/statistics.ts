@@ -85,7 +85,6 @@ statisticsRouter.route("/").get(
     /**
      * This aggregate gets the frequency of branches grouped by branch name.
      */
-
     const aggregatedBranches = await BranchModel.aggregate([
       {
         $match: {
