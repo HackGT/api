@@ -151,6 +151,9 @@ applicationRouter.route("/:id/actions/save-application-data").post(
     }
 
     const [branch] = getBranch(existingApplication, req);
+    if (new Date() < branch.settings.open || new Date() > branch.settings.close) {
+      throw new BadRequestError("Unable to save application data. Branch is not currently open.");
+    }
 
     if (req.body.validateData === true) {
       await validateApplicationData(req.body.applicationData, branch._id, req.body.branchFormPage);
@@ -217,6 +220,9 @@ applicationRouter.route("/:id/actions/submit-application").post(
     );
 
     const [branch, branchType] = getBranch(existingApplication, req);
+    if (new Date() < branch.settings.open || new Date() > branch.settings.close) {
+      throw new BadRequestError("Unable to submit application data. Branch is not currently open.");
+    }
 
     // Need to do extra formatting for essays since they are subdocuments in Mongoose
     const essays: any = {};

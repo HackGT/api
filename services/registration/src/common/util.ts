@@ -58,9 +58,12 @@ export const getBranch = (
           "This application does not have an application branch. Please select an application branch first."
         );
       }
-      if (existingApplication.status !== StatusType.DRAFT) {
+      if (
+        existingApplication.status !== StatusType.DRAFT &&
+        existingApplication.status !== StatusType.APPLIED
+      ) {
         throw new BadRequestError(
-          "Cannot save application data. You have already submitted an application."
+          "Cannot save application data. Your application already has a decision."
         );
       }
 
