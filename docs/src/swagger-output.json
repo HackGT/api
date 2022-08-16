@@ -384,22 +384,18 @@
                   "type": "string"
                 },
                 "shortCode": {
-                  "type": "string",
-                  "required": true,
-                  "unique": true
+                  "type": "string"
                 },
                 "isActive": {
                   "type": "boolean"
                 },
                 "startDate": {
                   "type": "string",
-                  "format": "date-time",
-                  "required": true
+                  "format": "date-time"
                 },
                 "endDate": {
                   "type": "string",
-                  "format": "date-time",
-                  "required": true
+                  "format": "date-time"
                 }
               }
             }
