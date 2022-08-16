@@ -179,6 +179,8 @@ applicationRouter.route("/:id/actions/save-application-data").post(
       resume = undefined;
     }
 
+    console.log(resume);
+
     const updatedApplication = await ApplicationModel.findByIdAndUpdate(
       req.params.id,
       {
