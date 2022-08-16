@@ -16,8 +16,6 @@
     "test": "echo \"Tests coming soon...\"",
     "lint": "eslint './**/src/**' --fix; prettier './**/src/**' --write",
     "start:all": "ts-node index.ts",
-    "build": "tsc --build --force",
-    "clean": "tsc --build --clean",
     "prepare": "husky install"
   },
   "engines": {

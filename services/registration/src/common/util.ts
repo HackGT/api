@@ -6,7 +6,7 @@ import express from "express";
 import { Application, StatusType } from "../models/application";
 import { Branch, BranchModel, BranchType } from "../models/branch";
 
-const ajv = new Ajv();
+const ajv = new Ajv({ removeAdditional: "all" });
 addFormats(ajv);
 
 /**
@@ -34,6 +34,8 @@ export const validateApplicationData = async (data: any, branchId: any, branchFo
   parsedSchema.definitions = JSON.parse(branch.commonDefinitionsSchema);
   const validate = ajv.compile(parsedSchema);
   const valid = validate(data);
+
+  console.log(validate.evaluated);
 
   if (valid || validate.errors?.length === 0) {
     return;

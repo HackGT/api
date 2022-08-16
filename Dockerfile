@@ -22,6 +22,6 @@ COPY . .
 
 RUN yarn install --production --pure-lockfile --non-interactive
 
-RUN yarn build && yarn build services/$SERVICE
+RUN yarn workspace @api/services-${SERVICE} build
 
 CMD yarn workspace @api/services-${SERVICE} start
