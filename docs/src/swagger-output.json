@@ -633,7 +633,7 @@
                 "emails": {
                   "type": "array",
                   "items": {
-                    "$ref": ""
+                    "type": "string"
                   }
                 },
                 "subject": {

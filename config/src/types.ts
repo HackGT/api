@@ -56,7 +56,6 @@ export interface ServiceConfig {
     email: {
       sendgridApiKey?: string;
       from?: string;
-      headerImage?: string;
     };
   };
   storageBucket?: string;

@@ -5,7 +5,7 @@ import path from "path";
 import { htmlToText } from "html-to-text";
 import config from "@api/config";
 
-import { Status, EmailConfig } from "./types";
+import { Status } from "./types";
 
 // eslint-disable-next-line camelcase, @typescript-eslint/no-var-requires
 const Email = require("email-templates");
@@ -24,11 +24,6 @@ const email = new Email({
 });
 
 const sendgridApiKey = config.services.NOTIFICATIONS.pluginConfig?.email.sendgridApiKey || "SG.";
-const from = config.services.NOTIFICATIONS.pluginConfig?.email.from || "";
-const headerImage = config.services.NOTIFICATIONS.pluginConfig?.email.headerImage || "";
-const twitterHandle = config.common.socialMedia.twitterHandle || "";
-const facebookHandle = config.common.socialMedia.facebookHandle || "";
-
 sendgrid.setApiKey(sendgridApiKey);
 
 const renderMarkdown = (markdownString: string): Promise<string> =>
@@ -43,40 +38,41 @@ const renderMarkdown = (markdownString: string): Promise<string> =>
     });
   });
 
-export const sendMessage = async (message: string, config: EmailConfig): Promise<Status[]> => {
+export const sendMessages = async (
+  message: string,
+  subject: string,
+  emails: string[],
+  headerImage: string
+): Promise<Status[]> => {
   const renderedMarkdown = await renderMarkdown(message);
   const renderedHtml = await email.render("html", {
-    emailHeaderImage: config.headerImage || headerImage,
-    twitterHandle: twitterHandle,
-    facebookHandle: facebookHandle,
+    emailHeaderImage: headerImage,
+    twitterHandle: config.common.socialMedia.twitterHandle,
+    facebookHandle: config.common.socialMedia.facebookHandle,
     body: renderedMarkdown,
   });
   const renderedText = htmlToText(renderedMarkdown);
 
   try {
     await sendgrid.sendMultiple({
-      from: from,
-      to: config.emails,
+      from: config.services.NOTIFICATIONS.pluginConfig?.email.from || "",
+      to: emails,
       html: renderedHtml,
       text: renderedText,
-      subject: config.subject,
+      subject: subject,
     });
 
-    return config.emails.map(toEmail => ({
+    return emails.map(toEmail => ({
       error: false,
       key: toEmail,
       payload: "Email sent successfully",
     }));
-  } catch (error) {
-    let errorMessage = "Failure";
-    if (error instanceof Error) {
-      errorMessage = error.message;
-    }
+  } catch (error: any) {
     return [
       {
         error: true,
-        key: config.subject,
-        payload: errorMessage,
+        key: subject,
+        payload: error.message,
       },
     ];
   }

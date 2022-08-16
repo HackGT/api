@@ -3,7 +3,6 @@ import express from "express";
 
 import { sendMessages } from "../plugins/Twilio";
 import { generateErrorMessage } from "../utils/index";
-import { TwilioConfig } from "../plugins/types";
 
 export const textRoutes = express.Router();
 
@@ -12,7 +11,7 @@ textRoutes.route("/send").post(
   asyncHandler(async (req, res) => {
     try {
       const { message, numbers } = req.body;
-      await sendMessages(message as string, { numbers } as TwilioConfig);
+      await sendMessages(message, numbers);
 
       res.status(200).json({
         error: false,
