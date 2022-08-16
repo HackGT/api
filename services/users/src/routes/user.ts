@@ -91,6 +91,11 @@ userRoutes.route("/:userId").get(
       userId: req.params.userId,
     }).accessibleBy(req.ability);
 
+    if (!profile) {
+      res.send({});
+      return;
+    }
+
     const permission = await apiCall(
       Service.AUTH,
       { method: "GET", url: `/permissions/${req.params.userId}` },
