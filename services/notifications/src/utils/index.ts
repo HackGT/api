@@ -19,9 +19,3 @@ export function cleanNumber(numRaw: string) {
   const num = numRaw.replace(/\D/g, "");
   return `+1${num}`; // Assume US number
 }
-
-export function generateErrorMessage(error: unknown) {
-  let message = "Unknown error!";
-  if (error instanceof Error) message = error.message;
-  return message;
-}

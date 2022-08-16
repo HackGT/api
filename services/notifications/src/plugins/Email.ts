@@ -10,7 +10,7 @@ import { Status } from "./types";
 // eslint-disable-next-line camelcase, @typescript-eslint/no-var-requires
 const Email = require("email-templates");
 
-const email = new Email({
+const emailRender = new Email({
   views: {
     root: path.join(__dirname, "..", "email-template"),
   },
@@ -26,6 +26,42 @@ const email = new Email({
 const sendgridApiKey = config.services.NOTIFICATIONS.pluginConfig?.email.sendgridApiKey || "SG.";
 sendgrid.setApiKey(sendgridApiKey);
 
+// We use this function instead of making one call. See below link.
+// https://stackoverflow.com/questions/69620048/sendgrid-nodejs-handling-errors-when-sending-bulk-emails
+const sendOneMessage = async (
+  email: string,
+  subject: string,
+  renderedHtml: string,
+  renderedText: string
+): Promise<Status> => {
+  try {
+    await sendgrid.send({
+      from: config.services.NOTIFICATIONS.pluginConfig?.email.from || "",
+      to: email,
+      html: renderedHtml,
+      text: renderedText,
+      subject: subject,
+    });
+
+    return {
+      error: false,
+      key: email,
+      payload: "Email sent successfully",
+    };
+  } catch (error: any) {
+    // Sendgrid errors are here
+    if (error.response?.body?.errors) {
+      console.log(error.response.body.errors);
+    }
+
+    return {
+      error: true,
+      key: email,
+      payload: error.message,
+    };
+  }
+};
+
 const renderMarkdown = (markdownString: string): Promise<string> =>
   new Promise<string>((resolve, reject) => {
     marked(markdownString, { smartypants: true }, (err: Error | null, parseResult: string) => {
@@ -40,33 +76,23 @@ const renderMarkdown = (markdownString: string): Promise<string> =>
 
 export const sendMessages = async (
   message: string,
-  subject: string,
   emails: string[],
+  subject: string,
   headerImage: string
 ): Promise<Status[]> => {
-  const renderedMarkdown = await renderMarkdown(message);
-  const renderedHtml = await email.render("html", {
-    emailHeaderImage: headerImage,
-    twitterHandle: config.common.socialMedia.twitterHandle,
-    facebookHandle: config.common.socialMedia.facebookHandle,
-    body: renderedMarkdown,
-  });
-  const renderedText = htmlToText(renderedMarkdown);
-
   try {
-    await sendgrid.sendMultiple({
-      from: config.services.NOTIFICATIONS.pluginConfig?.email.from || "",
-      to: emails,
-      html: renderedHtml,
-      text: renderedText,
-      subject: subject,
+    const renderedMarkdown = await renderMarkdown(message);
+    const renderedHtml = await emailRender.render("html", {
+      emailHeaderImage: headerImage,
+      twitterHandle: config.common.socialMedia.twitterHandle,
+      facebookHandle: config.common.socialMedia.facebookHandle,
+      body: renderedMarkdown,
     });
+    const renderedText = htmlToText(renderedMarkdown);
 
-    return emails.map(toEmail => ({
-      error: false,
-      key: toEmail,
-      payload: "Email sent successfully",
-    }));
+    return await Promise.all(
+      emails.map(email => sendOneMessage(email, subject, renderedHtml, renderedText))
+    );
   } catch (error: any) {
     return [
       {

@@ -1,8 +1,8 @@
 import { Twilio } from "twilio";
 import config from "@api/config";
+import { ConfigError } from "@api/common";
 
 import { Status } from "./types";
-import { generateErrorMessage } from "../utils";
 
 const serviceSid = config.services.NOTIFICATIONS.pluginConfig?.twilio.serviceSID || "";
 const accountSid = config.services.NOTIFICATIONS.pluginConfig?.twilio.accountSID || "AC";
@@ -22,14 +22,20 @@ export const sendOneMessage = async (message: string, recipient: string): Promis
       key: recipient,
       payload: `${msg.sid}`,
     };
-  } catch (error) {
-    throw new Error(generateErrorMessage(error));
+  } catch (error: any) {
+    console.log(error);
+
+    return {
+      error: true,
+      key: recipient,
+      payload: error.message,
+    };
   }
 };
 
 export const sendMessages = async (message: string, numbers: string[]): Promise<Status[]> => {
   if (!serviceSid || !accountSid || !authToken) {
-    throw new Error("Not all Twilio env variables are provided!");
+    throw new ConfigError("Not all Twilio env variables are provided!");
   }
 
   return await Promise.all(numbers.map(number => sendOneMessage(message, number)));
