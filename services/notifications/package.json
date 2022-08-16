@@ -6,7 +6,9 @@
   "types": "dist/app",
   "scripts": {
     "build": "tsc --build --force",
+    "postbuild": "shx cp -R src/email-template dist/",
     "clean": "tsc --build --clean",
+    "postclean": "shx rm -rf dist/email-template",
     "start": "node dist/app.js",
     "dev": "nodemon --watch 'src/**/*' --exec \"ts-node\" -r tsconfig-paths/register src/app.ts"
   },
@@ -45,6 +47,7 @@
     "mongoose": "^6.1.9",
     "morgan": "^1.10.0",
     "path": "^0.12.7",
+    "shx": "^0.3.4",
     "twilio": "^3.74.0",
     "typescript": "^4.5.5"
   }
