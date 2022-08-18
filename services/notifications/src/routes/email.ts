@@ -2,6 +2,7 @@ import { apiCall, asyncHandler, checkAbility } from "@api/common";
 import { Service } from "@api/config";
 import express from "express";
 
+import { NotificationModel, PlatformType } from "src/models/notifications";
 import { renderEmail, sendOneMessage, sendOnePersonalizedMessages } from "../plugins/Email";
 
 export const emailRoutes = express.Router();
@@ -26,8 +27,17 @@ emailRoutes.route("/send").post(
     const { message, emails, subject, headerImage } = req.body;
 
     const [renderedHtml, renderedText] = await renderEmail(message, headerImage);
-    const statuses = Promise.all(
+    const statuses = await Promise.all(
       emails.map((email: string) => sendOneMessage(email, subject, renderedHtml, renderedText))
+    );
+
+    await NotificationModel.insertMany(
+      statuses.map((status: any) => ({
+        ...status,
+        platform: PlatformType.EMAIL,
+        sender: req.user?.uid,
+        timestamp: new Date(),
+      }))
     );
 
     res.status(200).json(statuses);
@@ -65,6 +75,15 @@ emailRoutes.route("/send-personalized").post(
 
         return sendOnePersonalizedMessages(message, userData, subject, headerImage);
       })
+    );
+
+    await NotificationModel.insertMany(
+      statuses.map((status: any) => ({
+        ...status,
+        platform: PlatformType.EMAIL,
+        sender: req.user?.uid,
+        timestamp: new Date(),
+      }))
     );
 
     res.status(200).json(statuses);

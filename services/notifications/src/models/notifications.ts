@@ -1,9 +1,47 @@
 import { accessibleRecordsPlugin, AccessibleRecordModel } from "@casl/mongoose";
 import mongoose, { Schema, model } from "mongoose";
 
-export interface Notification extends mongoose.Document {}
+export enum PlatformType {
+  EMAIL = "EMAIL",
+  TEXT = "TEXT",
+}
 
-const notificationSchema = new Schema<Notification>({});
+export interface Notification extends mongoose.Document {
+  sender: string;
+  platform: PlatformType;
+  error: boolean;
+  key: string;
+  payload: string;
+  timestamp: Date;
+}
+
+const notificationSchema = new Schema<Notification>({
+  sender: {
+    type: String,
+    required: true,
+  },
+  platform: {
+    type: String,
+    required: true,
+    enum: PlatformType,
+  },
+  error: {
+    type: Boolean,
+    required: true,
+  },
+  key: {
+    type: String,
+    required: true,
+  },
+  payload: {
+    type: String,
+    required: true,
+  },
+  timestamp: {
+    type: Date,
+    required: true,
+  },
+});
 
 notificationSchema.plugin(accessibleRecordsPlugin);
 
