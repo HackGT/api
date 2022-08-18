@@ -1,6 +1,7 @@
 import { apiCall, asyncHandler, checkAbility } from "@api/common";
 import { Service } from "@api/config";
 import express from "express";
+import { PromisePool } from "@supercharge/promise-pool";
 
 import { NotificationModel, PlatformType } from "src/models/notifications";
 import { renderEmail, sendOneMessage, sendOnePersonalizedMessages } from "../plugins/Email";
@@ -27,9 +28,11 @@ emailRoutes.route("/send").post(
     const { message, emails, subject, headerImage } = req.body;
 
     const [renderedHtml, renderedText] = await renderEmail(message, headerImage);
-    const statuses = await Promise.all(
-      emails.map((email: string) => sendOneMessage(email, subject, renderedHtml, renderedText))
-    );
+
+    const { results } = await PromisePool.for(emails)
+      .withConcurrency(50)
+      .process(async (email: any) => sendOneMessage(email, subject, renderedHtml, renderedText));
+    const statuses = Array.isArray(results) ? results : [results];
 
     await NotificationModel.insertMany(
       statuses.map((status: any) => ({
@@ -61,8 +64,9 @@ emailRoutes.route("/send-personalized").post(
       req
     );
 
-    const statuses = await Promise.all(
-      userIds.map(async (userId: string) => {
+    const { results } = await PromisePool.for(userIds)
+      .withConcurrency(50)
+      .process(async (userId: any) => {
         const userData = users.find((user: any) => user.userId === userId);
 
         if (!userData) {
@@ -74,8 +78,8 @@ emailRoutes.route("/send-personalized").post(
         }
 
         return sendOnePersonalizedMessages(message, userData, subject, headerImage);
-      })
-    );
+      });
+    const statuses = Array.isArray(results) ? results : [results];
 
     await NotificationModel.insertMany(
       statuses.map((status: any) => ({

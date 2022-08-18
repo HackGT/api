@@ -100,9 +100,13 @@ export const sendOneMessage = async (
       payload: "Email sent successfully",
     };
   } catch (error: any) {
-    // Sendgrid errors are here
-    if (error.response?.body?.errors) {
-      console.log(error.response.body.errors);
+    // If a Sendgrid error occurs, return that error message
+    if (error.response?.body?.errors && error.response?.body?.errors.length > 0) {
+      return {
+        error: true,
+        key: email,
+        payload: error.response.body.errors[0].message,
+      };
     }
 
     return {
