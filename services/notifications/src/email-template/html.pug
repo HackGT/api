@@ -1,177 +1,199 @@
 doctype html
-html(xmlns='http://www.w3.org/1999/xhtml' xmlns:v='urn:schemas-microsoft-com:vml' xmlns:o='urn:schemas-microsoft-com:office:office')
+html(lang='en')
   head
-    //  NAME: 1 COLUMN 
-    //
-      [if gte mso 15]>
-              <xml>
-                  <o:OfficeDocumentSettings>
-                  <o:AllowPNG/>
-                  <o:PixelsPerInch>96</o:PixelsPerInch>
-                  </o:OfficeDocumentSettings>
-              </xml>
-              <![endif]
-    meta(charset='UTF-8')
-    meta(http-equiv='X-UA-Compatible' content='IE=edge')
-    meta(name='viewport' content='width=device-width,initial-scale=1')
-    //- title #{subject}
+    //if gte mso 9
+      xml
+        o:officedocumentsettings
+          o:allowpng
+            o:pixelsperinch 96
+    meta(http-equiv='Content-Type', content='text/html; charset=utf-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    meta(name='format-detection', content='address=no')
+    meta(name='format-detection', content='telephone=no')
+    meta(name='format-detection', content='email=no')
+    meta(name='x-apple-disable-message-reformatting')
+    // [if !mso] <!
+    style(type='text/css').
+      @import url("https://static.mailerlite.com/assets/plugins/groot/modules/includes/groot_fonts/import.css?version=1660210");
+    // <![endif]
+    //if mso
+      style(type='text/css').
+        .content-MS .content img { width: 560px; }
+    //if (mso)|(mso 16)
+      style(type='text/css').
+        .mlContentButton a { text-decoration: none; }
+    // [if !mso] <!
+    // <![endif]
+    //if (lt mso 16)
+      style(type='text/css', if='variable.bodyBackgroundImage.value').
+        .mlBodyBackgroundImage { background-image: none; }
+    //if mso
+      style(type='text/css').
+        .bodyText { font-family: Arial, Helvetica, sans-serif!important ; }
+        .bodyText * { font-family: Arial, Helvetica, sans-serif!important; }
+        .bodyText a { font-family: Arial, Helvetica, sans-serif!important; }
+        .bodyText a span { font-family: Arial, Helvetica, sans-serif!important; }
+        .bodyText span { font-family: Arial, Helvetica, sans-serif!important; }
+        .bodyText p { font-family: Arial, Helvetica, sans-serif!important; }
+        .bodyText ul li { font-family: Arial, Helvetica, sans-serif!important; }
+        .bodyTitle { font-family: Arial, Helvetica, sans-serif!important ; }
+        .bodyTitle * { font-family: Arial, Helvetica, sans-serif!important; }
+        .bodyTitle a { font-family: Arial, Helvetica, sans-serif!important; }
+        .bodyTitle a span { font-family: Arial, Helvetica, sans-serif!important; }
+        .bodyTitle span { font-family: Arial, Helvetica, sans-serif!important; }
+        .bodyTitle p { font-family: Arial, Helvetica, sans-serif!important; }
+        .bodyFont { font-family: Arial, Helvetica, sans-serif!important ; }
+        .bodyFont * { font-family: Arial, Helvetica, sans-serif!important; }
+        .bodyFont a { font-family: Arial, Helvetica, sans-serif!important; }
+        .bodyFont a span { font-family: Arial, Helvetica, sans-serif!important; }
+        .bodyFont span { font-family: Arial, Helvetica, sans-serif!important; }
+        .bodyFont p { font-family: Arial, Helvetica, sans-serif!important; }
+        .mlContentButton { font-family: Arial, Helvetica, sans-serif!important; }
+    meta(name='robots', content='noindex, nofollow')
     link(rel="stylesheet", href="/style.css", data-inline)
 
-  body
-    center
-      table#bodyTable(align='center' border='0' cellpadding='0' cellspacing='0' height='100%' width='100%')
+  body.mlBodyBackground(style='padding: 0; margin: 0; -webkit-font-smoothing:antialiased; background-color:#f6f8f9; -webkit-text-size-adjust:none;')
+    // Make your email an accessible article.
+    div(role='article', aria-roledescription='email', aria-label='test')
+      // [if !mso] <!
+      table.mainTable.mlBodyBackground(width='100%', border='0', cellspacing='0', cellpadding='0', bgcolor='#f6f8f9', dir='ltr', background='')
         tbody
           tr
-            td#bodyCell(align='center' valign='top')
-              //  BEGIN TEMPLATE // 
-              //
-                [if (gte mso 9)|(IE)]>
-                                        <table align="center" border="0" cellspacing="0" cellpadding="0" width="600" style="width:600px;">
-                                        <tr>
-                                        <td align="center" valign="top" width="600" style="width:600px;">
-                                        <![endif]
-              table.templateContainer(border='0' cellpadding='0' cellspacing='0' width='100%')
+            td.mlTemplateContainer(align='center')
+              // <![endif]
+              //if mso 16
+                table(width='100%', border='0', cellspacing='0', cellpadding='0', align='center')
+                  tbody
+                    tr
+                      td(bgcolor='#f6f8f9', align='center')
+                        // 
+              // Content starts here
+              // BORDER RADIUS FOR CARDS LAYOUT
+              // BORDER RADIUS FOR DEFAULT LAYOUT
+              table.mobileHide(cellpadding='0', cellspacing='0', border='0', align='center', width='640', style='width: 640px; min-width: 640px;')
                 tbody
                   tr
-                    td#templatePreheader(valign='top')
-                  tr
-                    td#templateHeader(valign='top')
-                      table.mcnImageBlock(border='0' cellpadding='0' cellspacing='0' width='100%' style='min-width:100%;')
-                        tbody.mcnImageBlockOuter
+                    td(align='center')
+                      table.mlContentTable(cellpadding='0', cellspacing='0', border='0', align='center', width='640', style='width: 640px; min-width: 640px;')
+                        tbody
                           tr
-                            td.mcnImageBlockInner(valign='top' style='padding:9px')
-                              table.mcnImageContentContainer(align='left' width='100%' border='0' cellpadding='0' cellspacing='0' style='min-width:100%;')
+                            td(colspan='2', height='20')
+              table.mlContentTable(align='center', border='0', cellpadding='0', cellspacing='0', width='640')
+                tbody
+                  tr
+                    td
+                      // 
+                      table.mlContentTable.mlContentTableDefault(align='center', border='0', bgcolor='#ffffff', cellpadding='0', cellspacing='0', width='640')
+                        tbody
+                          tr
+                            td.mlContentTableCardTd
+                              table.mlContentTable.ml-default(align='center', bgcolor='#ffffff', border='0', cellpadding='0', cellspacing='0', style='width: 640px; min-width: 640px;', width='640')
                                 tbody
                                   tr
-                                    td.mcnImageContent(valign='top' style='padding-right: 9px; padding-left: 9px; padding-top: 0; padding-bottom: 0; text-align:center;')
-                                      img.mcnImage(width='544px' align='center' alt src=emailHeaderImage style='max-width:1200px; padding-bottom: 0; display: inline !important; vertical-align: bottom;')
-                  tr
-                    td#templateBody(valign='top')
-                      table.mcnTextBlock(border='0' cellpadding='0' cellspacing='0' width='100%' style='min-width:100%;')
-                        tbody.mcnTextBlockOuter
-                          tr
-                            td.mcnTextBlockInner(valign='top' style='padding-top:9px;')
-                              //
-                                [if mso]>
-                                				<table align="left" border="0" cellspacing="0" cellpadding="0" width="100%" style="width:100%;">
-                                				<tr>
-                                				<![endif]
-                              //
-                                [if mso]>
-                                				<td valign="top" width="600" style="width:600px;">
-                                				<![endif]
-                              table.mcnTextContentContainer(align='left' border='0' cellpadding='0' cellspacing='0' style='max-width:100%; min-width:100%;' width='100%')
-                                tbody
-                                  tr
-                                    td.mcnTextContent(valign='top' style='padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;')
-                                      |                                                 !{body}
-                              //
-                                [if mso]>
-                                				</td>
-                                				<![endif]
-                              //
-                                [if mso]>
-                                				</tr>
-                                				</table>
-                                				<![endif]
-                  tr
-                    td#templateFooter(valign='top')
-                      table.mcnFollowBlock(border='0' cellpadding='0' cellspacing='0' width='100%' style='min-width:100%;')
-                        tbody.mcnFollowBlockOuter
-                          tr
-                            td.mcnFollowBlockInner(align='center' valign='top' style='padding:9px')
-                              table.mcnFollowContentContainer(border='0' cellpadding='0' cellspacing='0' width='100%' style='min-width:100%;')
-                                tbody
-                                  tr
-                                    td(align='center' style='padding-left:9px;padding-right:9px;')
-                                      table.mcnFollowContent(border='0' cellpadding='0' cellspacing='0' width='100%' style='min-width:100%;')
+                                    td
+                                      table.mlContentTable(role='presentation', cellpadding='0', cellspacing='0', border='0', align='center', width='640', style='width: 640px; min-width: 640px;')
                                         tbody
                                           tr
-                                            td(align='center' valign='top' style='padding-top:9px; padding-right:9px; padding-left:9px;')
-                                              table(align='center' border='0' cellpadding='0' cellspacing='0')
+                                            td(align='center', style='padding: 0px 0px;')
+                                              table(role='presentation', cellpadding='0', cellspacing='0', border='0', align='center', width='100%')
                                                 tbody
                                                   tr
-                                                    td(align='center' valign='top')
-                                                      //
-                                                        [if mso]>
-                                                                                            <table align="center" border="0" cellspacing="0" cellpadding="0">
-                                                                                            <tr>
-                                                                                            <![endif]
-                                                      //
-                                                        [if mso]>
-                                                                                                <td align="center" valign="top">
-                                                                                                <![endif]
-                                                      table(align='left' border='0' cellpadding='0' cellspacing='0' style='display:inline;')
+                                                    td#imageBlock(align='center')
+                                                      img(src=emailHeaderImage, border='0', alt='', width='640', style='display: block;')
+                      // 
+                      // 
+                      table.mlContentTable.mlContentTableDefault(align='center', border='0', bgcolor='#ffffff', cellpadding='0', cellspacing='0', width='640')
+                        tbody
+                          tr
+                            td.mlContentTableCardTd
+                              table.mlContentTable.ml-default(align='center', bgcolor='#ffffff', border='0', cellpadding='0', cellspacing='0', style='width: 640px; min-width: 640px;', width='640')
+                                tbody
+                                  tr
+                                    td
+                                      table.mlContentTable(role='presentation', cellpadding='0', cellspacing='0', border='0', align='center', width='640', style='width: 640px; min-width: 640px;')
+                                        tbody
+                                          tr
+                                            td.spacingHeight-20(height='20', style='line-height: 20px; min-height: 20px;')
+                                      table.mlContentTable(role='presentation', cellpadding='0', cellspacing='0', border='0', align='center', width='640', style='width: 640px; min-width: 640px;')
+                                        tbody
+                                          tr
+                                            td.mlContentOuter#emailContent(style='padding: 0px 40px;')
+                                              |                                                 !{body}
+                                      table.mlContentTable(role='presentation', cellpadding='0', cellspacing='0', border='0', align='center', width='640', style='width: 640px; min-width: 640px;')
+                                        tbody
+                                          tr
+                                            td.spacingHeight-20(height='20', style='line-height: 20px; min-height: 20px;')
+                      // 
+                      // 
+                      table.mlContentTable.mlContentTableDefault(align='center', border='0', bgcolor='#ffffff', cellpadding='0', cellspacing='0', width='640')
+                        tbody
+                          tr
+                            td.mlContentTableCardTd
+                              table.mlContentTable.ml-default(align='center', bgcolor='#ffffff', border='0', cellpadding='0', cellspacing='0', style='width: 640px; min-width: 640px;', width='640')
+                                tbody
+                                  tr
+                                    td
+                                      table.mlContentTable(role='presentation', cellpadding='0', cellspacing='0', border='0', align='center', width='640', style='width: 640px; min-width: 640px;')
+                                        tbody
+                                          tr
+                                            td.spacingHeight-20(height='20', style='line-height: 20px; min-height: 20px;')
+                                      table.mlContentTable(role='presentation', cellpadding='0', cellspacing='0', border='0', align='center', width='640', style='width: 640px; min-width: 640px;')
+                                        tbody
+                                          tr
+                                            td.mlContentOuter(align='center')
+                                              table.mlContentTable(role='presentation', cellpadding='0', cellspacing='0', border='0', align='center', width='560', style='border-top: 2px solid #ededf3; border-collapse: initial;')
+                                                tbody
+                                                  tr
+                                                    td.spacingHeight-20(height='20', style='line-height: 20px; min-height: 20px;')
+                      // 
+                      // 
+                      table.mlContentTable.mlContentTableDefault(align='center', border='0', bgcolor='#ffffff', cellpadding='0', cellspacing='0', width='640')
+                        tbody
+                          tr
+                            td.mlContentTableCardTd
+                              table.mlContentTable.ml-default(align='center', bgcolor='#ffffff', border='0', cellpadding='0', cellspacing='0', style='width: 640px; min-width: 640px;', width='640')
+                                tbody
+                                  tr
+                                    td
+                                      table.mlContentTable(role='presentation', cellpadding='0', cellspacing='0', border='0', align='center', width='640', style='width: 640px; min-width: 640px;')
+                                        tbody
+                                          tr
+                                            td.spacingHeight-20(height='20', style='line-height: 20px; min-height: 20px;')
+                                      table.mlContentTable(role='presentation', cellpadding='0', cellspacing='0', border='0', align='center', width='640', style='width: 640px; min-width: 640px;')
+                                        tbody
+                                          tr
+                                            td.mlContentOuter(align='center', style='padding: 0px 40px;')
+                                              table(role='presentation', cellpadding='0', cellspacing='0', border='0', align='center', width='100%')
+                                                tbody
+                                                  tr
+                                                    td(align='center')
+                                                      table.social-LinksTable(role='presentation', cellpadding='0', cellspacing='0', border='0', align='center')
                                                         tbody
                                                           tr
-                                                            td.mcnFollowContentItemContainer(valign='top' style='padding-right:10px; padding-bottom:9px;')
-                                                              table.mcnFollowContentItem(border='0' cellpadding='0' cellspacing='0' width='100%')
-                                                                tbody
-                                                                  tr
-                                                                    td(align='left' valign='middle' style='padding-top:5px; padding-right:10px; padding-bottom:5px; padding-left:9px;')
-                                                                      table(align='left' border='0' cellpadding='0' cellspacing='0' width)
-                                                                        tbody
-                                                                          tr
-                                                                            td.mcnFollowIconContent(align='center' valign='middle' width='24')
-                                                                              a(href='http://www.twitter.com/' + twitterHandle target='_blank')
-                                                                                img(src='https://storage.googleapis.com/hackgt6-public/color-twitter-48.png' alt='Twitter' style='display:block;' height='24' width='24')
-                                                      //
-                                                        [if mso]>
-                                                                                                </td>
-                                                                                                <![endif]
-                                                      //
-                                                        [if mso]>
-                                                                                                <td align="center" valign="top">
-                                                                                                <![endif]
-                                                      table(align='left' border='0' cellpadding='0' cellspacing='0' style='display:inline;')
-                                                        tbody
-                                                          tr
-                                                            td.mcnFollowContentItemContainer(valign='top' style='padding-right:10px; padding-bottom:9px;')
-                                                              table.mcnFollowContentItem(border='0' cellpadding='0' cellspacing='0' width='100%')
-                                                                tbody
-                                                                  tr
-                                                                    td(align='left' valign='middle' style='padding-top:5px; padding-right:10px; padding-bottom:5px; padding-left:9px;')
-                                                                      table(align='left' border='0' cellpadding='0' cellspacing='0' width)
-                                                                        tbody
-                                                                          tr
-                                                                            td.mcnFollowIconContent(align='center' valign='middle' width='24')
-                                                                              a(href='http://www.facebook.com/' + facebookHandle target='_blank')
-                                                                                img(src='https://storage.googleapis.com/hackgt6-public/color-facebook-48.png' alt='Facebook' style='display:block;' height='24' width='24')
-                                                      //
-                                                        [if mso]>
-                                                                                                </td>
-                                                                                                <![endif]
-                                                      //
-                                                        [if mso]>
-                                                                                                <td align="center" valign="top">
-                                                                                                <![endif]
-                                                      table(align='left' border='0' cellpadding='0' cellspacing='0' style='display:inline;')
-                                                        tbody
-                                                          tr
-                                                            td.mcnFollowContentItemContainer(valign='top' style='padding-right:0; padding-bottom:9px;')
-                                                              table.mcnFollowContentItem(border='0' cellpadding='0' cellspacing='0' width='100%')
-                                                                tbody
-                                                                  tr
-                                                                    td(align='left' valign='middle' style='padding-top:5px; padding-right:10px; padding-bottom:5px; padding-left:9px;')
-                                                                      table(align='left' border='0' cellpadding='0' cellspacing='0' width)
-                                                                        tbody
-                                                                          tr
-                                                                            td.mcnFollowIconContent(align='center' valign='middle' width='24')
-                                                                              a(href='mailto:' + emailAddress target='_blank')
-                                                                                img(src='https://storage.googleapis.com/hackgt6-public/color-forwardtofriend-48.png' alt='Email Us' style='display:block;' height='24' width='24')
-                                                      //
-                                                        [if mso]>
-                                                                                                </td>
-                                                                                                <![endif]
-                                                      //
-                                                        [if mso]>
-                                                                                            </tr>
-                                                                                            </table>
-                                                                                            <![endif]
-              //
-                [if (gte mso 9)|(IE)]>
-                                        </td>
-                                        </tr>
-                                        </table>
-                                        <![endif]
-              //  // END TEMPLATE 
+                                                            td(align='center', width='30', style='padding: 0 10px;')
+                                                              a(href=website, target='_blank')
+                                                                img(width='30', alt='website', src='https://cdn.mailerlite.com/images/icons/default/round/color/website.png', style='display: block;', border='0')
+                                                            td(align='center', width='30', style='padding: 0 10px;')
+                                                              a(href='https://www.instagram.com/' + instagramHandle, target='_blank')
+                                                                img(width='30', alt='instagram', src='https://cdn.mailerlite.com/images/icons/default/round/color/instagram.png', style='display: block;', border='0')
+                                                            td(align='center', width='30', style='padding: 0 10px;')
+                                                              a(href='https://www.facebook.com/' + facebookHandle, target='_blank')
+                                                                img(width='30', alt='facebook', src='https://cdn.mailerlite.com/images/icons/default/round/color/facebook.png', style='display: block;', border='0')
+                                                            td(align='center', width='30', style='padding: 0 10px;')
+                                                              a(href='https://www.twitter.com/' + twitterHandle, target='_blank')
+                                                                img(width='30', alt='twitter', src='https://cdn.mailerlite.com/images/icons/default/round/color/twitter.png', style='display: block;', border='0')
+                                      table.mlContentTable(role='presentation', cellpadding='0', cellspacing='0', border='0', align='center', width='640', style='width: 640px; min-width: 640px;')
+                                        tbody
+                                          tr
+                                            td.spacingHeight-20(height='20', style='line-height: 20px; min-height: 20px;')
+                      // 
+              table.mlContentTable(cellpadding='0', cellspacing='0', border='0', align='center', width='640', style='width: 640px; min-width: 640px;')
+                tbody
+                  tr
+                    td.spacingHeight-20(height='40')
+              // Content ends here
+              //if mso 16
+                // 
+              // [if !mso] <!
+      // <![endif]

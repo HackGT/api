@@ -16,9 +16,12 @@ let config: Config;
 const COMMON: CommonConfig = {
   production: process.env.PRODUCTION === "true",
   socialMedia: {
-    twitterHandle: "thehexlabs",
+    website: "https://hexlabs.org",
+    instagramHandle: "thehexlabs",
+    twitterHandle: "TheHexLabs",
     facebookHandle: "TheHexLabs",
   },
+  emailAddress: "hello@hexlabs.org",
   googleCloudProject: "hexlabs-cloud",
   memberEmailDomains: ["hack.gt", "hexlabs.org"],
 };

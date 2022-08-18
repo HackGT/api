@@ -73,7 +73,6 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       },
       email: {
         sendgridApiKey: process.env.SENDGRID_API_KEY,
-        from: "hello@hexlabs.org",
       },
     },
   },

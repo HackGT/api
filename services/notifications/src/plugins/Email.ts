@@ -10,6 +10,8 @@ import { Status } from "./types";
 // eslint-disable-next-line camelcase, @typescript-eslint/no-var-requires
 const Email = require("email-templates");
 
+// The email template is created using email templates from MailerLite and MailChimp.
+// Some of the custom fields were manually populated in
 const emailRender = new Email({
   views: {
     root: path.join(__dirname, "..", "email-template"),
@@ -36,7 +38,7 @@ const sendOneMessage = async (
 ): Promise<Status> => {
   try {
     await sendgrid.send({
-      from: config.services.NOTIFICATIONS.pluginConfig?.email.from || "",
+      from: config.common.emailAddress,
       to: email,
       html: renderedHtml,
       text: renderedText,
@@ -84,8 +86,11 @@ export const sendMessages = async (
     const renderedMarkdown = await renderMarkdown(message);
     const renderedHtml = await emailRender.render("html", {
       emailHeaderImage: headerImage,
+      website: config.common.socialMedia.website,
+      instagramHandle: config.common.socialMedia.instagramHandle,
       twitterHandle: config.common.socialMedia.twitterHandle,
       facebookHandle: config.common.socialMedia.facebookHandle,
+      emailAddress: config.common.emailAddress,
       body: renderedMarkdown,
     });
     const renderedText = htmlToText(renderedMarkdown);

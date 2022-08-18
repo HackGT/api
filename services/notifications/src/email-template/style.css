@@ -1,53 +1,39 @@
-p {
-  margin: 10px 0;
-  padding: 0;
-}
-table {
-  border-collapse: collapse;
-}
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  display: block;
-  margin: 0;
-  padding: 0;
-}
-img,
-a img {
-  border: 0;
-  height: auto;
-  outline: none;
-  text-decoration: none;
-}
-body,
-#bodyTable,
-#bodyCell {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  width: 100%;
-}
-.mcnPreviewText {
-  display: none !important;
-}
-#outlook a {
-  padding: 0;
-}
-img {
-  -ms-interpolation-mode: bicubic;
-}
-table {
-  mso-table-lspace: 0pt;
-  mso-table-rspace: 0pt;
-}
 .ReadMsgBody {
   width: 100%;
 }
 .ExternalClass {
   width: 100%;
+}
+.ExternalClass * {
+  line-height: 100%;
+}
+.ExternalClass,
+.ExternalClass p,
+.ExternalClass td,
+.ExternalClass div,
+.ExternalClass span,
+.ExternalClass font {
+  line-height: 100%;
+}
+body {
+  margin: 0;
+  padding: 0;
+}
+body,
+table,
+td,
+p,
+a,
+li {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+table td {
+  border-collapse: collapse;
+}
+table {
+  border-spacing: 0;
+  border-collapse: collapse;
 }
 p,
 a,
@@ -55,12 +41,6 @@ li,
 td,
 blockquote {
   mso-line-height-rule: exactly;
-}
-a[href^="tel"],
-a[href^="sms"] {
-  color: inherit;
-  cursor: default;
-  text-decoration: none;
 }
 p,
 a,
@@ -72,13 +52,25 @@ blockquote {
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
 }
-.ExternalClass,
-.ExternalClass p,
-.ExternalClass td,
-.ExternalClass div,
-.ExternalClass span,
-.ExternalClass font {
-  line-height: 100%;
+img,
+a img {
+  border: 0;
+  outline: none;
+  text-decoration: none;
+}
+img {
+  -ms-interpolation-mode: bicubic;
+}
+* img[tabindex="0"] + div {
+  display: none !important;
+}
+a[href^="tel"],
+a[href^="sms"],
+a[href^="mailto"],
+a[href^="date"] {
+  color: inherit;
+  cursor: pointer;
+  text-decoration: none;
 }
 a[x-apple-data-detectors] {
   color: inherit !important;
@@ -88,386 +80,218 @@ a[x-apple-data-detectors] {
   font-weight: inherit !important;
   line-height: inherit !important;
 }
-#bodyCell {
-  padding: 10px;
+#MessageViewBody a {
+  color: inherit;
+  text-decoration: none;
+  font-size: inherit;
+  font-family: inherit;
+  font-weight: inherit;
+  line-height: inherit;
 }
-.templateContainer {
-  max-width: 600px !important;
+#MessageViewBody {
+  width: 100% !important;
 }
-a.mcnButton {
-  display: block;
+#MessageWebViewDiv {
+  width: 100% !important;
 }
-.mcnImage,
-.mcnRetinaImage {
-  vertical-align: bottom;
-}
-.mcnTextContent {
-  word-break: break-word;
-}
-.mcnTextContent img {
-  height: auto !important;
-}
-.mcnDividerBlock {
-  table-layout: fixed !important;
-}
-/*
-	@tab Page
-	@section Background Style
-	@tip Set the background color and top border for your email. You may want to choose colors that match your company's branding.
-	*/
-body,
-#bodyTable {
-  /*@editable*/
-  background-color: #fafafa;
-}
-/*
-	@tab Page
-	@section Background Style
-	@tip Set the background color and top border for your email. You may want to choose colors that match your company's branding.
-	*/
-#bodyCell {
-  /*@editable*/
-  border-top: 0;
-}
-/*
-	@tab Page
-	@section Email Border
-	@tip Set the border for your email.
-	*/
-.templateContainer {
-  /*@editable*/
-  border: 0;
-}
-/*
-	@tab Page
-	@section Heading 1
-	@tip Set the styling for all first-level headings in your emails. These should be the largest of your headings.
-	@style heading 1
-	*/
-h1 {
-  /*@editable*/
-  color: #202020;
-  /*@editable*/
-  font-family: Helvetica;
-  /*@editable*/
-  font-size: 26px;
-  /*@editable*/
-  font-style: normal;
-  /*@editable*/
-  font-weight: bold;
-  /*@editable*/
-  line-height: 125%;
-  /*@editable*/
-  letter-spacing: normal;
-  /*@editable*/
-  text-align: left;
-}
-/*
-	@tab Page
-	@section Heading 2
-	@tip Set the styling for all second-level headings in your emails.
-	@style heading 2
-	*/
-h2 {
-  /*@editable*/
-  color: #202020;
-  /*@editable*/
-  font-family: Helvetica;
-  /*@editable*/
-  font-size: 22px;
-  /*@editable*/
-  font-style: normal;
-  /*@editable*/
-  font-weight: bold;
-  /*@editable*/
-  line-height: 125%;
-  /*@editable*/
-  letter-spacing: normal;
-  /*@editable*/
-  text-align: left;
-}
-/*
-	@tab Page
-	@section Heading 3
-	@tip Set the styling for all third-level headings in your emails.
-	@style heading 3
-	*/
-h3 {
-  /*@editable*/
-  color: #202020;
-  /*@editable*/
-  font-family: Helvetica;
-  /*@editable*/
-  font-size: 20px;
-  /*@editable*/
-  font-style: normal;
-  /*@editable*/
-  font-weight: bold;
-  /*@editable*/
-  line-height: 125%;
-  /*@editable*/
-  letter-spacing: normal;
-  /*@editable*/
-  text-align: left;
-}
-/*
-	@tab Page
-	@section Heading 4
-	@tip Set the styling for all fourth-level headings in your emails. These should be the smallest of your headings.
-	@style heading 4
-	*/
-h4 {
-  /*@editable*/
-  color: #202020;
-  /*@editable*/
-  font-family: Helvetica;
-  /*@editable*/
-  font-size: 18px;
-  /*@editable*/
-  font-style: normal;
-  /*@editable*/
-  font-weight: bold;
-  /*@editable*/
-  line-height: 125%;
-  /*@editable*/
-  letter-spacing: normal;
-  /*@editable*/
-  text-align: left;
-}
-/*
-	@tab Preheader
-	@section Preheader Style
-	@tip Set the background color and borders for your email's preheader area.
-	*/
-#templatePreheader {
-  /*@editable*/
-  background-color: #fafafa;
-  /*@editable*/
-  background-image: none;
-  /*@editable*/
-  background-repeat: no-repeat;
-  /*@editable*/
-  background-position: center;
-  /*@editable*/
-  background-size: cover;
-  /*@editable*/
-  border-top: 0;
-  /*@editable*/
-  border-bottom: 0;
-  /*@editable*/
-  padding-top: 9px;
-  /*@editable*/
-  padding-bottom: 9px;
-}
-/*
-	@tab Preheader
-	@section Preheader Text
-	@tip Set the styling for your email's preheader text. Choose a size and color that is easy to read.
-	*/
-#templatePreheader .mcnTextContent,
-#templatePreheader .mcnTextContent p {
-  /*@editable*/
-  color: #656565;
-  /*@editable*/
-  font-family: Helvetica;
-  /*@editable*/
-  font-size: 12px;
-  /*@editable*/
-  line-height: 150%;
-  /*@editable*/
-  text-align: left;
-}
-/*
-	@tab Preheader
-	@section Preheader Link
-	@tip Set the styling for your email's preheader links. Choose a color that helps them stand out from your text.
-	*/
-#templatePreheader .mcnTextContent a,
-#templatePreheader .mcnTextContent p a {
-  /*@editable*/
-  color: #656565;
-  /*@editable*/
-  font-weight: normal;
-  /*@editable*/
-  text-decoration: underline;
-}
-/*
-	@tab Header
-	@section Header Style
-	@tip Set the background color and borders for your email's header area.
-	*/
-#templateHeader {
-  /*@editable*/
-  background-color: #ffffff;
-  /*@editable*/
-  background-image: none;
-  /*@editable*/
-  background-repeat: no-repeat;
-  /*@editable*/
-  background-position: center;
-  /*@editable*/
-  background-size: cover;
-  /*@editable*/
-  border-top: 0;
-  /*@editable*/
-  border-bottom: 0;
-  /*@editable*/
-  padding-top: 9px;
-  /*@editable*/
-  padding-bottom: 0;
-}
-/*
-	@tab Header
-	@section Header Text
-	@tip Set the styling for your email's header text. Choose a size and color that is easy to read.
-	*/
-#templateHeader .mcnTextContent,
-#templateHeader .mcnTextContent p {
-  /*@editable*/
-  color: #202020;
-  /*@editable*/
-  font-family: Helvetica;
-  /*@editable*/
-  font-size: 16px;
-  /*@editable*/
-  line-height: 150%;
-  /*@editable*/
-  text-align: left;
-}
-/*
-	@tab Header
-	@section Header Link
-	@tip Set the styling for your email's header links. Choose a color that helps them stand out from your text.
-	*/
-#templateHeader .mcnTextContent a,
-#templateHeader .mcnTextContent p a {
-  /*@editable*/
-  color: #007c89;
-  /*@editable*/
-  font-weight: normal;
-  /*@editable*/
-  text-decoration: underline;
-}
-/*
-	@tab Body
-	@section Body Style
-	@tip Set the background color and borders for your email's body area.
-	*/
-#templateBody {
-  /*@editable*/
-  background-color: #ffffff;
-  /*@editable*/
-  background-image: none;
-  /*@editable*/
-  background-repeat: no-repeat;
-  /*@editable*/
-  background-position: center;
-  /*@editable*/
-  background-size: cover;
-  /*@editable*/
-  border-top: 0;
-  /*@editable*/
-  border-bottom: 2px solid #eaeaea;
-  /*@editable*/
-  padding-top: 0;
-  /*@editable*/
-  padding-bottom: 9px;
-}
-/*
-	@tab Body
-	@section Body Text
-	@tip Set the styling for your email's body text. Choose a size and color that is easy to read.
-	*/
-#templateBody .mcnTextContent,
-#templateBody .mcnTextContent p {
-  /*@editable*/
-  color: #202020;
-  /*@editable*/
-  font-family: Helvetica;
-  /*@editable*/
-  font-size: 16px;
-  /*@editable*/
-  line-height: 150%;
-  /*@editable*/
-  text-align: left;
-}
-/*
-	@tab Body
-	@section Body Link
-	@tip Set the styling for your email's body links. Choose a color that helps them stand out from your text.
-	*/
-#templateBody .mcnTextContent a,
-#templateBody .mcnTextContent p a {
-  /*@editable*/
-  color: #007c89;
-  /*@editable*/
-  font-weight: normal;
-  /*@editable*/
-  text-decoration: underline;
-}
-/*
-	@tab Footer
-	@section Footer Style
-	@tip Set the background color and borders for your email's footer area.
-	*/
-#templateFooter {
-  /*@editable*/
-  background-color: #fafafa;
-  /*@editable*/
-  background-image: none;
-  /*@editable*/
-  background-repeat: no-repeat;
-  /*@editable*/
-  background-position: center;
-  /*@editable*/
-  background-size: cover;
-  /*@editable*/
-  border-top: 0;
-  /*@editable*/
-  border-bottom: 0;
-  /*@editable*/
-  padding-top: 9px;
-  /*@editable*/
-  padding-bottom: 9px;
-}
-/*
-	@tab Footer
-	@section Footer Text
-	@tip Set the styling for your email's footer text. Choose a size and color that is easy to read.
-	*/
-#templateFooter .mcnTextContent,
-#templateFooter .mcnTextContent p {
-  /*@editable*/
-  color: #656565;
-  /*@editable*/
-  font-family: Helvetica;
-  /*@editable*/
-  font-size: 12px;
-  /*@editable*/
-  line-height: 150%;
-  /*@editable*/
-  text-align: center;
-}
-/*
-	@tab Footer
-	@section Footer Link
-	@tip Set the styling for your email's footer links. Choose a color that helps them stand out from your text.
-	*/
-#templateFooter .mcnTextContent a,
-#templateFooter .mcnTextContent p a {
-  /*@editable*/
-  color: #656565;
-  /*@editable*/
-  font-weight: normal;
-  /*@editable*/
-  text-decoration: underline;
-}
-@media only screen and (min-width: 768px) {
-  .templateContainer {
-    width: 600px !important;
+
+@-moz-document url-prefix() {
+  .bodyText p a,
+  .bodyTitle p a {
+    word-break: break-word;
   }
 }
-@media only screen and (max-width: 480px) {
+@media screen {
+  body {
+    font-family: "Open Sans", Arial, Helvetica, sans-serif;
+  }
+  * {
+    direction: ltr;
+  }
+}
+@media only screen and (min-width: 768px) {
+  .mlEmailContainer {
+    width: 640px !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .mlTemplateContainer {
+    padding: 10px 10px 0 10px;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .mlTemplateContainer {
+    padding: 10px 10px 0 10px;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .mlContentCenter {
+    min-width: 10% !important;
+    margin: 0 !important;
+    float: none !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .mlContentTable {
+    width: 100% !important;
+    min-width: 10% !important;
+    margin: 0 !important;
+    float: none !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .mlContentBlock {
+    display: block !important;
+    width: 100% !important;
+    min-width: 10% !important;
+    margin: 0 !important;
+    float: none !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .mlContentOuter {
+    padding-bottom: 0px !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    padding-top: 0px !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .mlContentOuterSmall {
+    padding-bottom: 0px !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    padding-top: 0px !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .mlMenuOuter {
+    padding-bottom: 0px !important;
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+    padding-top: 0px !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .mlContentOuterFullBig {
+    padding: 30px !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .mlContentImage img {
+    height: auto !important;
+    width: 100% !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .mlContentImage160 img {
+    height: auto !important;
+    max-width: 160px;
+    width: 100% !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .mlContentImage260 img {
+    height: auto !important;
+    max-width: 260px;
+    width: 100% !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .mlContentImage {
+    height: 100% !important;
+    width: auto !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .mlProductImage {
+    height: auto !important;
+    width: 100% !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .mlContentButton a {
+    display: block !important;
+    width: auto !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .mobileHide {
+    display: none !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .mobileShow {
+    display: block !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .alignCenter {
+    height: auto !important;
+    text-align: center !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .alignCenter img {
+    display: inline !important;
+    text-align: center !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .marginBottom {
+    margin-bottom: 15px !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .marginTop {
+    margin-top: 10px !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .mlContentHeight {
+    height: auto !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .mlDisplayInline {
+    display: inline-block !important;
+    float: none !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .mlNoFloat {
+    float: none !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .mlContentSurvey {
+    float: none !important;
+    margin-bottom: 10px !important;
+    width: 100% !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .mlContentSurvey td a {
+    width: auto !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  .multiple-choice-item-table {
+    width: 100% !important;
+    margin-bottom: 20px !important;
+    min-width: 10% !important;
+    float: none !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  body {
+    margin: 0px !important;
+    padding: 0px !important;
+  }
+}
+@media only screen and (max-width: 640px) {
   body,
   table,
   td,
@@ -479,237 +303,140 @@ h4 {
   }
 }
 @media only screen and (max-width: 480px) {
-  body {
-    width: 100% !important;
-    min-width: 100% !important;
-  }
-}
-@media only screen and (max-width: 480px) {
-  #bodyCell {
-    padding-top: 10px !important;
-  }
-}
-@media only screen and (max-width: 480px) {
-  .mcnRetinaImage {
-    max-width: 100% !important;
-  }
-}
-@media only screen and (max-width: 480px) {
-  .mcnImage {
+  .social-LinksTable {
     width: 100% !important;
   }
 }
-@media only screen and (max-width: 480px) {
-  .mcnCartContainer,
-  .mcnCaptionTopContent,
-  .mcnRecContentContainer,
-  .mcnCaptionBottomContent,
-  .mcnTextContentContainer,
-  .mcnBoxedTextContentContainer,
-  .mcnImageGroupContentContainer,
-  .mcnCaptionLeftTextContentContainer,
-  .mcnCaptionRightTextContentContainer,
-  .mcnCaptionLeftImageContentContainer,
-  .mcnCaptionRightImageContentContainer,
-  .mcnImageCardLeftTextContentContainer,
-  .mcnImageCardRightTextContentContainer,
-  .mcnImageCardLeftImageContentContainer,
-  .mcnImageCardRightImageContentContainer {
-    max-width: 100% !important;
-    width: 100% !important;
+@media only screen and (max-width: 640px) {
+  .social-LinksTable td:first-child {
+    padding-left: 0px !important;
   }
 }
-@media only screen and (max-width: 480px) {
-  .mcnBoxedTextContentContainer {
-    min-width: 100% !important;
+@media only screen and (max-width: 640px) {
+  .social-LinksTable td:last-child {
+    padding-right: 0px !important;
   }
 }
-@media only screen and (max-width: 480px) {
-  .mcnImageGroupContent {
-    padding: 9px !important;
+@media only screen and (max-width: 640px) {
+  .social-LinksTable td {
+    padding: 0 10px !important;
   }
 }
-@media only screen and (max-width: 480px) {
-  .mcnCaptionLeftContentOuter .mcnTextContent,
-  .mcnCaptionRightContentOuter .mcnTextContent {
-    padding-top: 9px !important;
+@media only screen and (max-width: 640px) {
+  .social-LinksTable td img {
+    height: auto !important;
+    width: 40px !important;
   }
 }
-@media only screen and (max-width: 480px) {
-  .mcnImageCardTopImageContent,
-  .mcnCaptionBottomContent:last-child .mcnCaptionBottomImageContent,
-  .mcnCaptionBlockInner .mcnCaptionTopContent:last-child .mcnTextContent {
-    padding-top: 18px !important;
-  }
-}
-@media only screen and (max-width: 480px) {
-  .mcnImageCardBottomImageContent {
-    padding-bottom: 9px !important;
-  }
-}
-@media only screen and (max-width: 480px) {
-  .mcnImageGroupBlockInner {
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-  }
-}
-@media only screen and (max-width: 480px) {
-  .mcnImageGroupBlockOuter {
-    padding-top: 9px !important;
-    padding-bottom: 9px !important;
-  }
-}
-@media only screen and (max-width: 480px) {
-  .mcnTextContent,
-  .mcnBoxedTextContentColumn {
-    padding-right: 18px !important;
-    padding-left: 18px !important;
-  }
-}
-@media only screen and (max-width: 480px) {
-  .mcnImageCardLeftImageContent,
-  .mcnImageCardRightImageContent {
-    padding-right: 18px !important;
-    padding-bottom: 0 !important;
-    padding-left: 18px !important;
-  }
-}
-@media only screen and (max-width: 480px) {
-  .mcpreview-image-uploader {
-    display: none !important;
-    width: 100% !important;
-  }
-}
-@media only screen and (max-width: 480px) {
-  /*
-	@tab Mobile Styles
-	@section Heading 1
-	@tip Make the first-level headings larger in size for better readability on small screens.
-	*/
-  h1 {
-    /*@editable*/
-    font-size: 22px !important;
-    /*@editable*/
-    line-height: 125% !important;
-  }
-}
-@media only screen and (max-width: 480px) {
-  /*
-	@tab Mobile Styles
-	@section Heading 2
-	@tip Make the second-level headings larger in size for better readability on small screens.
-	*/
-  h2 {
-    /*@editable*/
-    font-size: 20px !important;
-    /*@editable*/
-    line-height: 125% !important;
-  }
-}
-@media only screen and (max-width: 480px) {
-  /*
-	@tab Mobile Styles
-	@section Heading 3
-	@tip Make the third-level headings larger in size for better readability on small screens.
-	*/
-  h3 {
-    /*@editable*/
-    font-size: 18px !important;
-    /*@editable*/
-    line-height: 125% !important;
-  }
-}
-@media only screen and (max-width: 480px) {
-  /*
-	@tab Mobile Styles
-	@section Heading 4
-	@tip Make the fourth-level headings larger in size for better readability on small screens.
-	*/
-  h4 {
-    /*@editable*/
-    font-size: 16px !important;
-    /*@editable*/
-    line-height: 150% !important;
-  }
-}
-@media only screen and (max-width: 480px) {
-  /*
-	@tab Mobile Styles
-	@section Boxed Text
-	@tip Make the boxed text larger in size for better readability on small screens. We recommend a font size of at least 16px.
-	*/
-  .mcnBoxedTextContentContainer .mcnTextContent,
-  .mcnBoxedTextContentContainer .mcnTextContent p {
-    /*@editable*/
-    font-size: 14px !important;
-    /*@editable*/
-    line-height: 150% !important;
-  }
-}
-@media only screen and (max-width: 480px) {
-  /*
-	@tab Mobile Styles
-	@section Preheader Visibility
-	@tip Set the visibility of the email's preheader on small screens. You can hide it to save space.
-	*/
-  #templatePreheader {
-    /*@editable*/
+/* Carousel style */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .webkit {
     display: block !important;
   }
 }
-@media only screen and (max-width: 480px) {
-  /*
-	@tab Mobile Styles
-	@section Preheader Text
-	@tip Make the preheader text larger in size for better readability on small screens.
-	*/
-  #templatePreheader .mcnTextContent,
-  #templatePreheader .mcnTextContent p {
-    /*@editable*/
-    font-size: 14px !important;
-    /*@editable*/
-    line-height: 150% !important;
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .non-webkit {
+    display: none !important;
   }
 }
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  /* TARGET OUTLOOK.COM */
+  [class="x_non-webkit"] {
+    display: block !important;
+  }
+}
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  [class="x_webkit"] {
+    display: none !important;
+  }
+}
+@media only screen and (max-width: 640px) {
+  #imageBlock img {
+    max-width: 640px !important;
+    width: 100% !important;
+  }
+}
+
+/* CUSTOM ADDED STYLES */
+
+/* IMG STYLES */
+#emailContent img {
+  width: 100%;
+}
+
+/* FONT SIZING */
+#emailContent h1 {
+  color: #202020;
+  font-family: Helvetica;
+  font-size: 26px;
+  font-style: normal;
+  font-weight: bold;
+  line-height: 125%;
+  letter-spacing: normal;
+  text-align: left;
+}
+#emailContent h2 {
+  color: #202020;
+  font-family: Helvetica;
+  font-size: 22px;
+  font-style: normal;
+  font-weight: bold;
+  line-height: 125%;
+  letter-spacing: normal;
+  text-align: left;
+}
+#emailContent h3 {
+  color: #202020;
+  font-family: Helvetica;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: bold;
+  line-height: 125%;
+  letter-spacing: normal;
+  text-align: left;
+}
+#emailContent h4 {
+  color: #202020;
+  font-family: Helvetica;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: bold;
+  line-height: 125%;
+  letter-spacing: normal;
+  text-align: left;
+}
+#emailContent p {
+  color: #202020;
+  font-family: Helvetica;
+  font-size: 12px;
+  line-height: 150%;
+  text-align: left;
+}
+#emailContent p a {
+  color: #007c89;
+  font-weight: normal;
+  text-decoration: underline;
+}
+
 @media only screen and (max-width: 480px) {
-  /*
-	@tab Mobile Styles
-	@section Header Text
-	@tip Make the header text larger in size for better readability on small screens.
-	*/
-  #templateHeader .mcnTextContent,
-  #templateHeader .mcnTextContent p {
-    /*@editable*/
+  #emailContent h1 {
+    font-size: 22px !important;
+    line-height: 125% !important;
+  }
+  #emailContent h2 {
+    font-size: 20px !important;
+    line-height: 125% !important;
+  }
+  #emailContent h3 {
+    font-size: 18px !important;
+    line-height: 125% !important;
+  }
+  #emailContent h4 {
     font-size: 16px !important;
-    /*@editable*/
     line-height: 150% !important;
   }
-}
-@media only screen and (max-width: 480px) {
-  /*
-	@tab Mobile Styles
-	@section Body Text
-	@tip Make the body text larger in size for better readability on small screens. We recommend a font size of at least 16px.
-	*/
-  #templateBody .mcnTextContent,
-  #templateBody .mcnTextContent p {
-    /*@editable*/
+  #emailContent p {
     font-size: 16px !important;
-    /*@editable*/
-    line-height: 150% !important;
-  }
-}
-@media only screen and (max-width: 480px) {
-  /*
-	@tab Mobile Styles
-	@section Footer Text
-	@tip Make the footer content text larger in size for better readability on small screens.
-	*/
-  #templateFooter .mcnTextContent,
-  #templateFooter .mcnTextContent p {
-    /*@editable*/
-    font-size: 14px !important;
-    /*@editable*/
     line-height: 150% !important;
   }
 }

@@ -1,9 +1,12 @@
 export interface CommonConfig {
   production: boolean;
   socialMedia: {
+    website: string;
+    instagramHandle: string;
     twitterHandle: string;
     facebookHandle: string;
   };
+  emailAddress: string;
   googleCloudProject: string;
   memberEmailDomains: string[];
 }
@@ -55,7 +58,6 @@ export interface ServiceConfig {
     };
     email: {
       sendgridApiKey?: string;
-      from?: string;
     };
   };
   storageBucket?: string;
