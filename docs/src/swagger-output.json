@@ -396,6 +396,9 @@
                 "endDate": {
                   "type": "string",
                   "format": "date-time"
+                },
+                "emailHeaderImage": {
+                  "type": "string"
                 }
               }
             }
@@ -457,9 +460,40 @@
           {
             "name": "id",
             "in": "path",
-            "description": "Hexathon id that needs to be considered for filter.",
+            "description": "Hexathon id.",
             "required": true,
             "type": "integer"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "shortCode": {
+                  "type": "string"
+                },
+                "isActive": {
+                  "type": "boolean"
+                },
+                "startDate": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "endDate": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "emailHeaderImage": {
+                  "type": "string"
+                }
+              }
+            }
           }
         ],
         "responses": {
@@ -635,7 +669,7 @@
                 "subject": {
                   "type": "string"
                 },
-                "headerImage": {
+                "hexathon": {
                   "type": "string"
                 }
               }
@@ -697,7 +731,7 @@
                 "subject": {
                   "type": "string"
                 },
-                "headerImage": {
+                "hexathon": {
                   "type": "string"
                 }
               }
@@ -750,7 +784,7 @@
                 "message": {
                   "type": "string"
                 },
-                "headerImage": {
+                "hexathon": {
                   "type": "string"
                 }
               }
@@ -2095,6 +2129,9 @@
         "endDate": {
           "type": "string",
           "format": "date-time"
+        },
+        "emailHeaderImage": {
+          "type": "string"
         }
       },
       "xml": {
@@ -2118,7 +2155,7 @@
         "identifier": {
           "type": "string"
         },
-        "timeStamp": {
+        "timestamp": {
           "type": "string",
           "format": "date-time"
         },
@@ -2147,7 +2184,7 @@
           "type": "string"
         },
         "hexathon": {
-          "type": "integer"
+          "type": "string"
         },
         "applicationBranch": {
           "$ref": "#/definitions/Branch"
@@ -2322,7 +2359,7 @@
           "type": "string"
         },
         "hexathon": {
-          "type": "integer"
+          "type": "string"
         },
         "type": {
           "type": "string",

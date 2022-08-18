@@ -11,9 +11,20 @@ export const emailRoutes = express.Router();
 emailRoutes.route("/render").post(
   checkAbility("manage", "Notification"),
   asyncHandler(async (req, res) => {
-    const { message, headerImage } = req.body;
+    let headerImage: any;
+    if (req.body.hexathon) {
+      const hexathon = await apiCall(
+        Service.HEXATHONS,
+        {
+          url: `/hexathons/${req.body.hexathon}`,
+          method: "GET",
+        },
+        req
+      );
+      headerImage = hexathon.emailHeaderImage;
+    }
 
-    const [renderedHtml, renderedText] = await renderEmail(message, headerImage);
+    const [renderedHtml, renderedText] = await renderEmail(req.body.message, headerImage);
 
     res.status(200).json({
       html: renderedHtml,
@@ -25,7 +36,20 @@ emailRoutes.route("/render").post(
 emailRoutes.route("/send").post(
   checkAbility("manage", "Notification"),
   asyncHandler(async (req, res) => {
-    const { message, emails, subject, headerImage } = req.body;
+    const { message, emails, subject } = req.body;
+
+    let headerImage: any;
+    if (req.body.hexathon) {
+      const hexathon = await apiCall(
+        Service.HEXATHONS,
+        {
+          url: `/hexathons/${req.body.hexathon}`,
+          method: "GET",
+        },
+        req
+      );
+      headerImage = hexathon.emailHeaderImage;
+    }
 
     const [renderedHtml, renderedText] = await renderEmail(message, headerImage);
 
@@ -50,7 +74,7 @@ emailRoutes.route("/send").post(
 emailRoutes.route("/send-personalized").post(
   checkAbility("manage", "Notification"),
   asyncHandler(async (req, res) => {
-    const { message, userIds, subject, headerImage } = req.body;
+    const { message, userIds, subject } = req.body;
 
     const users = await apiCall(
       Service.USERS,
@@ -63,6 +87,19 @@ emailRoutes.route("/send-personalized").post(
       },
       req
     );
+
+    let headerImage: any;
+    if (req.body.hexathon) {
+      const hexathon = await apiCall(
+        Service.HEXATHONS,
+        {
+          url: `/hexathons/${req.body.hexathon}`,
+          method: "GET",
+        },
+        req
+      );
+      headerImage = hexathon.emailHeaderImage;
+    }
 
     const { results } = await PromisePool.for(userIds)
       .withConcurrency(50)
