@@ -3,7 +3,7 @@ import { Service } from "@api/config";
 import express from "express";
 import { PromisePool } from "@supercharge/promise-pool";
 
-import { NotificationModel, PlatformType } from "src/models/notifications";
+import { NotificationModel, PlatformType } from "../models/notifications";
 import { renderEmail, sendOneMessage, sendOnePersonalizedMessages } from "../plugins/Email";
 
 export const emailRoutes = express.Router();
