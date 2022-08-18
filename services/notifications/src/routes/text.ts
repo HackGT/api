@@ -6,7 +6,7 @@ import { sendMessages } from "../plugins/Twilio";
 export const textRoutes = express.Router();
 
 textRoutes.route("/send").post(
-  checkAbility("manage", "Notification"),
+  checkAbility("create", "Text"),
   asyncHandler(async (req, res) => {
     const { message, numbers } = req.body;
     const statuses = await sendMessages(message, numbers);

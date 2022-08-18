@@ -11,7 +11,8 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
   }
 
   if (req.user.roles.admin || req.user.roles.member) {
-    can("manage", "Notification");
+    can("manage", "Email");
+    can("manage", "Text");
   }
 
   req.ability = build();

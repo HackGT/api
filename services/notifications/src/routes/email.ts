@@ -9,7 +9,7 @@ import { renderEmail, sendOneMessage, sendOnePersonalizedMessages } from "../plu
 export const emailRoutes = express.Router();
 
 emailRoutes.route("/render").post(
-  checkAbility("manage", "Notification"),
+  checkAbility("read", "Email"),
   asyncHandler(async (req, res) => {
     let headerImage: any;
     if (req.body.hexathon) {
@@ -34,7 +34,7 @@ emailRoutes.route("/render").post(
 );
 
 emailRoutes.route("/send").post(
-  checkAbility("manage", "Notification"),
+  checkAbility("create", "Email"),
   asyncHandler(async (req, res) => {
     const { message, emails, subject } = req.body;
 
@@ -72,7 +72,7 @@ emailRoutes.route("/send").post(
 );
 
 emailRoutes.route("/send-personalized").post(
-  checkAbility("manage", "Notification"),
+  checkAbility("create", "Email"),
   asyncHandler(async (req, res) => {
     const { message, userIds, subject } = req.body;
 
