@@ -28,9 +28,58 @@ const emailRender = new Email({
 const sendgridApiKey = config.services.NOTIFICATIONS.pluginConfig?.email.sendgridApiKey || "SG.";
 sendgrid.setApiKey(sendgridApiKey);
 
-// We use this function instead of making one call. See below link.
-// https://stackoverflow.com/questions/69620048/sendgrid-nodejs-handling-errors-when-sending-bulk-emails
-const sendOneMessage = async (
+/**
+ * Takes a string and renders it as markdown.
+ */
+const renderMarkdown = (markdownString: string): Promise<string> =>
+  new Promise<string>((resolve, reject) => {
+    marked(markdownString, { smartypants: true }, (err: Error | null, parseResult: string) => {
+      if (err) {
+        console.log("Error in markdown");
+        reject(err);
+      } else {
+        resolve(parseResult);
+      }
+    });
+  });
+
+/**
+ * Renders a message for an email in both HTML and text formats.
+ * @param message the message to render
+ * @param headerImage the image URL to use for the header
+ */
+export const renderEmail = async (message: string, headerImage: string) => {
+  const renderedMarkdown = await renderMarkdown(message);
+  const renderedHtml = await emailRender.render("html", {
+    emailHeaderImage: headerImage,
+    website: config.common.socialMedia.website,
+    instagramHandle: config.common.socialMedia.instagramHandle,
+    twitterHandle: config.common.socialMedia.twitterHandle,
+    facebookHandle: config.common.socialMedia.facebookHandle,
+    emailAddress: config.common.emailAddress,
+    body: renderedMarkdown,
+  });
+  const renderedText = htmlToText(renderedHtml);
+
+  return [renderedHtml, renderedText];
+};
+
+/**
+ * Slightly sanitizes text for email use.
+ */
+const sanitize = (text?: string) => {
+  if (!text || typeof text !== "string") {
+    return "";
+  }
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+};
+
+/**
+ * Sends one message to an email address. We use this function instead
+ * of making one call.
+ * https://stackoverflow.com/questions/69620048/sendgrid-nodejs-handling-errors-when-sending-bulk-emails
+ */
+export const sendOneMessage = async (
   email: string,
   subject: string,
   renderedHtml: string,
@@ -64,47 +113,31 @@ const sendOneMessage = async (
   }
 };
 
-const renderMarkdown = (markdownString: string): Promise<string> =>
-  new Promise<string>((resolve, reject) => {
-    marked(markdownString, { smartypants: true }, (err: Error | null, parseResult: string) => {
-      if (err) {
-        console.log("Error in markdown");
-        reject(err);
-      } else {
-        resolve(parseResult);
-      }
-    });
-  });
-
-export const sendMessages = async (
+/**
+ * Sends an email to a user and personalizes the message. It replaces placeholders
+ * with the user's name and other personal info.
+ */
+export const sendOnePersonalizedMessages = async (
   message: string,
-  emails: string[],
+  user: any,
   subject: string,
   headerImage: string
-): Promise<Status[]> => {
+): Promise<Status> => {
   try {
-    const renderedMarkdown = await renderMarkdown(message);
-    const renderedHtml = await emailRender.render("html", {
-      emailHeaderImage: headerImage,
-      website: config.common.socialMedia.website,
-      instagramHandle: config.common.socialMedia.instagramHandle,
-      twitterHandle: config.common.socialMedia.twitterHandle,
-      facebookHandle: config.common.socialMedia.facebookHandle,
-      emailAddress: config.common.emailAddress,
-      body: renderedMarkdown,
-    });
-    const renderedText = htmlToText(renderedMarkdown);
+    let markdown = message;
+    markdown = markdown.replace(/{{first_name}}/g, sanitize(user?.name?.first));
+    markdown = markdown.replace(/{{middle_name}}/g, sanitize(user?.name?.middle));
+    markdown = markdown.replace(/{{last_name}}/g, sanitize(user?.name?.last));
+    markdown = markdown.replace(/{{email}}/g, sanitize(user?.email));
 
-    return await Promise.all(
-      emails.map(email => sendOneMessage(email, subject, renderedHtml, renderedText))
-    );
+    const [renderedHtml, renderedText] = await renderEmail(markdown, headerImage);
+
+    return sendOneMessage(user?.email, subject, renderedHtml, renderedText);
   } catch (error: any) {
-    return [
-      {
-        error: true,
-        key: subject,
-        payload: error.message,
-      },
-    ];
+    return {
+      error: true,
+      key: subject,
+      payload: error.message,
+    };
   }
 };
