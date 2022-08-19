@@ -73,6 +73,7 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       },
       email: {
         sendgridApiKey: process.env.SENDGRID_API_KEY,
+        mailerLiteApiKey: process.env.MAILERLITE_API_KEY,
       },
     },
   },

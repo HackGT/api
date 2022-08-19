@@ -58,6 +58,7 @@ export interface ServiceConfig {
     };
     email: {
       sendgridApiKey?: string;
+      mailerLiteApiKey?: string;
     };
   };
   storageBucket?: string;

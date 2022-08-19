@@ -4,14 +4,21 @@
   "description": "",
   "main": "index.ts",
   "private": true,
-  "workspaces": [
-    "services/**",
-    "common",
-    "config",
-    "gateway",
-    "docs",
-    "scripts"
-  ],
+  "workspaces": {
+    "packages": [
+      "services/**",
+      "cloud-functions",
+      "common",
+      "config",
+      "gateway",
+      "docs",
+      "scripts"
+    ],
+    "nohoist": [
+      "**/cloud-functions",
+      "**/cloud-functions/**"
+    ]
+  },
   "scripts": {
     "test": "echo \"Tests coming soon...\"",
     "lint": "eslint './**/src/**' --fix; prettier './**/src/**' --write",

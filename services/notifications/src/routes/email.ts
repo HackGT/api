@@ -1,10 +1,13 @@
 import { apiCall, asyncHandler, checkAbility } from "@api/common";
-import { Service } from "@api/config";
+import config, { Service } from "@api/config";
 import express from "express";
 import { PromisePool } from "@supercharge/promise-pool";
+import axios from "axios";
 
 import { NotificationModel, PlatformType } from "../models/notifications";
 import { renderEmail, sendOneMessage, sendOnePersonalizedMessages } from "../plugins/Email";
+
+const mailerLiteApiKey = config.services.NOTIFICATIONS.pluginConfig?.email.mailerLiteApiKey || "";
 
 export const emailRoutes = express.Router();
 
@@ -128,5 +131,41 @@ emailRoutes.route("/send-personalized").post(
     );
 
     res.status(200).json(statuses);
+  })
+);
+
+// Route endpoint can be changed
+emailRoutes.route("/new-subscriber/:email").post(
+  checkAbility("manage", "Notification"),
+  asyncHandler(async (req, res) => {
+    if (mailerLiteApiKey === "") {
+      // throw error
+    }
+
+    if (req.params.email) {
+      const options: any = {
+        method: "POST",
+        url: "https://api.mailerlite.com/api/v2/subscribers",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+          "X-MailerLite-ApiKey": mailerLiteApiKey,
+        },
+        data: { email: req.params.email, resubscribe: false, type: "null" },
+      };
+
+      axios
+        .request(options)
+        .then(response => {
+          console.log(response.data);
+          res.status(200).json(response.data);
+        })
+        .catch(error => {
+          console.error(error);
+          res.status(200).json(error);
+        });
+    }
+
+    res.status(200).json();
   })
 );
