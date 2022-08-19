@@ -1,0 +1,27 @@
+{
+  "name": "@api/functions",
+  "version": "1.0.0",
+  "license": "ISC",
+  "author": "",
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "gcp-build": "tsc -p ."
+  },
+  "dependencies": {
+    "@google-cloud/debug-agent": "^7.0.0",
+    "@google-cloud/functions-framework": "^3.1.0",
+    "@api/common": "*",
+    "@api/config": "*"
+  },
+  "devDependencies": {
+    "@google-cloud/pubsub": "^3.0.0",
+    "@google-cloud/storage": "^6.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.33.1",
+    "@typescript-eslint/parser": "^5.33.1",
+    "typescript": "^4.7.4"
+  }
+}
