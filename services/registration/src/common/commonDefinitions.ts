@@ -63,6 +63,7 @@ const commonDefinitions = {
       "Georgia State University",
       "Gordon State College",
       "Harvard University",
+      "Harvey Mudd College",
       "Howard University",
       "Hunter College",
       "Icahn School of Medicine at Mount Sinai",
