@@ -149,6 +149,7 @@ const commonDefinitions = {
       "University of Alaska Fairbanks",
       "University of Arizona",
       "University of Arkansas - Fayetteville",
+      "University of British Columbia",
       "University of California, Berkeley",
       "University of California, Davis",
       "University of California, Irvine",
