@@ -139,3 +139,5 @@ services/registration/src/config/*.json
 config/*.json
 
 .env
+
+scripts/output
