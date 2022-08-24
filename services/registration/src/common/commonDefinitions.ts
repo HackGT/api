@@ -240,6 +240,7 @@ const commonDefinitions = {
       "University of Wyoming",
       "Utah State University",
       "Valdosta State University",
+      "Valencia College",
       "Vanderbilt University",
       "Virginia Commonwealth University",
       "Virginia Polytechnic Institute and State University",
