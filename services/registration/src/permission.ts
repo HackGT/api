@@ -23,6 +23,7 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
     can("manage", "Grader", { userId: req.user.uid });
     can("read", "Review");
     can("manage", "Review", { reviewerId: req.user.uid });
+    can("create", "Email");
   }
 
   if (req.user.roles.admin || req.user.roles.member) {

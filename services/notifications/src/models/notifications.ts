@@ -9,6 +9,7 @@ export enum PlatformType {
 export interface Notification extends mongoose.Document {
   sender: string;
   platform: PlatformType;
+  batchId?: string;
   error: boolean;
   key: string;
   payload: string;
@@ -24,6 +25,9 @@ const notificationSchema = new Schema<Notification>({
     type: String,
     required: true,
     enum: PlatformType,
+  },
+  batchId: {
+    type: String,
   },
   error: {
     type: Boolean,

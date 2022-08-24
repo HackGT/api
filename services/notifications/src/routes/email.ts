@@ -36,7 +36,7 @@ emailRoutes.route("/render").post(
 emailRoutes.route("/send").post(
   checkAbility("create", "Email"),
   asyncHandler(async (req, res) => {
-    const { message, emails, subject } = req.body;
+    const { message, emails, subject, batchId } = req.body;
 
     let headerImage: any;
     if (req.body.hexathon) {
@@ -54,7 +54,7 @@ emailRoutes.route("/send").post(
     const [renderedHtml, renderedText] = await renderEmail(message, headerImage);
 
     const { results } = await PromisePool.for(emails)
-      .withConcurrency(50)
+      .withConcurrency(20)
       .process(async (email: any) => sendOneMessage(email, subject, renderedHtml, renderedText));
     const statuses = Array.isArray(results) ? results : [results];
 
@@ -64,6 +64,7 @@ emailRoutes.route("/send").post(
         platform: PlatformType.EMAIL,
         sender: req.user?.uid,
         timestamp: new Date(),
+        batchId,
       }))
     );
 
@@ -74,7 +75,7 @@ emailRoutes.route("/send").post(
 emailRoutes.route("/send-personalized").post(
   checkAbility("create", "Email"),
   asyncHandler(async (req, res) => {
-    const { message, userIds, subject } = req.body;
+    const { message, userIds, subject, batchId } = req.body;
 
     const users = await apiCall(
       Service.USERS,
@@ -102,7 +103,7 @@ emailRoutes.route("/send-personalized").post(
     }
 
     const { results } = await PromisePool.for(userIds)
-      .withConcurrency(50)
+      .withConcurrency(20)
       .process(async (userId: any) => {
         const userData = users.find((user: any) => user.userId === userId);
 
@@ -124,6 +125,7 @@ emailRoutes.route("/send-personalized").post(
         platform: PlatformType.EMAIL,
         sender: req.user?.uid,
         timestamp: new Date(),
+        batchId,
       }))
     );
 

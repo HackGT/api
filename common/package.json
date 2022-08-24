@@ -18,6 +18,7 @@
     "express": "^4.17.3",
     "express-rate-limit": "^6.3.0",
     "firebase-admin": "^10.0.2",
+    "google-auth-library": "^8.4.0",
     "http-status-codes": "^2.2.0",
     "ioredis": "^4.28.5",
     "mongoose": "^6.2.3",

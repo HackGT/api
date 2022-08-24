@@ -17,12 +17,12 @@ const updateSecret = async (fileName: string, service: string) => {
   try {
     // Get secret
     [secret] = await client.getSecret({
-      name: `projects/${config.common.googleCloudProject}/secrets/${secretId}`,
+      name: `projects/${config.common.googleCloud.project}/secrets/${secretId}`,
     });
   } catch {
     // Create secret if it doesn't exist
     [secret] = await client.createSecret({
-      parent: `projects/${config.common.googleCloudProject}`,
+      parent: `projects/${config.common.googleCloud.project}`,
       secret: {
         name: secretId,
         replication: {

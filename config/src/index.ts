@@ -22,7 +22,13 @@ const COMMON: CommonConfig = {
     facebookHandle: "TheHexLabs",
   },
   emailAddress: "hello@hexlabs.org",
-  googleCloudProject: "hexlabs-cloud",
+  googleCloud: {
+    project: "hexlabs-cloud",
+    location: "us-east1",
+    serviceAccount: "hexlabs-api@hexlabs-cloud.iam.gserviceaccount.com",
+    oAuthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
+    taskQueue: "api-task-queue",
+  },
   memberEmailDomains: ["hack.gt", "hexlabs.org"],
 };
 

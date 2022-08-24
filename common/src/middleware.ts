@@ -6,11 +6,11 @@ import mongoose from "mongoose";
 import config, { Service } from "@api/config";
 import multer from "multer";
 import axios from "axios";
-import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
 import { Subject } from "@casl/ability";
+import { OAuth2Client } from "google-auth-library";
 
 import { ApiCallError, BadRequestError, ConfigError, ForbiddenError } from "./errors";
-import { AbilityAction, DEFAULT_USER_ROLES, UserRoles } from "./types";
+import { AbilityAction, DEFAULT_USER_ROLES, User, UserRoles } from "./types";
 import { apiCall } from "./apiCall";
 
 /**
@@ -21,14 +21,41 @@ export const asyncHandler =
   (req: Request, res: Response, next: NextFunction) =>
     Promise.resolve(fn(req, res, next)).catch(next);
 
+const oAuth2Client = config.common.googleCloud.oAuthClientId
+  ? new OAuth2Client(config.common.googleCloud.oAuthClientId)
+  : undefined;
+
 /**
  * Middleware to decode JWT from Google Cloud Identity Provider
  */
 export const decodeToken = (service: Service) =>
   asyncHandler(async (req, res, next) => {
-    let decodedIdToken: DecodedIdToken | null = null;
+    let decodedIdToken: Omit<User, "roles"> | null = null;
     let isUserDecoded = false;
 
+    if (oAuth2Client && !isUserDecoded && req.headers?.authorization?.startsWith("Bearer ")) {
+      const idToken = req.headers.authorization.split("Bearer ")[1];
+
+      try {
+        const ticket = await oAuth2Client.verifyIdToken({
+          idToken,
+        });
+
+        const tokenPayload = ticket.getPayload();
+        const userId = ticket.getUserId();
+
+        if (tokenPayload && userId) {
+          decodedIdToken = {
+            uid: userId,
+            ...tokenPayload,
+          };
+        } else {
+          throw new Error("Invalid ticket payload");
+        }
+      } catch (err) {
+        req.userError = err;
+      }
+    }
     if (!isUserDecoded && req.headers?.authorization?.startsWith("Bearer ")) {
       const idToken = req.headers.authorization.split("Bearer ")[1];
 

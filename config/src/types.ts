@@ -7,7 +7,13 @@ export interface CommonConfig {
     facebookHandle: string;
   };
   emailAddress: string;
-  googleCloudProject: string;
+  googleCloud: {
+    project: string;
+    location: string;
+    serviceAccount: string;
+    oAuthClientId?: string;
+    taskQueue: string;
+  };
   memberEmailDomains: string[];
 }
 
