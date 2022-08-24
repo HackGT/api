@@ -253,6 +253,8 @@ const commonDefinitions = {
       "Wright State University",
       "Yale University",
       "Yeshiva University",
+      "Other [United States]",
+      "Other [International]",
     ],
   },
   year: {

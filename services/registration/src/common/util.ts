@@ -20,13 +20,11 @@ export const validateApplicationData = async (data: any, branchId: any, branchFo
   if (branch == null) {
     throw new BadRequestError("Branch not found.");
   }
-
-  if (branchFormPage > branch.formPages.length) {
-    throw new BadRequestError("Branch form page is out of range.");
-  }
-
   if (!Number.isInteger(branchFormPage)) {
     throw new BadRequestError("Invalid branchFormPage field provided. It is not an integer.");
+  }
+  if (branchFormPage > branch.formPages.length) {
+    throw new BadRequestError("Branch form page is out of range.");
   }
 
   // Use the common definitions for all branches and include in validation
