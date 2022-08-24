@@ -30,6 +30,7 @@ export interface Application extends mongoose.Document {
   applicationSubmitTime?: Date;
   applicationData: {
     adult?: boolean;
+    dateOfBirth?: string;
     occupation?: string;
     school?: string;
     schoolEmail?: string;
