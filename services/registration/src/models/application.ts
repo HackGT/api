@@ -35,6 +35,8 @@ export interface Application extends mongoose.Document {
     schoolEmail?: string;
     schoolYear?: string;
     graduationYear?: number;
+    levelOfStudy?: string;
+    countryOfResidence?: string;
     major?: string;
     shirtSize?: string;
     dietaryRestrictions?: string[];
