@@ -106,6 +106,9 @@ const applicationSchema = new Schema<Application>(
       adult: {
         type: Boolean,
       },
+      dateOfBirth: {
+        type: String,
+      },
       occupation: {
         type: String,
       },
@@ -119,6 +122,12 @@ const applicationSchema = new Schema<Application>(
         type: String,
       },
       graduationYear: {
+        type: String,
+      },
+      levelOfStudy: {
+        type: String,
+      },
+      countryOfResidence: {
         type: String,
       },
       major: {
