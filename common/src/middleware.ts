@@ -49,6 +49,7 @@ export const decodeToken = (service: Service) =>
             uid: userId,
             ...tokenPayload,
           };
+          isUserDecoded = true;
         } else {
           throw new Error("Invalid ticket payload");
         }
