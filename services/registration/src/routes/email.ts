@@ -1,4 +1,4 @@
-import { asyncHandler, BadRequestError, checkAbility } from "@api/common";
+import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import express from "express";
 import { PromisePool } from "@supercharge/promise-pool";
 import { CloudTasksClient, protos } from "@google-cloud/tasks";
@@ -51,6 +51,22 @@ emailRouter.route("/actions/send-emails").post(
       timestamp: new Date(),
     });
 
+    // Manually send an email to the sender to ensure the email looks ok
+    await apiCall(
+      Service.NOTIFICATIONS,
+      {
+        method: "POST",
+        url: "/email/send-personalized",
+        data: {
+          message,
+          subject: `[SENDER FYI] ${subject}`,
+          userIds: [req.user?.uid],
+          hexathon: req.body.hexathon,
+        },
+      },
+      req
+    );
+
     // Split userIds into batches of 20
     const chunkedUserIds = _.chunk(userIds, 20);
 
@@ -61,7 +77,7 @@ emailRouter.route("/actions/send-emails").post(
       config.common.googleCloud.taskQueue
     );
 
-    await PromisePool.for(chunkedUserIds)
+    const { errors } = await PromisePool.for(chunkedUserIds)
       .withConcurrency(20)
       .process(async chunkedUserId => {
         const task: protos.google.cloud.tasks.v2.ITask = {
@@ -86,10 +102,12 @@ emailRouter.route("/actions/send-emails").post(
           },
         };
 
-        console.log(task);
-
         return client.createTask({ parent, task });
       });
+
+    if (errors.length > 0) {
+      console.log(errors);
+    }
 
     return res.send(email);
   })
