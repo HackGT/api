@@ -26,9 +26,20 @@ emailRouter.route("/actions/send-emails").post(
       hexathon: req.body.hexathon,
     };
 
+    // Match applications where either application or confirmation branch is in the list
     if (req.body.branchList && req.body.branchList.length > 0) {
-      filter.applicationBranch = { $in: req.body.branchList };
-      filter.confirmationBranch = { $in: req.body.branchList };
+      filter.$or = [
+        {
+          applicationBranch: {
+            $in: req.body.branchList,
+          },
+        },
+        {
+          confirmationBranch: {
+            $in: req.body.branchList,
+          },
+        },
+      ];
     }
     if (req.body.statusList && req.body.statusList.length > 0) {
       filter.status = { $in: req.body.statusList };
