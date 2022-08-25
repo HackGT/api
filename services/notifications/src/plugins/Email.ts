@@ -70,7 +70,7 @@ export const sendOneMessage = async (
 ): Promise<Status> => {
   try {
     await sendgrid.send({
-      from: config.common.emailAddress,
+      from: config.common.emailFrom,
       to: email,
       html: renderedHtml,
       text: renderedText,

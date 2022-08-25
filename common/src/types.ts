@@ -1,5 +1,4 @@
 import { Ability, AbilityTuple, Subject, MongoQuery } from "@casl/ability";
-import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
 import mongoose from "mongoose";
 
 /**

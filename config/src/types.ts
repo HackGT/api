@@ -7,6 +7,7 @@ export interface CommonConfig {
     facebookHandle: string;
   };
   emailAddress: string;
+  emailFrom: string;
   googleCloud: {
     project: string;
     location: string;

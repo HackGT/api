@@ -22,6 +22,7 @@ const COMMON: CommonConfig = {
     facebookHandle: "TheHexLabs",
   },
   emailAddress: "hello@hexlabs.org",
+  emailFrom: "HexLabs Team <hello@hexlabs.org>",
   googleCloud: {
     project: "hexlabs-cloud",
     location: "us-east1",
