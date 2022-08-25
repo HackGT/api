@@ -6,8 +6,7 @@ import { BranchModel } from "./branch";
 export interface Email extends mongoose.Document {
   hexathon: Types.ObjectId;
   filter: {
-    applicationBranchList: Types.ObjectId[];
-    confirmationBranchList: Types.ObjectId[];
+    branchList: Types.ObjectId[];
     statusList: string[];
   };
   sender: string;
@@ -23,12 +22,7 @@ const emailSchema = new Schema<Email>({
     required: true,
   },
   filter: {
-    applicationBranchList: {
-      type: [Schema.Types.ObjectId],
-      required: true,
-      ref: BranchModel,
-    },
-    confirmationBranchList: {
+    branchList: {
       type: [Schema.Types.ObjectId],
       required: true,
       ref: BranchModel,

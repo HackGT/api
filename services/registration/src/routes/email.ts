@@ -26,11 +26,9 @@ emailRouter.route("/actions/send-emails").post(
       hexathon: req.body.hexathon,
     };
 
-    if (req.body.applicationBranchList && req.body.applicationBranchList.length > 0) {
-      filter.applicationBranch = { $in: req.body.applicationBranchList };
-    }
-    if (req.body.confirmationBranchList && req.body.confirmationBranchList.length > 0) {
-      filter.confirmationBranch = { $in: req.body.confirmationBranchList };
+    if (req.body.branchList && req.body.branchList.length > 0) {
+      filter.applicationBranch = { $in: req.body.branchList };
+      filter.confirmationBranch = { $in: req.body.branchList };
     }
     if (req.body.statusList && req.body.statusList.length > 0) {
       filter.status = { $in: req.body.statusList };
@@ -43,8 +41,7 @@ emailRouter.route("/actions/send-emails").post(
     const email = await EmailModel.create({
       hexathon: req.body.hexathon,
       filter: {
-        applicationBranchList: req.body.applicationBranchList,
-        confirmationBranchList: req.body.confirmationBranchList,
+        branchList: req.body.branchList,
         statusList: req.body.statusList,
       },
       sender: req.user?.uid,

@@ -411,6 +411,7 @@ a[x-apple-data-detectors] {
   font-size: 16px;
   line-height: 150%;
   text-align: left;
+  min-height: 16px;
 }
 #emailContent p a {
   color: #007c89;

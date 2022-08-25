@@ -1,6 +1,5 @@
 /* eslint-disable object-shorthand */
 import sendgrid from "@sendgrid/mail";
-import { marked } from "marked";
 import path from "path";
 import { htmlToText } from "html-to-text";
 import config from "@api/config";
@@ -29,27 +28,11 @@ const sendgridApiKey = config.services.NOTIFICATIONS.pluginConfig?.email.sendgri
 sendgrid.setApiKey(sendgridApiKey);
 
 /**
- * Takes a string and renders it as markdown.
- */
-const renderMarkdown = (markdownString: string): Promise<string> =>
-  new Promise<string>((resolve, reject) => {
-    marked(markdownString, { smartypants: true }, (err: Error | null, parseResult: string) => {
-      if (err) {
-        console.log("Error in markdown");
-        reject(err);
-      } else {
-        resolve(parseResult);
-      }
-    });
-  });
-
-/**
- * Renders a message for an email in both HTML and text formats.
- * @param message the message to render
+ * Renders an HTML message for an email in both HTML and text formats.
+ * @param message the message body to render
  * @param headerImage the image URL to use for the header
  */
 export const renderEmail = async (message: string, headerImage: string) => {
-  const renderedMarkdown = await renderMarkdown(message);
   const renderedHtml = await emailRender.render("html", {
     emailHeaderImage: headerImage,
     website: config.common.socialMedia.website,
@@ -57,7 +40,7 @@ export const renderEmail = async (message: string, headerImage: string) => {
     twitterHandle: config.common.socialMedia.twitterHandle,
     facebookHandle: config.common.socialMedia.facebookHandle,
     emailAddress: config.common.emailAddress,
-    body: renderedMarkdown,
+    body: message,
   });
   const renderedText = htmlToText(renderedHtml);
 
@@ -128,13 +111,13 @@ export const sendOnePersonalizedMessages = async (
   headerImage: string
 ): Promise<Status> => {
   try {
-    let markdown = message;
-    markdown = markdown.replace(/{{first_name}}/g, sanitize(user?.name?.first));
-    markdown = markdown.replace(/{{middle_name}}/g, sanitize(user?.name?.middle));
-    markdown = markdown.replace(/{{last_name}}/g, sanitize(user?.name?.last));
-    markdown = markdown.replace(/{{email}}/g, sanitize(user?.email));
+    let updatedMessage = message;
+    updatedMessage = updatedMessage.replace(/{{first_name}}/g, sanitize(user?.name?.first));
+    updatedMessage = updatedMessage.replace(/{{middle_name}}/g, sanitize(user?.name?.middle));
+    updatedMessage = updatedMessage.replace(/{{last_name}}/g, sanitize(user?.name?.last));
+    updatedMessage = updatedMessage.replace(/{{email}}/g, sanitize(user?.email));
 
-    const [renderedHtml, renderedText] = await renderEmail(markdown, headerImage);
+    const [renderedHtml, renderedText] = await renderEmail(updatedMessage, headerImage);
 
     return sendOneMessage(user?.email, subject, renderedHtml, renderedText);
   } catch (error: any) {
