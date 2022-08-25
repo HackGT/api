@@ -10,8 +10,6 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
     return;
   }
 
-  console.log(req.user);
-
   if (req.user.roles.admin || req.user.roles.member) {
     can("manage", "Email");
     can("manage", "Text");

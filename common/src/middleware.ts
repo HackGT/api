@@ -35,7 +35,6 @@ export const decodeToken = (service: Service) =>
 
     if (oAuth2Client && !isUserDecoded && req.headers?.authorization?.startsWith("Bearer ")) {
       const idToken = req.headers.authorization.split("Bearer ")[1];
-      console.log(idToken);
 
       try {
         const ticket = await oAuth2Client.verifyIdToken({
@@ -44,9 +43,6 @@ export const decodeToken = (service: Service) =>
 
         const tokenPayload = ticket.getPayload();
         const userId = ticket.getUserId();
-
-        console.log(tokenPayload);
-        console.log(userId);
 
         if (tokenPayload && userId) {
           decodedIdToken = {
