@@ -95,7 +95,6 @@ gradingRouter.route("/actions/retrieve-question").post(
         {
           $match: {
             status: StatusType.APPLIED,
-            gradingComplete: false,
             applicationBranch: {
               $in: databaseBranches.map(branch => branch.id),
             },
