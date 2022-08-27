@@ -101,7 +101,7 @@ function mapCalibrationScores(
     scoreMappings: { [key: number]: number };
   }[] = [];
 
-  for (const group of Object.keys(gradingGroupMapping)) {
+  for (const group of Object.keys(userScoresByGroup)) {
     const userScores = userScoresByGroup[group];
     const groundTruthScores = groundTruthScoresByGroup[group];
 

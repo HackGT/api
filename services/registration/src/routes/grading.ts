@@ -32,10 +32,7 @@ export const gradingRouter = express.Router();
 gradingRouter.route("/actions/retrieve-question").post(
   checkAbility("create", "Grader"),
   asyncHandler(async (req, res) => {
-    if (!req.user) {
-      throw new BadRequestError("User is null");
-    }
-    if (!req.user.email) {
+    if (!req.user || !req.user.email) {
       throw new BadRequestError("User email is required");
     }
     if (!req.body.hexathon) {
