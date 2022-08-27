@@ -1391,8 +1391,7 @@
               "type": "object",
               "properties": {
                 "hexathon": {
-                  "type": "string",
-                  "description": "Hexathon ID"
+                  "type": "string"
                 }
               }
             }
@@ -1458,6 +1457,9 @@
                 "essayId": {
                   "type": "string"
                 },
+                "hexathon": {
+                  "type": "string"
+                },
                 "score": {
                   "type": "integer"
                 },
@@ -1481,6 +1483,22 @@
         "summary": "Skips a question to grade",
         "description": "",
         "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "hexathon": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": "successful operation"
@@ -1494,6 +1512,16 @@
         "summary": "Gets the current grading leaderboard",
         "description": "",
         "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathon",
+            "in": "query",
+            "description": "Hexathon id.",
+            "type": "string",
+            "collectionFormat": "multi",
+            "required": true
+          }
+        ],
         "responses": {
           "200": {
             "description": "successful operation",

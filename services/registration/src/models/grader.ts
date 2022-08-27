@@ -1,8 +1,9 @@
 import { AccessibleRecordModel, accessibleRecordsPlugin } from "@casl/mongoose";
-import mongoose, { Schema, model } from "mongoose";
+import mongoose, { Schema, model, Types } from "mongoose";
 
 export interface Grader extends mongoose.Document {
   userId: string;
+  hexathon: Types.ObjectId;
   graded: number;
   skipped: number;
   currentGradingGroup?: string;
@@ -22,6 +23,10 @@ export interface Grader extends mongoose.Document {
 const graderSchema = new Schema<Grader>({
   userId: {
     type: String,
+    required: true,
+  },
+  hexathon: {
+    type: Schema.Types.ObjectId,
     required: true,
   },
   graded: {

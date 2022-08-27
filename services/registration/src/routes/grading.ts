@@ -39,13 +39,17 @@ gradingRouter.route("/actions/retrieve-question").post(
       throw new BadRequestError("Hexathon field is required in body");
     }
 
-    let grader = await GraderModel.accessibleBy(req.ability).findOne({ userId: req.user.uid });
+    let grader = await GraderModel.accessibleBy(req.ability).findOne({
+      userId: req.user.uid,
+      hexathon: req.body.hexathon,
+    });
 
     // First-time grader -> so get initial grading group & give calibration questions
     if (!grader) {
       const gradingGroup = getUserInitialGradingGroup(req.user.email, gradingGroupMapping);
       grader = await GraderModel.create({
         userId: req.user.uid,
+        hexathon: req.body.hexathon,
         email: req.user.email,
         calibrationScores: [],
         currentGradingGroup: gradingGroup,
@@ -82,7 +86,10 @@ gradingRouter.route("/actions/retrieve-question").post(
           "Please check config. Grading group branch mapping is incorrect."
         );
       }
-      const databaseBranches = await BranchModel.find({ name: { $in: branches } });
+      const databaseBranches = await BranchModel.find({
+        name: { $in: branches },
+        hexathon: req.body.hexathon,
+      });
 
       let validEssays: AggregatedEssay[] = await ApplicationModel.aggregate([
         {
@@ -209,7 +216,10 @@ gradingRouter.route("/actions/retrieve-question").post(
 gradingRouter.route("/actions/submit-review").post(
   checkAbility("create", "Review"),
   asyncHandler(async (req, res) => {
-    const grader = await GraderModel.accessibleBy(req.ability).findOne({ userId: req.user?.uid });
+    const grader = await GraderModel.accessibleBy(req.ability).findOne({
+      userId: req.user?.uid,
+      hexathon: req.body.hexathon,
+    });
     if (!grader) {
       throw new BadRequestError("Grader does not exist in database");
     }
@@ -277,6 +287,7 @@ gradingRouter.route("/actions/submit-review").post(
 
       await ReviewModel.create({
         reviewerId: grader.userId,
+        hexathon: req.body.hexathon,
         essayId: req.body.essayId,
         score: req.body.score,
         adjustedScore,
@@ -304,7 +315,10 @@ gradingRouter.route("/actions/submit-review").post(
 gradingRouter.route("/actions/skip-question").post(
   checkAbility("update", "Grader"),
   asyncHandler(async (req, res) => {
-    const grader = await GraderModel.accessibleBy(req.ability).findOne({ userId: req.user?.uid });
+    const grader = await GraderModel.accessibleBy(req.ability).findOne({
+      userId: req.user?.uid,
+      hexathon: req.body.hexathon,
+    });
 
     if (!grader) {
       throw new BadRequestError("Grader does not exist in database");
@@ -321,7 +335,9 @@ gradingRouter.route("/leaderboard").get(
   checkAbility("read", "Grader"),
   asyncHandler(async (req, res) => {
     // Get top 10 graders in descending order (top grader first)
-    const topGraders = await GraderModel.find().sort({ graded: -1 }).limit(10);
+    const topGraders = await GraderModel.find({ hexathon: req.query.hexathon })
+      .sort({ graded: -1 })
+      .limit(10);
 
     // If there are no graders, send empty response
     if (topGraders.length === 0) {
