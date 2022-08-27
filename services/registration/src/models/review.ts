@@ -4,6 +4,7 @@ import mongoose, { Schema, Types, model } from "mongoose";
 export interface Review extends mongoose.Document {
   reviewerId: string;
   hexathon: Types.ObjectId;
+  applicationId: Types.ObjectId;
   essayId: Types.ObjectId;
   score: number;
   adjustedScore: number;
@@ -18,6 +19,10 @@ const reviewSchema = new Schema<Review>(
       required: true,
     },
     hexathon: {
+      type: Schema.Types.ObjectId,
+      required: true,
+    },
+    applicationId: {
       type: Schema.Types.ObjectId,
       required: true,
     },

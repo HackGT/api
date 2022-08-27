@@ -2,6 +2,7 @@
 import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import { Service } from "@api/config";
 import express from "express";
+import { Types } from "mongoose";
 
 import { getUserInitialGradingGroup } from "../common/util";
 import { getScoreMapping } from "../common/mapScores";
@@ -95,10 +96,11 @@ gradingRouter.route("/actions/retrieve-question").post(
         {
           $match: {
             status: StatusType.APPLIED,
+            gradingComplete: false,
             applicationBranch: {
-              $in: databaseBranches.map(branch => branch.id),
+              $in: databaseBranches.map(branch => branch._id),
             },
-            hexathon: req.body.hexathon,
+            hexathon: new Types.ObjectId(req.body.hexathon),
           },
         },
         {
@@ -166,19 +168,13 @@ gradingRouter.route("/actions/retrieve-question").post(
       }
     }
 
-    let branch;
-    let criteria;
-    // Set branch and criteria based on if calibration question or not
-    if (isCalibrationQuestion) {
-      branch = calibrationQuestion.branch;
-      criteria = calibrationQuestion.criteria;
-    } else {
-      branch = applicationQuestion?.applicationBranch;
-      criteria = applicationQuestion?.essay.criteria;
-    }
+    // Set criteria based on if calibration question or not
+    const criteria = isCalibrationQuestion
+      ? calibrationQuestion.criteria
+      : applicationQuestion?.essay.criteria;
 
     // Retrive rubric link and grading rubric from the rubric mapping config
-    const { question, rubricLink, gradingRubric } = rubricMapping[branch][criteria];
+    const { question, rubricLink, gradingRubric } = rubricMapping[criteria];
 
     let response;
     if (isCalibrationQuestion) {
@@ -196,7 +192,7 @@ gradingRouter.route("/actions/retrieve-question").post(
       const branchName = (await BranchModel.findById(applicationQuestion?.applicationBranch))?.name;
       response = {
         applicationId: applicationQuestion?.applicationId,
-        essayId: applicationQuestion?.essay.id,
+        essayId: applicationQuestion?.essay._id,
         branch: branchName,
         criteria: applicationQuestion?.essay.criteria,
         question,
@@ -289,6 +285,7 @@ gradingRouter.route("/actions/submit-review").post(
       await ReviewModel.create({
         reviewerId: grader.userId,
         hexathon: req.body.hexathon,
+        applicationId: req.body.applicationId,
         essayId: req.body.essayId,
         score: req.body.score,
         // adjustedScore,
