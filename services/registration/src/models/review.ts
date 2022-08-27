@@ -31,7 +31,6 @@ const reviewSchema = new Schema<Review>(
     },
     adjustedScore: {
       type: Number,
-      required: true,
     },
   },
   {

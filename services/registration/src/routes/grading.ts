@@ -258,12 +258,12 @@ gradingRouter.route("/actions/submit-review").post(
 
       // If this was the last calibration score submitted, compute this user's calibration
       // score mapping and save to database
-      if (
-        numCalibrationScoresForGroup ===
-        calibrationQuestionMapping[currentGradingGroup].length - 1
-      ) {
-        grader.calibrationMapping = await getScoreMapping(grader.calibrationScores);
-      }
+      // if (
+      //   numCalibrationScoresForGroup ===
+      //   calibrationQuestionMapping[currentGradingGroup].length - 1
+      // ) {
+      //   grader.calibrationMapping = await getScoreMapping(grader.calibrationScores);
+      // }
     } else {
       // Submit grading for an application
       const application = await ApplicationModel.findById(req.body.applicationId);
@@ -276,21 +276,23 @@ gradingRouter.route("/actions/submit-review").post(
         throw new BadRequestError("No essay found with provided essayId");
       }
 
-      const scoreMappings = grader.calibrationMapping.find(
-        mapping => mapping.criteria === essay.criteria
-      )?.scoreMappings;
-      if (!scoreMappings) {
-        throw new BadRequestError("No calibration mapping found for this criteria.");
-      }
+      // TODO: Calibration score mapping needs to be fixed
 
-      const adjustedScore = scoreMappings[parseInt(req.body.score)];
+      // const scoreMappings = grader.calibrationMapping.find(
+      //   mapping => mapping.criteria === essay.criteria
+      // )?.scoreMappings;
+      // if (!scoreMappings) {
+      //   throw new BadRequestError("No calibration mapping found for this criteria.");
+      // }
+
+      // const adjustedScore = scoreMappings[parseInt(req.body.score)];
 
       await ReviewModel.create({
         reviewerId: grader.userId,
         hexathon: req.body.hexathon,
         essayId: req.body.essayId,
         score: req.body.score,
-        adjustedScore,
+        // adjustedScore,
       });
 
       // TODO: Needs to be fixed up, as all the essays need to be scored first
