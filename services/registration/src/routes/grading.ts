@@ -288,6 +288,7 @@ gradingRouter.route("/actions/submit-review").post(
         applicationId: req.body.applicationId,
         essayId: req.body.essayId,
         score: req.body.score,
+        timestamp: new Date(),
         // adjustedScore,
       });
 

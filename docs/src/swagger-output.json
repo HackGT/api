@@ -2572,6 +2572,12 @@
         "reviewerId": {
           "type": "string"
         },
+        "hexathon": {
+          "type": "string"
+        },
+        "applicationId": {
+          "type": "string"
+        },
         "essayId": {
           "type": "string"
         },
@@ -2581,11 +2587,7 @@
         "adjustedScore": {
           "type": "number"
         },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
+        "timestamp": {
           "type": "string",
           "format": "date-time"
         }

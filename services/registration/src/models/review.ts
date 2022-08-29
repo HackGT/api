@@ -8,40 +8,38 @@ export interface Review extends mongoose.Document {
   essayId: Types.ObjectId;
   score: number;
   adjustedScore: number;
-  createdAt: Date;
-  updatedAt: Date;
+  timestamp: Date;
 }
 
-const reviewSchema = new Schema<Review>(
-  {
-    reviewerId: {
-      type: String,
-      required: true,
-    },
-    hexathon: {
-      type: Schema.Types.ObjectId,
-      required: true,
-    },
-    applicationId: {
-      type: Schema.Types.ObjectId,
-      required: true,
-    },
-    essayId: {
-      type: Schema.Types.ObjectId,
-      required: true,
-    },
-    score: {
-      type: Number,
-      required: true,
-    },
-    adjustedScore: {
-      type: Number,
-    },
+const reviewSchema = new Schema<Review>({
+  reviewerId: {
+    type: String,
+    required: true,
   },
-  {
-    timestamps: true,
-  }
-);
+  hexathon: {
+    type: Schema.Types.ObjectId,
+    required: true,
+  },
+  applicationId: {
+    type: Schema.Types.ObjectId,
+    required: true,
+  },
+  essayId: {
+    type: Schema.Types.ObjectId,
+    required: true,
+  },
+  score: {
+    type: Number,
+    required: true,
+  },
+  adjustedScore: {
+    type: Number,
+  },
+  timestamp: {
+    type: Date,
+    required: true,
+  },
+});
 
 reviewSchema.plugin(accessibleRecordsPlugin);
 
