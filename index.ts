@@ -2,8 +2,8 @@
 import concurrently from "concurrently";
 
 concurrently([
-  { command: "cd gateway && yarn dev", name: "gateway" },
-  { command: "cd docs && yarn dev", name: "docs" },
+  // TODO: Running gateway is disabled as it is not currently used
+  // { command: "cd gateway && yarn dev", name: "gateway" },
   { command: "cd services/hexathons && yarn dev", name: "hexathons" },
   { command: "cd services/auth && yarn dev", name: "auth" },
   { command: "cd services/users && yarn dev", name: "users" },
