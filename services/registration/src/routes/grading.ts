@@ -116,7 +116,7 @@ gradingRouter.route("/actions/retrieve-question").post(
         },
         {
           $lookup: {
-            from: "review",
+            from: "reviews",
             localField: "essay._id",
             foreignField: "essayId",
             as: "reviews",
