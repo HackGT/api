@@ -41,7 +41,15 @@ statisticsRouter.route("/").get(
             {
               $group: {
                 _id: "$applicationBranch",
-                data: { $push: "$applicationData" },
+                data: {
+                  $push: {
+                    schoolYear: "$applicationData.schoolYear",
+                    adult: "$applicationData.adult",
+                    gender: "$applicationData.gender",
+                    major: "$applicationData.major",
+                    school: "$applicationData.school",
+                  },
+                },
               },
             },
           ],
