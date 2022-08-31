@@ -70,22 +70,26 @@ const branchSchema = new Schema<Branch>({
       required: true,
     },
   },
-  formPages: [
-    {
-      title: {
-        type: String,
-        required: true,
+  formPages: {
+    type: [
+      {
+        title: {
+          type: String,
+          required: true,
+        },
+        jsonSchema: {
+          type: String,
+          required: true,
+        },
+        uiSchema: {
+          type: String,
+          required: true,
+        },
       },
-      jsonSchema: {
-        type: String,
-        required: true,
-      },
-      uiSchema: {
-        type: String,
-        required: true,
-      },
-    },
-  ],
+    ],
+    default: [],
+    required: true,
+  },
   secret: {
     type: Boolean,
     default: false,

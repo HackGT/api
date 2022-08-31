@@ -299,20 +299,21 @@ applicationRouter.route("/:id/actions/update-status").post(
     if (!req.user?.roles.member) {
       if (
         existingApplication.status === StatusType.ACCEPTED &&
-        existingApplication.confirmationBranch === undefined &&
-        newStatus === StatusType.CONFIRMED
+        newStatus === StatusType.CONFIRMED &&
+        (existingApplication.confirmationBranch === undefined ||
+          existingApplication.confirmationBranch.formPages.length === 0)
       ) {
         // pass
-      }
-      if (
+      } else if (
         existingApplication.status === StatusType.ACCEPTED &&
         newStatus === StatusType.NOT_ATTENDING
       ) {
         // pass
+      } else {
+        throw new BadRequestError(
+          "You do not have permission to change this application to the new status provided."
+        );
       }
-      throw new BadRequestError(
-        "You do not have permission to change this application to the new status provided."
-      );
     }
 
     await ApplicationModel.findByIdAndUpdate(
