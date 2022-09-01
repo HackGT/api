@@ -333,10 +333,13 @@ gradingRouter.route("/actions/skip-question").post(
 gradingRouter.route("/leaderboard").get(
   checkAbility("read", "Grader"),
   asyncHandler(async (req, res) => {
-    const currentGrader = await GraderModel.findOne({ userId: req.user?.uid });
+    const currentGrader = await GraderModel.accessibleBy(req.ability).findOne({
+      userId: req.user?.uid,
+    });
 
     // Get top 10 graders in descending order (top grader first)
-    const topGraders = await GraderModel.find({ hexathon: req.query.hexathon })
+    const topGraders = await GraderModel.accessibleBy(req.ability)
+      .find({ hexathon: req.query.hexathon })
       .sort({ graded: -1 })
       .limit(10);
 
