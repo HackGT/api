@@ -333,6 +333,8 @@ gradingRouter.route("/actions/skip-question").post(
 gradingRouter.route("/leaderboard").get(
   checkAbility("read", "Grader"),
   asyncHandler(async (req, res) => {
+    const currentGrader = await GraderModel.findOne({ userId: req.user?.uid });
+
     // Get top 10 graders in descending order (top grader first)
     const topGraders = await GraderModel.find({ hexathon: req.query.hexathon })
       .sort({ graded: -1 })
@@ -340,7 +342,7 @@ gradingRouter.route("/leaderboard").get(
 
     // If there are no graders, send empty response
     if (topGraders.length === 0) {
-      res.status(200).send({ leaderboard: [] });
+      res.status(200).send({ currentNumGraded: currentGrader?.graded ?? 0, leaderboard: [] });
     }
 
     const users = await apiCall(
@@ -368,6 +370,6 @@ gradingRouter.route("/leaderboard").get(
       }
     }
 
-    return res.status(200).send({ leaderboard });
+    return res.status(200).send({ currentNumGraded: currentGrader?.graded ?? 0, leaderboard });
   })
 );

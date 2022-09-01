@@ -1528,6 +1528,9 @@
             "schema": {
               "type": "object",
               "properties": {
+                "currentNumGraded": {
+                  "type": "integer"
+                },
                 "leaderboard": {
                   "type": "array",
                   "items": {
