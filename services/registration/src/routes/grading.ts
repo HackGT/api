@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import { Service } from "@api/config";
-import express from "express";
+import express, { application } from "express";
 import { Types } from "mongoose";
 
 import { getUserInitialGradingGroup } from "../common/util";
@@ -369,5 +369,128 @@ gradingRouter.route("/leaderboard").get(
     }
 
     return res.status(200).send({ leaderboard });
+  })
+);
+
+gradingRouter.route("/export-grading/:id").get(
+  asyncHandler(async (req, res) => {
+    const hexathon = req.params.id;
+
+    if (!hexathon) {
+      throw new BadRequestError("Hexathon field is required in header");
+    }
+
+    // Aggregate graded applications from mongodb
+    const gradedApplications: any[] = await ApplicationModel.aggregate([
+      {
+        $match: {
+          hexathon: new Types.ObjectId(hexathon),
+          status: "APPLIED",
+        },
+      },
+      {
+        $lookup: {
+          from: "reviews",
+          localField: "_id",
+          foreignField: "applicationId",
+          as: "reviews_data",
+        },
+      },
+      {
+        $unwind: {
+          path: "$reviews_data",
+          includeArrayIndex: "string",
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            applicationId: "$_id",
+            essayId: "$essayId",
+          },
+          userId: {
+            $first: "$userId",
+          },
+          applicationBranch: {
+            $first: "$applicationBranch",
+          },
+          applicationData: {
+            $first: "$applicationData",
+          },
+          essayId: {
+            $first: "$reviews_data.essayId",
+          },
+          avgScore: {
+            $avg: "$reviews_data.score",
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "branches",
+          localField: "applicationBranch",
+          foreignField: "_id",
+          as: "branches_data",
+        },
+      },
+      {
+        $match: {
+          branches_data: {
+            $elemMatch: {
+              name: "Participant - Emerging [Travel Reimbursement]",
+            },
+          },
+        },
+      },
+      {
+        $unwind: {
+          path: "$branches_data",
+          includeArrayIndex: "string",
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      {
+        $group: {
+          _id: "$_id.applicationId",
+          userId: {
+            $first: "$userId",
+          },
+          branchId: {
+            $first: "$applicationBranch",
+          },
+          branchName: {
+            $first: "$branches_data.name",
+          },
+          school: {
+            $first: "$applicationData.school",
+          },
+          essayId: {
+            $first: "$essayId",
+          },
+          avgScore: {
+            $first: "$avgScore",
+          },
+          gender: {
+            $first: "$applicationData.gender",
+          },
+          ethnicity: {
+            $first: "$applicationData.ethnicity",
+          },
+        },
+      },
+    ]);
+
+    // Create a comma separated string with all the data
+    let combinedApplications = "";
+
+    gradedApplications.forEach(appl => {
+      for (const field of Object.keys(appl)) {
+        combinedApplications += `${appl[field]},`;
+      }
+      combinedApplications += "\n";
+    });
+
+    return res.status(200).send({ combinedApplications });
   })
 );
