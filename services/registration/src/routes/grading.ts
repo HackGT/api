@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import { Service } from "@api/config";
-import express from "express";
+import express, { application } from "express";
 import { Types } from "mongoose";
 
 import { getUserInitialGradingGroup } from "../common/util";
@@ -374,5 +374,131 @@ gradingRouter.route("/leaderboard").get(
     }
 
     return res.status(200).send({ currentNumGraded: currentGrader?.graded ?? 0, leaderboard });
+  })
+);
+
+gradingRouter.route("/export-grading/:id").get(
+  checkAbility("aggregate", "Review"),
+  asyncHandler(async (req, res) => {
+    const hexathon = req.params.id;
+
+    if (!hexathon) {
+      throw new BadRequestError("Hexathon field is required in header");
+    }
+
+    // Aggregate graded applications from mongodb
+    const gradedApplications: any[] = await ApplicationModel.aggregate([
+      {
+        // Matches the hexathon and that it is a completed application
+        $match: {
+          hexathon: new Types.ObjectId(hexathon),
+          status: "APPLIED",
+        },
+      },
+      {
+        // joins the reviews collection on the applicationId field
+        $lookup: {
+          from: "reviews",
+          localField: "_id",
+          foreignField: "applicationId",
+          as: "reviews_data",
+        },
+      },
+      {
+        // spreads the reviews_data to un-nest the array
+        $unwind: {
+          path: "$reviews_data",
+          includeArrayIndex: "string",
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      {
+        // groups the data by id and calculates average score
+        $group: {
+          _id: "$_id",
+          userId: {
+            $first: "$userId",
+          },
+          applicationBranch: {
+            $first: "$applicationBranch",
+          },
+          applicationData: {
+            $first: "$applicationData",
+          },
+          essayId: {
+            $first: "$reviews_data.essayId",
+          },
+          avgScore: {
+            $avg: "$reviews_data.score",
+          },
+          numReviews: {
+            $sum: 1,
+          },
+        },
+      },
+      {
+        // joins the branches collection on applicationBranch
+        $lookup: {
+          from: "branches",
+          localField: "applicationBranch",
+          foreignField: "_id",
+          as: "branches_data",
+        },
+      },
+      {
+        // Spreads the branches_data array to un-nest the array
+        $unwind: {
+          path: "$branches_data",
+          includeArrayIndex: "string",
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      {
+        // Groups final data and returns necessary fields
+        $group: {
+          _id: "$_id",
+          userId: {
+            $first: "$userId",
+          },
+          branchId: {
+            $first: "$applicationBranch",
+          },
+          branchName: {
+            $first: "$branches_data.name",
+          },
+          school: {
+            $first: "$applicationData.school",
+          },
+          essayId: {
+            $first: "$essayId",
+          },
+          avgScore: {
+            $first: "$avgScore",
+          },
+          numReviews: {
+            $first: "$numReviews",
+          },
+          gender: {
+            $first: "$applicationData.gender",
+          },
+          ethnicity: {
+            $first: "$applicationData.ethnicity",
+          },
+        },
+      },
+    ]);
+
+    // Create a comma separated string with all the data
+    let combinedApplications =
+      "applicationId, userId, branchId, branchName, school, essayId, avgScore, numReviews, gender, ethnicity\n";
+
+    gradedApplications.forEach(appl => {
+      for (const field of Object.keys(appl)) {
+        combinedApplications += `${appl[field]},`;
+      }
+      combinedApplications += "\n";
+    });
+    res.header("Content-Type", "text/csv");
+    return res.status(200).send(combinedApplications);
   })
 );

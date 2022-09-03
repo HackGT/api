@@ -28,6 +28,7 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
 
   if (req.user.roles.admin || req.user.roles.member) {
     can("aggregate", "Application");
+    can("aggregate", "Review");
   }
 
   can(["create", "read", "update"], "Application", { userId: req.user.uid });
