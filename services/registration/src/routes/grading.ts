@@ -373,6 +373,7 @@ gradingRouter.route("/leaderboard").get(
 );
 
 gradingRouter.route("/export-grading/:id").get(
+  checkAbility("aggregate", "Review"),
   asyncHandler(async (req, res) => {
     const hexathon = req.params.id;
 
