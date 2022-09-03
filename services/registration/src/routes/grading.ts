@@ -26,7 +26,7 @@ export const gradingRouter = express.Router();
 
 /*
   The purpose of this route is to get a grader's response to a specific question.
-  Takes in email of someone who is grading the application (req.grader) 
+  Takes in email of someone who is grading the application (req.grader)
   -> Checks if needs to do calibration questions (first-time graders have to do these) (keep returning these until all are answered)
   -> checks groups -> return questions to grade
 */
@@ -334,9 +334,9 @@ gradingRouter.route("/leaderboard").get(
   checkAbility("read", "Grader"),
   asyncHandler(async (req, res) => {
     // Get top 10 graders in descending order (top grader first)
-    const topGraders = await GraderModel.find({ hexathon: req.query.hexathon })
-      .sort({ graded: -1 })
-      .limit(10);
+    const topGraders = await GraderModel.find({ hexathon: req.query.hexathon }).sort({
+      graded: -1,
+    });
 
     // If there are no graders, send empty response
     if (topGraders.length === 0) {
