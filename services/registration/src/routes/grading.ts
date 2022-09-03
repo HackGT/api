@@ -448,6 +448,7 @@ gradingRouter.route("/export-grading/:id").get(
         },
       },
       {
+        // Groups final data and returns necessary fields
         $group: {
           _id: "$_id",
           userId: {
