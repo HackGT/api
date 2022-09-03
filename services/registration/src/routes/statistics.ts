@@ -39,6 +39,9 @@ statisticsRouter.route("/").get(
           ],
           applicationData: [
             {
+              $match: { status: { $ne: StatusType.DRAFT } },
+            },
+            {
               $group: {
                 _id: "$applicationBranch",
                 data: {
