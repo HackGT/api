@@ -383,12 +383,14 @@ gradingRouter.route("/export-grading/:id").get(
     // Aggregate graded applications from mongodb
     const gradedApplications: any[] = await ApplicationModel.aggregate([
       {
+        // Matches the hexathon and that it is a completed application
         $match: {
           hexathon: new Types.ObjectId(hexathon),
           status: "APPLIED",
         },
       },
       {
+        // joins the reviews collection on the applicationId field
         $lookup: {
           from: "reviews",
           localField: "_id",
@@ -397,6 +399,7 @@ gradingRouter.route("/export-grading/:id").get(
         },
       },
       {
+        // spreads the reviews_data to un-nest the array
         $unwind: {
           path: "$reviews_data",
           includeArrayIndex: "string",
@@ -404,6 +407,7 @@ gradingRouter.route("/export-grading/:id").get(
         },
       },
       {
+        // groups the data by id and calculates average score
         $group: {
           _id: "$_id",
           userId: {
@@ -427,6 +431,7 @@ gradingRouter.route("/export-grading/:id").get(
         },
       },
       {
+        // joins the branches collection on applicationBranch
         $lookup: {
           from: "branches",
           localField: "applicationBranch",
@@ -435,15 +440,7 @@ gradingRouter.route("/export-grading/:id").get(
         },
       },
       {
-        $match: {
-          branches_data: {
-            $elemMatch: {
-              name: "Participant - Emerging [Travel Reimbursement]",
-            },
-          },
-        },
-      },
-      {
+        // Spreads the branches_data array to un-nest the array
         $unwind: {
           path: "$branches_data",
           includeArrayIndex: "string",
@@ -494,7 +491,7 @@ gradingRouter.route("/export-grading/:id").get(
       }
       combinedApplications += "\n";
     });
-
-    return res.status(200).send({ combinedApplications });
+    res.header("Content-Type", "text/csv");
+    return res.status(200).send(combinedApplications);
   })
 );
