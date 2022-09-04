@@ -31,7 +31,8 @@ export interface Application extends mongoose.Document {
   applicationData: {
     adult?: boolean;
     dateOfBirth?: string;
-    occupation?: string;
+    jobTitle?: string;
+    company?: string;
     school?: string;
     schoolEmail?: string;
     schoolYear?: string;
@@ -112,7 +113,10 @@ const applicationSchema = new Schema<Application>(
       dateOfBirth: {
         type: String,
       },
-      occupation: {
+      jobTitle: {
+        type: String,
+      },
+      company: {
         type: String,
       },
       school: {
