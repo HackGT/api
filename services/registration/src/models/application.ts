@@ -56,6 +56,9 @@ export interface Application extends mongoose.Document {
     marketing?: string;
     website?: string;
     linkedin?: string;
+    pastExperience?: string;
+    skills?: string[];
+    numberOfHackathons?: number;
     travelReimbursement?: string;
     extraInfo?: string;
     confirmChecks?: Schema.Types.Mixed;
@@ -181,6 +184,17 @@ const applicationSchema = new Schema<Application>(
       },
       linkedin: {
         type: String,
+      },
+      pastExperience: {
+        type: String,
+      },
+      skills: [
+        {
+          type: String,
+        },
+      ],
+      numberOfHackathons: {
+        type: Number,
       },
       travelReimbursement: {
         type: String,
