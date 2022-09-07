@@ -1392,6 +1392,10 @@
               "properties": {
                 "hexathon": {
                   "type": "string"
+                },
+                "gradingGroup": {
+                  "type": "string",
+                  "enum": ["generalGroup", "emergingGroup"]
                 }
               }
             }
@@ -1459,6 +1463,10 @@
                 },
                 "hexathon": {
                   "type": "string"
+                },
+                "gradingGroup": {
+                  "type": "string",
+                  "enum": ["generalGroup", "emergingGroup"]
                 },
                 "score": {
                   "type": "integer"
@@ -2506,6 +2514,18 @@
               }
             }
           }
+        },
+        "grading": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "group": {
+              "type": "string",
+              "enum": ["generalGroup", "emergingGroup"]
+            }
+          }
         }
       },
       "xml": {
@@ -2527,22 +2547,14 @@
         "skipped": {
           "type": "number"
         },
-        "currentGradingGroup": {
-          "type": "string"
-        },
-        "completedGradingGroups": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
         "calibrationScores": {
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
               "group": {
-                "type": "string"
+                "type": "string",
+                "enum": ["generalGroup", "emergingGroup"]
               },
               "score": {
                 "type": "number"

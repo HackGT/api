@@ -1,15 +1,15 @@
 import { AccessibleRecordModel, accessibleRecordsPlugin } from "@casl/mongoose";
 import mongoose, { Schema, model, Types } from "mongoose";
 
+import { GradingGroupType } from "./branch";
+
 export interface Grader extends mongoose.Document {
   userId: string;
   hexathon: Types.ObjectId;
   graded: number;
   skipped: number;
-  currentGradingGroup?: string;
-  completedGradingGroups: string[];
   calibrationScores: {
-    group: string;
+    group: GradingGroupType;
     score: number;
   }[];
   calibrationMapping: {
@@ -41,18 +41,13 @@ const graderSchema = new Schema<Grader>({
   },
   calibrationScores: [
     {
-      group: String,
+      group: {
+        type: String,
+        enum: GradingGroupType,
+      },
       score: Number,
     },
   ],
-  currentGradingGroup: {
-    type: String,
-  },
-  completedGradingGroups: {
-    type: [String],
-    default: [],
-    required: true,
-  },
   calibrationMapping: [
     {
       criteria: String,

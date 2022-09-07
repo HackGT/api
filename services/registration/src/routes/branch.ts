@@ -1,4 +1,4 @@
-import { asyncHandler, checkAbility } from "@api/common";
+import { asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import express from "express";
 import { FilterQuery } from "mongoose";
 
@@ -33,6 +33,10 @@ branchRouter.route("/:id").get(
 branchRouter.route("/").post(
   checkAbility("update", "Branch"),
   asyncHandler(async (req, res) => {
+    if (req.body?.grading?.enabled && !req.body?.grading?.group) {
+      throw new BadRequestError("Grading group is required when grading is set");
+    }
+
     const newBranch = await BranchModel.create(req.body);
 
     return res.send(newBranch);
@@ -42,6 +46,10 @@ branchRouter.route("/").post(
 branchRouter.route("/:id").patch(
   checkAbility("update", "Branch"),
   asyncHandler(async (req, res) => {
+    if (req.body?.grading?.enabled && !req.body?.grading?.group) {
+      throw new BadRequestError("Grading group is required when grading is set");
+    }
+
     const updatedBranch = await BranchModel.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
