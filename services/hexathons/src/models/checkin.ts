@@ -1,6 +1,8 @@
 import { AccessibleRecordModel, accessibleRecordsPlugin } from "@casl/mongoose";
 import mongoose, { Schema, model, Types } from "mongoose";
 
+import { HexathonModel } from "./hexathon";
+
 export interface Checkin extends mongoose.Document {
   userId: string;
   status: string;
@@ -18,6 +20,7 @@ const checkinSchema = new Schema<Checkin>(
     hexathon: {
       type: Schema.Types.ObjectId,
       required: true,
+      ref: HexathonModel,
     },
     status: {
       type: String,
