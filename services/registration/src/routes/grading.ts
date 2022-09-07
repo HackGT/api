@@ -1,16 +1,15 @@
 /* eslint-disable no-underscore-dangle */
 import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import { Service } from "@api/config";
-import express, { application } from "express";
+import express from "express";
 import { Types } from "mongoose";
 
-import { getUserInitialGradingGroup } from "../common/util";
 import { getScoreMapping } from "../common/mapScores";
 import { ApplicationModel, Essay, StatusType } from "../models/application";
 import { GraderModel } from "../models/grader";
 import { Review, ReviewModel } from "../models/review";
-import { BranchModel } from "../models/branch";
-import { gradingGroupMapping, calibrationQuestionMapping, rubricMapping } from "../config";
+import { BranchModel, BranchType, GradingGroupType } from "../models/branch";
+import { calibrationQuestionMapping, rubricMapping } from "../config";
 
 const MAX_REVIEWS_PER_ESSAY = 2;
 
@@ -39,6 +38,12 @@ gradingRouter.route("/actions/retrieve-question").post(
     if (!req.body.hexathon) {
       throw new BadRequestError("Hexathon field is required in body");
     }
+    if (
+      !req.body.gradingGroup ||
+      !Object.values(GradingGroupType).includes(req.body.gradingGroup)
+    ) {
+      throw new BadRequestError("Valid grading group is required in body");
+    }
 
     let grader = await GraderModel.accessibleBy(req.ability).findOne({
       userId: req.user.uid,
@@ -47,52 +52,51 @@ gradingRouter.route("/actions/retrieve-question").post(
 
     // First-time grader -> so get initial grading group & give calibration questions
     if (!grader) {
-      const gradingGroup = getUserInitialGradingGroup(req.user.email, gradingGroupMapping);
       grader = await GraderModel.create({
         userId: req.user.uid,
         hexathon: req.body.hexathon,
         email: req.user.email,
         calibrationScores: [],
-        currentGradingGroup: gradingGroup,
         calibrationMapping: null,
       });
     }
 
-    let { currentGradingGroup } = grader;
-    if (!currentGradingGroup) {
-      throw new BadRequestError("User is not in a grading group");
-    }
-
-    if (!calibrationQuestionMapping[currentGradingGroup]) {
+    if (!calibrationQuestionMapping[req.body.gradingGroup]) {
       throw new BadRequestError(
         "Config is not in correct format. Grader's group name does not exist"
       );
     }
 
     const numCalibrationQuestionsForGroup = grader.calibrationScores.filter(
-      score => score.group === currentGradingGroup
+      score => score.group === req.body.gradingGroup
     ).length;
 
     let isCalibrationQuestion = false;
     let calibrationQuestion: any | undefined;
     let applicationQuestion: AggregatedEssay | undefined;
-    if (numCalibrationQuestionsForGroup < calibrationQuestionMapping[currentGradingGroup].length) {
+    if (
+      numCalibrationQuestionsForGroup < calibrationQuestionMapping[req.body.gradingGroup].length
+    ) {
       isCalibrationQuestion = true;
       calibrationQuestion =
-        calibrationQuestionMapping[currentGradingGroup][numCalibrationQuestionsForGroup];
+        calibrationQuestionMapping[req.body.gradingGroup][numCalibrationQuestionsForGroup];
     } else {
-      const { branches } = gradingGroupMapping[currentGradingGroup];
-      if (!branches || !Array.isArray(branches)) {
+      // Get the list of branches that match the grading group
+      const databaseBranches = await BranchModel.find({
+        hexathon: req.body.hexathon,
+        grading: {
+          enabled: true,
+          group: req.body.gradingGroup,
+        },
+        type: BranchType.APPLICATION,
+      });
+      if (databaseBranches.length === 0) {
         throw new BadRequestError(
-          "Please check config. Grading group branch mapping is incorrect."
+          "No branches are currently available for grading. Please try again later."
         );
       }
-      const databaseBranches = await BranchModel.find({
-        name: { $in: branches },
-        hexathon: req.body.hexathon,
-      });
 
-      let validEssays: AggregatedEssay[] = await ApplicationModel.aggregate([
+      const validEssays: AggregatedEssay[] = await ApplicationModel.aggregate([
         {
           $match: {
             status: StatusType.APPLIED,
@@ -141,31 +145,14 @@ gradingRouter.route("/actions/retrieve-question").post(
         },
       ]);
 
-      // If there are no valid essays left for this group, try and get a new group
       if (validEssays.length === 0) {
-        const allGroups = Object.keys(gradingGroupMapping);
-        const potentialNewGroups = allGroups.filter(
-          group => !grader?.completedGradingGroups.includes(group) && group !== currentGradingGroup
+        throw new BadRequestError(
+          "All essays have been graded for this grading group. Please try another one."
         );
-
-        if (potentialNewGroups.length === 0) {
-          validEssays = [];
-        } else {
-          grader.completedGradingGroups.push(currentGradingGroup);
-          currentGradingGroup =
-            potentialNewGroups[Math.floor(Math.random() * potentialNewGroups.length)];
-          grader.currentGradingGroup = currentGradingGroup;
-          isCalibrationQuestion = true;
-          calibrationQuestion = calibrationQuestionMapping[currentGradingGroup][0]; // eslint-disable-line prefer-destructuring
-
-          await grader.save();
-        }
       }
 
       // Set the response to a random essay from the valid essays retrieved
-      if (!isCalibrationQuestion) {
-        applicationQuestion = validEssays[Math.floor(Math.random() * validEssays.length)];
-      }
+      applicationQuestion = validEssays[Math.floor(Math.random() * validEssays.length)];
     }
 
     // Set criteria based on if calibration question or not
@@ -219,10 +206,7 @@ gradingRouter.route("/actions/submit-review").post(
       throw new BadRequestError("Grader does not exist in database");
     }
 
-    const { currentGradingGroup } = grader;
-    if (!currentGradingGroup) {
-      throw new BadRequestError("Please refresh the page. Grader's group is not found");
-    } else if (!calibrationQuestionMapping[currentGradingGroup]) {
+    if (!calibrationQuestionMapping[req.body.gradingGroup]) {
       throw new BadRequestError("Group Config is incorrectly formatted. Group name is incorrect");
     }
 
@@ -231,13 +215,13 @@ gradingRouter.route("/actions/submit-review").post(
     }
 
     const numCalibrationScoresForGroup = grader.calibrationScores.filter(
-      val => val.group === currentGradingGroup
+      val => val.group === req.body.gradingGroup
     ).length;
 
     // Checks to make sure the user has completed all the calibration questions and that this request
     // is for a calibration question
     if (
-      numCalibrationScoresForGroup < calibrationQuestionMapping[currentGradingGroup].length &&
+      numCalibrationScoresForGroup < calibrationQuestionMapping[req.body.gradingGroup].length &&
       (!req.body.isCalibrationQuestion || req.body.applicationId)
     ) {
       throw new BadRequestError(
@@ -245,9 +229,9 @@ gradingRouter.route("/actions/submit-review").post(
       );
     }
 
-    if (numCalibrationScoresForGroup < calibrationQuestionMapping[currentGradingGroup].length) {
+    if (numCalibrationScoresForGroup < calibrationQuestionMapping[req.body.gradingGroup].length) {
       grader.calibrationScores.push({
-        group: currentGradingGroup,
+        group: req.body.gradingGroup,
         score: req.body.score,
       });
 

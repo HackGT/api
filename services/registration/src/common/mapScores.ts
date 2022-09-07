@@ -1,6 +1,6 @@
 import { ConfigError } from "@api/common";
 
-import { calibrationQuestionMapping, gradingGroupMapping, rubricMapping } from "../config";
+import { calibrationQuestionMapping, rubricMapping } from "../config";
 
 type UserScoresByGroup = {
   [group: string]: {
@@ -114,9 +114,10 @@ function mapCalibrationScores(
     // Computes all the criteria for each of the branches in this group. Since some of the criteria
     // may overlap, a set is used to prevent duplicates.
     const allCriteriasSet = new Set<string>();
-    for (const branch of gradingGroupMapping[group].branches) {
-      Object.keys(rubricMapping[branch]).forEach(criteria => allCriteriasSet.add(criteria));
-    }
+    // TODO: Needs to be updated since we aren't mapping by branch anymore, but by criteria
+    // for (const branch of gradingGroupMapping[group].branches) {
+    //   Object.keys(rubricMapping[branch]).forEach(criteria => allCriteriasSet.add(criteria));
+    // }
     const criterias = Array.from(allCriteriasSet);
 
     for (const criteria of criterias) {
