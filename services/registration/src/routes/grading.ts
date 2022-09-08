@@ -425,9 +425,6 @@ gradingRouter.route("/export-grading/:id").get(
           applicationData: {
             $first: "$applicationData",
           },
-          essayId: {
-            $first: "$reviews_data.essayId",
-          },
           avgScore: {
             $avg: "$reviews_data.score",
           },
@@ -481,7 +478,7 @@ gradingRouter.route("/export-grading/:id").get(
           ethnicity: {
             $first: "$applicationData.ethnicity",
           },
-          travelReimbursement: {
+          travelReimbursementType: {
             $first: "$applicationData.travelReimbursement",
           },
         },
@@ -490,7 +487,7 @@ gradingRouter.route("/export-grading/:id").get(
 
     // Create a comma separated string with all the data
     let combinedApplications =
-      "applicationId; userId; branchId; branchName; school; avgScore; numReviews; gender; ethnicity; travelReimbursement\n";
+      "applicationId; userId; branchId; branchName; school; avgScore; numReviews; gender; ethnicity, travelReimbursementType\n";
 
     gradedApplications.forEach(appl => {
       for (const field of Object.keys(appl)) {

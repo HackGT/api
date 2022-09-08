@@ -31,7 +31,8 @@ export interface Application extends mongoose.Document {
   applicationData: {
     adult?: boolean;
     dateOfBirth?: string;
-    occupation?: string;
+    jobTitle?: string;
+    company?: string;
     school?: string;
     schoolEmail?: string;
     schoolYear?: string;
@@ -56,6 +57,9 @@ export interface Application extends mongoose.Document {
     marketing?: string;
     website?: string;
     linkedin?: string;
+    pastExperience?: string;
+    skills?: string[];
+    numberOfHackathons?: number;
     travelReimbursement?: string;
     extraInfo?: string;
     confirmChecks?: Schema.Types.Mixed;
@@ -109,7 +113,10 @@ const applicationSchema = new Schema<Application>(
       dateOfBirth: {
         type: String,
       },
-      occupation: {
+      jobTitle: {
+        type: String,
+      },
+      company: {
         type: String,
       },
       school: {
@@ -181,6 +188,17 @@ const applicationSchema = new Schema<Application>(
       },
       linkedin: {
         type: String,
+      },
+      pastExperience: {
+        type: String,
+      },
+      skills: [
+        {
+          type: String,
+        },
+      ],
+      numberOfHackathons: {
+        type: Number,
       },
       travelReimbursement: {
         type: String,
