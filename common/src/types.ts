@@ -8,6 +8,7 @@ export interface UserRoles {
   member: boolean;
   exec: boolean;
   admin: boolean;
+  sponsor: boolean;
 }
 
 /**
@@ -17,6 +18,7 @@ export const DEFAULT_USER_ROLES: UserRoles = {
   member: false,
   exec: false,
   admin: false,
+  sponsor: false,
 };
 
 /**

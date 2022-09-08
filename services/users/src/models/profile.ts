@@ -12,6 +12,7 @@ export interface Profile extends mongoose.Document {
   phoneNumber?: string;
   gender?: string;
   resume?: Types.ObjectId;
+  company?: string;
 }
 
 const profileSchema = new Schema<Profile>({
@@ -47,6 +48,9 @@ const profileSchema = new Schema<Profile>({
     type: String,
   },
   resume: Types.ObjectId,
+  company: {
+    type: String
+  }
 });
 
 profileSchema.plugin(accessibleRecordsPlugin);
