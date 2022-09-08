@@ -90,7 +90,8 @@ interactionRoutes.route("/statistics").get(
               lastTimestamp: interaction.timestamp,
             };
           } else {
-            interactionsSummary[interaction.identifier].count++;
+            interactionsSummary[interaction.identifier].count += 1;
+
             if (
               interaction.timestamp < interactionsSummary[interaction.identifier].firstTimestamp
             ) {

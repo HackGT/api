@@ -34,6 +34,7 @@
     "express": "^4.17.2",
     "fs": "^0.0.1-security",
     "helmet": "^5.0.2",
+    "lodash": "^4.17.21",
     "mongoose": "^6.1.9",
     "morgan": "^1.10.0",
     "path": "^0.12.7",

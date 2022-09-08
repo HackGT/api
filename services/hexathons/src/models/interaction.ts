@@ -1,9 +1,23 @@
 import { AccessibleRecordModel, accessibleRecordsPlugin } from "@casl/mongoose";
 import mongoose, { Schema, model, Types } from "mongoose";
 
-enum InteractionType {
+import { HexathonModel } from "./hexathon";
+
+export enum InteractionType {
   EVENT = "event",
-  SCAVENGER_HUNT = "scavengerHunt",
+  SCAVENGER_HUNT = "scavenger_hunt",
+  EXPO_SUBMISSION = "expo_submission",
+}
+
+export enum InteractionEventType {
+  FOOD = "food",
+  WORKSHOP = "workshop",
+  CEREMONY = "ceremony",
+  TECH_TALK = "tech-talk",
+  MINI_EVENT = "mini-event",
+  IMPORTANT = "important",
+  SPEAKER = "speaker",
+  MINI_CHALLENGE = "mini-challenge",
 }
 
 export interface Interaction extends mongoose.Document {
@@ -11,6 +25,7 @@ export interface Interaction extends mongoose.Document {
   hexathon: Types.ObjectId;
   type: InteractionType;
   identifier?: string;
+  eventType?: InteractionEventType;
   timestamp: Date;
 }
 
@@ -22,6 +37,7 @@ const interactionSchema = new Schema<Interaction>({
   hexathon: {
     type: Schema.Types.ObjectId,
     required: true,
+    ref: HexathonModel,
   },
   type: {
     type: String,
@@ -30,6 +46,10 @@ const interactionSchema = new Schema<Interaction>({
   },
   identifier: {
     type: String,
+  },
+  eventType: {
+    type: String,
+    enum: Object.values(InteractionEventType),
   },
   timestamp: {
     type: Date,

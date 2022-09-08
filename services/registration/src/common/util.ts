@@ -1,4 +1,4 @@
-import { BadRequestError, ConfigError } from "@api/common";
+import { BadRequestError } from "@api/common";
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import express from "express";
@@ -86,37 +86,3 @@ export const getBranch = (
       throw new BadRequestError("Invalid branch type.");
   }
 };
-
-/**
- * Get initial grading group for a user by reading the config .json file. If a user email is specifically assigned to a
- * grading group, then that group is returned. Otherwise, the default grading group is returned. This is the grading group
- * specified with "emails": "rest".
- * @param email the user's email address
- * @param gradingGroupMapping the grading group mapping read from the config file
- * @returns the specified user's grading group
- */
-export function getUserInitialGradingGroup(email: string, gradingGroupMapping: any) {
-  let initialGradingGroup: string | undefined;
-  let restGradingGroup: string | undefined;
-
-  for (const gradingGroup of Object.keys(gradingGroupMapping)) {
-    if (gradingGroupMapping[gradingGroup].emails === "rest") {
-      restGradingGroup = gradingGroup;
-    } else if (
-      Array.isArray(gradingGroupMapping[gradingGroup].emails) &&
-      gradingGroupMapping[gradingGroup].emails.includes(email)
-    ) {
-      initialGradingGroup = gradingGroup;
-    }
-  }
-  // If no specific grading group is found, set the default rest grading group
-  initialGradingGroup = initialGradingGroup ?? restGradingGroup;
-
-  if (!initialGradingGroup) {
-    throw new ConfigError(
-      "User grading group not set. Please ask a tech team member to update the config mapping."
-    );
-  }
-
-  return initialGradingGroup;
-}

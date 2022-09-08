@@ -512,6 +512,229 @@
         }
       }
     },
+    "/hexathon-users/{hexathonId}/users/{userId}": {
+      "get": {
+        "tags": ["hexathons"],
+        "summary": "Gets a hexathon user",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathonId",
+            "in": "path",
+            "description": "hexathon id to find user",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "user id to find user",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/HexathonUser"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["hexathons"],
+        "summary": "Updates a hexathon user",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathonId",
+            "in": "path",
+            "description": "hexathon id to find user",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "user id to find user",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Fields to update",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "address": {
+                  "type": "string"
+                },
+                "validAddress": {
+                  "type": "string"
+                },
+                "trackingLabel": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/HexathonUser"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      }
+    },
+    "/hexathon-users/{hexathonId}/users/{userId}/actions/check-valid-user": {
+      "post": {
+        "tags": ["hexathons"],
+        "summary": "Checks if a user is valid for a hexathon",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathonId",
+            "in": "path",
+            "description": "hexathon id to find user",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "user id to find user",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      }
+    },
+    "/hexathon-users/{hexathonId}/users/{userId}/actions/purchase-prize-item": {
+      "post": {
+        "tags": ["hexathons"],
+        "summary": "Purchases a prize item for a selected user",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathonId",
+            "in": "path",
+            "description": "hexathon id to find user",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "user id to find user",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Fields to update",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "prizeItemId": {
+                  "type": "string"
+                },
+                "quantity": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      }
+    },
+    "/hexathon-users/{hexathonId}/users/{userId}/actions/update-points": {
+      "post": {
+        "tags": ["hexathons"],
+        "summary": "Updates points for a user",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathonId",
+            "in": "path",
+            "description": "hexathon id to find user",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "user id to find user",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Fields to update",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "numSpent": {
+                  "type": "number"
+                },
+                "numAdditional": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      }
+    },
     "/interactions": {
       "get": {
         "tags": ["hexathons"],
@@ -637,6 +860,143 @@
           },
           "400": {
             "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/prize-items": {
+      "get": {
+        "tags": ["hexathons"],
+        "summary": "Finds all prize items",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathon",
+            "in": "query",
+            "description": "hexathon id that needs to be considered for filter.",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PrizeItem"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      },
+      "post": {
+        "tags": ["hexathons"],
+        "summary": "Create a new prize item.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/PrizeItem"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PrizeItem"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      }
+    },
+    "/prize-items/{id}": {
+      "get": {
+        "tags": ["hexathons"],
+        "summary": "Gets a prize item by id",
+        "description": "",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/PrizeItem"
+            }
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      },
+      "put": {
+        "tags": ["hexathons"],
+        "summary": "Update an existing prize item by id.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Prize item id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/PrizeItem"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PrizeItem"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["hexathons"],
+        "summary": "Deletes a prize item by id",
+        "description": "",
+        "produces": ["application/json"],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid status"
           }
         }
       }
@@ -1392,6 +1752,10 @@
               "properties": {
                 "hexathon": {
                   "type": "string"
+                },
+                "gradingGroup": {
+                  "type": "string",
+                  "enum": ["generalGroup", "emergingGroup"]
                 }
               }
             }
@@ -1459,6 +1823,10 @@
                 },
                 "hexathon": {
                   "type": "string"
+                },
+                "gradingGroup": {
+                  "type": "string",
+                  "enum": ["generalGroup", "emergingGroup"]
                 },
                 "score": {
                   "type": "integer"
@@ -2146,7 +2514,7 @@
           "type": "string"
         },
         "hexathon": {
-          "type": "integer"
+          "type": "string"
         },
         "status": {
           "type": "string",
@@ -2229,25 +2597,37 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "userId": {
           "type": "string"
         },
+        "hexathon": {
+          "type": "string"
+        },
         "type": {
           "type": "string",
-          "enum": ["event", "scavengerHunt"]
+          "enum": ["event", "scavenger_hunt", "expo_submission"]
         },
         "identifier": {
           "type": "string"
         },
+        "eventType": {
+          "type": "string",
+          "enum": [
+            "food",
+            "workshop",
+            "ceremony",
+            "tech-talk",
+            "mini-event",
+            "important",
+            "speaker",
+            "mini-challenge"
+          ]
+        },
         "timestamp": {
           "type": "string",
           "format": "date-time"
-        },
-        "hexathon": {
-          "type": "string"
         }
       },
       "xml": {
@@ -2506,6 +2886,18 @@
               }
             }
           }
+        },
+        "grading": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "group": {
+              "type": "string",
+              "enum": ["generalGroup", "emergingGroup"]
+            }
+          }
         }
       },
       "xml": {
@@ -2527,22 +2919,14 @@
         "skipped": {
           "type": "number"
         },
-        "currentGradingGroup": {
-          "type": "string"
-        },
-        "completedGradingGroups": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
         "calibrationScores": {
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
               "group": {
-                "type": "string"
+                "type": "string",
+                "enum": ["generalGroup", "emergingGroup"]
               },
               "score": {
                 "type": "number"
@@ -2786,6 +3170,112 @@
         "timestamp": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "HexathonUser": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "hexathon": {
+          "type": "string"
+        },
+        "points": {
+          "type": "object",
+          "properties": {
+            "currentTotal": {
+              "type": "number"
+            },
+            "numCollected": {
+              "type": "number"
+            },
+            "numSpent": {
+              "type": "number"
+            },
+            "numAdditional": {
+              "type": "number"
+            },
+            "lastUpdated": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "address": {
+          "type": "string"
+        },
+        "validAddress": {
+          "type": "boolean"
+        },
+        "trackingLabel": {
+          "type": "string"
+        },
+        "purchasedPrizeItems": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "prizeItemId": {
+                "type": "string"
+              },
+              "quantity": {
+                "type": "number"
+              },
+              "timestamp": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      }
+    },
+    "PrizeItem": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "hexathon": {
+          "type": "string"
+        },
+        "number": {
+          "type": "number"
+        },
+        "capacity": {
+          "type": "number"
+        },
+        "points": {
+          "type": "number"
+        },
+        "description": {
+          "type": "string"
+        },
+        "image": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "shippable": {
+          "type": "boolean"
+        },
+        "totalNumRequested": {
+          "type": "number"
+        },
+        "location": {
+          "type": "string"
+        },
+        "image_url": {
+          "type": "string"
         }
       }
     }

@@ -18,6 +18,11 @@ export enum ApplicationGroupType {
   STAFF = "STAFF",
 }
 
+export enum GradingGroupType {
+  GENERAL_GROUP = "generalGroup",
+  EMERGING_GROUP = "emergingGroup",
+}
+
 export interface Branch extends mongoose.Document {
   name: string;
   hexathon: Types.ObjectId;
@@ -38,6 +43,10 @@ export interface Branch extends mongoose.Document {
     enabled?: boolean;
     confirmationBranch?: Types.ObjectId;
     emails?: string[];
+  };
+  grading?: {
+    enabled?: boolean;
+    group?: GradingGroupType;
   };
 }
 
@@ -94,6 +103,17 @@ const branchSchema = new Schema<Branch>({
     type: Boolean,
     default: false,
     required: true,
+  },
+  grading: {
+    enabled: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
+    group: {
+      type: String,
+      enum: GradingGroupType,
+    },
   },
 });
 
