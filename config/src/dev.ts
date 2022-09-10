@@ -125,6 +125,22 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       name: "auth",
     },
   },
+  HARDWARE: {
+    url: "/hardware",
+    port: 8007,
+    auth: false,
+    proxy: {
+      target: "http://localhost:8007",
+      changeOrigin: false,
+      pathRewrite: {
+        [`^/registration`]: "",
+      },
+    },
+    database: {
+      type: "mongo",
+      name: "hardware",
+    },
+  },
 };
 
 // const SERVICES = [
