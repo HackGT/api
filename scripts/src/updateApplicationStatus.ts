@@ -12,23 +12,32 @@ const updateApplication = async (
   acceptedApplications: string[], // List of Application Ids
   waitlistedApplications: string[], // List of Application Ids
   confirmationBranchId: string,
-  travelType: string
+  travelType: string,
+  travelReimbursementAmount: number
 ) => {
   await client.connect();
   const db = client.db("registration");
   const collection = db.collection<any>("applications");
 
+  // Convert strings to objectIds
+  const acceptedApplicationsIds = acceptedApplications.map(
+    applicationId => new ObjectId(applicationId)
+  );
+  const waitlistedApplicationsIds = waitlistedApplications.map(
+    applicationId => new ObjectId(applicationId)
+  );
+
   // Update accepted applications
   collection.updateMany(
     {
-      _id: { $in: acceptedApplications },
+      _id: { $in: acceptedApplicationsIds },
     },
     {
       $set: {
         status: "CONFIRMED",
         decisionData: {
           travelReimbursement: travelType,
-          travelReimbursementAmount: 200,
+          travelReimbursementAmount,
         },
         confirmationBranch: new ObjectId(confirmationBranchId),
       },
@@ -38,7 +47,7 @@ const updateApplication = async (
   // Waitlist the other applications
   collection.updateMany(
     {
-      _id: { $in: waitlistedApplications },
+      _id: { $in: waitlistedApplicationsIds },
     },
     {
       $set: {
@@ -54,7 +63,8 @@ const updateApplication = async (
   acceptedApplications: string[],
   waitlistedApplications: string[],
   confirmationBranchId: string,
-  travelType: string
+  travelType: string,
+  travelReimbursementAmount: number
  }
 */
 const APPLICATION_RESULTS = [
@@ -70,7 +80,8 @@ const APPLICATION_RESULTS = [
         file.acceptedApplications,
         file.waitlistedApplications,
         file.confirmationBranchId,
-        file.travelType
+        file.travelType,
+        file.travelReimbursementAmount
       )
     )
   );
