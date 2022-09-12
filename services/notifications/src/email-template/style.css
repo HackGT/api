@@ -413,7 +413,7 @@ a[x-apple-data-detectors] {
   text-align: left;
   min-height: 16px;
 }
-#emailContent p a {
+#emailContent a {
   color: #007c89;
   font-weight: normal;
   text-decoration: underline;
