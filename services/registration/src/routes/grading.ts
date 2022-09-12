@@ -337,7 +337,7 @@ gradingRouter.route('/leaderboard-statistics').get(
           foreignField: "applicationId",
           as: "reviews_data",
         },
-      },
+      },there
       {
         $unwind: {
           path: "$reviews_data",
