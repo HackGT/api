@@ -25,7 +25,7 @@ export const gradingRouter = express.Router();
 
 /*
   The purpose of this route is to get a grader's response to a specific question.
-  Takes in email of someone who is grading the application (req.grader) 
+  Takes in email of someone who is grading the application (req.grader)
   -> Checks if needs to do calibration questions (first-time graders have to do these) (keep returning these until all are answered)
   -> checks groups -> return questions to grade
 */
@@ -314,6 +314,97 @@ gradingRouter.route("/actions/skip-question").post(
   })
 );
 
+gradingRouter.route('/leaderboard-statistics').get(
+  checkAbility("aggregate", "totalReviews"),
+  checkAbility("aggregate", "Review"),
+  asyncHandler(async (req, res) => {
+    const hexathon = req.params.id;
+
+    if (!hexathon) {
+      throw new BadRequestError("Hexathon field is required in header");
+    }
+    const gradedApplications: any[] = await ApplicationModel.aggregate([
+      {
+        $match: {
+          hexathon: new Types.ObjectId(hexathon),
+          status: "APPLIED",
+        },
+      },
+      {
+        $lookup: {
+          from: "reviews",
+          localField: "_id",
+          foreignField: "applicationId",
+          as: "reviews_data",
+        },
+      },
+      {
+        $unwind: {
+          path: "$reviews_data",
+          includeArrayIndex: "string",
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          userId: {
+            $first: "$userId",
+          },
+          applicationBranch: {
+            $first: "$applicationBranch",
+          },
+          applicationData: {
+            $first: "$applicationData",
+          },
+          essayId: {
+            $first: "$reviews_data.essayId",
+          },
+          avgScore: {
+            $avg: "$reviews_data.score",
+          },
+          numReviews: {
+            $sum: 1,
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "branches",
+          localField: "applicationBranch",
+          foreignField: "_id",
+          as: "branches_data",
+        },
+      },
+      {
+        $unwind: {
+          path: "$branches_data",
+          includeArrayIndex: "string",
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          userId: {
+            $first: "$userId",
+          },
+          branchId: {
+            $first: "$applicationBranch",
+          },
+          branchName: {
+            $first: "$branches_data.name",
+          },
+        },
+      },
+    ]);
+
+    let combinedApplications =
+      "applicationId; userId; branchId; branchName;";
+    return res.status(200).send(combinedApplications);
+  })
+)
+
 gradingRouter.route("/leaderboard").get(
   checkAbility("read", "Grader"),
   asyncHandler(async (req, res) => {
@@ -324,8 +415,7 @@ gradingRouter.route("/leaderboard").get(
     // Get top 10 graders in descending order (top grader first)
     const topGraders = await GraderModel.accessibleBy(req.ability)
       .find({ hexathon: req.query.hexathon })
-      .sort({ graded: -1 })
-      .limit(10);
+      .sort({ graded: -1 });
 
     // If there are no graders, send empty response
     if (topGraders.length === 0) {
