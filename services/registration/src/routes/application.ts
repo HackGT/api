@@ -116,8 +116,10 @@ applicationRouter.route("/actions/choose-application-branch").post(
         );
       }
 
+      existingApplication.status = StatusType.DRAFT;
       existingApplication.applicationBranch = req.body.applicationBranch;
       existingApplication.applicationStartTime = new Date();
+      existingApplication.applicationSubmitTime = undefined;
       existingApplication.applicationData = {};
       existingApplication.name = getFullName(userInfo.name);
       existingApplication.email = userInfo.email;
