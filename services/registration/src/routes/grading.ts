@@ -315,30 +315,32 @@ gradingRouter.route("/actions/skip-question").post(
 );
 
 gradingRouter.route('/leaderboard-statistics').get(
-  checkAbility("aggregate", "totalReviews"),
   checkAbility("aggregate", "Review"),
   asyncHandler(async (req, res) => {
     const hexathon = req.params.id;
-
     if (!hexathon) {
       throw new BadRequestError("Hexathon field is required in header");
     }
+    // Aggregate graded applications from mongodb
     const gradedApplications: any[] = await ApplicationModel.aggregate([
       {
+        // Matches the hexathon and that it is a completed application
         $match: {
           hexathon: new Types.ObjectId(hexathon),
           status: "APPLIED",
         },
       },
       {
+        // joins the reviews collection on the applicationId field
         $lookup: {
           from: "reviews",
           localField: "_id",
           foreignField: "applicationId",
           as: "reviews_data",
         },
-      },there
+      },
       {
+        // spreads the reviews_data to un-nest the array
         $unwind: {
           path: "$reviews_data",
           includeArrayIndex: "string",
@@ -346,6 +348,7 @@ gradingRouter.route('/leaderboard-statistics').get(
         },
       },
       {
+        // groups the data by id and calculates average score
         $group: {
           _id: "$_id",
           userId: {
@@ -369,6 +372,7 @@ gradingRouter.route('/leaderboard-statistics').get(
         },
       },
       {
+        // joins the branches collection on applicationBranch
         $lookup: {
           from: "branches",
           localField: "applicationBranch",
@@ -377,6 +381,7 @@ gradingRouter.route('/leaderboard-statistics').get(
         },
       },
       {
+        // Spreads the branches_data array to un-nest the array
         $unwind: {
           path: "$branches_data",
           includeArrayIndex: "string",
@@ -384,6 +389,7 @@ gradingRouter.route('/leaderboard-statistics').get(
         },
       },
       {
+        // Groups final data and returns necessary fields
         $group: {
           _id: "$_id",
           userId: {
@@ -395,13 +401,31 @@ gradingRouter.route('/leaderboard-statistics').get(
           branchName: {
             $first: "$branches_data.name",
           },
+          school: {
+            $first: "$applicationData.school",
+          },
+          essayId: {
+            $first: "$essayId",
+          },
+          avgScore: {
+            $first: "$avgScore",
+          },
+          numReviews: {
+            $first: "$numReviews",
+          },
+          gender: {
+            $first: "$applicationData.gender",
+          },
+          ethnicity: {
+            $first: "$applicationData.ethnicity",
+          },
+          travelReimbursementType: {
+            $first: "$applicationData.travelReimbursement",
+          },
         },
       },
     ]);
-
-    let combinedApplications =
-      "applicationId; userId; branchId; branchName;";
-    return res.status(200).send(combinedApplications);
+    return res.status(200).send(gradedApplications);
   })
 )
 
