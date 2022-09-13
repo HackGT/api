@@ -39,7 +39,7 @@ const updateApplication = async (
     },
     {
       $set: {
-        status: "CONFIRMED",
+        status: "ACCEPTED",
         decisionData: {
           travelReimbursement: travelType,
           travelReimbursementAmount,
