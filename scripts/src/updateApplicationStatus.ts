@@ -9,9 +9,11 @@ process.on("unhandledRejection", err => {
 const client = new MongoClient(config.database.mongo.uri);
 
 const updateApplication = async (
-  acceptedApplications: string[], // List of Application Ids
+  acceptedApplicationsGeneral: string[], // List of Application Ids
+  acceptedApplicationsEmerging: string[], // List of Application Ids
   waitlistedApplications: string[], // List of Application Ids
-  confirmationBranchId: string,
+  confirmationBranchGeneralId: string,
+  confirmationBranchEmergingId: string,
   travelType: string,
   travelReimbursementAmount: number
 ) => {
@@ -20,17 +22,20 @@ const updateApplication = async (
   const collection = db.collection<any>("applications");
 
   // Convert strings to objectIds
-  const acceptedApplicationsIds = acceptedApplications.map(
+  const acceptedGeneralIds = acceptedApplicationsGeneral.map(
+    applicationId => new ObjectId(applicationId)
+  );
+  const acceptedEmergingIds = acceptedApplicationsEmerging.map(
     applicationId => new ObjectId(applicationId)
   );
   const waitlistedApplicationsIds = waitlistedApplications.map(
     applicationId => new ObjectId(applicationId)
   );
 
-  // Update accepted applications
-  collection.updateMany(
+  // Update accepted general applications
+  const acceptedGeneralRes = await collection.updateMany(
     {
-      _id: { $in: acceptedApplicationsIds },
+      _id: { $in: acceptedGeneralIds },
     },
     {
       $set: {
@@ -39,13 +44,30 @@ const updateApplication = async (
           travelReimbursement: travelType,
           travelReimbursementAmount,
         },
-        confirmationBranch: new ObjectId(confirmationBranchId),
+        confirmationBranch: new ObjectId(confirmationBranchGeneralId),
+      },
+    }
+  );
+
+  // Update accepted emerging applications
+  const acceptedEmergingRes = await collection.updateMany(
+    {
+      _id: { $in: acceptedEmergingIds },
+    },
+    {
+      $set: {
+        status: "CONFIRMED",
+        decisionData: {
+          travelReimbursement: travelType,
+          travelReimbursementAmount,
+        },
+        confirmationBranch: new ObjectId(confirmationBranchEmergingId),
       },
     }
   );
 
   // Waitlist the other applications
-  collection.updateMany(
+  const waitlistedRes = await collection.updateMany(
     {
       _id: { $in: waitlistedApplicationsIds },
     },
@@ -55,12 +77,24 @@ const updateApplication = async (
       },
     }
   );
+
+  console.log(`${acceptedGeneralRes.modifiedCount} application(s) accepted`);
+  console.log(`${acceptedEmergingRes.modifiedCount} application(s) accepted`);
+  console.log(`${waitlistedRes.modifiedCount} application(s) waitlisted`);
+  console.log(
+    `${
+      acceptedGeneralRes.modifiedCount +
+      acceptedEmergingRes.modifiedCount +
+      waitlistedRes.modifiedCount
+    } total application(s) updated`
+  );
 };
 
 /*
  Each file is of the form:
  {
-  acceptedApplications: string[],
+  acceptedApplicationsGeneral: string[],
+  acceptedApplicationsEmerging: string[],
   waitlistedApplications: string[],
   confirmationBranchId: string,
   travelType: string,
@@ -77,9 +111,11 @@ const APPLICATION_RESULTS = [
   await Promise.all(
     APPLICATION_RESULTS.map((file: any) =>
       updateApplication(
-        file.acceptedApplications,
+        file.acceptedApplicationsGeneral,
+        file.acceptedApplicationsEmerging,
         file.waitlistedApplications,
-        file.confirmationBranchId,
+        file.confirmationBranchGeneralId,
+        file.confirmationBranchEmergingId,
         file.travelType,
         file.travelReimbursementAmount
       )
