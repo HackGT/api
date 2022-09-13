@@ -46,7 +46,7 @@ applicationRouter.route("/").get(
       .find(filter)
       .skip(offset)
       .limit(limit)
-      .select("-applicationData -confirmationData");
+      .select("-applicationData -decisionData");
 
     return res.status(200).json({
       offset,

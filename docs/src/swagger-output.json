@@ -2667,16 +2667,9 @@
         "confirmationBranch": {
           "$ref": "#/definitions/Branch"
         },
-        "confirmationStartTime": {
-          "type": "string",
-          "format": "date-time"
-        },
         "confirmationSubmitTime": {
           "type": "string",
           "format": "date-time"
-        },
-        "confirmationData": {
-          "type": "object"
         },
         "status": {
           "type": "string",
@@ -2709,8 +2702,22 @@
             "applicationData": {
               "$ref": "#/definitions/ApplicationData"
             },
-            "confirmationData": {
-              "type": "object"
+            "decisionData": {
+              "type": "object",
+              "properties": {
+                "travelReimbursement": {
+                  "type": "string"
+                },
+                "travelReimbursementAmount": {
+                  "type": "string"
+                },
+                "travelReimbursementInfoLink": {
+                  "type": "string"
+                },
+                "travelReimbursementForm": {
+                  "type": "string"
+                }
+              }
             }
           }
         }
@@ -2725,7 +2732,13 @@
         "adult": {
           "type": "boolean"
         },
-        "occupation": {
+        "dateOfBirth": {
+          "type": "string"
+        },
+        "jobTitle": {
+          "type": "string"
+        },
+        "company": {
           "type": "string"
         },
         "school": {
@@ -2740,13 +2753,25 @@
         "graduationYear": {
           "type": "number"
         },
+        "levelOfStudy": {
+          "type": "string"
+        },
+        "countryOfResidence": {
+          "type": "string"
+        },
         "major": {
           "type": "string"
         },
         "shirtSize": {
           "type": "string"
         },
-        "dietaryRestriction": {
+        "dietaryRestrictions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "allergies": {
           "type": "string"
         },
         "phoneNumber": {
@@ -2787,7 +2812,22 @@
         "website": {
           "type": "string"
         },
-        "linknedin": {
+        "linkedin": {
+          "type": "string"
+        },
+        "pastExperience": {
+          "type": "string"
+        },
+        "skills": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "numberOfHackathons": {
+          "type": "number"
+        },
+        "travelReimbursement": {
           "type": "string"
         },
         "extraInfo": {

@@ -69,6 +69,8 @@ export interface Application extends mongoose.Document {
   decisionData?: {
     travelReimbursement?: string;
     travelReimbursementAmount?: number;
+    travelReimbursementInfoLink?: string;
+    travelReimbursementForm?: string;
   };
   confirmationBranch?: AutoPopulatedDoc<Branch>;
   confirmationSubmitTime?: Date;
@@ -238,6 +240,12 @@ const applicationSchema = new Schema<Application>(
       },
       travelReimbursementAmount: {
         type: Number,
+      },
+      travelReimbursementInfoLink: {
+        type: String,
+      },
+      travelReimbursementForm: {
+        type: String,
       },
     },
     confirmationBranch: {
