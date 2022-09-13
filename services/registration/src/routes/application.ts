@@ -107,7 +107,10 @@ applicationRouter.route("/actions/choose-application-branch").post(
     }
 
     if (existingApplication) {
-      if (existingApplication.status !== StatusType.DRAFT) {
+      if (
+        existingApplication.status !== StatusType.DRAFT &&
+        existingApplication.status !== StatusType.APPLIED
+      ) {
         throw new BadRequestError(
           "Cannot select an application branch. You have already submitted an application."
         );
