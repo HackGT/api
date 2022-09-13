@@ -2664,6 +2664,20 @@
           "type": "string",
           "format": "date-time"
         },
+        "decisionData": {
+          "type": "object",
+          "properties": {
+            "travelReimbursement": {
+              "type": "string"
+            },
+            "travelReimbursementAmount": {
+              "type": "number"
+            },
+            "travelReimbursementInfoLink": {
+              "type": "string"
+            }
+          }
+        },
         "confirmationBranch": {
           "$ref": "#/definitions/Branch"
         },
@@ -2701,23 +2715,6 @@
           "properties": {
             "applicationData": {
               "$ref": "#/definitions/ApplicationData"
-            },
-            "decisionData": {
-              "type": "object",
-              "properties": {
-                "travelReimbursement": {
-                  "type": "string"
-                },
-                "travelReimbursementAmount": {
-                  "type": "string"
-                },
-                "travelReimbursementInfoLink": {
-                  "type": "string"
-                },
-                "travelReimbursementForm": {
-                  "type": "string"
-                }
-              }
             }
           }
         }
