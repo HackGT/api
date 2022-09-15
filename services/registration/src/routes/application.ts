@@ -229,8 +229,8 @@ applicationRouter.route("/:id/actions/submit-application").post(
     const autoConfirm = branch.automaticConfirmation;
 
     if (
-      applicantType === "PARTICIPANT" ||
-      (autoConfirm?.enabled && existingApplication.email in autoConfirm.emails!)
+      autoConfirm?.enabled &&
+      (applicantType === "PARTICIPANT" || existingApplication.email in autoConfirm.emails!)
     ) {
       await ApplicationModel.findByIdAndUpdate(
         req.params.id,
