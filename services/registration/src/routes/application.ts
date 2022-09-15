@@ -214,6 +214,7 @@ applicationRouter.route("/:id/actions/save-application-data").post(
 
 applicationRouter.route("/:id/actions/submit-application").post(
   checkAbility("update", "Application"),
+
   asyncHandler(async (req, res) => {
     const existingApplication = await ApplicationModel.findById(req.params.id).accessibleBy(
       req.ability
@@ -222,6 +223,26 @@ applicationRouter.route("/:id/actions/submit-application").post(
     const [branch, branchType] = getBranch(existingApplication, req);
     if (new Date() < branch.settings.open || new Date() > branch.settings.close) {
       throw new BadRequestError("Unable to submit application data. Branch is not currently open.");
+    }
+
+    const applicantType = branch.applicationGroup;
+    const autoConfirm = branch.automaticConfirmation;
+
+    if (
+      applicantType === "PARTICIPANT" ||
+      (autoConfirm?.enabled && existingApplication.email in autoConfirm.emails!)
+    ) {
+      await ApplicationModel.findByIdAndUpdate(
+        req.params.id,
+        {
+          applicationSubmitTime: new Date(),
+          confirmationSubmitTime: new Date(),
+          confirmationBranch: autoConfirm?.confirmationBranch,
+          status: StatusType.CONFIRMED,
+        },
+        { new: true }
+      );
+      return res.sendStatus(204);
     }
 
     // Need to do extra formatting for essays since they are subdocuments in Mongoose
