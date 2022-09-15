@@ -2425,7 +2425,14 @@
             "description": "successful operation",
             "schema": {
               "type": "object",
-              "allOf": [{ "$ref": "#/definitions/Profile" }, { "$ref": "#/definitions/Permission" }]
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Profile"
+                },
+                {
+                  "$ref": "#/definitions/Permission"
+                }
+              ]
             }
           },
           "400": {
@@ -2878,6 +2885,9 @@
           "properties": {
             "enabled": {
               "type": "boolean"
+            },
+            "confirmationBranch": {
+              "$ref": "#/definitions/Branch"
             },
             "emails": {
               "type": "array",
