@@ -381,3 +381,49 @@ applicationRouter.route("/:id/actions/reset-application").post(
     return res.sendStatus(204);
   })
 );
+
+applicationRouter.route("/compiled-extra-info").get(
+  checkAbility("read", "Application"),
+  asyncHandler(async (req, res) => {
+    if (!req.query.hexathon) {
+      throw new BadRequestError("Hexathon filter is required");
+    }
+
+    const filter: FilterQuery<Application> = {};
+    filter.hexathon = req.query.hexathon;
+
+    if (req.query.userId) {
+      filter.userId = req.query.userId;
+    }
+
+    if (req.query.search) {
+      const searchLength = (req.query.search as string).length;
+      const search =
+        searchLength > 75
+          ? (req.query.search as string).slice(0, 75)
+          : (req.query.search as string);
+      filter.$or = [
+        { userId: { $regex: new RegExp(search, "i") } },
+        { email: { $regex: new RegExp(search, "i") } },
+        { name: { $regex: new RegExp(search, "i") } },
+      ];
+    }
+
+    const matchCount = await ApplicationModel.accessibleBy(req.ability).find(filter).count();
+
+    const limit = parseInt(req.query.limit as string) || 50;
+    const offset = parseInt(req.query.offset as string) || 0;
+    const applications = await ApplicationModel.accessibleBy(req.ability)
+      .find(filter)
+      .skip(offset)
+      .limit(limit)
+      .select("-applicationData");
+
+    return res.status(200).json({
+      offset,
+      total: matchCount,
+      count: applications.length,
+      applications,
+    });
+  })
+);
