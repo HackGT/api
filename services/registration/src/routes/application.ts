@@ -219,6 +219,7 @@ applicationRouter.route("/:id/actions/save-application-data").post(
 
 applicationRouter.route("/:id/actions/submit-application").post(
   checkAbility("update", "Application"),
+
   asyncHandler(async (req, res) => {
     const existingApplication = await ApplicationModel.findById(req.params.id).accessibleBy(
       req.ability
@@ -256,6 +257,27 @@ applicationRouter.route("/:id/actions/submit-application").post(
         await validateApplicationData(applicationData, branch._id, index);
       })
     );
+
+    const autoConfirm = branch.automaticConfirmation;
+    if (
+      branchType === BranchType.APPLICATION &&
+      autoConfirm?.enabled &&
+      ((autoConfirm.emails ?? []).includes("*") || // matches all emails
+        (autoConfirm.emails ?? []).includes(existingApplication.email) || // matches complete emails
+        (autoConfirm.emails ?? []).includes(existingApplication.email.split("@").pop() ?? "")) // matches emails by domain
+    ) {
+      await ApplicationModel.findByIdAndUpdate(
+        req.params.id,
+        {
+          applicationSubmitTime: new Date(),
+          confirmationSubmitTime: new Date(),
+          confirmationBranch: autoConfirm?.confirmationBranch,
+          status: StatusType.CONFIRMED,
+        },
+        { new: true }
+      );
+      return res.sendStatus(204);
+    }
 
     switch (branchType) {
       case BranchType.APPLICATION:
