@@ -140,4 +140,8 @@ config/*.json
 
 .env
 
+scripts/input
 scripts/output
+
+!scripts/input/.gitkeep
+!scripts/output/.gitkeep
