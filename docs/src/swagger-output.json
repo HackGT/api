@@ -1709,9 +1709,6 @@
                     "confirmedUsers": {
                       "type": "integer"
                     },
-                    "nonConfirmedUsers": {
-                      "type": "integer"
-                    },
                     "deniedUsers": {
                       "type": "integer"
                     }
@@ -1723,11 +1720,22 @@
                 "confirmationStatistics": {
                   "type": "object"
                 },
-                "rejectionStatistics": {
-                  "type": "object"
-                },
                 "applicationDataStatistics": {
-                  "type": "object"
+                  "type": "object",
+                  "properties": {
+                    "genderData": {
+                      "type": "object"
+                    },
+                    "schoolData": {
+                      "type": "object"
+                    },
+                    "majorData": {
+                      "type": "object"
+                    },
+                    "schoolYearData": {
+                      "type": "object"
+                    }
+                  }
                 }
               }
             }
