@@ -225,8 +225,6 @@ applicationRouter.route("/:id/actions/submit-application").post(
       throw new BadRequestError("Unable to submit application data. Branch is not currently open.");
     }
 
-    const autoConfirm = branch.automaticConfirmation;
-
     // Need to do extra formatting for essays since they are subdocuments in Mongoose
     const essays: any = {};
     for (const essay of existingApplication.applicationData.essays ?? []) {
@@ -255,12 +253,14 @@ applicationRouter.route("/:id/actions/submit-application").post(
       })
     );
 
+    const autoConfirm = branch.automaticConfirmation;
+
     if (
-      branchType === "APPLICATION" &&
+      branchType === BranchType.APPLICATION &&
       autoConfirm?.enabled &&
       ((autoConfirm.emails ?? []).includes("*") || // matches all emails
         (autoConfirm.emails ?? []).includes(existingApplication.email) || // matches complete emails
-        (autoConfirm.emails ?? []).includes(existingApplication.email.replace(/^[^@]*@/, ""))) // matches emails by domain
+        (autoConfirm.emails ?? []).includes(existingApplication.email.replace(/^[^@]*/, ""))) // matches emails by domain
     ) {
       await ApplicationModel.findByIdAndUpdate(
         req.params.id,
