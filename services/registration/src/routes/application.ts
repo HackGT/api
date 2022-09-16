@@ -254,13 +254,12 @@ applicationRouter.route("/:id/actions/submit-application").post(
     );
 
     const autoConfirm = branch.automaticConfirmation;
-
     if (
       branchType === BranchType.APPLICATION &&
       autoConfirm?.enabled &&
       ((autoConfirm.emails ?? []).includes("*") || // matches all emails
         (autoConfirm.emails ?? []).includes(existingApplication.email) || // matches complete emails
-        (autoConfirm.emails ?? []).includes(existingApplication.email.replace(/^[^@]*/, ""))) // matches emails by domain
+        (autoConfirm.emails ?? []).includes(existingApplication.email.split("@").pop() ?? "")) // matches emails by domain
     ) {
       await ApplicationModel.findByIdAndUpdate(
         req.params.id,
