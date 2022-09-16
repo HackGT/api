@@ -361,13 +361,12 @@ gradingRouter.route("/leaderboard").get(
   })
 );
 
-gradingRouter.route("/export-grading/:id").get(
+gradingRouter.route("/export").get(
   checkAbility("aggregate", "Review"),
   asyncHandler(async (req, res) => {
-    const hexathon = req.params.id;
-
+    const hexathon = req.query.hexathon as string;
     if (!hexathon) {
-      throw new BadRequestError("Hexathon field is required in header");
+      throw new BadRequestError("Hexathon field is required in query parameters");
     }
 
     // Aggregate graded applications from mongodb
@@ -376,7 +375,7 @@ gradingRouter.route("/export-grading/:id").get(
         // Matches the hexathon and that it is a completed application
         $match: {
           hexathon: new Types.ObjectId(hexathon),
-          status: "APPLIED",
+          status: { $ne: StatusType.DRAFT },
         },
       },
       {
@@ -408,6 +407,9 @@ gradingRouter.route("/export-grading/:id").get(
           },
           applicationData: {
             $first: "$applicationData",
+          },
+          status: {
+            $first: "$status",
           },
           avgScore: {
             $avg: "$reviews_data.score",
@@ -465,13 +467,16 @@ gradingRouter.route("/export-grading/:id").get(
           travelReimbursementType: {
             $first: "$applicationData.travelReimbursement",
           },
+          status: {
+            $first: "$status",
+          },
         },
       },
     ]);
 
     // Create a comma separated string with all the data
     let combinedApplications =
-      "applicationId; userId; branchId; branchName; school; avgScore; numReviews; gender; ethnicity, travelReimbursementType\n";
+      "applicationId; userId; branchId; branchName; school; avgScore; numReviews; gender; ethnicity; travelReimbursementType; status\n";
 
     gradedApplications.forEach(appl => {
       for (const field of Object.keys(appl)) {

@@ -1919,6 +1919,29 @@
         }
       }
     },
+    "/grading/export": {
+      "get": {
+        "tags": ["registration"],
+        "summary": "Exports the grading data as csv for a hexathon",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathon",
+            "in": "query",
+            "description": "Hexathon id.",
+            "type": "string",
+            "collectionFormat": "multi",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
     "/email/actions/send-emails": {
       "post": {
         "tags": ["registration"],
