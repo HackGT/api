@@ -314,6 +314,65 @@ gradingRouter.route("/actions/skip-question").post(
   })
 );
 
+gradingRouter.route("/actions/leaderboard-branch-stats").get(
+  checkAbility("aggregate", "Review"),
+  asyncHandler(async (req, res) => {
+    const hexathon = req.query.hexathon;
+    if (!hexathon) {
+      throw new BadRequestError("Hexathon field is required in header");
+    }
+    const gradedApplications: any[] = await ApplicationModel.aggregate([
+      {
+        $match: {
+          hexathon: new Types.ObjectId(hexathon),
+          status: "APPLIED",
+        },
+      },
+      {
+        $lookup: {
+          from: "review",
+          localField: "_id",
+          foreignField: "applicationId",
+          as: "reviews_data"
+        },
+      },
+      {
+        $unwind: {
+          path: "$review_data",
+          includeArrayIndex: "string",
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      {
+        $group: {
+          applicationBranch: {
+            $first: "applicationBranch"
+          },
+          numReviews: {
+            $sum: 1
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "branches",
+          localField: "applicationBranch",
+          foreignField: "_id",
+          as: "branches_data",
+        },
+      },
+      {
+        $unwind: {
+          path: "$reviews_data",
+          includeArrayIndex: "string",
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      
+    ]);
+  });
+)
+
 gradingRouter.route('/leaderboard-statistics').get(
   checkAbility("aggregate", "Review"),
   asyncHandler(async (req, res) => {
