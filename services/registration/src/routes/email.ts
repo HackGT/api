@@ -6,12 +6,29 @@ import config, { Service } from "@api/config";
 import _ from "lodash";
 import { FilterQuery } from "mongoose";
 
-import { EmailModel } from "../models/email";
+import { Email, EmailModel } from "../models/email";
 import { Application, ApplicationModel } from "../models/application";
 
 export const emailRouter = express.Router();
 
 const client = new CloudTasksClient();
+
+emailRouter.route("/").get(
+  checkAbility("read", "Email"),
+  asyncHandler(async (req, res) => {
+    if (!req.query.hexathon) {
+      throw new BadRequestError("Hexathon filter is required");
+    }
+
+    const filter: FilterQuery<Email> = {
+      hexathon: req.query.hexathon,
+    };
+
+    const emails = await EmailModel.find(filter).accessibleBy(req.ability);
+
+    return res.send(emails);
+  })
+);
 
 emailRouter.route("/actions/send-emails").post(
   checkAbility("create", "Email"),

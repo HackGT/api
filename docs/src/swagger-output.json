@@ -1950,6 +1950,35 @@
         }
       }
     },
+    "/email": {
+      "get": {
+        "tags": ["registration"],
+        "summary": "Gets all the emails for a hexathon",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathon",
+            "in": "query",
+            "description": "The hexathon id.",
+            "type": "string",
+            "collectionFormat": "multi",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Email"
+              }
+            }
+          }
+        }
+      }
+    },
     "/email/actions/send-emails": {
       "post": {
         "tags": ["registration"],
@@ -3210,13 +3239,7 @@
         "filter": {
           "type": "object",
           "properties": {
-            "applicationBranchList": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "confirmationBranchList": {
+            "branchList": {
               "type": "array",
               "items": {
                 "type": "string"
