@@ -1,4 +1,10 @@
-import { asyncHandler, BadRequestError, checkAbility } from "@api/common";
+import {
+  apiCall,
+  asyncHandler,
+  BadRequestError,
+  checkAbility,
+  DEFAULT_USER_ROLES,
+} from "@api/common";
 import express from "express";
 import { getAuth } from "firebase-admin/auth"; // eslint-disable-line import/no-unresolved
 
@@ -50,6 +56,20 @@ companyRoutes.route("/:id").put(
   })
 );
 
+// get company based on employee id provided
+companyRoutes.route("/employees/:employeeId").get(
+  checkAbility("read", "Company"),
+  asyncHandler(async (req, res) => {
+    const company = await CompanyModel.findOne({ employees: req.params.employeeId });
+
+    if (!company) {
+      throw new BadRequestError("Company not found or you do not have permission.");
+    }
+
+    return res.status(200).send(company);
+  })
+);
+
 companyRoutes.route("/:id/employees/add").post(
   checkAbility("update", "Company"),
   asyncHandler(async (req, res) => {
@@ -65,6 +85,34 @@ companyRoutes.route("/:id/employees/add").post(
 
     emails.forEach(async (email: string) => {
       const user = await getAuth().getUserByEmail(email);
+
+      const permission = await apiCall(
+        Service.AUTH,
+        { method: "GET", url: `/permissions/${user.uid}` },
+        req
+      );
+
+      let roles;
+      if (permission) {
+        roles = permission.roles;
+      } else {
+        roles = DEFAULT_USER_ROLES;
+      }
+
+      roles.sponsor = true;
+
+      await apiCall(
+        Service.AUTH,
+        {
+          method: "POST",
+          url: `/permissions/${user.uid}`,
+          data: {
+            roles: permission.roles,
+          },
+        },
+        req
+      );
+
       if (!uniqueEmployees.includes(user.uid)) {
         uniqueEmployees.push(user.uid);
       }
