@@ -46,7 +46,7 @@ applicationRouter.route("/").get(
       .find(filter)
       .skip(offset)
       .limit(limit)
-      .select("-applicationData -confirmationData");
+      .select("-applicationData");
 
     return res.status(200).json({
       offset,
@@ -107,14 +107,19 @@ applicationRouter.route("/actions/choose-application-branch").post(
     }
 
     if (existingApplication) {
-      if (existingApplication.status !== StatusType.DRAFT) {
+      if (
+        existingApplication.status !== StatusType.DRAFT &&
+        existingApplication.status !== StatusType.APPLIED
+      ) {
         throw new BadRequestError(
           "Cannot select an application branch. You have already submitted an application."
         );
       }
 
+      existingApplication.status = StatusType.DRAFT;
       existingApplication.applicationBranch = req.body.applicationBranch;
       existingApplication.applicationStartTime = new Date();
+      existingApplication.applicationSubmitTime = undefined;
       existingApplication.applicationData = {};
       existingApplication.name = getFullName(userInfo.name);
       existingApplication.email = userInfo.email;
@@ -214,6 +219,7 @@ applicationRouter.route("/:id/actions/save-application-data").post(
 
 applicationRouter.route("/:id/actions/submit-application").post(
   checkAbility("update", "Application"),
+
   asyncHandler(async (req, res) => {
     const existingApplication = await ApplicationModel.findById(req.params.id).accessibleBy(
       req.ability
@@ -251,6 +257,27 @@ applicationRouter.route("/:id/actions/submit-application").post(
         await validateApplicationData(applicationData, branch._id, index);
       })
     );
+
+    const autoConfirm = branch.automaticConfirmation;
+    if (
+      branchType === BranchType.APPLICATION &&
+      autoConfirm?.enabled &&
+      ((autoConfirm.emails ?? []).includes("*") || // matches all emails
+        (autoConfirm.emails ?? []).includes(existingApplication.email) || // matches complete emails
+        (autoConfirm.emails ?? []).includes(existingApplication.email.split("@").pop() ?? "")) // matches emails by domain
+    ) {
+      await ApplicationModel.findByIdAndUpdate(
+        req.params.id,
+        {
+          applicationSubmitTime: new Date(),
+          confirmationSubmitTime: new Date(),
+          confirmationBranch: autoConfirm?.confirmationBranch,
+          status: StatusType.CONFIRMED,
+        },
+        { new: true }
+      );
+      return res.sendStatus(204);
+    }
 
     switch (branchType) {
       case BranchType.APPLICATION:

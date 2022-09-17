@@ -295,6 +295,7 @@ const commonDefinitions = {
       "Computer Engineering",
       "Computational Media",
       "Computer Science",
+      "Data Science",
       "Earth and Atmospheric Sciences",
       "Economics",
       "Economics and International Affairs",

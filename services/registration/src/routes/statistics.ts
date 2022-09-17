@@ -1,26 +1,34 @@
+/* eslint-disable prefer-destructuring */
 /* eslint-disable no-underscore-dangle */
 import { asyncHandler, checkAbility } from "@api/common";
 import express from "express";
 import mongoose from "mongoose";
 
 import { ApplicationModel, StatusType } from "../models/application";
-import { BranchModel } from "../models/branch";
+import { BranchModel, BranchType } from "../models/branch";
 
 export const statisticsRouter = express.Router();
+
+/**
+ * Transforms the array result of a MongoDB aggregation query into a map
+ * @param array the aggregate array
+ * @returns the result with keys mapped to their counts
+ */
+const transformAggregateArray = (array: any[]) =>
+  array.reduce((prev, curr) => {
+    prev[curr._id] = curr.count; // eslint-disable-line no-param-reassign
+    return prev;
+  }, {});
 
 statisticsRouter.route("/").get(
   checkAbility("aggregate", "Application"),
   asyncHandler(async (req, res) => {
     const { hexathon } = req.query;
 
-    /**
-     * This aggregate gets:
-     * a) users grouped by application status with frequency
-     * b) an array of application data of the applications
-     * c) application branches grouped by id with frequency
-     * d) confirmation branches grouped by id with frequency
-     * e) rejections grouped by application branch with frequency
-     */
+    const branches = await BranchModel.find({
+      hexathon: new mongoose.Types.ObjectId(hexathon as string),
+    });
+
     const aggregatedApplications = await ApplicationModel.aggregate([
       {
         $match: {
@@ -29,6 +37,7 @@ statisticsRouter.route("/").get(
       },
       {
         $facet: {
+          // users grouped by application status with frequency
           users: [
             {
               $group: {
@@ -37,48 +46,91 @@ statisticsRouter.route("/").get(
               },
             },
           ],
-          applicationData: [
+          // gender data for applied applications
+          genderData: [
             {
-              $match: { status: { $ne: StatusType.DRAFT } },
+              $match: {
+                "status": { $ne: StatusType.DRAFT },
+                "applicationData.gender": { $exists: true },
+              },
             },
             {
               $group: {
-                _id: "$applicationBranch",
-                data: {
-                  $push: {
-                    schoolYear: "$applicationData.schoolYear",
-                    adult: "$applicationData.adult",
-                    gender: "$applicationData.gender",
-                    major: "$applicationData.major",
-                    school: "$applicationData.school",
-                  },
-                },
+                _id: "$applicationData.gender",
+                count: { $sum: 1 },
               },
             },
           ],
+          // school year data for applied applications
+          schoolYearData: [
+            {
+              $match: {
+                "status": { $ne: StatusType.DRAFT },
+                "applicationData.schoolYear": { $exists: true },
+              },
+            },
+            {
+              $group: {
+                _id: "$applicationData.schoolYear",
+                count: { $sum: 1 },
+              },
+            },
+          ],
+          // major data for applied applications
+          majorData: [
+            {
+              $match: {
+                "status": { $ne: StatusType.DRAFT },
+                "applicationData.major": { $exists: true },
+              },
+            },
+            {
+              $group: {
+                _id: "$applicationData.major",
+                count: { $sum: 1 },
+              },
+            },
+          ],
+          // school data for applied applications
+          schoolData: [
+            {
+              $match: {
+                "status": { $ne: StatusType.DRAFT },
+                "applicationData.school": { $exists: true },
+              },
+            },
+            {
+              $group: {
+                _id: "$applicationData.school",
+                count: { $sum: 1 },
+              },
+            },
+          ],
+          // groups all applications by application branch and status
           applicationBranches: [
             {
               $group: {
-                _id: "$applicationBranch",
+                _id: {
+                  applicationBranch: "$applicationBranch",
+                  status: "$status",
+                },
                 count: { $sum: 1 },
               },
             },
           ],
+          // groups all applications with a confirmation branch by confirmation branch and status
           confirmationBranches: [
             {
-              $group: {
-                _id: "$confirmationBranch",
-                count: { $sum: 1 },
+              $match: {
+                confirmationBranch: { $exists: true },
               },
             },
-          ],
-          rejections: [
-            {
-              $match: { status: StatusType.DENIED },
-            },
             {
               $group: {
-                _id: "$applicationBranch",
+                _id: {
+                  confirmationBranch: "$confirmationBranch",
+                  status: "$status",
+                },
                 count: { $sum: 1 },
               },
             },
@@ -87,101 +139,114 @@ statisticsRouter.route("/").get(
       },
     ]);
 
-    const aggregatedUsers = aggregatedApplications[0].users;
-    const aggregatedApplicationBranches = aggregatedApplications[0].applicationBranches;
-    const aggregatedConfirmationBranches = aggregatedApplications[0].confirmationBranches;
-    const aggregatedApplicationData = aggregatedApplications[0].applicationData;
-    const aggregatedRejections = aggregatedApplications[0].rejections;
+    const aggregatedUsers: any[] = aggregatedApplications[0].users;
+    const aggregatedApplicationBranches: any[] = aggregatedApplications[0].applicationBranches;
+    const aggregatedConfirmationBranches: any[] = aggregatedApplications[0].confirmationBranches;
 
-    /**
-     * This aggregate gets the frequency of branches grouped by branch name.
-     */
-    const aggregatedBranches = await BranchModel.aggregate([
-      {
-        $match: {
-          hexathon: new mongoose.Types.ObjectId(hexathon as string),
-        },
-      },
-      {
-        $group: {
-          _id: "$name",
-          branchId: { $first: "$_id" },
-        },
-      },
-    ]);
+    // CALCULATE ALL USER STATISTICS
 
-    const branchMap: Record<string, string> = {};
-    for (const element of aggregatedBranches) {
-      const branch: string = element._id;
-      branchMap[element.branchId.toString()] = branch;
-    }
-
-    let [draftUsers, appliedUsers, acceptedUsers, confirmedUsers, deniedUsers] = Array(5).fill(0);
+    const allUsersTotal = aggregatedUsers.reduce((acc, aggregate) => acc + aggregate.count, 0);
+    const allUsersStatusCount: {
+      [status in StatusType]?: number;
+    } = {};
     for (const element of aggregatedUsers) {
-      switch (element._id) {
-        case StatusType.DRAFT:
-          draftUsers = element.count;
-          break;
-        case StatusType.APPLIED:
-          appliedUsers = element.count;
-          break;
-        case StatusType.ACCEPTED:
-          acceptedUsers = element.count;
-          break;
-        case StatusType.CONFIRMED:
-          confirmedUsers = element.count;
-          break;
-        case StatusType.DENIED:
-          deniedUsers = element.count;
-          break;
-        default:
-        // do nothing
-      }
+      allUsersStatusCount[element._id as keyof typeof StatusType] = element.count;
     }
+
     const userStatistics = {
-      totalUsers: draftUsers + appliedUsers,
-      appliedUsers,
-      acceptedUsers,
-      confirmedUsers,
-      nonConfirmedUsers: acceptedUsers - confirmedUsers,
-      deniedUsers,
+      totalUsers: allUsersTotal,
+      appliedUsers: allUsersTotal - (allUsersStatusCount.DRAFT || 0),
+      acceptedUsers:
+        (allUsersStatusCount.ACCEPTED || 0) +
+        (allUsersStatusCount.CONFIRMED || 0) +
+        (allUsersStatusCount.NOT_ATTENDING || 0),
+      confirmedUsers: allUsersStatusCount.CONFIRMED || 0,
+      deniedUsers: allUsersStatusCount.DENIED || 0,
     };
 
-    let applicationStatistics: Record<string, number> = {};
-    let confirmationStatistics: Record<string, number> = {};
-    let rejectionStatistics: Record<string, number> = {};
-    let applicationDataStatistics: Record<string, number> = {};
+    // CALCULATES BRANCH SPECIFIC STATISTICS
 
-    for (const element of aggregatedApplicationBranches) {
-      const branch: string = branchMap[element._id];
-      applicationStatistics = { ...applicationStatistics, [branch]: element.count };
-    }
+    const applicationBranchStatistics: {
+      [name: string]: {
+        draft: number;
+        applied: number;
+        decisionPending: number;
+        accepted: number;
+        waitlisted: number;
+        denied: number;
+        total: number;
+      };
+    } = {};
+    const confirmationBranchStatistics: {
+      [name: string]: {
+        confirmed: number;
+        notAttending: number;
+        total: number;
+      };
+    } = {};
 
-    for (const element of aggregatedConfirmationBranches) {
-      if (branchMap[element._id]) {
-        const branch: string = branchMap[element._id];
-        confirmationStatistics = { ...confirmationStatistics, [branch]: element.count };
+    for (const branch of branches) {
+      // Maps status to count
+      const statusCount: {
+        [status in StatusType]?: number;
+      } = {};
+
+      if (branch.type === BranchType.APPLICATION) {
+        const branchAggregates = aggregatedApplicationBranches.filter(aggregate =>
+          aggregate._id.applicationBranch.equals(branch._id)
+        );
+        for (const aggregate of branchAggregates) {
+          statusCount[aggregate._id.status as keyof typeof StatusType] = aggregate.count;
+        }
+
+        // Gets total count of applications
+        const numTotal = branchAggregates.reduce((acc, aggregate) => acc + aggregate.count, 0);
+
+        applicationBranchStatistics[branch.name] = {
+          draft: statusCount[StatusType.DRAFT] || 0,
+          applied: numTotal - (statusCount[StatusType.DRAFT] || 0),
+          decisionPending: statusCount[StatusType.APPLIED] || 0,
+          accepted:
+            (statusCount[StatusType.ACCEPTED] || 0) +
+            (statusCount[StatusType.CONFIRMED] || 0) +
+            (statusCount[StatusType.NOT_ATTENDING] || 0),
+          waitlisted: statusCount[StatusType.WAITLISTED] || 0,
+          denied: statusCount[StatusType.DENIED] || 0,
+          total: numTotal,
+        };
+      } else if (branch.type === BranchType.CONFIRMATION) {
+        const branchAggregates = aggregatedConfirmationBranches.filter(aggregate =>
+          aggregate._id.confirmationBranch.equals(branch._id)
+        );
+        for (const aggregate of branchAggregates) {
+          statusCount[aggregate._id.status as keyof typeof StatusType] = aggregate.count;
+        }
+
+        // Gets total count of applications
+        const numTotal = branchAggregates.reduce((acc, aggregate) => acc + aggregate.count, 0);
+
+        confirmationBranchStatistics[branch.name] = {
+          confirmed: statusCount[StatusType.CONFIRMED] || 0,
+          notAttending: statusCount[StatusType.NOT_ATTENDING] || 0,
+          total: numTotal,
+        };
       }
     }
 
-    for (const element of aggregatedRejections) {
-      const branch: string = branchMap[element._id];
-      rejectionStatistics = { ...rejectionStatistics, [branch]: element.count };
-    }
+    // CALCULATES APPLICATION DATA STATISTICS
 
-    for (const element of aggregatedApplicationData) {
-      const branch: string = branchMap[element._id];
-      applicationDataStatistics = { ...applicationDataStatistics, [branch]: element.data };
-    }
-
-    const statistics = {
-      userStatistics,
-      applicationStatistics,
-      confirmationStatistics,
-      rejectionStatistics,
-      applicationDataStatistics,
+    const applicationDataStatistics = {
+      genderData: transformAggregateArray(aggregatedApplications[0].genderData),
+      schoolData: transformAggregateArray(aggregatedApplications[0].schoolData),
+      majorData: transformAggregateArray(aggregatedApplications[0].majorData),
+      schoolYearData: transformAggregateArray(aggregatedApplications[0].schoolYearData),
     };
 
-    return res.send(statistics);
+    return res.send({
+      userStatistics,
+      applicationStatistics: applicationBranchStatistics,
+      confirmationStatistics: confirmationBranchStatistics,
+      applicationDataStatistics,
+    });
   })
 );

@@ -1709,9 +1709,6 @@
                     "confirmedUsers": {
                       "type": "integer"
                     },
-                    "nonConfirmedUsers": {
-                      "type": "integer"
-                    },
                     "deniedUsers": {
                       "type": "integer"
                     }
@@ -1723,11 +1720,22 @@
                 "confirmationStatistics": {
                   "type": "object"
                 },
-                "rejectionStatistics": {
-                  "type": "object"
-                },
                 "applicationDataStatistics": {
-                  "type": "object"
+                  "type": "object",
+                  "properties": {
+                    "genderData": {
+                      "type": "object"
+                    },
+                    "schoolData": {
+                      "type": "object"
+                    },
+                    "majorData": {
+                      "type": "object"
+                    },
+                    "schoolYearData": {
+                      "type": "object"
+                    }
+                  }
                 }
               }
             }
@@ -1915,6 +1923,29 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/grading/export": {
+      "get": {
+        "tags": ["registration"],
+        "summary": "Exports the grading data as csv for a hexathon",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathon",
+            "in": "query",
+            "description": "Hexathon id.",
+            "type": "string",
+            "collectionFormat": "multi",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
           }
         }
       }
@@ -2425,7 +2456,14 @@
             "description": "successful operation",
             "schema": {
               "type": "object",
-              "allOf": [{ "$ref": "#/definitions/Profile" }, { "$ref": "#/definitions/Permission" }]
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Profile"
+                },
+                {
+                  "$ref": "#/definitions/Permission"
+                }
+              ]
             }
           },
           "400": {
@@ -2664,19 +2702,26 @@
           "type": "string",
           "format": "date-time"
         },
+        "decisionData": {
+          "type": "object",
+          "properties": {
+            "travelReimbursement": {
+              "type": "string"
+            },
+            "travelReimbursementAmount": {
+              "type": "number"
+            },
+            "travelReimbursementInfoLink": {
+              "type": "string"
+            }
+          }
+        },
         "confirmationBranch": {
           "$ref": "#/definitions/Branch"
-        },
-        "confirmationStartTime": {
-          "type": "string",
-          "format": "date-time"
         },
         "confirmationSubmitTime": {
           "type": "string",
           "format": "date-time"
-        },
-        "confirmationData": {
-          "type": "object"
         },
         "status": {
           "type": "string",
@@ -2708,9 +2753,6 @@
           "properties": {
             "applicationData": {
               "$ref": "#/definitions/ApplicationData"
-            },
-            "confirmationData": {
-              "type": "object"
             }
           }
         }
@@ -2725,7 +2767,13 @@
         "adult": {
           "type": "boolean"
         },
-        "occupation": {
+        "dateOfBirth": {
+          "type": "string"
+        },
+        "jobTitle": {
+          "type": "string"
+        },
+        "company": {
           "type": "string"
         },
         "school": {
@@ -2740,13 +2788,25 @@
         "graduationYear": {
           "type": "number"
         },
+        "levelOfStudy": {
+          "type": "string"
+        },
+        "countryOfResidence": {
+          "type": "string"
+        },
         "major": {
           "type": "string"
         },
         "shirtSize": {
           "type": "string"
         },
-        "dietaryRestriction": {
+        "dietaryRestrictions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "allergies": {
           "type": "string"
         },
         "phoneNumber": {
@@ -2787,7 +2847,22 @@
         "website": {
           "type": "string"
         },
-        "linknedin": {
+        "linkedin": {
+          "type": "string"
+        },
+        "pastExperience": {
+          "type": "string"
+        },
+        "skills": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "numberOfHackathons": {
+          "type": "number"
+        },
+        "travelReimbursement": {
           "type": "string"
         },
         "extraInfo": {
@@ -2878,6 +2953,9 @@
           "properties": {
             "enabled": {
               "type": "boolean"
+            },
+            "confirmationBranch": {
+              "$ref": "#/definitions/Branch"
             },
             "emails": {
               "type": "array",
