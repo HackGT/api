@@ -28,17 +28,17 @@ const visitSchema = new Schema<Visit>({
   employees: {
     type: [String],
     required: true,
-    default: []
+    default: [],
   },
   tags: {
     type: [String],
     required: false,
-    default: []
+    default: [],
   },
   notes: {
     type: [String],
     required: false,
-    default: []
+    default: [],
   },
   scannerID: {
     type: String,

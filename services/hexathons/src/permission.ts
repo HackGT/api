@@ -26,6 +26,13 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
     can("manage", "PrizeItem");
   }
 
+  // insight permission roles
+  if (req.user.roles.sponsor) {
+    can("read", "Visit");
+    can("create", "Visit");
+    can("update", "Visit");
+  }
+
   can("read", "Hexathon", { isActive: true });
   can("read", "Interaction", { userId: req.user.uid });
   can("read", "Checkin", { userId: req.user.uid });

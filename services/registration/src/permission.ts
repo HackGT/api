@@ -31,13 +31,6 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
     can("aggregate", "Review");
   }
 
-  // insight permission roles 
-  if (req.user.roles.admin || req.user.roles.sponsor) {
-    can("read", "Visit")
-    can("create", "Visit")
-    can("update", "Visit")
-  }
-
   can(["create", "read", "update"], "Application", { userId: req.user.uid });
   can("read", "Branch");
 
