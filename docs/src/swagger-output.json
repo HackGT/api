@@ -2940,6 +2940,9 @@
           "type": "string",
           "enum": ["PARTICIPANT", "JUDGE", "MENTOR", "VOLUNTEER", "SPONSOR", "PARTNER", "STAFF"]
         },
+        "description": {
+          "type": "string"
+        },
         "settings": {
           "type": "object",
           "properties": {

@@ -28,6 +28,7 @@ export interface Branch extends mongoose.Document {
   hexathon: Types.ObjectId;
   type: BranchType;
   applicationGroup: ApplicationGroupType;
+  description?: string;
   settings: {
     open: Date;
     close: Date;
@@ -68,6 +69,9 @@ const branchSchema = new Schema<Branch>({
     type: String,
     required: true,
     enum: ApplicationGroupType,
+  },
+  description: {
+    type: String,
   },
   settings: {
     open: {
