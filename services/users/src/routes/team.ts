@@ -3,7 +3,7 @@ import { asyncHandler, BadRequestError, checkAbility, ForbiddenError } from "@ap
 import { FilterQuery } from "mongoose";
 
 import { Team, TeamModel } from "../models/team";
-import { Profile, ProfileModel } from "src/models/profile";
+import { Profile, ProfileModel } from "../models/profile";
 
 export const teamRoutes = express.Router();
 
@@ -36,12 +36,10 @@ teamRoutes.route("/").post(
   })
 );
 
-teamRoutes.route("/add/:email").post(
+teamRoutes.route("/add").post(
   checkAbility("update", "Team"),
   asyncHandler(async (req, res) => {
-    const { name, hexathon } = req.body;
-
-    const { email } = req.params;
+    const { name, hexathon, email } = req.body;
 
     const userFilter: FilterQuery<Profile> = {
       email,
@@ -50,6 +48,12 @@ teamRoutes.route("/add/:email").post(
     const user = await ProfileModel.findOne(userFilter);
     if (!user) {
       throw new BadRequestError("User associated with email not found.");
+    }
+
+    const teams = await TeamModel.findOne({ hexathon, members: user.userId });
+
+    if (teams) {
+      throw new BadRequestError("User has already joined another team for this event.");
     }
 
     const filter: FilterQuery<Team> = {
