@@ -108,6 +108,18 @@ const branchSchema = new Schema<Branch>({
     default: false,
     required: true,
   },
+  automaticConfirmation: {
+    enabled: {
+      type: Boolean,
+    },
+    confirmationBranch: {
+      type: Schema.Types.ObjectId,
+      ref: "Branch",
+    },
+    emails: {
+      type: [String],
+    },
+  },
   grading: {
     enabled: {
       type: Boolean,
@@ -117,21 +129,6 @@ const branchSchema = new Schema<Branch>({
     group: {
       type: String,
       enum: GradingGroupType,
-    },
-  },
-});
-
-// Need this here since it uses a self reference to this schema
-branchSchema.add({
-  automaticConfirmation: {
-    enabled: {
-      type: Boolean,
-    },
-    confirmationBranch: {
-      type: branchSchema,
-    },
-    emails: {
-      type: [String],
     },
   },
 });
