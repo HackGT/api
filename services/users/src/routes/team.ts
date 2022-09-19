@@ -3,6 +3,7 @@ import { asyncHandler, BadRequestError, checkAbility, ForbiddenError } from "@ap
 import { FilterQuery } from "mongoose";
 
 import { Team, TeamModel } from "../models/team";
+import { Profile, ProfileModel } from "src/models/profile";
 
 export const teamRoutes = express.Router();
 
@@ -35,10 +36,21 @@ teamRoutes.route("/").post(
   })
 );
 
-teamRoutes.route("/add/:userId").post(
+teamRoutes.route("/add/:email").post(
   checkAbility("update", "Team"),
   asyncHandler(async (req, res) => {
     const { name, hexathon } = req.body;
+
+    const { email } = req.params;
+
+    const userFilter: FilterQuery<Profile> = {
+      email,
+    };
+
+    const user = await ProfileModel.findOne(userFilter);
+    if (!user) {
+      throw new BadRequestError("User associated with email not found.");
+    }
 
     const filter: FilterQuery<Team> = {
       name,
@@ -56,12 +68,12 @@ teamRoutes.route("/add/:userId").post(
       throw new BadRequestError("Teams can only have up to 4 members.");
     }
 
-    if (team?.members.includes(req.params.userId as string)) {
+    if (team?.members.includes(user.userId)) {
       throw new BadRequestError("Team already contains user.");
     }
 
     await team.update({
-      members: [...team.members, req.params.userId],
+      members: [...team.members, user.userId],
     });
 
     res.status(200).json("Team member added!");
