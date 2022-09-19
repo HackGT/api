@@ -3,7 +3,7 @@ import { asyncHandler, BadRequestError, checkAbility, ForbiddenError } from "@ap
 import { FilterQuery } from "mongoose";
 
 import { Team, TeamModel } from "../models/team";
-import { Profile, ProfileModel } from "src/models/profile";
+import { Profile, ProfileModel } from "../models/profile";
 
 export const teamRoutes = express.Router();
 
