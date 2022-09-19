@@ -1,6 +1,6 @@
 import { asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import express from "express";
-import { FilterQuery } from "mongoose";
+import { FilterQuery, Types } from "mongoose";
 
 import { Branch, BranchModel } from "../models/branch";
 
@@ -50,7 +50,18 @@ branchRouter.route("/:id").patch(
       throw new BadRequestError("Grading group is required when grading is set");
     }
 
-    const updatedBranch = await BranchModel.findByIdAndUpdate(req.params.id, req.body, {
+    const updatedBody = {
+      ...req.body,
+    };
+
+    if (req.body?.automaticConfirmation) {
+      const confirmationBranch = await BranchModel.findById(
+        req.body?.automaticConfirmation.confirmationBranch
+      );
+      updatedBody.automaticConfirmation.confirmationBranch = confirmationBranch;
+    }
+
+    const updatedBranch = await BranchModel.findByIdAndUpdate(req.params.id, updatedBody, {
       new: true,
     });
 
