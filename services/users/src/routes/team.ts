@@ -52,6 +52,10 @@ teamRoutes.route("/add/:userId").post(
       throw new BadRequestError("User is not a part of a team!");
     }
 
+    if (team?.members.length >= 4) {
+      throw new BadRequestError("Teams can only have up to 4 members.");
+    }
+
     if (team?.members.includes(req.params.userId as string)) {
       throw new BadRequestError("Team already contains user.");
     }
@@ -60,7 +64,7 @@ teamRoutes.route("/add/:userId").post(
       members: [...team.members, req.params.userId],
     });
 
-    res.status(200).json(team);
+    res.status(200).json("Team member added!");
   })
 );
 
@@ -105,6 +109,10 @@ teamRoutes.route("/:id/accept-user").post(
       throw new ForbiddenError("User must be member of the team to accept a user.");
     }
 
+    if (team.members.length >= 4) {
+      throw new ForbiddenError("Team cannot have more than 4 members.");
+    }
+
     await team.update({
       members: [...team.members, req.body.userId],
       $pull: {
@@ -136,9 +144,9 @@ teamRoutes.route("/user/:userId").get(
 teamRoutes.route("/join").post(
   checkAbility("update", "Team"),
   asyncHandler(async (req, res) => {
-    const { name, event, message } = req.body;
+    const { name, hexathon, message } = req.body;
 
-    const team = await TeamModel.findOne({ name, event });
+    const team = await TeamModel.findOne({ name, hexathon });
 
     if (!team) {
       throw new BadRequestError("Team doesn't exist!");
@@ -150,7 +158,7 @@ teamRoutes.route("/join").post(
 
     const userId = req.user?.uid;
 
-    const teams = await TeamModel.findOne({ event, members: req.user?.uid });
+    const teams = await TeamModel.findOne({ hexathon, members: req.user?.uid });
 
     if (teams) {
       throw new BadRequestError(
@@ -159,7 +167,7 @@ teamRoutes.route("/join").post(
     }
 
     const teamPendingReq = await TeamModel.findOne({
-      event,
+      hexathon,
       memberRequests: {
         $elemMatch: {
           userId,
@@ -189,9 +197,9 @@ teamRoutes.route("/join").post(
 teamRoutes.route("/leave").post(
   checkAbility("update", "Team"),
   asyncHandler(async (req, res) => {
-    const { name, event } = req.body;
+    const { name, hexathon } = req.body;
 
-    const team = await TeamModel.findOne({ name, event });
+    const team = await TeamModel.findOne({ name, hexathon });
     const userId = req.user?.uid;
 
     if (!team) {
