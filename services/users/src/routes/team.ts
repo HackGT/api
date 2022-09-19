@@ -9,15 +9,15 @@ export const teamRoutes = express.Router();
 teamRoutes.route("/").post(
   checkAbility("create", "Team"),
   asyncHandler(async (req, res) => {
-    const { name, event, description, publicTeam } = req.body;
+    const { name, hexathon, description, publicTeam } = req.body;
 
-    const team = await TeamModel.findOne({ name, event });
+    const team = await TeamModel.findOne({ name, hexathon });
 
     if (team) {
       throw new BadRequestError("Team with this name already exists!");
     }
 
-    const teams = await TeamModel.find({ event, members: req.user?.uid });
+    const teams = await TeamModel.find({ hexathon, members: req.user?.uid });
 
     if (teams.length !== 0) {
       throw new BadRequestError("User is already in a team for this event!");
@@ -25,13 +25,42 @@ teamRoutes.route("/").post(
 
     await TeamModel.create({
       name,
-      event,
+      hexathon,
       members: [req.user?.uid],
       description,
       public: publicTeam,
     });
 
     res.status(200).send("Team created!");
+  })
+);
+
+teamRoutes.route("/add/:userId").post(
+  checkAbility("update", "Team"),
+  asyncHandler(async (req, res) => {
+    const { name, hexathon } = req.body;
+
+    const filter: FilterQuery<Team> = {
+      name,
+      hexathon,
+      members: req.user?.uid,
+    };
+
+    const team = await TeamModel.findOne(filter);
+
+    if (!team) {
+      throw new BadRequestError("User is not a part of a team!");
+    }
+
+    if (team?.members.includes(req.params.userId as string)) {
+      throw new BadRequestError("Team already contains user.");
+    }
+
+    await team.update({
+      members: [...team.members, req.params.userId],
+    });
+
+    res.status(200).json(team);
   })
 );
 
