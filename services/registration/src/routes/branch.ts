@@ -1,6 +1,6 @@
 import { asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import express from "express";
-import { FilterQuery, Types } from "mongoose";
+import { FilterQuery } from "mongoose";
 
 import { Branch, BranchModel } from "../models/branch";
 
