@@ -16,7 +16,8 @@ const updateApplication = async (
   confirmationBranchGeneralId: string,
   confirmationBranchEmergingId: string,
   travelType: string,
-  travelReimbursementAmount: number
+  travelReimbursementAmount: number,
+  travelReimbursementInfoLink: string
 ) => {
   await client.connect();
   const db = client.db("registration");
@@ -44,6 +45,7 @@ const updateApplication = async (
         decisionData: {
           travelReimbursement: travelType,
           travelReimbursementAmount,
+          travelReimbursementInfoLink,
         },
         confirmationBranch: new ObjectId(confirmationBranchGeneralId),
       },
@@ -61,6 +63,7 @@ const updateApplication = async (
         decisionData: {
           travelReimbursement: travelType,
           travelReimbursementAmount,
+          travelReimbursementInfoLink,
         },
         confirmationBranch: new ObjectId(confirmationBranchEmergingId),
       },
@@ -100,6 +103,7 @@ const updateApplication = async (
   confirmationBranchId: string,
   travelType: string,
   travelReimbursementAmount: number
+  travelReimbursementInfoLink: string
  }
 */
 const APPLICATION_RESULTS = [
@@ -120,7 +124,8 @@ const APPLICATION_RESULTS = [
         file.confirmationBranchGeneralId,
         file.confirmationBranchEmergingId,
         file.travelType,
-        file.travelReimbursementAmount
+        file.travelReimbursementAmount,
+        file.travelReimbursementInfoLink
       );
     })
   );
