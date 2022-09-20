@@ -25,7 +25,7 @@ export const gradingRouter = express.Router();
 
 /*
   The purpose of this route is to get a grader's response to a specific question.
-  Takes in email of someone who is grading the application (req.grader) 
+  Takes in email of someone who is grading the application (req.grader)
   -> Checks if needs to do calibration questions (first-time graders have to do these) (keep returning these until all are answered)
   -> checks groups -> return questions to grade
 */
@@ -360,6 +360,52 @@ gradingRouter.route("/leaderboard").get(
     return res.status(200).send({ currentNumGraded: currentGrader?.graded ?? 0, leaderboard });
   })
 );
+
+gradingRouter.route('grading-totals').get(
+  checkAbility("aggregate", "Review"),
+  asyncHandler(async (req, res) => {
+    const hexathon = req.query.hexathon as string;
+    if (!hexathon) {
+      throw new BadRequestError("Hexathon field is required in query parameters");
+    }
+
+    const gradedBranches: any[] = await ApplicationModel.aggregate([
+      {
+        $match: {
+        status: 'APPLIED'
+      }
+      }, {
+        $lookup: {
+          from: 'reviews',
+          localField: '_id',
+          foreignField: 'applicationId',
+          as: 'reviews_data'
+        }
+      }, {
+        $lookup: {
+          from: 'branches',
+          localField: 'applicationBranch',
+          foreignField: '_id', 
+          as: 'branches_data'
+        }
+      }, {
+        $group: {
+          _id: '$_id',
+          userId: {
+            $first: '$userId'
+          },
+          branchName: {
+            $first: '$branches_data.name'
+          },
+          gradingComplete: {
+            $first: '$gradingComplete'
+          }
+        }
+      }
+    ]);
+    return res.status(200).send(gradedBranches);
+  })
+)
 
 gradingRouter.route("/export").get(
   checkAbility("aggregate", "Review"),
