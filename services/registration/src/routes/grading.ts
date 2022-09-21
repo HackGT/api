@@ -3,6 +3,7 @@ import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/commo
 import { Service } from "@api/config";
 import express from "express";
 import { Types } from "mongoose";
+import _ from "lodash";
 
 import { getScoreMapping } from "../common/mapScores";
 import { ApplicationModel, Essay, StatusType } from "../models/application";
@@ -486,5 +487,117 @@ gradingRouter.route("/export").get(
     });
     res.header("Content-Type", "text/csv");
     return res.status(200).send(combinedApplications);
+  })
+);
+
+gradingRouter.route("/grading-status").get(
+  checkAbility("aggregate", "Review"),
+  asyncHandler(async (req, res) => {
+    const hexathon = req.query.hexathon as string;
+    if (!hexathon) {
+      throw new BadRequestError("Hexathon field is required in query parameters");
+    }
+
+    const gradingStatusData: any[] = await ApplicationModel.aggregate([
+      {
+        // Matches the hexathon and that it is a completed application
+        $match: {
+          hexathon: new Types.ObjectId(hexathon),
+          status: {
+            $ne: StatusType.DRAFT,
+          },
+        },
+      },
+      {
+        // Joins the applications to the list of reviews
+        $lookup: {
+          from: "reviews",
+          localField: "_id",
+          foreignField: "applicationId",
+          as: "reviewsData",
+        },
+      },
+      {
+        // Joins the applications to the application branch
+        $lookup: {
+          from: "branches",
+          localField: "applicationBranch",
+          foreignField: "_id",
+          as: "applicationBranchDetail",
+        },
+      },
+      {
+        // Un-nests the application branch data so that it is not an array
+        $unwind: {
+          path: "$applicationBranchDetail",
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      {
+        // Ensures that the branch grading group value exists
+        $match: {
+          "applicationBranchDetail.grading.group": {
+            $exists: true,
+          },
+        },
+      },
+      {
+        // From here, separate into two steps, one to get total number of reviews
+        // and another to get the total number of applications
+        $facet: {
+          reviewsData: [
+            {
+              // Un-nests the reviews data into each separate object
+              $unwind: {
+                path: "$reviewsData",
+                preserveNullAndEmptyArrays: false,
+              },
+            },
+            {
+              // Groups the greview data by grading group and sums the total
+              $group: {
+                _id: "$applicationBranchDetail.grading.group",
+                reviewCount: {
+                  $sum: 1,
+                },
+              },
+            },
+          ],
+          totalApplicationData: [
+            {
+              // Groups the application data by grading group and sums the total
+              $group: {
+                _id: "$applicationBranchDetail.grading.group",
+                applicationCount: {
+                  $sum: 1,
+                },
+              },
+            },
+          ],
+        },
+      },
+    ]);
+
+    // Use lodash keyBy to convert the array of objects to an object by _id key
+    const reviewsData = _.keyBy(gradingStatusData[0].reviewsData, "_id");
+    const totalApplicationData = _.keyBy(gradingStatusData[0].totalApplicationData, "_id");
+
+    // Map each grading group to a percentage of applications graded
+    const gradingStatus: {
+      [status in GradingGroupType]?: number;
+    } = {};
+
+    for (const gradingGroup of Object.values(GradingGroupType)) {
+      // Divide all reviews data by max number of reviews per essay * 3 essays per application
+      gradingStatus[gradingGroup] =
+        Math.min(
+          1,
+          (reviewsData[gradingGroup].reviewCount || 0) /
+            (3 * MAX_REVIEWS_PER_ESSAY) /
+            (totalApplicationData[gradingGroup].applicationCount || 1)
+        ) * 100;
+    }
+
+    res.status(200).send(gradingStatus);
   })
 );
