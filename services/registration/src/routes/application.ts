@@ -58,7 +58,7 @@ applicationRouter.route("/").get(
 );
 
 applicationRouter.route("/compile-extra-info").get(
-  checkAbility("read", "Application"),
+  checkAbility("aggregate", "Application"),
   asyncHandler(async (req, res) => {
     if (!req.query.hexathon) {
       throw new BadRequestError("Hexathon filter is required");
