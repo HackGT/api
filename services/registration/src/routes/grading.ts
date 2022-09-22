@@ -589,13 +589,14 @@ gradingRouter.route("/grading-status").get(
 
     for (const gradingGroup of Object.values(GradingGroupType)) {
       // Divide all reviews data by max number of reviews per essay * 3 essays per application
-      gradingStatus[gradingGroup] =
+      gradingStatus[gradingGroup] = Math.round(
         Math.min(
           1,
           (reviewsData[gradingGroup].reviewCount || 0) /
             (3 * MAX_REVIEWS_PER_ESSAY) /
             (totalApplicationData[gradingGroup].applicationCount || 1)
-        ) * 100;
+        ) * 100
+      );
     }
 
     res.status(200).send(gradingStatus);
