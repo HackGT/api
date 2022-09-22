@@ -24,10 +24,12 @@ const graderSchema = new Schema<Grader>({
   userId: {
     type: String,
     required: true,
+    index: true,
   },
   hexathon: {
     type: Schema.Types.ObjectId,
     required: true,
+    index: true,
   },
   graded: {
     type: Number,

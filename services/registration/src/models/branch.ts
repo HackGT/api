@@ -59,16 +59,19 @@ const branchSchema = new Schema<Branch>({
   hexathon: {
     type: Schema.Types.ObjectId,
     required: true,
+    index: true,
   },
   type: {
     type: String,
     required: true,
     enum: BranchType,
+    index: true,
   },
   applicationGroup: {
     type: String,
     required: true,
     enum: ApplicationGroupType,
+    index: true,
   },
   description: {
     type: String,

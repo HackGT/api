@@ -28,6 +28,7 @@ const prizeItemSchema = new Schema<PrizeItem>({
     type: Schema.Types.ObjectId,
     required: true,
     ref: HexathonModel,
+    index: true,
   },
   number: {
     type: Number,
