@@ -10,11 +10,28 @@ export interface File extends mongoose.Document {
 }
 
 const fileSchema = new Schema<File>({
-  userId: { type: String, required: true },
-  mimeType: { type: String, required: true },
-  name: { type: String, required: true },
-  storageId: { type: String, required: true },
-  type: { type: String, enum: ["resume", "other"], default: "other" },
+  userId: {
+    type: String,
+    required: true,
+    index: true,
+  },
+  mimeType: {
+    type: String,
+    required: true,
+  },
+  name: {
+    type: String,
+    required: true,
+  },
+  storageId: {
+    type: String,
+    required: true,
+  },
+  type: {
+    type: String,
+    enum: ["resume", "other"],
+    default: "other",
+  },
 });
 
 fileSchema.plugin(accessibleRecordsPlugin);

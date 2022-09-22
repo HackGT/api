@@ -16,11 +16,13 @@ const checkinSchema = new Schema<Checkin>(
     userId: {
       type: String,
       required: true,
+      index: true,
     },
     hexathon: {
       type: Schema.Types.ObjectId,
       required: true,
       ref: HexathonModel,
+      index: true,
     },
     status: {
       type: String,

@@ -33,11 +33,13 @@ const interactionSchema = new Schema<Interaction>({
   userId: {
     type: String,
     required: true,
+    index: true,
   },
   hexathon: {
     type: Schema.Types.ObjectId,
     required: true,
     ref: HexathonModel,
+    index: true,
   },
   type: {
     type: String,

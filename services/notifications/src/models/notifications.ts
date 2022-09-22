@@ -20,14 +20,17 @@ const notificationSchema = new Schema<Notification>({
   sender: {
     type: String,
     required: true,
+    index: true,
   },
   platform: {
     type: String,
     required: true,
     enum: PlatformType,
+    index: true,
   },
   batchId: {
     type: String,
+    index: true,
   },
   error: {
     type: Boolean,

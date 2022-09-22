@@ -16,11 +16,29 @@ export interface MemberRequest extends Types.Subdocument {
 }
 
 const teamSchema = new Schema<Team>({
-  name: { type: String, required: true },
-  hexathon: { type: Schema.Types.ObjectId, required: true },
-  members: { type: [String], required: true, default: [] },
-  description: { type: String, required: false },
-  public: { type: Boolean, required: true, default: false },
+  name: {
+    type: String,
+    required: true,
+  },
+  hexathon: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    index: true,
+  },
+  members: {
+    type: [String],
+    required: true,
+    default: [],
+  },
+  description: {
+    type: String,
+    required: false,
+  },
+  public: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
   memberRequests: {
     type: [
       {

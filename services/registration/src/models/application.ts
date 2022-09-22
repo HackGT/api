@@ -106,6 +106,7 @@ const applicationSchema = new Schema<Application>(
       ref: BranchModel,
       required: true,
       autopopulate: true,
+      index: true,
     },
     applicationData: {
       adult: {
@@ -248,6 +249,7 @@ const applicationSchema = new Schema<Application>(
       type: Schema.Types.ObjectId,
       ref: BranchModel,
       autopopulate: true,
+      index: true,
     },
     confirmationSubmitTime: {
       type: Date,
@@ -257,11 +259,13 @@ const applicationSchema = new Schema<Application>(
       required: true,
       default: StatusType.DRAFT,
       enum: StatusType,
+      index: true,
     },
     gradingComplete: {
       type: Boolean,
       required: true,
       default: false,
+      index: true,
     },
   },
   {
