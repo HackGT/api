@@ -57,6 +57,35 @@ applicationRouter.route("/").get(
   })
 );
 
+applicationRouter.route("/compile-extra-info").get(
+  checkAbility("aggregate", "Application"),
+  asyncHandler(async (req, res) => {
+    if (!req.query.hexathon) {
+      throw new BadRequestError("Hexathon filter is required");
+    }
+
+    const filter: FilterQuery<Application> = {};
+    filter.hexathon = req.query.hexathon;
+
+    const compiledExtraInfo: string[] = [];
+
+    const applications = await ApplicationModel.accessibleBy(req.ability)
+      .find(filter)
+      .select("applicationData");
+
+    for (const application of applications) {
+      if (
+        application.applicationData.extraInfo &&
+        application.applicationData.extraInfo.length > 0
+      ) {
+        compiledExtraInfo.push(application.applicationData.extraInfo);
+      }
+    }
+
+    return res.status(200).json(compiledExtraInfo);
+  })
+);
+
 applicationRouter.route("/:id").get(
   checkAbility("read", "Application"),
   asyncHandler(async (req, res) => {
