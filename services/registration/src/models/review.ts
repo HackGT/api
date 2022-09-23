@@ -30,6 +30,7 @@ const reviewSchema = new Schema<Review>({
   essayId: {
     type: Schema.Types.ObjectId,
     required: true,
+    index: true,
   },
   score: {
     type: Number,
