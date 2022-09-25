@@ -152,8 +152,8 @@ teamRoutes.route("/user/:userId").get(
     }
 
     const teams = await TeamModel.find(filter);
-    if (teams.length < 0) {
-      throw new BadRequestError("Could not find a team associated with the user.");
+    if (teams.length <= 0) {
+      res.status(200).json(teams);
     }
 
     const team = teams[0];
