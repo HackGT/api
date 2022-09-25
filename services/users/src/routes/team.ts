@@ -156,7 +156,26 @@ teamRoutes.route("/user/:userId").get(
       throw new BadRequestError("Could not find a team associated with the user.");
     }
 
-    res.status(200).json(teams);
+    const team = teams[0];
+
+    const memberFilter: FilterQuery<Profile> = {};
+    if (team.members.length > 0) {
+      memberFilter.userId = {
+        $in: team.members,
+      };
+    }
+
+    const profiles = await ProfileModel.find(memberFilter);
+    if (profiles.length < 0) {
+      throw new BadRequestError("Could not find any users associated with team.");
+    }
+
+    const payload = {
+      team,
+      profiles,
+    };
+
+    res.status(200).json(payload);
   })
 );
 
@@ -258,39 +277,5 @@ teamRoutes.route("/:id").put(
     });
 
     res.status(200).send(updatedTeam);
-  })
-);
-
-teamRoutes.route("/members").get(
-  checkAbility("read", "Team"),
-  asyncHandler(async (req, res) => {
-    const filter: FilterQuery<Team> = {
-      members: req.user?.uid,
-    };
-
-    if (req.query.hexathon) {
-      filter.hexathon = req.query.hexathon;
-    }
-
-    const teams = await TeamModel.find(filter);
-    if (teams.length < 0) {
-      throw new BadRequestError("Could not find a team associated with the user.");
-    }
-
-    const team = teams[0];
-
-    const memberFilter: FilterQuery<Profile> = {};
-    if (team.members.length > 0) {
-      memberFilter.userId = {
-        $in: team.members,
-      };
-    }
-
-    const profiles = await ProfileModel.find(memberFilter);
-    if (profiles.length < 0) {
-      throw new BadRequestError("Could not find any users associated with team.");
-    }
-
-    res.status(200).json(profiles);
   })
 );
