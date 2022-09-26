@@ -152,8 +152,30 @@ teamRoutes.route("/user/:userId").get(
     }
 
     const teams = await TeamModel.find(filter);
+    if (teams.length <= 0) {
+      res.status(200).json(teams);
+    }
 
-    res.status(200).json(teams);
+    const team = teams[0];
+
+    const memberFilter: FilterQuery<Profile> = {};
+    if (team.members.length > 0) {
+      memberFilter.userId = {
+        $in: team.members,
+      };
+    }
+
+    const profiles = await ProfileModel.find(memberFilter);
+    if (profiles.length < 0) {
+      throw new BadRequestError("Could not find any users associated with team.");
+    }
+
+    const payload = {
+      team,
+      profiles,
+    };
+
+    res.status(200).json(payload);
   })
 );
 
