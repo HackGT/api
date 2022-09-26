@@ -4,6 +4,7 @@ import { Service } from "@api/config";
 import express from "express";
 import { FilterQuery, Types } from "mongoose";
 import _ from "lodash";
+import { DateTime } from "luxon";
 
 import { getBranch, validateApplicationData } from "../common/util";
 import { Application, ApplicationModel, Essay, StatusType } from "../models/application";
@@ -185,7 +186,11 @@ applicationRouter.route("/:id/actions/save-application-data").post(
     }
 
     const [branch] = getBranch(existingApplication, req);
-    if (new Date() < branch.settings.open || new Date() > branch.settings.close) {
+    // Add 1 hour grace period for application submissions
+    if (
+      DateTime.now() < DateTime.fromJSDate(branch.settings.open) ||
+      DateTime.now() > DateTime.fromJSDate(branch.settings.close).plus({ hours: 1 })
+    ) {
       throw new BadRequestError("Unable to save application data. Branch is not currently open.");
     }
 
@@ -255,7 +260,11 @@ applicationRouter.route("/:id/actions/submit-application").post(
     );
 
     const [branch, branchType] = getBranch(existingApplication, req);
-    if (new Date() < branch.settings.open || new Date() > branch.settings.close) {
+    // Add 1 hour grace period for application submissions
+    if (
+      DateTime.now() < DateTime.fromJSDate(branch.settings.open) ||
+      DateTime.now() > DateTime.fromJSDate(branch.settings.close).plus({ hours: 1 })
+    ) {
       throw new BadRequestError("Unable to submit application data. Branch is not currently open.");
     }
 
