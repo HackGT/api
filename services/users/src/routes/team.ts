@@ -252,6 +252,10 @@ teamRoutes.route("/leave").post(
       members: team.members.filter(member => member !== userId),
     });
 
+    if (team.members.length <= 1) {
+      await TeamModel.deleteOne({ _id: team.id, name, hexathon });
+    }
+
     res.status(200).send("User left team!");
   })
 );
