@@ -17,9 +17,7 @@ hexathonRouter.route("/").get(
 hexathonRouter.route("/").post(
   checkAbility("create", "Hexathon"),
   asyncHandler(async (req, res) => {
-    const newHexathon = await HexathonModel.create({
-      ...req.body,
-    });
+    const newHexathon = await HexathonModel.create(req.body);
 
     return res.status(200).json(newHexathon);
   })
