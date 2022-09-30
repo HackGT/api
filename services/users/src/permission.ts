@@ -21,8 +21,8 @@ export const addAbilities = (): RequestHandler => async (req, res, next) => {
   if (req.user.roles.admin) {
     can("manage", "Profile");
   }
-
-  if (req.user.roles.member || (await isSponsorWithResumeAccess(req.user))) {
+  const hasResumeAccess = await isSponsorWithResumeAccess(req.user);
+  if (req.user.roles.member || hasResumeAccess) {
     can("read", "Profile");
   }
 

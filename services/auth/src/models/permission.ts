@@ -25,6 +25,10 @@ const permissionSchema = new Schema<Permission>({
       type: Boolean,
       default: false,
     },
+    sponsor: {
+      type: Boolean,
+      default: false,
+    },
   },
 });
 

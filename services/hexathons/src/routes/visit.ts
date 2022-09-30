@@ -2,30 +2,58 @@
 import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import { Service } from "@api/config";
 import express from "express";
-import { rest } from "lodash";
+import { FilterQuery } from "mongoose";
 
-import { VisitModel } from "../models/visit";
+import { VisitModel, Visit } from "../models/visit";
 
 export const visitRouter = express.Router();
 
 // get visit
+visitRouter.route("/").get(
+  checkAbility("read", "Visit"),
+  asyncHandler(async (req, res) => {
+    const company = await apiCall(
+      Service.USERS,
+      { method: "GET", url: `/companies/employees/${req.user?.uid}` },
+      req
+    );
+    const filter: FilterQuery<Visit> = {};
+    if (req.query.hexathon) {
+      filter.hexathon = String(req.query.hexathon);
+    }
+    if (req.query.visitorId) {
+      filter.visitorId = String(req.query.visitorId);
+    }
+    if (company) {
+      filter.company = String(company.id);
+    }
+
+    const visits = await VisitModel.accessibleBy(req.ability).find(filter);
+    return res.status(200).send(visits);
+  })
+);
+
 visitRouter.route("/:visitorId").get(
   checkAbility("read", "Visit"),
   asyncHandler(async (req, res) => {
     // get company of current user
     const company = await apiCall(
       Service.USERS,
-      { method: "GET", url: `/employees/${req.user?.uid}` },
+      { method: "GET", url: `/companies/employees/${req.user?.uid}` },
       req
     );
 
-    const { visitorId } = req.params;
-    const visit = await VisitModel.findOne({
-      visitorId,
-      company,
-    });
+    if (company) {
+      const { visitorId } = req.params;
+      const visit = await VisitModel.findOne({
+        visitorId,
+        company: company.id,
+      });
 
-    return res.status(200).send(visit?.toJSON());
+      return res.status(200).send(visit?.toJSON());
+    } 
+      throw new BadRequestError("Current user not associated with a company");
+    
   })
 );
 
@@ -35,20 +63,24 @@ visitRouter.route("/:visitorId").post(
     // get company of current user
     const company = await apiCall(
       Service.USERS,
-      { method: "GET", url: `/employees/${req.user?.uid}` },
+      { method: "GET", url: `/companies/employees/${req.user?.uid}` },
       req
     );
 
-    const visit = await VisitModel.create({
-      visitorId: req.params.visitorId,
-      hexathon: req.body.hexathon,
-      company,
-      employees: req.body.employees,
-      tags: req.body.tags,
-      notes: req.body.notes,
-      time: new Date(),
-    });
-    res.send(visit);
+    if (company) {
+      const visit = await VisitModel.create({
+        visitorId: req.params.visitorId,
+        hexathon: req.body.hexathon,
+        company: company.id,
+        employees: req.body.employees,
+        tags: req.body.tags,
+        notes: req.body.notes,
+        time: new Date(),
+      });
+      res.send(visit);
+    } else {
+      throw new BadRequestError("Current user not associated with a company");
+    }
   })
 );
 
@@ -57,13 +89,13 @@ visitRouter.route("/:visitorId").put(
   asyncHandler(async (req, res) => {
     const company = await apiCall(
       Service.USERS,
-      { method: "GET", url: `/employees/${req.user?.uid}` },
+      { method: "GET", url: `/companies/employees/${req.user?.uid}` },
       req
     );
 
     const visit = await VisitModel.findOne({
       visitorId: req.params.visitorId,
-      company,
+      company: company.id,
     });
 
     if (!visit) {
@@ -92,13 +124,14 @@ visitRouter.route("/:visitorId").put(
     const newVisit = await VisitModel.findOneAndUpdate(
       {
         visitorId: req.params.visitorId,
-        company,
+        company: company.id,
       },
       {
         tags: newTags,
         notes: visit.notes.concat(req.body.notes),
         employees: addEmployees,
-      }
+      },
+      { new: true }
     );
     res.send(newVisit);
   })

@@ -6,7 +6,7 @@ import {
   DEFAULT_USER_ROLES,
 } from "@api/common";
 import express from "express";
-import { getAuth } from "firebase-admin/auth"; // eslint-disable-line import/no-unresolved
+import { Service } from "@api/config";
 
 import { CompanyModel } from "../models/company";
 
@@ -73,60 +73,62 @@ companyRoutes.route("/employees/:employeeId").get(
 companyRoutes.route("/:id/employees/add").post(
   checkAbility("update", "Company"),
   asyncHandler(async (req, res) => {
-    const company = await CompanyModel.findById(req.params.id).accessibleBy(req.ability);
+    const company = await CompanyModel.findById(req.params.id);
 
     if (!company) {
       throw new BadRequestError("Company not found or you do not have permission.");
     }
 
-    const emails = req.body.employees.split(",");
-    const employeesToAdd: string[] = [];
+    const employeesToAdd = req.body.employees.split(",");
     const uniqueEmployees: string[] = company.employees;
 
-    emails.forEach(async (email: string) => {
-      const user = await getAuth().getUserByEmail(email);
+    const handleEmployees = new Promise<void>((resolve, reject) => {
+      employeesToAdd.forEach(async (employeeUid: string, index: number, employees: string[]) => {
+        const permission = await apiCall(
+          Service.AUTH,
+          { method: "GET", url: `/permissions/${employeeUid}` },
+          req
+        );
 
-      const permission = await apiCall(
-        Service.AUTH,
-        { method: "GET", url: `/permissions/${user.uid}` },
-        req
-      );
+        let updatedRoles;
+        if (permission) {
+          updatedRoles = permission.roles;
+        } else {
+          updatedRoles = DEFAULT_USER_ROLES;
+        }
 
-      let roles;
-      if (permission) {
-        roles = permission.roles;
-      } else {
-        roles = DEFAULT_USER_ROLES;
-      }
+        updatedRoles.sponsor = true;
 
-      roles.sponsor = true;
-
-      await apiCall(
-        Service.AUTH,
-        {
-          method: "POST",
-          url: `/permissions/${user.uid}`,
-          data: {
-            roles: permission.roles,
+        await apiCall(
+          Service.AUTH,
+          {
+            method: "POST",
+            url: `/permissions/${employeeUid}`,
+            data: {
+              roles: updatedRoles,
+            },
           },
-        },
-        req
-      );
+          req
+        );
 
-      if (!uniqueEmployees.includes(user.uid)) {
-        uniqueEmployees.push(user.uid);
-      }
+        if (!uniqueEmployees.includes(employeeUid)) {
+          uniqueEmployees.push(employeeUid);
+        }
+        if (index === employees.length - 1) resolve();
+      });
     });
 
-    const currEmployees = await CompanyModel.findByIdAndUpdate(
-      req.params.id,
-      {
-        employees: uniqueEmployees,
-      },
-      { new: true }
-    );
+    handleEmployees.then(async () => {
+      const currEmployees = await CompanyModel.findByIdAndUpdate(
+        req.params.id,
+        {
+          employees: uniqueEmployees,
+        },
+        { new: true }
+      );
 
-    return res.status(200).send(currEmployees);
+      return res.status(200).send(currEmployees);
+    });
   })
 );
 
