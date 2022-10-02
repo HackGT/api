@@ -6,10 +6,10 @@ import { FilterQuery } from "mongoose";
 
 import { VisitModel, Visit } from "../models/visit";
 
-export const visitRouter = express.Router();
+export const sponsorVisitRouter = express.Router();
 
 // get visit
-visitRouter.route("/").get(
+sponsorVisitRouter.route("/").get(
   checkAbility("read", "Visit"),
   asyncHandler(async (req, res) => {
     const company = await apiCall(
@@ -17,47 +17,28 @@ visitRouter.route("/").get(
       { method: "GET", url: `/companies/employees/${req.user?.uid}` },
       req
     );
+    console.log(company);
+    console.log(company.id);
+    if (!company) {
+      throw new BadRequestError("Current user not associated with a company");
+    }
+
     const filter: FilterQuery<Visit> = {};
+    filter.company = String(company.id);
     if (req.query.hexathon) {
       filter.hexathon = String(req.query.hexathon);
     }
     if (req.query.visitorId) {
       filter.visitorId = String(req.query.visitorId);
     }
-    if (company) {
-      filter.company = String(company.id);
-    }
 
     const visits = await VisitModel.accessibleBy(req.ability).find(filter);
+
     return res.status(200).send(visits);
   })
 );
 
-visitRouter.route("/:visitorId").get(
-  checkAbility("read", "Visit"),
-  asyncHandler(async (req, res) => {
-    // get company of current user
-    const company = await apiCall(
-      Service.USERS,
-      { method: "GET", url: `/companies/employees/${req.user?.uid}` },
-      req
-    );
-
-    if (company) {
-      const { visitorId } = req.params;
-      const visit = await VisitModel.findOne({
-        visitorId,
-        company: company.id,
-      });
-
-      return res.status(200).send(visit?.toJSON());
-    } 
-      throw new BadRequestError("Current user not associated with a company");
-    
-  })
-);
-
-visitRouter.route("/:visitorId").post(
+sponsorVisitRouter.route("/").post(
   checkAbility("create", "Visit"),
   asyncHandler(async (req, res) => {
     // get company of current user
@@ -67,24 +48,84 @@ visitRouter.route("/:visitorId").post(
       req
     );
 
-    if (company) {
-      const visit = await VisitModel.create({
-        visitorId: req.params.visitorId,
-        hexathon: req.body.hexathon,
-        company: company.id,
-        employees: req.body.employees,
-        tags: req.body.tags,
-        notes: req.body.notes,
-        time: new Date(),
-      });
-      res.send(visit);
-    } else {
+    if (!company) {
       throw new BadRequestError("Current user not associated with a company");
     }
+
+    const visitor = await apiCall(
+      Service.USERS,
+      { method: "GET", url: `/users/${req.body?.visitorId}` },
+      req
+    );
+
+    const hexathon = await apiCall(
+      Service.HEXATHONS,
+      { method: "GET", url: `/hexathons/${req.body.hexathon}` },
+      req
+    );
+
+    if (!visitor || !hexathon) {
+      throw new BadRequestError(
+        "Visit creation must be associated with a valid visitor and hexathon"
+      );
+    }
+
+    /* eslint-disable no-await-in-loop */
+    for (let i = 0; i < req.body.employees.length; i++) {
+      const emp = await apiCall(
+        Service.USERS,
+        { method: "GET", url: `/users/${req.body.employees[i]}` },
+        req
+      );
+      if (!emp || !emp.roles.sponsor) {
+        throw new BadRequestError("Included employeeId not associated with a valid employee");
+      }
+    }
+    /* eslint-enable no-await-in-loop */
+
+    const visit = await VisitModel.create({
+      visitorId: req.body.visitorId,
+      hexathon: req.body.hexathon,
+      company: company.id,
+      employees: req.body.employees,
+      tags: req.body.tags,
+      notes: req.body.notes,
+      time: new Date(),
+    });
+
+    res.send(visit);
   })
 );
 
-visitRouter.route("/:visitorId").put(
+sponsorVisitRouter.route("/:visitId").get(
+  checkAbility("read", "Visit"),
+  asyncHandler(async (req, res) => {
+    // get company of current user
+    const company = await apiCall(
+      Service.USERS,
+      { method: "GET", url: `/companies/employees/${req.user?.uid}` },
+      req
+    );
+
+    if (!company) {
+      throw new BadRequestError("Current user not associated with a company");
+    }
+
+    const { visitId } = req.params;
+    const visit = await VisitModel.findOne({
+      _id: visitId,
+      company: company.id,
+    });
+
+    if (!visit) {
+      throw new BadRequestError("No visit associated with provided visitId");
+    }
+
+    return res.status(200).send(visit?.toJSON());
+  })
+);
+
+sponsorVisitRouter.route("/:visitId").put(
   checkAbility("update", "Visit"),
   asyncHandler(async (req, res) => {
     const company = await apiCall(
@@ -93,46 +134,53 @@ visitRouter.route("/:visitorId").put(
       req
     );
 
-    const visit = await VisitModel.findOne({
-      visitorId: req.params.visitorId,
-      company: company.id,
-    });
-
-    if (!visit) {
-      throw new BadRequestError("No visit exists between current user's company and the attendee");
+    if (!company) {
+      throw new BadRequestError("Current user not associated with a company");
     }
 
-    const newTags = visit.tags;
-    const addEmployees = visit?.employees;
-
-    if (req.body.tags) {
-      for (const tag of req.body.tags) {
-        if (!newTags.includes(tag)) {
-          newTags.push(tag);
-        }
+    /* eslint-disable no-await-in-loop */
+    for (let i = 0; i < req.body.employees.length; i++) {
+      const emp = await apiCall(
+        Service.USERS,
+        { method: "GET", url: `/users/${req.body.employees[i]}` },
+        req
+      );
+      if (!emp || !emp.roles.sponsor) {
+        throw new BadRequestError("Included employeeId not associated with a valid employee");
       }
     }
-
-    if (req.body.employees) {
-      for (const emp of req.body.employees) {
-        if (!addEmployees.includes(emp)) {
-          addEmployees.push(emp);
-        }
-      }
-    }
+    /* eslint-enable no-await-in-loop */
 
     const newVisit = await VisitModel.findOneAndUpdate(
       {
-        visitorId: req.params.visitorId,
+        _id: req.params.visitId,
         company: company.id,
       },
       {
-        tags: newTags,
-        notes: visit.notes.concat(req.body.notes),
-        employees: addEmployees,
+        tags: req.body.tags,
+        notes: req.body.notes,
+        employees: req.body.employees,
       },
       { new: true }
     );
-    res.send(newVisit);
+    return res.status(200).send(newVisit?.toJSON());
+  })
+);
+
+sponsorVisitRouter.route("/:visitId").delete(
+  checkAbility("update", "Visit"),
+  asyncHandler(async (req, res) => {
+    const company = await apiCall(
+      Service.USERS,
+      { method: "GET", url: `/companies/employees/${req.user?.uid}` },
+      req
+    );
+
+    if (!company) {
+      throw new BadRequestError("Current user not associated with a company");
+    }
+
+    await VisitModel.findByIdAndDelete(req.params.visitId);
+    return res.sendStatus(204);
   })
 );

@@ -5,7 +5,7 @@ import { interactionRoutes } from "./interaction";
 import { checkinRouter } from "./checkin";
 import { hexathonUserRouter } from "./hexathon-users";
 import { prizeItemRouter } from "./prize-item";
-import { visitRouter } from "./visit";
+import { sponsorVisitRouter } from "./visit";
 
 export const defaultRouter = express.Router();
 
@@ -14,4 +14,4 @@ defaultRouter.use("/interactions", interactionRoutes);
 defaultRouter.use("/checkin", checkinRouter);
 defaultRouter.use("/hexathon-users", hexathonUserRouter);
 defaultRouter.use("/prize-items", prizeItemRouter);
-defaultRouter.use("/sponsor-visit", visitRouter);
+defaultRouter.use("/sponsor-visit", sponsorVisitRouter);
