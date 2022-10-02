@@ -7,6 +7,7 @@ import {
 } from "@api/common";
 import express from "express";
 import { Service } from "@api/config";
+import { getAuth } from "firebase-admin/auth"; // eslint-disable-line import/no-unresolved
 
 import { CompanyModel } from "../models/company";
 
@@ -79,11 +80,13 @@ companyRoutes.route("/:id/employees/add").post(
       throw new BadRequestError("Company not found or you do not have permission.");
     }
 
-    const employeesToAdd = req.body.employees.split(",");
+    const emails = req.body.employees.split(",");
     const uniqueEmployees: string[] = company.employees;
 
     const handleEmployees = new Promise<void>((resolve, reject) => {
-      employeesToAdd.forEach(async (employeeUid: string, index: number, employees: string[]) => {
+      emails.forEach(async (email: string, index: number, employees: string[]) => {
+        const user = await getAuth().getUserByEmail(email);
+        const employeeUid = user.uid;
         const permission = await apiCall(
           Service.AUTH,
           { method: "GET", url: `/permissions/${employeeUid}` },
