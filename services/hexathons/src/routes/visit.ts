@@ -17,8 +17,7 @@ sponsorVisitRouter.route("/").get(
       { method: "GET", url: `/companies/employees/${req.user?.uid}` },
       req
     );
-    console.log(company);
-    console.log(company.id);
+
     if (!company) {
       throw new BadRequestError("Current user not associated with a company");
     }
@@ -33,7 +32,6 @@ sponsorVisitRouter.route("/").get(
     }
 
     const visits = await VisitModel.accessibleBy(req.ability).find(filter);
-
     return res.status(200).send(visits);
   })
 );
