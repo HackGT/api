@@ -75,8 +75,17 @@ sponsorVisitRouter.route("/").post(
         { method: "GET", url: `/users/${req.body.employees[i]}` },
         req
       );
-      if (!emp || !emp.roles.sponsor) {
-        throw new BadRequestError("Included employeeId not associated with a valid employee");
+
+      const empCompany = await apiCall(
+        Service.USERS,
+        { method: "GET", url: `/companies/employees/${req.body.employees[i]}` },
+        req
+      );
+
+      if (!emp || empCompany.name !== company.name) {
+        throw new BadRequestError(
+          "Included employeeId not associated with a valid employee of the company"
+        );
       }
     }
     /* eslint-enable no-await-in-loop */
@@ -143,8 +152,17 @@ sponsorVisitRouter.route("/:visitId").put(
         { method: "GET", url: `/users/${req.body.employees[i]}` },
         req
       );
-      if (!emp || !emp.roles.sponsor) {
-        throw new BadRequestError("Included employeeId not associated with a valid employee");
+
+      const empCompany = await apiCall(
+        Service.USERS,
+        { method: "GET", url: `/companies/employees/${req.body.employees[i]}` },
+        req
+      );
+
+      if (!emp || empCompany.name !== company.name) {
+        throw new BadRequestError(
+          "Included employeeId not associated with a valid employee of the company"
+        );
       }
     }
     /* eslint-enable no-await-in-loop */

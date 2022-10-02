@@ -1,8 +1,9 @@
-import { AbilityAction } from "@api/common";
+import { AbilityAction, apiCall } from "@api/common";
 import { AbilityBuilder, Ability, Subject } from "@casl/ability";
 import { RequestHandler } from "express";
+import { Service } from "@api/config";
 
-export const addAbilities = (): RequestHandler => (req, res, next) => {
+export const addAbilities = (): RequestHandler => async (req, res, next) => {
   const { can, build } = new AbilityBuilder<Ability<[AbilityAction, Subject]>>(Ability);
   if (!req.user) {
     req.ability = build();
@@ -27,7 +28,16 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
   }
 
   // insight permission roles
-  if (req.user.roles.sponsor) {
+  const isSponsor = async (user: any) => {
+    const company = await apiCall(
+      Service.USERS,
+      { method: "GET", url: `/companies/employees/${user.uid}` },
+      req
+    );
+    return company;
+  };
+
+  if (await isSponsor(req.user)) {
     can("read", "Visit");
     can("create", "Visit");
     can("update", "Visit");

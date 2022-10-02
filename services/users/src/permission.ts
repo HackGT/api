@@ -9,7 +9,7 @@ export const addAbilities = (): RequestHandler => async (req, res, next) => {
 
   const isSponsorWithResumeAccess = async (user: any) => {
     const company = await CompanyModel.findOne({ employees: user.uid });
-    return user.roles.sponsor && company?.hasResumeAccess;
+    return company?.hasResumeAccess;
   };
 
   if (!req.user) {

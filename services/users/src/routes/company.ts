@@ -1,12 +1,5 @@
-import {
-  apiCall,
-  asyncHandler,
-  BadRequestError,
-  checkAbility,
-  DEFAULT_USER_ROLES,
-} from "@api/common";
+import { asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import express from "express";
-import { Service } from "@api/config";
 import { getAuth } from "firebase-admin/auth"; // eslint-disable-line import/no-unresolved
 
 import { CompanyModel } from "../models/company";
@@ -87,32 +80,6 @@ companyRoutes.route("/:id/employees/add").post(
       emails.forEach(async (email: string, index: number, employees: string[]) => {
         const user = await getAuth().getUserByEmail(email);
         const employeeUid = user.uid;
-        const permission = await apiCall(
-          Service.AUTH,
-          { method: "GET", url: `/permissions/${employeeUid}` },
-          req
-        );
-
-        let updatedRoles;
-        if (permission) {
-          updatedRoles = permission.roles;
-        } else {
-          updatedRoles = DEFAULT_USER_ROLES;
-        }
-
-        updatedRoles.sponsor = true;
-
-        await apiCall(
-          Service.AUTH,
-          {
-            method: "POST",
-            url: `/permissions/${employeeUid}`,
-            data: {
-              roles: updatedRoles,
-            },
-          },
-          req
-        );
 
         if (!uniqueEmployees.includes(employeeUid)) {
           uniqueEmployees.push(employeeUid);
