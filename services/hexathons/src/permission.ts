@@ -1,7 +1,6 @@
-import { AbilityAction, apiCall } from "@api/common";
+import { AbilityAction } from "@api/common";
 import { AbilityBuilder, Ability, Subject } from "@casl/ability";
 import { RequestHandler } from "express";
-import { Service } from "@api/config";
 
 export const addAbilities = (): RequestHandler => async (req, res, next) => {
   const { can, build } = new AbilityBuilder<Ability<[AbilityAction, Subject]>>(Ability);
@@ -27,27 +26,16 @@ export const addAbilities = (): RequestHandler => async (req, res, next) => {
     can("manage", "PrizeItem");
   }
 
-  // insight permission roles
-  const isSponsor = async (user: any) => {
-    const company = await apiCall(
-      Service.USERS,
-      { method: "GET", url: `/companies/employees/${user.uid}` },
-      req
-    );
-    return company;
-  };
-
-  if (await isSponsor(req.user)) {
-    can("read", "Visit");
-    can("create", "Visit");
-    can("update", "Visit");
-  }
-
   can("read", "Hexathon", { isActive: true });
   can("read", "Interaction", { userId: req.user.uid });
   can("read", "Checkin", { userId: req.user.uid });
   can("read", "HexathonUser", { userId: req.user.uid });
   can("read", "PrizeItem");
+
+  // insight permissions
+  can("read", "Visit");
+  can("create", "Visit");
+  can("update", "Visit");
 
   req.ability = build();
   next();

@@ -1,15 +1,18 @@
-import { asyncHandler, BadRequestError, checkAbility } from "@api/common";
+import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/common";
+import { Service } from "@api/config";
 import express from "express";
 import { getAuth } from "firebase-admin/auth"; // eslint-disable-line import/no-unresolved
+import { FilterQuery } from "mongoose";
 
-import { CompanyModel } from "../models/company";
+import { Company, CompanyModel } from "../models/company";
 
 export const companyRoutes = express.Router();
 
 companyRoutes.route("/").post(
   checkAbility("create", "Company"),
   asyncHandler(async (req, res) => {
-    const { name, defaultEmailDomains, hasResumeAccess, employees } = req.body;
+    const { name, description, defaultEmailDomains, hasResumeAccess, employees, hexathon } =
+      req.body;
 
     if (!name) {
       throw new BadRequestError("Please enter the name field at the minimum");
@@ -17,12 +20,28 @@ companyRoutes.route("/").post(
 
     const newCompany = await CompanyModel.create({
       name,
+      description,
+      hexathon,
       defaultEmailDomains,
       hasResumeAccess,
       employees,
     });
 
     return res.status(200).send(newCompany);
+  })
+);
+
+companyRoutes.route("/").get(
+  checkAbility("read", "Company"),
+  asyncHandler(async (req, res) => {
+    const filter: FilterQuery<Company> = {};
+
+    if (req.query.hexathon) {
+      filter.hexathon = String(req.query.hexathon);
+    }
+
+    const companies = await CompanyModel.accessibleBy(req.ability).find(filter);
+    return res.status(200).send(companies);
   })
 );
 
@@ -42,11 +61,32 @@ companyRoutes.route("/:id").get(
 companyRoutes.route("/:id").put(
   checkAbility("update", "Company"),
   asyncHandler(async (req, res) => {
-    const updatedCompany = await CompanyModel.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
+    const requestedCompany = await CompanyModel.findById(req.params.id);
 
-    return res.status(200).send(updatedCompany);
+    if (!requestedCompany) {
+      throw new BadRequestError("Requested company not valid");
+    }
+
+    const userCompany = await apiCall(
+      Service.USERS,
+      { method: "GET", url: `/companies/employees/${req.user?.uid}` },
+      req
+    );
+
+    if (!requestedCompany || !userCompany || requestedCompany.name !== userCompany.name) {
+      throw new BadRequestError("Current user not associated with requested company");
+    }
+
+    const update = await requestedCompany.update(req.body, { new: true });
+    return res.status(200).send(update);
+  })
+);
+
+companyRoutes.route("/:id").delete(
+  checkAbility("delete", "Company"),
+  asyncHandler(async (req, res) => {
+    await CompanyModel.findByIdAndDelete(req.params.id);
+    return res.sendStatus(204);
   })
 );
 
@@ -64,17 +104,56 @@ companyRoutes.route("/employees/:employeeId").get(
   })
 );
 
+// used for accepting employee join requests
+companyRoutes.route("/:id/employees/accept-request").post(
+  checkAbility("update", "Company"),
+  asyncHandler(async (req, res) => {
+    const requestedCompany = await CompanyModel.findById(req.params.id);
+
+    const userCompany = await apiCall(
+      Service.USERS,
+      { method: "GET", url: `/companies/employees/${req.user?.uid}` },
+      req
+    );
+
+    if (!requestedCompany || !userCompany || requestedCompany.name !== userCompany.name) {
+      throw new BadRequestError("Current user not associated with requested company");
+    }
+
+    const employeeId = req.body.employee;
+
+    if (requestedCompany.employees.includes(employeeId)) {
+      throw new BadRequestError("User already in company");
+    }
+
+    const updatedCompany = await requestedCompany.update({
+      employees: [...requestedCompany.employees, employeeId],
+      $pull: {
+        pendingEmployees: employeeId,
+      },
+    });
+
+    return res.status(200).send(updatedCompany);
+  })
+);
+
 companyRoutes.route("/:id/employees/add").post(
   checkAbility("update", "Company"),
   asyncHandler(async (req, res) => {
-    const company = await CompanyModel.findById(req.params.id);
+    const requestedCompany = await CompanyModel.findById(req.params.id);
 
-    if (!company) {
-      throw new BadRequestError("Company not found or you do not have permission.");
+    const userCompany = await apiCall(
+      Service.USERS,
+      { method: "GET", url: `/companies/employees/${req.user?.uid}` },
+      req
+    );
+
+    if (!requestedCompany || !userCompany || requestedCompany.name !== userCompany.name) {
+      throw new BadRequestError("Current user not associated with requested company");
     }
 
     const emails = req.body.employees.split(",");
-    const uniqueEmployees: string[] = company.employees;
+    const uniqueEmployees: string[] = requestedCompany.employees;
 
     const handleEmployees = new Promise<void>((resolve, reject) => {
       emails.forEach(async (email: string, index: number, employees: string[]) => {
@@ -89,20 +168,44 @@ companyRoutes.route("/:id/employees/add").post(
     });
 
     handleEmployees.then(async () => {
-      const currEmployees = await CompanyModel.findByIdAndUpdate(
-        req.params.id,
-        {
-          employees: uniqueEmployees,
+      const updatedCompany = await requestedCompany.update({
+        members: uniqueEmployees,
+        $pull: {
+          pendingEmployees: { $in: uniqueEmployees },
         },
-        { new: true }
-      );
+      });
 
-      return res.status(200).send(currEmployees);
+      return res.status(200).send(updatedCompany);
     });
   })
 );
 
-companyRoutes.route("/:id/employees").put(
+companyRoutes.route("/:id/employees/request").post(
+  checkAbility("read", "Company"),
+  asyncHandler(async (req, res) => {
+    const company = await CompanyModel.findById(req.params.id);
+
+    if (!company || !req.user) {
+      throw new BadRequestError("Company or user not found.");
+    }
+
+    if (company.pendingEmployees.includes(req.user.uid)) {
+      throw new BadRequestError("User invalid or has already requested to join this company");
+    }
+
+    const updatedCompany = await CompanyModel.findByIdAndUpdate(
+      req.params.id,
+      {
+        pendingEmployees: [...company.pendingEmployees, req.user?.uid],
+      },
+      { new: true }
+    );
+
+    return res.status(200).send(updatedCompany);
+  })
+);
+
+companyRoutes.route("/:id/employees").delete(
   checkAbility("update", "Company"),
   asyncHandler(async (req, res) => {
     const company = await CompanyModel.findById(req.params.id).accessibleBy(req.ability);
@@ -111,14 +214,13 @@ companyRoutes.route("/:id/employees").put(
       throw new BadRequestError("Company not found or you do not have permission.");
     }
 
-    const addEmployees = await CompanyModel.findByIdAndUpdate(
-      req.params.id,
-      {
-        employees: req.body.employees,
+    await company.update({
+      $pull: {
+        pendingEmployees: req.body.userId,
+        employees: req.body.userId,
       },
-      { new: true }
-    );
+    });
 
-    return res.status(200).send(addEmployees);
+    return res.status(204).send(company);
   })
 );

@@ -46,55 +46,16 @@ sponsorVisitRouter.route("/").post(
       req
     );
 
-    if (!company) {
+    if (!company || !req.user) {
       throw new BadRequestError("Current user not associated with a company");
     }
-
-    const visitor = await apiCall(
-      Service.USERS,
-      { method: "GET", url: `/users/${req.body?.visitorId}` },
-      req
-    );
-
-    const hexathon = await apiCall(
-      Service.HEXATHONS,
-      { method: "GET", url: `/hexathons/${req.body.hexathon}` },
-      req
-    );
-
-    if (!visitor || !hexathon) {
-      throw new BadRequestError(
-        "Visit creation must be associated with a valid visitor and hexathon"
-      );
-    }
-
-    /* eslint-disable no-await-in-loop */
-    for (let i = 0; i < req.body.employees.length; i++) {
-      const emp = await apiCall(
-        Service.USERS,
-        { method: "GET", url: `/users/${req.body.employees[i]}` },
-        req
-      );
-
-      const empCompany = await apiCall(
-        Service.USERS,
-        { method: "GET", url: `/companies/employees/${req.body.employees[i]}` },
-        req
-      );
-
-      if (!emp || empCompany.name !== company.name) {
-        throw new BadRequestError(
-          "Included employeeId not associated with a valid employee of the company"
-        );
-      }
-    }
-    /* eslint-enable no-await-in-loop */
 
     const visit = await VisitModel.create({
       visitorId: req.body.visitorId,
       hexathon: req.body.hexathon,
       company: company.id,
-      employees: req.body.employees,
+      employee: req.user.uid,
+      starred: req.body.starred,
       tags: req.body.tags,
       notes: req.body.notes,
       time: new Date(),
@@ -145,37 +106,15 @@ sponsorVisitRouter.route("/:visitId").put(
       throw new BadRequestError("Current user not associated with a company");
     }
 
-    /* eslint-disable no-await-in-loop */
-    for (let i = 0; i < req.body.employees.length; i++) {
-      const emp = await apiCall(
-        Service.USERS,
-        { method: "GET", url: `/users/${req.body.employees[i]}` },
-        req
-      );
-
-      const empCompany = await apiCall(
-        Service.USERS,
-        { method: "GET", url: `/companies/employees/${req.body.employees[i]}` },
-        req
-      );
-
-      if (!emp || empCompany.name !== company.name) {
-        throw new BadRequestError(
-          "Included employeeId not associated with a valid employee of the company"
-        );
-      }
-    }
-    /* eslint-enable no-await-in-loop */
-
     const newVisit = await VisitModel.findOneAndUpdate(
       {
         _id: req.params.visitId,
         company: company.id,
       },
       {
+        starred: req.body.starred,
         tags: req.body.tags,
         notes: req.body.notes,
-        employees: req.body.employees,
       },
       { new: true }
     );

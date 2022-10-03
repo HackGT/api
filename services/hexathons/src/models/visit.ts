@@ -5,7 +5,8 @@ export interface Visit extends mongoose.Document {
   visitorId: string;
   hexathon: Types.ObjectId;
   company: Types.ObjectId;
-  employees: string[];
+  employee: string;
+  starred: boolean;
   tags: string[];
   notes: string[];
   scannerID?: string;
@@ -25,10 +26,15 @@ const visitSchema = new Schema<Visit>({
     type: Schema.Types.ObjectId,
     required: true,
   },
-  employees: {
-    type: [String],
+  employee: {
+    type: String,
     required: true,
-    default: [],
+    default: "",
+  },
+  starred: {
+    type: Boolean,
+    required: false,
+    default: false,
   },
   tags: {
     type: [String],
@@ -39,9 +45,6 @@ const visitSchema = new Schema<Visit>({
     type: [String],
     required: false,
     default: [],
-  },
-  scannerID: {
-    type: String,
   },
   time: {
     type: Date,

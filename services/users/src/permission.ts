@@ -20,6 +20,8 @@ export const addAbilities = (): RequestHandler => async (req, res, next) => {
 
   if (req.user.roles.admin) {
     can("manage", "Profile");
+    can("delete", "Company");
+    can("create", "Company");
   }
   const hasResumeAccess = await isSponsorWithResumeAccess(req.user);
   if (req.user.roles.member || hasResumeAccess) {
@@ -34,6 +36,7 @@ export const addAbilities = (): RequestHandler => async (req, res, next) => {
   can("manage", "Profile", { userId: req.user.uid });
   can("manage", "Team", { members: req.user.uid });
   can("read", "Company");
+  can("manage", "Company");
 
   req.ability = build();
   next();
