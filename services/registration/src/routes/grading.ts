@@ -322,11 +322,11 @@ gradingRouter.route("/leaderboard").get(
       userId: req.user?.uid,
     });
 
-    // Get top 10 graders in descending order (top grader first)
+    // Get top 10 graders (or 100 if exec) in descending order (top graders first)
     const topGraders = await GraderModel.accessibleBy(req.ability)
       .find({ hexathon: req.query.hexathon })
       .sort({ graded: -1 })
-      .limit(10);
+      .limit(req.user?.roles.exec ? 100 : 10);
 
     // If there are no graders, send empty response
     if (topGraders.length === 0) {
