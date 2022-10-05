@@ -38,6 +38,7 @@ const updateApplication = async (
   const acceptedGeneralRes = await collection.updateMany(
     {
       _id: { $in: acceptedGeneralIds },
+      status: "APPLIED",
     },
     {
       $set: {
@@ -56,6 +57,7 @@ const updateApplication = async (
   const acceptedEmergingRes = await collection.updateMany(
     {
       _id: { $in: acceptedEmergingIds },
+      status: "APPLIED",
     },
     {
       $set: {
@@ -74,6 +76,7 @@ const updateApplication = async (
   const waitlistedRes = await collection.updateMany(
     {
       _id: { $in: waitlistedApplicationsIds },
+      status: "APPLIED",
     },
     {
       $set: {

@@ -52,7 +52,6 @@ const updateSecret = async (fileName: string, service: string) => {
 
 const REGISTRATION_SECRETS = [
   "../../services/registration/src/config/calibration_question_mapping.json",
-  "../../services/registration/src/config/grading_group_mapping.json",
   "../../services/registration/src/config/rubric_mapping.json",
 ];
 
