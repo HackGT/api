@@ -41,7 +41,7 @@ mongoose.set("toJSON", {
 app.use(helmet());
 app.use(rateLimiter());
 app.use(cookieParser());
-app.use(decodeToken(Service.HEXATHONS));
+app.use(decodeToken(Service.HARDWARE));
 app.use(addAbilities());
 app.use(morgan("dev"));
 app.use(compression());
