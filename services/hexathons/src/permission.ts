@@ -17,6 +17,8 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
   if (req.user.roles.admin || req.user.roles.member) {
     can("manage", "Interaction");
     can("aggregate", "Interaction");
+    can("manage", "Event");
+    can("aggregate", "Event");
     can("manage", "Checkin");
     can("aggregate", "PrizeItem");
     can("manage", "HexathonUser");
@@ -28,6 +30,7 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
 
   can("read", "Hexathon", { isActive: true });
   can("read", "Interaction", { userId: req.user.uid });
+  can("read", "Event", { userId: req.user.uid });
   can("read", "Checkin", { userId: req.user.uid });
   can("read", "HexathonUser", { userId: req.user.uid });
   can("read", "PrizeItem");

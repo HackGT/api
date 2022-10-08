@@ -864,6 +864,204 @@
         }
       }
     },
+    "/events": {
+      "get": {
+        "tags": ["hexathons"],
+        "summary": "Finds and displays information of all events.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathon",
+            "in": "query",
+            "description": "hexathon id that needs to be considered for filter.",
+            "required": true,
+            "type": "string",
+            "collectionFormat": "multi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Event"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      },
+      "post": {
+        "tags": ["hexathons"],
+        "summary": "Create a new event.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "hexathon": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "food",
+                    "workshop",
+                    "ceremony",
+                    "tech-talk",
+                    "mini-event",
+                    "important",
+                    "speaker",
+                    "mini-challenge"
+                  ]
+                },
+                "startDate": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "endDate": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "location": {
+                  "type": "string"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Interaction"
+              }
+            }
+          },
+          "400": {
+            "description": "Interaction already exists for this user and identifier"
+          }
+        }
+      }
+    },
+    "/events/{id}": {
+      "put": {
+        "tags": ["hexathons"],
+        "summary": "Update an existing interaction by id.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Event id that needs to be considered for filter.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "hexathon": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "food",
+                    "workshop",
+                    "ceremony",
+                    "tech-talk",
+                    "mini-event",
+                    "important",
+                    "speaker",
+                    "mini-challenge"
+                  ]
+                },
+                "startDate": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "endDate": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "location": {
+                  "type": "string"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Interaction"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        },
+        "delete": {
+          "tags": ["hexathons"],
+          "summary": "Deletes an event by id",
+          "description": "",
+          "produces": ["application/json"],
+          "responses": {
+            "204": {
+              "description": "successful operation"
+            },
+            "400": {
+              "description": "Invalid status"
+            }
+          }
+        }
+      }
+    },
     "/prize-items": {
       "get": {
         "tags": ["hexathons"],
@@ -2721,6 +2919,53 @@
       },
       "xml": {
         "name": "Interaction"
+      }
+    },
+    "Event": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "hexathon": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "food",
+            "workshop",
+            "ceremony",
+            "tech-talk",
+            "mini-event",
+            "important",
+            "speaker",
+            "mini-challenge"
+          ]
+        },
+        "startDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "endDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "location": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "xml": {
+        "name": "Event"
       }
     },
     "BasicApplication": {
