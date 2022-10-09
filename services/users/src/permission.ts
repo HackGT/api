@@ -2,15 +2,8 @@ import { AbilityAction } from "@api/common";
 import { AbilityBuilder, Ability, Subject } from "@casl/ability";
 import { RequestHandler } from "express";
 
-import { CompanyModel } from "./models/company";
-
 export const addAbilities = (): RequestHandler => async (req, res, next) => {
   const { can, build } = new AbilityBuilder<Ability<[AbilityAction, Subject]>>(Ability);
-
-  const isSponsorWithResumeAccess = async (user: any) => {
-    const company = await CompanyModel.findOne({ employees: user.uid });
-    return company?.hasResumeAccess;
-  };
 
   if (!req.user) {
     req.ability = build();
@@ -23,8 +16,8 @@ export const addAbilities = (): RequestHandler => async (req, res, next) => {
     can("delete", "Company");
     can("create", "Company");
   }
-  const hasResumeAccess = await isSponsorWithResumeAccess(req.user);
-  if (req.user.roles.member || hasResumeAccess) {
+
+  if (req.user.roles.member) {
     can("read", "Profile");
   }
 
@@ -37,6 +30,7 @@ export const addAbilities = (): RequestHandler => async (req, res, next) => {
   can("manage", "Team", { members: req.user.uid });
   can("read", "Company");
   can("manage", "Company");
+  can("read", "KnownProfiles");
 
   req.ability = build();
   next();

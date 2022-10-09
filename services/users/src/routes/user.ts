@@ -85,8 +85,19 @@ userRoutes.route("/").get(
 );
 
 userRoutes.route("/:userId").get(
-  checkAbility("read", "Profile"),
+  checkAbility("read", "KnownProfiles"),
   asyncHandler(async (req, res) => {
+    if (!req.user?.roles.member) {
+      const company = await apiCall(
+        Service.USERS,
+        { method: "GET", url: `/companies/employees/${req.user?.uid}` },
+        req
+      );
+      if (company.length === 0) {
+        throw new BadRequestError("No permission to access");
+      }
+    }
+
     const profile = await ProfileModel.findOne({
       userId: req.params.userId,
     }).accessibleBy(req.ability);
@@ -149,8 +160,19 @@ userRoutes.route("/:userId").put(
 );
 
 userRoutes.route("/actions/retrieve").post(
-  checkAbility("read", "Profile"),
+  checkAbility("read", "KnownProfiles"),
   asyncHandler(async (req, res) => {
+    if (!req.user?.roles.member) {
+      const company = await apiCall(
+        Service.USERS,
+        { method: "GET", url: `/companies/employees/${req.user?.uid}` },
+        req
+      );
+      if (company.length === 0) {
+        throw new BadRequestError("No permission to access");
+      }
+    }
+
     const { userIds }: { userIds: string[] } = req.body;
 
     if (!userIds || userIds.length === 0) {

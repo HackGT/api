@@ -1,5 +1,4 @@
-import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/common";
-import { Service } from "@api/config";
+import { asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import express from "express";
 import { getAuth } from "firebase-admin/auth"; // eslint-disable-line import/no-unresolved
 import { FilterQuery } from "mongoose";
@@ -14,8 +13,17 @@ companyRoutes.route("/").post(
     const { name, description, defaultEmailDomains, hasResumeAccess, employees, hexathon } =
       req.body;
 
-    if (!name) {
-      throw new BadRequestError("Please enter the name field at the minimum");
+    if (!name || !hexathon) {
+      throw new BadRequestError("Please enter the name and hexathon field at the minimum");
+    }
+
+    const existingCompany = await CompanyModel.findOne({
+      name,
+      hexathon,
+    });
+
+    if (existingCompany) {
+      throw new BadRequestError("Company profile already exists for specified hexathon");
     }
 
     const newCompany = await CompanyModel.create({
@@ -63,18 +71,8 @@ companyRoutes.route("/:id").put(
   asyncHandler(async (req, res) => {
     const requestedCompany = await CompanyModel.findById(req.params.id);
 
-    if (!requestedCompany) {
-      throw new BadRequestError("Requested company not valid");
-    }
-
-    const userCompany = await apiCall(
-      Service.USERS,
-      { method: "GET", url: `/companies/employees/${req.user?.uid}` },
-      req
-    );
-
-    if (!requestedCompany || !userCompany || requestedCompany.name !== userCompany.name) {
-      throw new BadRequestError("Current user not associated with requested company");
+    if (!requestedCompany || !req.user || !requestedCompany.employees.includes(req.user.uid)) {
+      throw new BadRequestError("Invalid company ID for insufficient permissions");
     }
 
     const update = await requestedCompany.update(req.body, { new: true });
@@ -94,10 +92,18 @@ companyRoutes.route("/:id").delete(
 companyRoutes.route("/employees/:employeeId").get(
   checkAbility("read", "Company"),
   asyncHandler(async (req, res) => {
-    const company = await CompanyModel.findOne({ employees: req.params.employeeId });
+    let queryParams;
+    if (req.query.hexathon) {
+      queryParams = { employees: req.params.employeeId, hexathon: req.query.hexathon };
+    } else {
+      queryParams = { employees: req.params.employeeId };
+    }
+    const company = await CompanyModel.find(queryParams);
 
     if (!company) {
-      throw new BadRequestError("Company not found or you do not have permission.");
+      throw new BadRequestError(
+        "Company not found for given hexathon or you do not have permission."
+      );
     }
 
     return res.status(200).send(company);
@@ -110,13 +116,7 @@ companyRoutes.route("/:id/employees/accept-request").post(
   asyncHandler(async (req, res) => {
     const requestedCompany = await CompanyModel.findById(req.params.id);
 
-    const userCompany = await apiCall(
-      Service.USERS,
-      { method: "GET", url: `/companies/employees/${req.user?.uid}` },
-      req
-    );
-
-    if (!requestedCompany || !userCompany || requestedCompany.name !== userCompany.name) {
+    if (!requestedCompany || !req.user || !requestedCompany.employees.includes(req.user.uid)) {
       throw new BadRequestError("Current user not associated with requested company");
     }
 
@@ -142,13 +142,7 @@ companyRoutes.route("/:id/employees/add").post(
   asyncHandler(async (req, res) => {
     const requestedCompany = await CompanyModel.findById(req.params.id);
 
-    const userCompany = await apiCall(
-      Service.USERS,
-      { method: "GET", url: `/companies/employees/${req.user?.uid}` },
-      req
-    );
-
-    if (!requestedCompany || !userCompany || requestedCompany.name !== userCompany.name) {
+    if (!requestedCompany || !req.user || !requestedCompany.employees.includes(req.user.uid)) {
       throw new BadRequestError("Current user not associated with requested company");
     }
 
@@ -208,19 +202,19 @@ companyRoutes.route("/:id/employees/request").post(
 companyRoutes.route("/:id/employees").delete(
   checkAbility("update", "Company"),
   asyncHandler(async (req, res) => {
-    const company = await CompanyModel.findById(req.params.id).accessibleBy(req.ability);
+    const requestedCompany = await CompanyModel.findById(req.params.id);
 
-    if (!company) {
-      throw new BadRequestError("Company not found or you do not have permission.");
+    if (!requestedCompany || !req.user || !requestedCompany.employees.includes(req.user.uid)) {
+      throw new BadRequestError("Current user not associated with requested company");
     }
 
-    await company.update({
+    await requestedCompany.update({
       $pull: {
         pendingEmployees: req.body.userId,
         employees: req.body.userId,
       },
     });
 
-    return res.status(204).send(company);
+    return res.status(204).send(requestedCompany);
   })
 );

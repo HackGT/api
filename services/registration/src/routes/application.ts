@@ -19,6 +19,23 @@ applicationRouter.route("/").get(
       throw new BadRequestError("Hexathon filter is required");
     }
 
+    if (!req.user?.roles.member) {
+      const companies = await apiCall(
+        Service.USERS,
+        {
+          method: "GET",
+          url: `/companies/employees/${req.user?.uid}`,
+          params: {
+            hexathon: req.query.hexathon,
+          },
+        },
+        req
+      );
+      if (companies.length === 0) {
+        throw new BadRequestError("No permission to access this hexathon's applications");
+      }
+    }
+
     const filter: FilterQuery<Application> = {};
     filter.hexathon = req.query.hexathon;
 
@@ -90,6 +107,10 @@ applicationRouter.route("/compile-extra-info").get(
 applicationRouter.route("/:id").get(
   checkAbility("read", "Application"),
   asyncHandler(async (req, res) => {
+    if (!req.user?.roles.member) {
+      throw new BadRequestError("No permission to access");
+    }
+
     const application = await ApplicationModel.findById(req.params.id).accessibleBy(req.ability);
 
     if (!application) {
