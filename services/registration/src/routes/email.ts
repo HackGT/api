@@ -26,6 +26,7 @@ emailRouter.route("/").get(
 
     const emails = await EmailModel.accessibleBy(req.ability)
       .find(filter)
+      .sort({ timestamp: -1 })
       .populate("filter.branchList");
 
     const users: any[] = await apiCall(
