@@ -33,6 +33,7 @@ applicationRouter.route("/").get(
           ? (req.query.search as string).slice(0, 75)
           : (req.query.search as string);
       filter.$or = [
+        { _id: { $regex: new RegExp(search, "i") } },
         { userId: { $regex: new RegExp(search, "i") } },
         { email: { $regex: new RegExp(search, "i") } },
         { name: { $regex: new RegExp(search, "i") } },
@@ -137,10 +138,7 @@ applicationRouter.route("/actions/choose-application-branch").post(
     }
 
     if (existingApplication) {
-      if (
-        existingApplication.status !== StatusType.DRAFT &&
-        existingApplication.status !== StatusType.APPLIED
-      ) {
+      if ([StatusType.ACCEPTED, StatusType.CONFIRMED].includes(existingApplication.status)) {
         throw new BadRequestError(
           "Cannot select an application branch. You have already submitted an application."
         );
