@@ -18,7 +18,6 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
   }
 
   if (req.user.roles.member) {
-    can("read", "Application");
     can("read", "Grader");
     can("manage", "Grader", { userId: req.user.uid });
     can("read", "Review");
@@ -31,7 +30,8 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
     can("aggregate", "Review");
   }
 
-  can(["create", "read", "update"], "Application", { userId: req.user.uid });
+  can("read", "Application");
+  can(["create", "update"], "Application", { userId: req.user.uid });
   can("read", "Branch");
 
   req.ability = build();

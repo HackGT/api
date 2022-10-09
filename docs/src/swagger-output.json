@@ -1226,12 +1226,6 @@
             "required": true
           },
           {
-            "name": "userId",
-            "in": "query",
-            "description": "Filter applications by user id",
-            "type": "string"
-          },
-          {
             "name": "search",
             "in": "query",
             "type": "string",
