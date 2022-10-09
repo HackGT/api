@@ -8,6 +8,7 @@ import { tagRoutes } from "./tag";
 import { checkinRouter } from "./checkin";
 import { hexathonUserRouter } from "./hexathon-users";
 import { prizeItemRouter } from "./prize-item";
+import { sponsorVisitRouter } from "./sponsor-visit";
 
 export const defaultRouter = express.Router();
 
@@ -19,3 +20,4 @@ defaultRouter.use("/tags", tagRoutes);
 defaultRouter.use("/checkin", checkinRouter);
 defaultRouter.use("/hexathon-users", hexathonUserRouter);
 defaultRouter.use("/prize-items", prizeItemRouter);
+defaultRouter.use("/sponsor-visit", sponsorVisitRouter);

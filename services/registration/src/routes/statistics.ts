@@ -51,7 +51,7 @@ statisticsRouter.route("/").get(
             {
               $match: {
                 "status": { $ne: StatusType.DRAFT },
-                "applicationData.gender": { $exists: true },
+                "applicationData.gender": { $ne: null },
               },
             },
             {
@@ -66,7 +66,7 @@ statisticsRouter.route("/").get(
             {
               $match: {
                 "status": { $ne: StatusType.DRAFT },
-                "applicationData.schoolYear": { $exists: true },
+                "applicationData.schoolYear": { $ne: null },
               },
             },
             {
@@ -81,7 +81,7 @@ statisticsRouter.route("/").get(
             {
               $match: {
                 "status": { $ne: StatusType.DRAFT },
-                "applicationData.major": { $exists: true },
+                "applicationData.major": { $ne: null },
               },
             },
             {
@@ -96,7 +96,7 @@ statisticsRouter.route("/").get(
             {
               $match: {
                 "status": { $ne: StatusType.DRAFT },
-                "applicationData.school": { $exists: true },
+                "applicationData.school": { $ne: null },
               },
             },
             {
@@ -122,7 +122,7 @@ statisticsRouter.route("/").get(
           confirmationBranches: [
             {
               $match: {
-                confirmationBranch: { $exists: true },
+                confirmationBranch: { $ne: null },
               },
             },
             {

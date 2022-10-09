@@ -2,7 +2,7 @@
 import { apiCall, asyncHandler, BadRequestError, getFullName, checkAbility } from "@api/common";
 import { Service } from "@api/config";
 import express from "express";
-import { FilterQuery, Types } from "mongoose";
+import { FilterQuery, isValidObjectId, Types } from "mongoose";
 import _ from "lodash";
 import { DateTime } from "luxon";
 
@@ -22,8 +22,26 @@ applicationRouter.route("/").get(
     const filter: FilterQuery<Application> = {};
     filter.hexathon = req.query.hexathon;
 
-    if (req.query.userId) {
-      filter.userId = req.query.userId;
+    let company;
+    try {
+      company = await apiCall(
+        Service.USERS,
+        {
+          method: "GET",
+          url: `/companies/employees/${req.user?.uid}`,
+          params: {
+            hexathon: req.query.hexathon,
+          },
+        },
+        req
+      );
+    } catch (err) {
+      company = null;
+    }
+
+    // If user is not a member and has no associated company, set filter to access only their own applications
+    if (!req.user?.roles.member && !company) {
+      filter.userId = req.user?.uid;
     }
 
     if (req.query.search) {
@@ -33,6 +51,7 @@ applicationRouter.route("/").get(
           ? (req.query.search as string).slice(0, 75)
           : (req.query.search as string);
       filter.$or = [
+        { _id: isValidObjectId(search) ? new Types.ObjectId(search) : undefined },
         { userId: { $regex: new RegExp(search, "i") } },
         { email: { $regex: new RegExp(search, "i") } },
         { name: { $regex: new RegExp(search, "i") } },
@@ -90,7 +109,32 @@ applicationRouter.route("/compile-extra-info").get(
 applicationRouter.route("/:id").get(
   checkAbility("read", "Application"),
   asyncHandler(async (req, res) => {
-    const application = await ApplicationModel.findById(req.params.id).accessibleBy(req.ability);
+    const filter: FilterQuery<Application> = {};
+    filter._id = req.params.id;
+
+    let company;
+    try {
+      company = await apiCall(
+        Service.USERS,
+        {
+          method: "GET",
+          url: `/companies/employees/${req.user?.uid}`,
+          params: {
+            hexathon: req.query.hexathon,
+          },
+        },
+        req
+      );
+    } catch (err) {
+      company = null;
+    }
+
+    // If user is not a member and has no associated company, set filter to access only their own applications
+    if (!req.user?.roles.member && !company) {
+      filter.userId = req.user?.uid;
+    }
+
+    const application = await ApplicationModel.findOne(filter).accessibleBy(req.ability);
 
     if (!application) {
       throw new BadRequestError("Application not found or you do not have permission to access.");
@@ -137,10 +181,7 @@ applicationRouter.route("/actions/choose-application-branch").post(
     }
 
     if (existingApplication) {
-      if (
-        existingApplication.status !== StatusType.DRAFT &&
-        existingApplication.status !== StatusType.APPLIED
-      ) {
+      if ([StatusType.ACCEPTED, StatusType.CONFIRMED].includes(existingApplication.status)) {
         throw new BadRequestError(
           "Cannot select an application branch. You have already submitted an application."
         );
