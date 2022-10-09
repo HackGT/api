@@ -10,8 +10,7 @@ export const companyRoutes = express.Router();
 companyRoutes.route("/").post(
   checkAbility("create", "Company"),
   asyncHandler(async (req, res) => {
-    const { name, description, defaultEmailDomains, hasResumeAccess, employees, hexathon } =
-      req.body;
+    const { name, description, defaultEmailDomains, hasResumeAccess, hexathon } = req.body;
 
     if (!name || !hexathon) {
       throw new BadRequestError("Please enter the name and hexathon field at the minimum");
@@ -32,7 +31,6 @@ companyRoutes.route("/").post(
       hexathon,
       defaultEmailDomains,
       hasResumeAccess,
-      employees,
     });
 
     return res.status(200).send(newCompany);
@@ -100,7 +98,7 @@ companyRoutes.route("/employees/:employeeId").get(
       throw new BadRequestError("Hexathon filter is required");
     }
 
-    const company = await CompanyModel.find({
+    const company = await CompanyModel.findOne({
       employees: req.params.employeeId,
       hexathon: req.query.hexathon,
     }).accessibleBy(req.ability);
@@ -178,12 +176,16 @@ companyRoutes.route("/:id/employees/add").post(
       })
     );
 
-    const updatedCompany = await company.update({
-      members: uniqueEmployees,
-      $pull: {
-        pendingEmployees: { $in: uniqueEmployees },
+    const updatedCompany = await CompanyModel.findByIdAndUpdate(
+      company.id,
+      {
+        employees: uniqueEmployees,
+        $pull: {
+          pendingEmployees: { $in: uniqueEmployees },
+        },
       },
-    });
+      { new: true }
+    );
 
     return res.status(200).send(updatedCompany);
   })

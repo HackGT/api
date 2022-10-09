@@ -22,8 +22,26 @@ applicationRouter.route("/").get(
     const filter: FilterQuery<Application> = {};
     filter.hexathon = req.query.hexathon;
 
-    if (req.query.userId) {
-      filter.userId = req.query.userId;
+    let company;
+    try {
+      company = await apiCall(
+        Service.USERS,
+        {
+          method: "GET",
+          url: `/companies/employees/${req.user?.uid}`,
+          params: {
+            hexathon: req.query.hexathon,
+          },
+        },
+        req
+      );
+    } catch (err) {
+      company = null;
+    }
+
+    // If user is not a member and has no associated company, set filter to access only their own applications
+    if (!req.user?.roles.member && !company) {
+      filter.userId = req.user?.uid;
     }
 
     if (req.query.search) {
@@ -91,7 +109,32 @@ applicationRouter.route("/compile-extra-info").get(
 applicationRouter.route("/:id").get(
   checkAbility("read", "Application"),
   asyncHandler(async (req, res) => {
-    const application = await ApplicationModel.findById(req.params.id).accessibleBy(req.ability);
+    const filter: FilterQuery<Application> = {};
+    filter._id = req.params.id;
+
+    let company;
+    try {
+      company = await apiCall(
+        Service.USERS,
+        {
+          method: "GET",
+          url: `/companies/employees/${req.user?.uid}`,
+          params: {
+            hexathon: req.query.hexathon,
+          },
+        },
+        req
+      );
+    } catch (err) {
+      company = null;
+    }
+
+    // If user is not a member and has no associated company, set filter to access only their own applications
+    if (!req.user?.roles.member && !company) {
+      filter.userId = req.user?.uid;
+    }
+
+    const application = await ApplicationModel.findOne(filter).accessibleBy(req.ability);
 
     if (!application) {
       throw new BadRequestError("Application not found or you do not have permission to access.");
