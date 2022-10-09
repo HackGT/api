@@ -15,6 +15,7 @@ const companySchema = new Schema<Company>({
   name: {
     type: String,
     required: true,
+    index: true,
   },
   description: {
     type: String,
@@ -35,16 +36,19 @@ const companySchema = new Schema<Company>({
     type: Boolean,
     required: true,
     default: false,
+    index: true,
   },
   employees: {
     type: [String],
     required: true,
     default: [],
+    index: true,
   },
   pendingEmployees: {
     type: [String],
     required: true,
     default: [],
+    index: true,
   },
 });
 

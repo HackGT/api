@@ -17,28 +17,34 @@ const sponsorVisitSchema = new Schema<SponsorVisit>({
   visitorId: {
     type: String,
     required: true,
+    index: true,
   },
   hexathon: {
     type: Schema.Types.ObjectId,
     required: true,
+    index: true,
   },
   company: {
     type: Schema.Types.ObjectId,
     required: true,
+    index: true,
   },
   employee: {
     type: String,
     required: true,
+    index: true,
   },
   starred: {
     type: Boolean,
     required: true,
     default: false,
+    index: true,
   },
   tags: {
     type: [String],
     required: true,
     default: [],
+    index: true,
   },
   notes: {
     type: [String],
