@@ -2,6 +2,8 @@ import { AccessibleRecordModel, accessibleRecordsPlugin } from "@casl/mongoose";
 import mongoose, { Schema, model, Types } from "mongoose";
 
 import { HexathonModel } from "./hexathon";
+import { LocationModel } from "./location";
+import { TagModel } from "./tag";
 import { InteractionEventType } from "./interaction";
 
 export interface Event extends mongoose.Document {
@@ -10,8 +12,8 @@ export interface Event extends mongoose.Document {
   type: InteractionEventType;
   startDate: Date;
   endDate: Date;
-  location: string;
-  tags?: string[];
+  location: Types.ObjectId;
+  tags?: Types.ObjectId[];
 }
 
 const eventSchema = new Schema<Event>({
@@ -38,15 +40,18 @@ const eventSchema = new Schema<Event>({
     required: true,
   },
   location: {
-    type: String,
+    type: Schema.Types.ObjectId,
     required: true,
+    ref: LocationModel,
   },
   tags: {
     type: [
       {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: TagModel,
       },
     ],
+    default: [],
   },
 });
 

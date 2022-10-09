@@ -31,14 +31,14 @@ eventRoutes.route("/").post(
       startDate: req.body.startDate,
       endDate: req.body.endDate,
       location: req.body.location,
-      tags: req.body.tags,
+      tags: req.body.tags ? req.body.tags : [],
     });
 
     if (existingEvent) {
       throw new BadRequestError("Event already exists for this hexathon");
     }
 
-    const event = await EventModel.create({
+    const event: Event = await EventModel.create({
       hexathon: req.body.hexathon,
       name: req.body.name,
       type: req.body.type,
@@ -77,7 +77,7 @@ eventRoutes.route("/:id").put(
 eventRoutes.route("/:id").delete(
   checkAbility("delete", "Event"),
   asyncHandler(async (req, res) => {
-    await EventModel.accessibleBy(req.ability).findByIdAndDelete(req.params.id);
+    await EventModel.findByIdAndDelete(req.params.id);
     return res.sendStatus(204);
   })
 );

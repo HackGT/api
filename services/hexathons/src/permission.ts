@@ -18,7 +18,8 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
     can("manage", "Interaction");
     can("aggregate", "Interaction");
     can("manage", "Event");
-    can("aggregate", "Event");
+    can("manage", "Location");
+    can("manage", "Tag");
     can("manage", "Checkin");
     can("aggregate", "PrizeItem");
     can("manage", "HexathonUser");
@@ -31,6 +32,8 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
   can("read", "Hexathon", { isActive: true });
   can("read", "Interaction", { userId: req.user.uid });
   can("read", "Event", { userId: req.user.uid });
+  can("read", "Location", { userId: req.user.uid });
+  can("read", "Tag", { userId: req.user.uid });
   can("read", "Checkin", { userId: req.user.uid });
   can("read", "HexathonUser", { userId: req.user.uid });
   can("read", "PrizeItem");
