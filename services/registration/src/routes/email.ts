@@ -24,9 +24,28 @@ emailRouter.route("/").get(
       hexathon: req.query.hexathon,
     };
 
-    const emails = await EmailModel.find(filter).accessibleBy(req.ability);
+    const emails = await EmailModel.accessibleBy(req.ability)
+      .find(filter)
+      .populate("filter.branchList");
 
-    return res.send(emails);
+    const users: any[] = await apiCall(
+      Service.USERS,
+      {
+        url: "/users/actions/retrieve",
+        method: "POST",
+        data: {
+          userIds: emails.map(email => email.sender),
+        },
+      },
+      req
+    );
+
+    const emailsWithUserNames = emails.map(email => ({
+      ...email.toJSON(),
+      sender: users.find((user: any) => user.userId === email.sender),
+    }));
+
+    return res.send(emailsWithUserNames);
   })
 );
 
