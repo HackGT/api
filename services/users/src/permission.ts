@@ -2,7 +2,7 @@ import { AbilityAction } from "@api/common";
 import { AbilityBuilder, Ability, Subject } from "@casl/ability";
 import { RequestHandler } from "express";
 
-export const addAbilities = (): RequestHandler => async (req, res, next) => {
+export const addAbilities = (): RequestHandler => (req, res, next) => {
   const { can, build } = new AbilityBuilder<Ability<[AbilityAction, Subject]>>(Ability);
 
   if (!req.user) {
@@ -13,12 +13,11 @@ export const addAbilities = (): RequestHandler => async (req, res, next) => {
 
   if (req.user.roles.admin) {
     can("manage", "Profile");
-    can("delete", "Company");
-    can("create", "Company");
   }
 
   if (req.user.roles.member) {
     can("read", "Profile");
+    can("manage", "Company");
   }
 
   if (req.user.roles.admin || req.user.roles.member) {
@@ -28,9 +27,7 @@ export const addAbilities = (): RequestHandler => async (req, res, next) => {
 
   can("manage", "Profile", { userId: req.user.uid });
   can("manage", "Team", { members: req.user.uid });
-  can("read", "Company");
-  can("manage", "Company");
-  can("read", "KnownProfiles");
+  can(["read", "update"], "Company");
 
   req.ability = build();
   next();

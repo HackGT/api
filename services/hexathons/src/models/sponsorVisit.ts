@@ -1,7 +1,7 @@
 import { accessibleRecordsPlugin, AccessibleRecordModel } from "@casl/mongoose";
 import mongoose, { Schema, Types, model } from "mongoose";
 
-export interface Visit extends mongoose.Document {
+export interface SponsorVisit extends mongoose.Document {
   visitorId: string;
   hexathon: Types.ObjectId;
   company: Types.ObjectId;
@@ -9,11 +9,11 @@ export interface Visit extends mongoose.Document {
   starred: boolean;
   tags: string[];
   notes: string[];
-  scannerID?: string;
+  scannerId?: string;
   time: Date;
 }
 
-const visitSchema = new Schema<Visit>({
+const sponsorVisitSchema = new Schema<SponsorVisit>({
   visitorId: {
     type: String,
     required: true,
@@ -29,22 +29,24 @@ const visitSchema = new Schema<Visit>({
   employee: {
     type: String,
     required: true,
-    default: "",
   },
   starred: {
     type: Boolean,
-    required: false,
+    required: true,
     default: false,
   },
   tags: {
     type: [String],
-    required: false,
+    required: true,
     default: [],
   },
   notes: {
     type: [String],
-    required: false,
+    required: true,
     default: [],
+  },
+  scannerId: {
+    type: String,
   },
   time: {
     type: Date,
@@ -52,6 +54,9 @@ const visitSchema = new Schema<Visit>({
   },
 });
 
-visitSchema.plugin(accessibleRecordsPlugin);
+sponsorVisitSchema.plugin(accessibleRecordsPlugin);
 
-export const VisitModel = model<Visit, AccessibleRecordModel<Visit>>("Visit", visitSchema);
+export const SponsorVisitModel = model<SponsorVisit, AccessibleRecordModel<SponsorVisit>>(
+  "SponsorVisit",
+  sponsorVisitSchema
+);

@@ -69,14 +69,18 @@ companyRoutes.route("/:id").get(
 companyRoutes.route("/:id").put(
   checkAbility("update", "Company"),
   asyncHandler(async (req, res) => {
-    const requestedCompany = await CompanyModel.findById(req.params.id);
+    const company = await CompanyModel.findById(req.params.id).accessibleBy(req.ability);
 
-    if (!requestedCompany || !req.user || !requestedCompany.employees.includes(req.user.uid)) {
+    if (!company) {
+      throw new BadRequestError("Company not found or you do not have permission.");
+    }
+
+    if (!req.user?.roles.member && !company.employees.includes(req.user?.uid ?? "")) {
       throw new BadRequestError("Invalid company ID for insufficient permissions");
     }
 
-    const update = await requestedCompany.update(req.body, { new: true });
-    return res.status(200).send(update);
+    const updatedCompany = await company.update(req.body, { new: true });
+    return res.status(200).send(updatedCompany);
   })
 );
 
@@ -92,13 +96,14 @@ companyRoutes.route("/:id").delete(
 companyRoutes.route("/employees/:employeeId").get(
   checkAbility("read", "Company"),
   asyncHandler(async (req, res) => {
-    let queryParams;
-    if (req.query.hexathon) {
-      queryParams = { employees: req.params.employeeId, hexathon: req.query.hexathon };
-    } else {
-      queryParams = { employees: req.params.employeeId };
+    if (!req.query.hexathon) {
+      throw new BadRequestError("Hexathon filter is required");
     }
-    const company = await CompanyModel.find(queryParams);
+
+    const company = await CompanyModel.find({
+      employees: req.params.employeeId,
+      hexathon: req.query.hexathon,
+    }).accessibleBy(req.ability);
 
     if (!company) {
       throw new BadRequestError(
@@ -114,24 +119,35 @@ companyRoutes.route("/employees/:employeeId").get(
 companyRoutes.route("/:id/employees/accept-request").post(
   checkAbility("update", "Company"),
   asyncHandler(async (req, res) => {
-    const requestedCompany = await CompanyModel.findById(req.params.id);
+    const company = await CompanyModel.findById(req.params.id).accessibleBy(req.ability);
 
-    if (!requestedCompany || !req.user || !requestedCompany.employees.includes(req.user.uid)) {
-      throw new BadRequestError("Current user not associated with requested company");
+    if (!company) {
+      throw new BadRequestError("Company not found or you do not have permission.");
     }
 
-    const employeeId = req.body.employee;
+    if (!req.user?.roles.member && !company.employees.includes(req.user?.uid ?? "")) {
+      throw new BadRequestError("Invalid company ID for insufficient permissions");
+    }
 
-    if (requestedCompany.employees.includes(employeeId)) {
+    const { employeeId } = req.body;
+
+    if (company.employees.includes(employeeId)) {
       throw new BadRequestError("User already in company");
     }
 
-    const updatedCompany = await requestedCompany.update({
-      employees: [...requestedCompany.employees, employeeId],
-      $pull: {
-        pendingEmployees: employeeId,
+    if (!company.pendingEmployees.includes(employeeId)) {
+      throw new BadRequestError("User not in pending employees list");
+    }
+
+    const updatedCompany = await company.update(
+      {
+        employees: [...company.employees, employeeId],
+        $pull: {
+          pendingEmployees: employeeId,
+        },
       },
-    });
+      { new: true }
+    );
 
     return res.status(200).send(updatedCompany);
   })
@@ -140,37 +156,36 @@ companyRoutes.route("/:id/employees/accept-request").post(
 companyRoutes.route("/:id/employees/add").post(
   checkAbility("update", "Company"),
   asyncHandler(async (req, res) => {
-    const requestedCompany = await CompanyModel.findById(req.params.id);
+    const company = await CompanyModel.findById(req.params.id).accessibleBy(req.ability);
 
-    if (!requestedCompany || !req.user || !requestedCompany.employees.includes(req.user.uid)) {
-      throw new BadRequestError("Current user not associated with requested company");
+    if (!company) {
+      throw new BadRequestError("Company not found or you do not have permission.");
     }
 
-    const emails = req.body.employees.split(",");
-    const uniqueEmployees: string[] = requestedCompany.employees;
+    if (!req.user?.roles.member && !company.employees.includes(req.user?.uid ?? "")) {
+      throw new BadRequestError("Invalid company ID for insufficient permissions");
+    }
 
-    const handleEmployees = new Promise<void>((resolve, reject) => {
-      emails.forEach(async (email: string, index: number, employees: string[]) => {
+    const emails: string[] = req.body.employees.split(",");
+    const uniqueEmployees: string[] = company.employees;
+
+    await Promise.all(
+      emails.map(async email => {
         const user = await getAuth().getUserByEmail(email);
-        const employeeUid = user.uid;
-
-        if (!uniqueEmployees.includes(employeeUid)) {
-          uniqueEmployees.push(employeeUid);
+        if (!uniqueEmployees.includes(user.uid)) {
+          uniqueEmployees.push(user.uid);
         }
-        if (index === employees.length - 1) resolve();
-      });
+      })
+    );
+
+    const updatedCompany = await company.update({
+      members: uniqueEmployees,
+      $pull: {
+        pendingEmployees: { $in: uniqueEmployees },
+      },
     });
 
-    handleEmployees.then(async () => {
-      const updatedCompany = await requestedCompany.update({
-        members: uniqueEmployees,
-        $pull: {
-          pendingEmployees: { $in: uniqueEmployees },
-        },
-      });
-
-      return res.status(200).send(updatedCompany);
-    });
+    return res.status(200).send(updatedCompany);
   })
 );
 
@@ -179,12 +194,8 @@ companyRoutes.route("/:id/employees/request").post(
   asyncHandler(async (req, res) => {
     const company = await CompanyModel.findById(req.params.id);
 
-    if (!company || !req.user) {
-      throw new BadRequestError("Company or user not found.");
-    }
-
-    if (company.pendingEmployees.includes(req.user.uid)) {
-      throw new BadRequestError("User invalid or has already requested to join this company");
+    if (!company) {
+      throw new BadRequestError("Company not found or you do not have permission.");
     }
 
     const updatedCompany = await CompanyModel.findByIdAndUpdate(
@@ -202,19 +213,23 @@ companyRoutes.route("/:id/employees/request").post(
 companyRoutes.route("/:id/employees").delete(
   checkAbility("update", "Company"),
   asyncHandler(async (req, res) => {
-    const requestedCompany = await CompanyModel.findById(req.params.id);
+    const company = await CompanyModel.findById(req.params.id);
 
-    if (!requestedCompany || !req.user || !requestedCompany.employees.includes(req.user.uid)) {
-      throw new BadRequestError("Current user not associated with requested company");
+    if (!company) {
+      throw new BadRequestError("Company not found or you do not have permission.");
     }
 
-    await requestedCompany.update({
+    if (!req.user?.roles.member && !company.employees.includes(req.user?.uid ?? "")) {
+      throw new BadRequestError("Invalid company ID for insufficient permissions");
+    }
+
+    await company.update({
       $pull: {
         pendingEmployees: req.body.userId,
         employees: req.body.userId,
       },
     });
 
-    return res.status(204).send(requestedCompany);
+    return res.status(204).send(company);
   })
 );
