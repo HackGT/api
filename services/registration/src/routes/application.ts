@@ -2,7 +2,7 @@
 import { apiCall, asyncHandler, BadRequestError, getFullName, checkAbility } from "@api/common";
 import { Service } from "@api/config";
 import express from "express";
-import { FilterQuery, Types } from "mongoose";
+import { FilterQuery, isValidObjectId, Types } from "mongoose";
 import _ from "lodash";
 import { DateTime } from "luxon";
 
@@ -51,7 +51,7 @@ applicationRouter.route("/").get(
           ? (req.query.search as string).slice(0, 75)
           : (req.query.search as string);
       filter.$or = [
-        { _id: new Types.ObjectId(search) },
+        { _id: isValidObjectId(search) ? new Types.ObjectId(search) : undefined },
         { userId: { $regex: new RegExp(search, "i") } },
         { email: { $regex: new RegExp(search, "i") } },
         { name: { $regex: new RegExp(search, "i") } },
