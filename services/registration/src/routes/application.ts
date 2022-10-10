@@ -47,6 +47,10 @@ applicationRouter.route("/").get(
       company = null;
     }
 
+    if (req.query.userId) {
+      filter.userId = req.query.userId;
+    }
+
     // If user is not a member and has no associated company, set filter to access only their own applications
     if (!req.user?.roles.member && !company) {
       filter.userId = req.user?.uid;
@@ -351,7 +355,7 @@ applicationRouter.route("/:id/actions/submit-application").post(
       autoConfirm?.enabled &&
       ((autoConfirm.emails ?? []).includes("*") || // matches all emails
         (autoConfirm.emails ?? []).includes(existingApplication.email) || // matches complete emails
-        (autoConfirm.emails ?? []).includes(existingApplication.email.split("@").pop() ?? "")) // matches emails by domain
+        (autoConfirm.emails ?? []).includes(`@${existingApplication.email.split("@").pop()}`)) // matches emails by domain
     ) {
       await ApplicationModel.findByIdAndUpdate(
         req.params.id,
