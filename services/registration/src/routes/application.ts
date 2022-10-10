@@ -39,6 +39,10 @@ applicationRouter.route("/").get(
       company = null;
     }
 
+    if (req.query.userId) {
+      filter.userId = req.query.userId;
+    }
+
     // If user is not a member and has no associated company, set filter to access only their own applications
     if (!req.user?.roles.member && !company) {
       filter.userId = req.user?.uid;
