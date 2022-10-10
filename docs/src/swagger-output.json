@@ -1226,6 +1226,27 @@
             "required": true
           },
           {
+            "name": "status",
+            "in": "query",
+            "description": "Filter applications by status",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "applicationBranch",
+            "in": "query",
+            "description": "Filter applications by application branch",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "confirmationBranch",
+            "in": "query",
+            "description": "Filter applications by confirmation branch",
+            "type": "string",
+            "required": false
+          },
+          {
             "name": "search",
             "in": "query",
             "type": "string",
