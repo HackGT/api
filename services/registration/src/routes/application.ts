@@ -21,7 +21,15 @@ applicationRouter.route("/").get(
 
     const filter: FilterQuery<Application> = {};
     filter.hexathon = req.query.hexathon;
-
+    if (req.query.status?.length) {
+      filter.status = req.query.status;
+    }
+    if (req.query.applicationBranch?.length) {
+      filter.applicationBranch = req.query.applicationBranch;
+    }
+    if (req.query.confirmationBranch?.length) {
+      filter.confirmationBranch = req.query.confirmationBranch;
+    }
     let company;
     try {
       company = await apiCall(
