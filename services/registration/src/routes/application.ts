@@ -394,6 +394,22 @@ applicationRouter.route("/:id/actions/submit-application").post(
       // no default
     }
 
+    // send confirmation email
+    await apiCall(
+      Service.NOTIFICATIONS,
+      {
+        method: "POST",
+        url: "/email/send-personalized",
+        data: {
+          message: branch.postSubmitEmailTemplate.content,
+          userIds: [req.user?.uid],
+          subject: branch.postSubmitEmailTemplate.subject,
+          hexathon: req.body.hexathon,
+        },
+      },
+      req
+    );
+
     return res.sendStatus(204);
   })
 );
