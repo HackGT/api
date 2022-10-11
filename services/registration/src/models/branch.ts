@@ -49,11 +49,7 @@ export interface Branch extends mongoose.Document {
     enabled?: boolean;
     group?: GradingGroupType;
   };
-  postApplyTemplate: {
-    subject: string;
-    content: string;
-  };
-  postConfirmTemplate: {
+  postSubmitTemplate: {
     subject: string;
     content: string;
   };
@@ -142,17 +138,7 @@ const branchSchema = new Schema<Branch>({
       enum: GradingGroupType,
     },
   },
-  postApplyTemplate: {
-    subject: {
-      type: String,
-      default: "Email Subject",
-    },
-    content: {
-      type: String,
-      default: "",
-    },
-  },
-  postConfirmTemplate: {
+  postSubmitTemplate: {
     subject: {
       type: String,
       default: "Email Subject",
