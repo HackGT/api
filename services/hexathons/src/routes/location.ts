@@ -1,6 +1,5 @@
 import { asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import express from "express";
-import { FilterQuery } from "mongoose";
 
 import { LocationModel, Location } from "../models/location";
 
@@ -9,13 +8,7 @@ export const locationRoutes = express.Router();
 locationRoutes.route("/").get(
   checkAbility("read", "Location"),
   asyncHandler(async (req, res) => {
-    const filter: FilterQuery<Location> = {};
-
-    if (req.query.hexathon) {
-      filter.hexathon = String(req.query.hexathon);
-    }
-
-    const locations = await LocationModel.accessibleBy(req.ability).find(filter);
+    const locations = await LocationModel.accessibleBy(req.ability);
 
     return res.send(locations);
   })
@@ -25,16 +18,14 @@ locationRoutes.route("/").post(
   checkAbility("create", "Location"),
   asyncHandler(async (req, res) => {
     const existingLocation = await LocationModel.findOne({
-      hexathon: req.body.hexathon,
       name: req.body.name,
     });
 
     if (existingLocation) {
-      throw new BadRequestError("Location already exists for this hexathon");
+      throw new BadRequestError("Location already exists");
     }
 
     const location = await LocationModel.create({
-      hexathon: req.body.hexathon,
       name: req.body.name,
     });
 
@@ -45,12 +36,19 @@ locationRoutes.route("/").post(
 locationRoutes.route("/:id").put(
   checkAbility("update", "Location"),
   asyncHandler(async (req, res) => {
+    const existingLocation = await LocationModel.findOne({
+      name: req.body.name,
+    });
+
+    if (existingLocation) {
+      throw new BadRequestError(`Location with name ${  req.body.name  } already exists`);
+    }
+
     const location = await LocationModel.findByIdAndUpdate(
       req.params.id,
       {
         $set: {
           name: req.body.name,
-          refs: req.body.refs,
         },
       },
       { new: true }

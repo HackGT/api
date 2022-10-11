@@ -27,11 +27,6 @@ eventRoutes.route("/").post(
     const existingEvent = await EventModel.findOne({
       hexathon: req.body.hexathon,
       name: req.body.name,
-      type: req.body.type,
-      startDate: req.body.startDate,
-      endDate: req.body.endDate,
-      location: req.body.location,
-      tags: req.body.tags ? req.body.tags : [],
     });
 
     if (existingEvent) {
@@ -55,6 +50,18 @@ eventRoutes.route("/").post(
 eventRoutes.route("/:id").put(
   checkAbility("update", "Event"),
   asyncHandler(async (req, res) => {
+    const currentEvent = await EventModel.findById(req.params.id);
+    const existingEvent = await EventModel.findOne({
+      hexathon: currentEvent?.hexathon,
+      name: req.body.name,
+    });
+
+    if (existingEvent) {
+      throw new BadRequestError(
+        `Event with name ${  req.body.name  } already exists for this hexathon`
+      );
+    }
+
     const event = await EventModel.findByIdAndUpdate(
       req.params.id,
       {
