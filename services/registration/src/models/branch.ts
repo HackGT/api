@@ -50,6 +50,7 @@ export interface Branch extends mongoose.Document {
     group?: GradingGroupType;
   };
   postSubmitEmailTemplate: {
+    enabled?: boolean;
     subject: string;
     content: string;
   };
@@ -139,6 +140,11 @@ const branchSchema = new Schema<Branch>({
     },
   },
   postSubmitEmailTemplate: {
+    enabled: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
     subject: {
       type: String,
       default: "",

@@ -395,20 +395,22 @@ applicationRouter.route("/:id/actions/submit-application").post(
     }
 
     // send confirmation email
-    await apiCall(
-      Service.NOTIFICATIONS,
-      {
-        method: "POST",
-        url: "/email/send-personalized",
-        data: {
-          message: branch.postSubmitEmailTemplate.content,
-          userIds: [req.user?.uid],
-          subject: branch.postSubmitEmailTemplate.subject,
-          hexathon: req.body.hexathon,
+    if (branch.postSubmitEmailTemplate.enabled) {
+      await apiCall(
+        Service.NOTIFICATIONS,
+        {
+          method: "POST",
+          url: "/email/send-personalized",
+          data: {
+            message: branch.postSubmitEmailTemplate.content,
+            userIds: [req.user?.uid],
+            subject: branch.postSubmitEmailTemplate.subject,
+            hexathon: req.body.hexathon,
+          },
         },
-      },
-      req
-    );
+        req
+      );
+    }
 
     return res.sendStatus(204);
   })
