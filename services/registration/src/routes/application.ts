@@ -21,7 +21,15 @@ applicationRouter.route("/").get(
 
     const filter: FilterQuery<Application> = {};
     filter.hexathon = req.query.hexathon;
-
+    if (req.query.status?.length) {
+      filter.status = req.query.status;
+    }
+    if (req.query.applicationBranch?.length) {
+      filter.applicationBranch = req.query.applicationBranch;
+    }
+    if (req.query.confirmationBranch?.length) {
+      filter.confirmationBranch = req.query.confirmationBranch;
+    }
     let company;
     try {
       company = await apiCall(
@@ -37,6 +45,10 @@ applicationRouter.route("/").get(
       );
     } catch (err) {
       company = null;
+    }
+
+    if (req.query.userId) {
+      filter.userId = req.query.userId;
     }
 
     // If user is not a member and has no associated company, set filter to access only their own applications
@@ -343,7 +355,7 @@ applicationRouter.route("/:id/actions/submit-application").post(
       autoConfirm?.enabled &&
       ((autoConfirm.emails ?? []).includes("*") || // matches all emails
         (autoConfirm.emails ?? []).includes(existingApplication.email) || // matches complete emails
-        (autoConfirm.emails ?? []).includes(existingApplication.email.split("@").pop() ?? "")) // matches emails by domain
+        (autoConfirm.emails ?? []).includes(`@${existingApplication.email.split("@").pop()}`)) // matches emails by domain
     ) {
       await ApplicationModel.findByIdAndUpdate(
         req.params.id,
