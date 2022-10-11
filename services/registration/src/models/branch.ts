@@ -141,7 +141,7 @@ const branchSchema = new Schema<Branch>({
   postSubmitTemplate: {
     subject: {
       type: String,
-      default: "Email Subject",
+      default: "",
     },
     content: {
       type: String,
