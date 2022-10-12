@@ -1,13 +1,12 @@
+import config from "@api/config";
 import { MongoClient, ObjectId } from "mongodb";
-import fs from "fs";
-import path from "path";
 
 // Throw and show a stack trace on an unhandled Promise rejection instead of logging an unhelpful warning
 process.on("unhandledRejection", err => {
   throw err;
 });
 
-const client = new MongoClient("mongodb://localhost:7777");
+const client = new MongoClient(config.database.mongo.uri);
 
 const updateApplication = async (
   acceptedApplicationsGeneral: string[], // List of Application Ids
@@ -16,8 +15,7 @@ const updateApplication = async (
   confirmationBranchGeneralId: string,
   confirmationBranchEmergingId: string,
   travelType: string,
-  travelReimbursementAmount: number,
-  travelReimbursementInfoLink: string
+  travelReimbursementAmount: number
 ) => {
   await client.connect();
   const db = client.db("registration");
@@ -38,7 +36,6 @@ const updateApplication = async (
   const acceptedGeneralRes = await collection.updateMany(
     {
       _id: { $in: acceptedGeneralIds },
-      status: "APPLIED",
     },
     {
       $set: {
@@ -46,7 +43,6 @@ const updateApplication = async (
         decisionData: {
           travelReimbursement: travelType,
           travelReimbursementAmount,
-          travelReimbursementInfoLink,
         },
         confirmationBranch: new ObjectId(confirmationBranchGeneralId),
       },
@@ -57,7 +53,6 @@ const updateApplication = async (
   const acceptedEmergingRes = await collection.updateMany(
     {
       _id: { $in: acceptedEmergingIds },
-      status: "APPLIED",
     },
     {
       $set: {
@@ -65,7 +60,6 @@ const updateApplication = async (
         decisionData: {
           travelReimbursement: travelType,
           travelReimbursementAmount,
-          travelReimbursementInfoLink,
         },
         confirmationBranch: new ObjectId(confirmationBranchEmergingId),
       },
@@ -76,7 +70,6 @@ const updateApplication = async (
   const waitlistedRes = await collection.updateMany(
     {
       _id: { $in: waitlistedApplicationsIds },
-      status: "APPLIED",
     },
     {
       $set: {
@@ -85,8 +78,8 @@ const updateApplication = async (
     }
   );
 
-  console.log(`${acceptedGeneralRes.modifiedCount} general application(s) accepted`);
-  console.log(`${acceptedEmergingRes.modifiedCount} emerging application(s) accepted`);
+  console.log(`${acceptedGeneralRes.modifiedCount} application(s) accepted`);
+  console.log(`${acceptedEmergingRes.modifiedCount} application(s) accepted`);
   console.log(`${waitlistedRes.modifiedCount} application(s) waitlisted`);
   console.log(
     `${
@@ -106,31 +99,27 @@ const updateApplication = async (
   confirmationBranchId: string,
   travelType: string,
   travelReimbursementAmount: number
-  travelReimbursementInfoLink: string
  }
 */
 const APPLICATION_RESULTS = [
-  "../input/flight_applications.json",
-  "../input/bus_applications.json",
-  "../input/gas_applications.json",
+  "../../services/registration/src/config/flight_applications.json",
+  "../../services/registration/src/config/bus_applications.json",
+  "../../services/registration/src/config/gas_applications.json",
 ];
 
 (async () => {
   await Promise.all(
-    APPLICATION_RESULTS.map(fileName => {
-      const file = JSON.parse(fs.readFileSync(path.resolve(__dirname, fileName), "utf8"));
-
-      return updateApplication(
+    APPLICATION_RESULTS.map((file: any) =>
+      updateApplication(
         file.acceptedApplicationsGeneral,
         file.acceptedApplicationsEmerging,
         file.waitlistedApplications,
         file.confirmationBranchGeneralId,
         file.confirmationBranchEmergingId,
         file.travelType,
-        file.travelReimbursementAmount,
-        file.travelReimbursementInfoLink
-      );
-    })
+        file.travelReimbursementAmount
+      )
+    )
   );
 
   console.info("\nDone.");
