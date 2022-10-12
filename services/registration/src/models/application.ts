@@ -28,6 +28,7 @@ export interface Application extends mongoose.Document {
   applicationBranch: AutoPopulatedDoc<Branch>;
   applicationStartTime: Date;
   applicationSubmitTime?: Date;
+  applicationExtendedDeadline?: Date;
   applicationData: {
     adult?: boolean;
     dateOfBirth?: string;
@@ -73,6 +74,7 @@ export interface Application extends mongoose.Document {
   };
   confirmationBranch?: AutoPopulatedDoc<Branch>;
   confirmationSubmitTime?: Date;
+  confirmationExtendedDeadline?: Date;
   status: StatusType;
   gradingComplete: boolean;
   createdAt: Date;
@@ -234,6 +236,9 @@ const applicationSchema = new Schema<Application>(
     applicationSubmitTime: {
       type: Date,
     },
+    applicationExtendedDeadline: {
+      type: Date,
+    },
     decisionData: {
       travelReimbursement: {
         type: String,
@@ -252,6 +257,9 @@ const applicationSchema = new Schema<Application>(
       index: true,
     },
     confirmationSubmitTime: {
+      type: Date,
+    },
+    confirmationExtendedDeadline: {
       type: Date,
     },
     status: {
