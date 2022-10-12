@@ -142,10 +142,10 @@ applicationRouter.route("/:id").get(
 applicationRouter.route("/actions/choose-application-branch").post(
   checkAbility("create", "Application"),
   asyncHandler(async (req, res) => {
-    const existingApplication = await ApplicationModel.findOne({
+    const existingApplication = await ApplicationModel.accessibleBy(req.ability).findOne({
       userId: req.user?.uid,
       hexathon: req.body.hexathon,
-    }).accessibleBy(req.ability);
+    });
 
     const userInfo = await apiCall(
       Service.USERS,
@@ -170,17 +170,31 @@ applicationRouter.route("/actions/choose-application-branch").post(
         );
       }
 
-      existingApplication.status = StatusType.DRAFT;
-      existingApplication.applicationBranch = req.body.applicationBranch;
-      existingApplication.applicationStartTime = new Date();
-      existingApplication.applicationSubmitTime = undefined;
-      existingApplication.applicationData = {};
-      existingApplication.name = getFullName(userInfo.name);
-      existingApplication.email = userInfo.email;
+      const updatedApplication = await ApplicationModel.accessibleBy(req.ability).findOneAndUpdate(
+        {
+          userId: req.user?.uid,
+          hexathon: req.body.hexathon,
+        },
+        {
+          status: StatusType.DRAFT,
+          applicationBranch: req.body.applicationBranch,
+          applicationStartTime: new Date(),
+          applicationSubmitTime: undefined,
+          applicationExtendedDeadline: undefined,
+          applicationData: {},
+          confirmationBranch: undefined,
+          confirmationSubmitTime: undefined,
+          confirmationExtendedDeadline: undefined,
+          gradingComplete: false,
+          name: getFullName(userInfo.name),
+          email: userInfo.email,
+        },
+        {
+          new: true,
+        }
+      );
 
-      await existingApplication.save();
-
-      return res.send(existingApplication);
+      return res.send(updatedApplication);
     }
 
     const newApplication = await ApplicationModel.create({
@@ -210,10 +224,22 @@ applicationRouter.route("/:id/actions/save-application-data").post(
     }
 
     const [branch] = getBranch(existingApplication, req);
-    // Add 1 hour grace period for application submissions
+
     if (
+      branch.type === BranchType.APPLICATION &&
+      existingApplication.applicationExtendedDeadline &&
+      new Date() < existingApplication.applicationExtendedDeadline
+    ) {
+      // Application ok to save data with extended deadline
+    } else if (
+      branch.type === BranchType.CONFIRMATION &&
+      existingApplication.confirmationExtendedDeadline &&
+      new Date() < existingApplication.confirmationExtendedDeadline
+    ) {
+      // Application ok to save data with extended deadline
+    } else if (
       DateTime.now() < DateTime.fromJSDate(branch.settings.open) ||
-      DateTime.now() > DateTime.fromJSDate(branch.settings.close).plus({ hours: 1 })
+      DateTime.now() > DateTime.fromJSDate(branch.settings.close).plus({ hours: 1 }) // Add 1 hour grace period
     ) {
       throw new BadRequestError("Unable to save application data. Branch is not currently open.");
     }
@@ -277,17 +303,28 @@ applicationRouter.route("/:id/actions/save-application-data").post(
 
 applicationRouter.route("/:id/actions/submit-application").post(
   checkAbility("update", "Application"),
-
   asyncHandler(async (req, res) => {
     const existingApplication = await ApplicationModel.findById(req.params.id).accessibleBy(
       req.ability
     );
 
     const [branch, branchType] = getBranch(existingApplication, req);
-    // Add 1 hour grace period for application submissions
+
     if (
+      branch.type === BranchType.APPLICATION &&
+      existingApplication.applicationExtendedDeadline &&
+      new Date() < existingApplication.applicationExtendedDeadline
+    ) {
+      // Application ok to save data with extended deadline
+    } else if (
+      branch.type === BranchType.CONFIRMATION &&
+      existingApplication.confirmationExtendedDeadline &&
+      new Date() < existingApplication.confirmationExtendedDeadline
+    ) {
+      // Application ok to save data with extended deadline
+    } else if (
       DateTime.now() < DateTime.fromJSDate(branch.settings.open) ||
-      DateTime.now() > DateTime.fromJSDate(branch.settings.close).plus({ hours: 1 })
+      DateTime.now() > DateTime.fromJSDate(branch.settings.close).plus({ hours: 1 }) // Add 1 hour grace period
     ) {
       throw new BadRequestError("Unable to submit application data. Branch is not currently open.");
     }
