@@ -4,7 +4,13 @@ import morgan from "morgan";
 import cors from "cors";
 import helmet from "helmet";
 import config, { Service } from "@api/config";
-import { decodeToken, handleError, isAuthenticated, rateLimiter } from "@api/common";
+import {
+  decodeToken,
+  handleError,
+  isAuthenticated,
+  rateLimiter,
+  shouldHandleError,
+} from "@api/common";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import * as Sentry from "@sentry/node";
@@ -79,7 +85,11 @@ app.use(isAuthenticated);
 app.use("/", defaultRouter);
 
 if (config.common.production) {
-  app.use(Sentry.Handlers.errorHandler());
+  app.use(
+    Sentry.Handlers.errorHandler({
+      shouldHandleError,
+    })
+  );
 }
 app.use(handleError);
 

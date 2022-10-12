@@ -50,3 +50,15 @@ export class ApiCallError extends Error {
     }
   }
 }
+
+/**
+ * Used by Sentry to determine when to handle error
+ * @param err the error that was thrown
+ * @returns a boolean indicating if the error should be handled
+ */
+export const shouldHandleError = (err: Error): boolean => {
+  if (err instanceof BadRequestError) {
+    return false;
+  }
+  return true;
+};
