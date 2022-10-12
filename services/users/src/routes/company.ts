@@ -6,7 +6,11 @@ import { FilterQuery } from "mongoose";
 
 import { Company, CompanyModel } from "../models/company";
 
-const populateCompanyEmployees = async (company: Company, req: express.Request) => {
+const populateCompanyEmployees = async (company: Company | null, req: express.Request) => {
+  if (!company) {
+    throw new BadRequestError("Error updating company");
+  }
+
   const users = await apiCall(
     Service.USERS,
     {
@@ -122,7 +126,7 @@ companyRoutes.route("/:id").put(
       throw new BadRequestError("Invalid company ID for insufficient permissions");
     }
 
-    const updatedCompany = await company.update(req.body, { new: true });
+    const updatedCompany = await CompanyModel.findOneAndUpdate(company.id, req.body, { new: true });
     const companyWithProfiles = await populateCompanyEmployees(updatedCompany, req);
 
     return res.status(200).send(companyWithProfiles);
@@ -186,7 +190,8 @@ companyRoutes.route("/:id/employees/accept-request").post(
       throw new BadRequestError("User not in pending employees list");
     }
 
-    const updatedCompany = await company.update(
+    const updatedCompany = await CompanyModel.findOneAndUpdate(
+      company.id,
       {
         employees: [...company.employees, employeeId],
         $pull: {
@@ -226,7 +231,8 @@ companyRoutes.route("/:id/employees/add").post(
       })
     );
 
-    const updatedCompany = await company.update(
+    const updatedCompany = await CompanyModel.findOneAndUpdate(
+      company.id,
       {
         employees: uniqueEmployees,
         $pull: {
@@ -250,7 +256,8 @@ companyRoutes.route("/:id/employees/request").post(
       throw new BadRequestError("Company not found or you do not have permission.");
     }
 
-    const updatedCompany = await company.update(
+    const updatedCompany = await CompanyModel.findOneAndUpdate(
+      company.id,
       {
         pendingEmployees: [...company.pendingEmployees, req.user?.uid],
       },
@@ -275,7 +282,8 @@ companyRoutes.route("/:id/employees").delete(
       throw new BadRequestError("Invalid company ID for insufficient permissions");
     }
 
-    const updatedCompany = await company.update(
+    const updatedCompany = await CompanyModel.findOneAndUpdate(
+      company.id,
       {
         $pull: {
           pendingEmployees: req.body.userId,
