@@ -20,6 +20,8 @@
   "dependencies": {
     "@api/common": "*",
     "@api/config": "*",
+    "@sentry/node": "^7.15.0",
+    "@sentry/tracing": "^7.15.0",
     "@types/compression": "^1.7.2",
     "@types/cookie-parser": "^1.4.2",
     "@types/cors": "^2.8.12",

@@ -22,6 +22,8 @@
     "@api/config": "*",
     "@casl/ability": "^5.4.4",
     "@casl/mongoose": "^6.0.0",
+    "@sentry/node": "^7.15.0",
+    "@sentry/tracing": "^7.15.0",
     "@types/compression": "^1.7.2",
     "@types/cookie-parser": "^1.4.2",
     "@types/cors": "^2.8.12",

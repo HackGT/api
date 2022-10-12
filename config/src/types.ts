@@ -48,6 +48,7 @@ export interface ServiceConfig {
   url: string;
   port: number;
   auth: boolean;
+  sentryDSN?: string;
   proxy: {
     target: string;
     changeOrigin: boolean;

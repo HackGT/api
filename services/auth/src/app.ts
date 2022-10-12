@@ -7,6 +7,8 @@ import config, { Service } from "@api/config";
 import { decodeToken, handleError, rateLimiter } from "@api/common";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
+import * as Sentry from "@sentry/node";
+import * as Tracing from "@sentry/tracing";
 
 import { defaultRouter } from "./routes";
 
@@ -19,6 +21,21 @@ process.on("unhandledRejection", err => {
 
 if (config.common.production) {
   app.enable("trust proxy");
+
+  Sentry.init({
+    dsn: config.services.AUTH.sentryDSN,
+    integrations: [
+      new Sentry.Integrations.Http({ tracing: true }),
+      new Tracing.Integrations.Express({ app }),
+    ],
+    tracesSampleRate: 1.0,
+  });
+  app.use(
+    Sentry.Handlers.requestHandler({
+      user: ["uid", "email"],
+    })
+  );
+  app.use(Sentry.Handlers.tracingHandler());
 }
 
 mongoose
@@ -60,6 +77,9 @@ app.get("/status", (req, res) => {
 // to be accessed even when a user isn't authenticated
 app.use("/", defaultRouter);
 
+if (config.common.production) {
+  app.use(Sentry.Handlers.errorHandler());
+}
 app.use(handleError);
 
 app.listen(config.services.AUTH.port, () => {

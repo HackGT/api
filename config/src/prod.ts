@@ -22,6 +22,7 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     url: "/users",
     port: parseInt(process.env.PORT || "8080"),
     auth: false,
+    sentryDSN: "https://71f8be78aa014d7eabff05facd5c1e05@o429043.ingest.sentry.io/4503972457873408",
     proxy: {
       target: "https://users.api.hexlabs.org",
       changeOrigin: true,
@@ -38,6 +39,7 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     url: "/hexathons",
     port: parseInt(process.env.PORT || "8080"),
     auth: false,
+    sentryDSN: "https://7639463db49047a99459d4a8c3b9d31a@o429043.ingest.sentry.io/4503972527669248",
     proxy: {
       target: "https://hexathons.api.hexlabs.org",
       changeOrigin: true,
@@ -54,6 +56,7 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     url: "/notifications",
     port: parseInt(process.env.PORT || "8080"),
     auth: false,
+    sentryDSN: "https://5b7c041f29f74379a66dde9f2a127294@o429043.ingest.sentry.io/4503972530683904",
     proxy: {
       target: "https://notifications.api.hexlabs.org",
       changeOrigin: true,
@@ -80,6 +83,7 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     url: "/registration",
     port: parseInt(process.env.PORT || "8080"),
     auth: false,
+    sentryDSN: "https://c438c0bcc08246639ac6485410e2bd81@o429043.ingest.sentry.io/4503972532387840",
     proxy: {
       target: "https://registration.api.hexlabs.org",
       changeOrigin: true,
@@ -96,6 +100,7 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     url: "/files",
     port: parseInt(process.env.PORT || "8080"),
     auth: false,
+    sentryDSN: "https://ba81ee07ea9c405bb446a04a67e40db5@o429043.ingest.sentry.io/4503972533501952",
     proxy: {
       target: "https://files.api.hexlabs.org",
       changeOrigin: true,
@@ -113,6 +118,7 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     url: "/auth",
     port: parseInt(process.env.PORT || "8080"),
     auth: false,
+    sentryDSN: "https://dfb8b601b19144c1af6ea9aa7075f73c@o429043.ingest.sentry.io/4503972534419456",
     proxy: {
       target: "https://auth.api.hexlabs.org",
       changeOrigin: true,
