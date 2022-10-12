@@ -405,7 +405,7 @@ applicationRouter.route("/:id/actions/submit-application").post(
             message: branch.postSubmitEmailTemplate.content,
             userIds: [req.user?.uid],
             subject: branch.postSubmitEmailTemplate.subject,
-            hexathon: req.body.hexathon,
+            hexathon: existingApplication.hexathon,
           },
         },
         req

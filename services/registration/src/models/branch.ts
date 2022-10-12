@@ -50,9 +50,9 @@ export interface Branch extends mongoose.Document {
     group?: GradingGroupType;
   };
   postSubmitEmailTemplate: {
-    enabled?: boolean;
-    subject: string;
-    content: string;
+    enabled: boolean;
+    subject?: string;
+    content?: string;
   };
 }
 
