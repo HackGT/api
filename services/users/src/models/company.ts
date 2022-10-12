@@ -3,7 +3,7 @@ import mongoose, { Schema, model, Types } from "mongoose";
 
 export interface Company extends mongoose.Document {
   name: string;
-  description: string;
+  description?: string;
   hexathon: Types.ObjectId;
   defaultEmailDomains: string[];
   hasResumeAccess: boolean;
@@ -19,7 +19,6 @@ const companySchema = new Schema<Company>({
   },
   description: {
     type: String,
-    required: true,
     default: "",
   },
   hexathon: {
