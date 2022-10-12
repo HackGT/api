@@ -132,3 +132,55 @@ emailRoutes.route("/send-personalized").post(
     res.status(200).json(statuses);
   })
 );
+
+emailRoutes.route("/send-confirmation").post(
+  asyncHandler(async (req, res) => {
+    const { message, userId, subject, batchId } = req.body;
+
+    const user = await apiCall(
+      Service.USERS,
+      {
+        url: `/users/${userId}`,
+        method: "GET",
+      },
+      req
+    );
+
+    let headerImage: any;
+    if (req.body.hexathon) {
+      const hexathon = await apiCall(
+        Service.HEXATHONS,
+        {
+          url: `/hexathons/${req.body.hexathon}`,
+          method: "GET",
+        },
+        req
+      );
+      headerImage = hexathon.emailHeaderImage;
+    }
+
+    if (!user) {
+      const err = {
+        error: true,
+        key: userId,
+        payload: "No user found for this userId",
+      };
+
+      res.status(400).send(err);
+    }
+
+    const result = await sendOnePersonalizedMessages(message, user, subject, headerImage);
+
+    await NotificationModel.insertMany(
+      [result].map((status: any) => ({
+        ...status,
+        platform: PlatformType.EMAIL,
+        sender: req.user?.uid,
+        timestamp: new Date(),
+        batchId,
+      }))
+    );
+
+    res.status(200).send(result);
+  })
+);

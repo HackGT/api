@@ -395,15 +395,16 @@ applicationRouter.route("/:id/actions/submit-application").post(
     }
 
     // send confirmation email
+    let resp;
     if (branch.postSubmitEmailTemplate.enabled) {
-      await apiCall(
+      resp = await apiCall(
         Service.NOTIFICATIONS,
         {
           method: "POST",
-          url: "/email/send-personalized",
+          url: "/email/send-confirmation",
           data: {
             message: branch.postSubmitEmailTemplate.content,
-            userIds: [req.user?.uid],
+            userId: req.user?.uid,
             subject: branch.postSubmitEmailTemplate.subject,
             hexathon: existingApplication.hexathon,
           },
@@ -412,7 +413,7 @@ applicationRouter.route("/:id/actions/submit-application").post(
       );
     }
 
-    return res.sendStatus(204);
+    return res.status(204).send(resp);
   })
 );
 
