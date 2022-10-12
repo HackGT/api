@@ -1,9 +1,30 @@
-import { asyncHandler, BadRequestError, checkAbility } from "@api/common";
+import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/common";
+import { Service } from "@api/config";
 import express from "express";
 import { getAuth } from "firebase-admin/auth"; // eslint-disable-line import/no-unresolved
 import { FilterQuery } from "mongoose";
 
 import { Company, CompanyModel } from "../models/company";
+
+const populateCompanyEmployees = async (company: Company, req: express.Request) => {
+  const users = await apiCall(
+    Service.USERS,
+    {
+      url: "/users/actions/retrieve",
+      method: "POST",
+      data: {
+        userIds: company.employees.concat(company.pendingEmployees),
+      },
+    },
+    req
+  );
+
+  return {
+    ...company.toJSON(),
+    employees: users.filter((user: any) => company.employees.includes(user.userId)),
+    pendingEmployees: users.filter((user: any) => company.pendingEmployees.includes(user.userId)),
+  };
+};
 
 export const companyRoutes = express.Router();
 
@@ -47,7 +68,29 @@ companyRoutes.route("/").get(
     }
 
     const companies = await CompanyModel.accessibleBy(req.ability).find(filter);
-    return res.status(200).send(companies);
+
+    const companyEmployeeUserIds = companies.map(company => company.employees).flat();
+    const companyPendingEmployeeUserIds = companies.map(company => company.pendingEmployees).flat();
+
+    const users = await apiCall(
+      Service.USERS,
+      {
+        url: "/users/actions/retrieve",
+        method: "POST",
+        data: {
+          userIds: companyEmployeeUserIds.concat(companyPendingEmployeeUserIds),
+        },
+      },
+      req
+    );
+
+    const companiesWithProfiles = companies.map(company => ({
+      ...company.toJSON(),
+      employees: users.filter((user: any) => company.employees.includes(user.userId)),
+      pendingEmployees: users.filter((user: any) => company.pendingEmployees.includes(user.userId)),
+    }));
+
+    return res.status(200).send(companiesWithProfiles);
   })
 );
 
@@ -60,7 +103,9 @@ companyRoutes.route("/:id").get(
       throw new BadRequestError("Company not found or you do not have permission.");
     }
 
-    return res.status(200).send(company);
+    const companyWithProfiles = await populateCompanyEmployees(company, req);
+
+    return res.status(200).send(companyWithProfiles);
   })
 );
 
@@ -78,7 +123,9 @@ companyRoutes.route("/:id").put(
     }
 
     const updatedCompany = await company.update(req.body, { new: true });
-    return res.status(200).send(updatedCompany);
+    const companyWithProfiles = await populateCompanyEmployees(updatedCompany, req);
+
+    return res.status(200).send(companyWithProfiles);
   })
 );
 
@@ -109,7 +156,9 @@ companyRoutes.route("/employees/:employeeId").get(
       );
     }
 
-    return res.status(200).send(company);
+    const companyWithProfiles = await populateCompanyEmployees(company, req);
+
+    return res.status(200).send(companyWithProfiles);
   })
 );
 
@@ -146,8 +195,9 @@ companyRoutes.route("/:id/employees/accept-request").post(
       },
       { new: true }
     );
+    const companyWithProfiles = await populateCompanyEmployees(updatedCompany, req);
 
-    return res.status(200).send(updatedCompany);
+    return res.status(200).send(companyWithProfiles);
   })
 );
 
@@ -176,8 +226,7 @@ companyRoutes.route("/:id/employees/add").post(
       })
     );
 
-    const updatedCompany = await CompanyModel.findByIdAndUpdate(
-      company.id,
+    const updatedCompany = await company.update(
       {
         employees: uniqueEmployees,
         $pull: {
@@ -186,8 +235,9 @@ companyRoutes.route("/:id/employees/add").post(
       },
       { new: true }
     );
+    const companyWithProfiles = await populateCompanyEmployees(updatedCompany, req);
 
-    return res.status(200).send(updatedCompany);
+    return res.status(200).send(companyWithProfiles);
   })
 );
 
@@ -200,15 +250,15 @@ companyRoutes.route("/:id/employees/request").post(
       throw new BadRequestError("Company not found or you do not have permission.");
     }
 
-    const updatedCompany = await CompanyModel.findByIdAndUpdate(
-      req.params.id,
+    const updatedCompany = await company.update(
       {
         pendingEmployees: [...company.pendingEmployees, req.user?.uid],
       },
       { new: true }
     );
+    const companyWithProfiles = await populateCompanyEmployees(updatedCompany, req);
 
-    return res.status(200).send(updatedCompany);
+    return res.status(200).send(companyWithProfiles);
   })
 );
 
@@ -225,13 +275,17 @@ companyRoutes.route("/:id/employees").delete(
       throw new BadRequestError("Invalid company ID for insufficient permissions");
     }
 
-    await company.update({
-      $pull: {
-        pendingEmployees: req.body.userId,
-        employees: req.body.userId,
+    const updatedCompany = await company.update(
+      {
+        $pull: {
+          pendingEmployees: req.body.userId,
+          employees: req.body.userId,
+        },
       },
-    });
+      { new: true }
+    );
+    const companyWithProfiles = await populateCompanyEmployees(updatedCompany, req);
 
-    return res.status(204).send(company);
+    return res.status(204).send(companyWithProfiles);
   })
 );
