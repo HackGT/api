@@ -1,4 +1,4 @@
-import { apiCall, asyncHandler, checkAbility } from "@api/common";
+import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import { Service } from "@api/config";
 import express from "express";
 import { PromisePool } from "@supercharge/promise-pool";
@@ -9,7 +9,7 @@ import { renderEmail, sendOneMessage, sendOnePersonalizedMessages } from "../plu
 export const emailRoutes = express.Router();
 
 emailRoutes.route("/render").post(
-  checkAbility("read", "Email"),
+  checkAbility("manage", "Email"),
   asyncHandler(async (req, res) => {
     let headerImage: any;
     if (req.body.hexathon) {
@@ -34,7 +34,7 @@ emailRoutes.route("/render").post(
 );
 
 emailRoutes.route("/send").post(
-  checkAbility("create", "Email"),
+  checkAbility("manage", "Email"),
   asyncHandler(async (req, res) => {
     const { message, emails, subject, batchId } = req.body;
 
@@ -73,7 +73,7 @@ emailRoutes.route("/send").post(
 );
 
 emailRoutes.route("/send-personalized").post(
-  checkAbility("create", "Email"),
+  checkAbility("manage", "Email"),
   asyncHandler(async (req, res) => {
     const { message, userIds, subject, batchId } = req.body;
 
@@ -133,53 +133,46 @@ emailRoutes.route("/send-personalized").post(
   })
 );
 
-emailRoutes.route("/send-confirmation").post(
+emailRoutes.route("/send-registration-confirmation").post(
+  checkAbility("create", "Email"),
   asyncHandler(async (req, res) => {
-    const { message, userId, subject, batchId } = req.body;
-
     const user = await apiCall(
       Service.USERS,
       {
-        url: `/users/${userId}`,
+        url: `/users/${req.user?.uid}`,
         method: "GET",
       },
       req
     );
-
-    let headerImage: any;
-    if (req.body.hexathon) {
-      const hexathon = await apiCall(
-        Service.HEXATHONS,
-        {
-          url: `/hexathons/${req.body.hexathon}`,
-          method: "GET",
-        },
-        req
-      );
-      headerImage = hexathon.emailHeaderImage;
-    }
-
     if (!user) {
-      const err = {
-        error: true,
-        key: userId,
-        payload: "No user found for this userId",
-      };
-
-      res.status(400).send(err);
+      throw new BadRequestError("No user profile found");
     }
 
-    const result = await sendOnePersonalizedMessages(message, user, subject, headerImage);
-
-    await NotificationModel.insertMany(
-      [result].map((status: any) => ({
-        ...status,
-        platform: PlatformType.EMAIL,
-        sender: req.user?.uid,
-        timestamp: new Date(),
-        batchId,
-      }))
+    const hexathon = await apiCall(
+      Service.HEXATHONS,
+      {
+        url: `/hexathons/${req.body.hexathon}`,
+        method: "GET",
+      },
+      req
     );
+    if (!hexathon || !hexathon.emailHeaderImage) {
+      throw new BadRequestError("Invalid hexathon");
+    }
+
+    const result = await sendOnePersonalizedMessages(
+      req.body.message,
+      user,
+      req.body.subject,
+      hexathon.emailHeaderImage
+    );
+
+    await NotificationModel.create({
+      ...result,
+      platform: PlatformType.EMAIL,
+      sender: req.user?.uid,
+      timestamp: new Date(),
+    });
 
     res.status(200).send(result);
   })
