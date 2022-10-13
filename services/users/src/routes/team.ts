@@ -3,86 +3,9 @@ import { asyncHandler, BadRequestError, checkAbility, ForbiddenError } from "@ap
 import { FilterQuery } from "mongoose";
 
 import { Team, TeamModel } from "../models/team";
-import { Profile, ProfileModel } from "../models/profile";
+import { ProfileModel } from "../models/profile";
 
 export const teamRoutes = express.Router();
-
-teamRoutes.route("/").post(
-  checkAbility("create", "Team"),
-  asyncHandler(async (req, res) => {
-    const { name, hexathon, description, publicTeam } = req.body;
-
-    const team = await TeamModel.findOne({ name, hexathon });
-
-    if (team) {
-      throw new BadRequestError("Team with this name already exists!");
-    }
-
-    const teams = await TeamModel.find({ hexathon, members: req.user?.uid });
-
-    if (teams.length !== 0) {
-      throw new BadRequestError("User is already in a team for this event!");
-    }
-
-    await TeamModel.create({
-      name,
-      hexathon,
-      members: [req.user?.uid],
-      description,
-      public: publicTeam,
-    });
-
-    res.status(200).send("Team created!");
-  })
-);
-
-teamRoutes.route("/add").post(
-  checkAbility("update", "Team"),
-  asyncHandler(async (req, res) => {
-    const { name, hexathon, email } = req.body;
-
-    const userFilter: FilterQuery<Profile> = {
-      email,
-    };
-
-    const user = await ProfileModel.findOne(userFilter);
-    if (!user) {
-      throw new BadRequestError("User associated with email not found.");
-    }
-
-    const teams = await TeamModel.findOne({ hexathon, members: user.userId });
-
-    if (teams) {
-      throw new BadRequestError("User has already joined another team for this event.");
-    }
-
-    const filter: FilterQuery<Team> = {
-      name,
-      hexathon,
-      members: req.user?.uid,
-    };
-
-    const team = await TeamModel.findOne(filter);
-
-    if (!team) {
-      throw new BadRequestError("User is not a part of a team!");
-    }
-
-    if (team?.members.length >= 4) {
-      throw new BadRequestError("Teams can only have up to 4 members.");
-    }
-
-    if (team?.members.includes(user.userId)) {
-      throw new BadRequestError("Team already contains user.");
-    }
-
-    await team.update({
-      members: [...team.members, user.userId],
-    });
-
-    res.status(200).json("Team member added!");
-  })
-);
 
 teamRoutes.route("/").get(
   checkAbility("read", "Team"),
@@ -112,6 +35,79 @@ teamRoutes.route("/:id").get(
   })
 );
 
+teamRoutes.route("/").post(
+  checkAbility("create", "Team"),
+  asyncHandler(async (req, res) => {
+    const { name, hexathon, description, publicTeam } = req.body;
+
+    const existingTeam = await TeamModel.findOne({ name, hexathon });
+    if (existingTeam) {
+      throw new BadRequestError("Team with this name already exists!");
+    }
+
+    const existingTeamWithUser = await TeamModel.findOne({ hexathon, members: req.user?.uid });
+    if (existingTeamWithUser) {
+      throw new BadRequestError("User is already in a team for this event!");
+    }
+
+    const newTeam = await TeamModel.create({
+      name,
+      hexathon,
+      members: [req.user?.uid],
+      description,
+      public: publicTeam,
+    });
+
+    res.status(200).send(newTeam);
+  })
+);
+
+teamRoutes.route("/add").post(
+  checkAbility("update", "Team"),
+  asyncHandler(async (req, res) => {
+    const { hexathon, email } = req.body;
+
+    const userToAdd = await ProfileModel.findOne({
+      email,
+    });
+    if (!userToAdd) {
+      throw new BadRequestError("User associated with email not found.");
+    }
+
+    const existingTeam = await TeamModel.findOne({ hexathon, members: userToAdd.userId });
+    if (existingTeam) {
+      throw new BadRequestError("User has already joined another team for this event.");
+    }
+
+    const teamToJoin = await TeamModel.findOne({
+      hexathon,
+      members: req.user?.uid,
+    });
+
+    if (!teamToJoin) {
+      throw new BadRequestError("Current user is not a part of a team!");
+    }
+    if (teamToJoin.members.length >= 4) {
+      throw new BadRequestError("Teams can only have up to 4 members.");
+    }
+    if (teamToJoin.members.includes(userToAdd.userId)) {
+      throw new BadRequestError("New user is already on this team.");
+    }
+
+    const updatedTeam = await TeamModel.findByIdAndUpdate(
+      teamToJoin.id,
+      {
+        members: [...teamToJoin.members, userToAdd.userId],
+      },
+      {
+        new: true,
+      }
+    );
+
+    res.status(200).json(updatedTeam);
+  })
+);
+
 teamRoutes.route("/:id/accept-user").post(
   checkAbility("update", "Team"),
   asyncHandler(async (req, res) => {
@@ -129,53 +125,49 @@ teamRoutes.route("/:id/accept-user").post(
       throw new ForbiddenError("Team cannot have more than 4 members.");
     }
 
-    await team.update({
+    const updatedTeam = await TeamModel.findByIdAndUpdate(team.id, {
       members: [...team.members, req.body.userId],
       $pull: {
         memberRequests: { userId: req.body.userId },
       },
     });
 
-    res.status(200).send("Accepted user!");
+    res.status(200).send(updatedTeam);
   })
 );
 
 teamRoutes.route("/user/:userId").get(
   checkAbility("read", "Team"),
   asyncHandler(async (req, res) => {
+    if (!req.query.hexathon) {
+      throw new BadRequestError("Hexathon filter is required");
+    }
+
     const filter: FilterQuery<Team> = {
+      hexathon: req.query.hexathon,
       members: req.params.userId,
     };
 
-    if (req.query.hexathon) {
-      filter.hexathon = req.query.hexathon;
+    const team = await TeamModel.findOne(filter);
+    if (!team) {
+      res.status(200).json({});
+      return;
     }
 
-    const teams = await TeamModel.find(filter);
-    if (teams.length <= 0) {
-      res.status(200).json(teams);
-    }
-
-    const team = teams[0];
-
-    const memberFilter: FilterQuery<Profile> = {};
-    if (team.members.length > 0) {
-      memberFilter.userId = {
+    const profiles = await ProfileModel.find({
+      userId: {
         $in: team.members,
-      };
+      },
+    });
+
+    if (profiles.length !== team.members.length) {
+      throw new BadRequestError("Not all team members have profiles.");
     }
 
-    const profiles = await ProfileModel.find(memberFilter);
-    if (profiles.length < 0) {
-      throw new BadRequestError("Could not find any users associated with team.");
-    }
-
-    const payload = {
-      team,
-      profiles,
-    };
-
-    res.status(200).json(payload);
+    res.status(200).json({
+      ...team.toJSON(),
+      members: profiles,
+    });
   })
 );
 
@@ -184,8 +176,14 @@ teamRoutes.route("/join").post(
   asyncHandler(async (req, res) => {
     const { name, hexathon, message } = req.body;
 
-    const team = await TeamModel.findOne({ name, hexathon });
+    const existingTeam = await TeamModel.findOne({ hexathon, members: req.user?.uid });
+    if (existingTeam) {
+      throw new BadRequestError(
+        "User cannot join a team for an event they are already in a team for!"
+      );
+    }
 
+    const team = await TeamModel.findOne({ name, hexathon });
     if (!team) {
       throw new BadRequestError("Team doesn't exist!");
     }
@@ -194,39 +192,33 @@ teamRoutes.route("/join").post(
       throw new BadRequestError("User has already joined this team!");
     }
 
-    const userId = req.user?.uid;
-
-    const teams = await TeamModel.findOne({ hexathon, members: req.user?.uid });
-
-    if (teams) {
-      throw new BadRequestError(
-        "User cannot join a team for an event they are already in a team for!"
-      );
-    }
-
     const teamPendingReq = await TeamModel.findOne({
       hexathon,
       memberRequests: {
         $elemMatch: {
-          userId,
+          userId: req.user?.uid,
         },
       },
     });
 
     if (teamPendingReq) {
-      if (team._id.equals(teamPendingReq._id)) {
+      if (team.id.equals(teamPendingReq.id)) {
         throw new BadRequestError("User has already requested to join this team!");
       }
       await teamPendingReq.updateOne({
         $pull: {
-          memberRequests: { userId },
+          memberRequests: { userId: req.user?.uid },
         },
       });
     }
 
-    await team.update({
-      memberRequests: [...team.memberRequests, { userId, message }],
-    });
+    await TeamModel.findByIdAndUpdate(
+      team.id,
+      {
+        memberRequests: [...team.memberRequests, { userId: req.user?.uid, message }],
+      },
+      { new: true }
+    );
 
     res.status(200).send("Join Request has been sent!");
   })
@@ -238,25 +230,30 @@ teamRoutes.route("/leave").post(
     const { name, hexathon } = req.body;
 
     const team = await TeamModel.findOne({ name, hexathon });
-    const userId = req.user?.uid;
 
     if (!team) {
       throw new BadRequestError("Team doesn't exist!");
     }
 
-    if (!team.members.includes(userId as string)) {
+    if (!team.members.includes(req.user?.uid ?? "")) {
       throw new BadRequestError("User isn't a member of the team!");
     }
 
-    await team.update({
-      members: team.members.filter(member => member !== userId),
-    });
+    await TeamModel.findByIdAndUpdate(
+      team.id,
+      {
+        $pull: {
+          members: req.user?.uid,
+        },
+      },
+      { new: true }
+    );
 
     if (team.members.length <= 1) {
-      await TeamModel.deleteOne({ _id: team.id, name, hexathon });
+      await TeamModel.findByIdAndDelete(team.id);
     }
 
-    res.status(200).send("User left team!");
+    res.sendStatus(204);
   })
 );
 
