@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
-
 import { AxiosResponse } from "axios";
+import { FirebaseError } from "firebase-admin";
 
 /**
  * Error thrown when the user makes an invalid API call. This signals
@@ -56,8 +56,12 @@ export class ApiCallError extends Error {
  * @param err the error that was thrown
  * @returns a boolean indicating if the error should be handled
  */
-export const shouldHandleError = (err: Error): boolean => {
-  if (err instanceof BadRequestError || err instanceof ForbiddenError) {
+export const shouldHandleError = (err: any): boolean => {
+  if (
+    err instanceof BadRequestError ||
+    err instanceof ForbiddenError ||
+    (err as FirebaseError).code?.startsWith("auth/")
+  ) {
     return false;
   }
   return true;
