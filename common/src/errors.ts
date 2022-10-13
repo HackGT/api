@@ -57,7 +57,7 @@ export class ApiCallError extends Error {
  * @returns a boolean indicating if the error should be handled
  */
 export const shouldHandleError = (err: Error): boolean => {
-  if (err instanceof BadRequestError) {
+  if (err instanceof BadRequestError || err instanceof ForbiddenError) {
     return false;
   }
   return true;
