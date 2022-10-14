@@ -56,9 +56,9 @@ eventRoutes.route("/:id").put(
       name: req.body.name,
     });
 
-    if (existingEvent) {
+    if (existingEvent?.id !== req.params.id) {
       throw new BadRequestError(
-        `Event with name ${  req.body.name  } already exists for this hexathon`
+        `Event with name ${req.body.name} already exists for this hexathon`
       );
     }
 

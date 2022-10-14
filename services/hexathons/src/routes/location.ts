@@ -40,8 +40,8 @@ locationRoutes.route("/:id").put(
       name: req.body.name,
     });
 
-    if (existingLocation) {
-      throw new BadRequestError(`Location with name ${  req.body.name  } already exists`);
+    if (existingLocation?.id !== req.params.id) {
+      throw new BadRequestError(`Location with name ${req.body.name} already exists`);
     }
 
     const location = await LocationModel.findByIdAndUpdate(

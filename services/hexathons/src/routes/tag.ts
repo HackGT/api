@@ -45,6 +45,18 @@ tagRoutes.route("/").post(
 tagRoutes.route("/:id").put(
   checkAbility("update", "Tag"),
   asyncHandler(async (req, res) => {
+    const currentTag = await TagModel.findById(req.params.id);
+    const existingTag = await TagModel.findOne({
+      hexathon: currentTag?.hexathon,
+      name: req.body.name,
+    });
+
+    if (currentTag?.id !== req.params.id) {
+      throw new BadRequestError(
+        `Event with name ${req.body.name} already exists for this hexathon`
+      );
+    }
+
     const tag = await TagModel.findByIdAndUpdate(
       req.params.id,
       {
