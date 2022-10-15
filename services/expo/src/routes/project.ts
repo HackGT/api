@@ -120,11 +120,11 @@ projectRoutes.route("/").post(async (req, res) => {
     return;
   }
 
-  // const devpostValidation = await validateDevpost(data.devpostUrl, data.name);
-  // if (devpostValidation.error) {
-  //   res.status(400).send(devpostValidation);
-  //   return;
-  // }
+  const devpostValidation = await validateDevpost(data.devpostUrl, data.name);
+  if (devpostValidation.error) {
+    res.status(400).send(devpostValidation);
+    return;
+  }
 
   let dailyUrl;
   // try {
@@ -268,10 +268,6 @@ projectRoutes.route("/").post(async (req, res) => {
       }
     }
 
-    console.log("MIN EXPO");
-    console.log(minExpoNumber);
-    console.log(data);
-
     await prisma.project.create({
       data: {
         name: data.name,
@@ -283,13 +279,14 @@ projectRoutes.route("/").post(async (req, res) => {
         table: tableNumber,
         hexathon: currentHexathon.id,
         members: {
-          connectOrCreate: data.members.map((user: any) => ({
+          connectOrCreate: data.registrationUsers.map((application: any) => ({
             where: {
-              email: user.email,
+              email: application.email,
             },
             create: {
-              name: user.name === undefined ? "" : user.name,
-              email: user.email,
+              userId: application.userId,
+              name: application.name === undefined ? "" : application.name,
+              email: application.email,
             },
           })),
         },
@@ -428,7 +425,7 @@ projectRoutes.route("/:id").patch(
               email: member.email,
             },
             create: {
-              name: "",
+              name: member.name,
               email: member.email,
             },
           })),

@@ -116,7 +116,6 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
     }
     case "Test": {
       // TODO: fix case name
-      console.log("Checking prizes for TEST hackathon");
       let numEmerging = 0;
 
       for (const user of users) {
@@ -211,6 +210,8 @@ export const validateTeam = async (
           },
           req
         );
+        console.log("USER'S APPLICATION INFO");
+        console.log(res);
       } catch (error) {
         console.error(error);
         registrationError = {
@@ -250,9 +251,6 @@ export const validateTeam = async (
         },
       });
 
-      console.log("USER:");
-      console.log(user);
-
       if (!user) {
         try {
           const newUser = await admin.auth().getUserByEmail(email);
@@ -290,7 +288,6 @@ export const validateTeam = async (
           return "";
         }
       }
-
       return userApp;
     })
   );
