@@ -2,13 +2,14 @@ import rp from "request-promise";
 import cheerio from "cheerio";
 import { UserRole } from "@prisma/client";
 import { URL } from "url";
-import { User } from "@api/common";
+import { apiCall, User } from "@api/common";
 import admin from "firebase-admin";
 import express from "express";
+import { Service } from "@api/config";
 
 import { prisma, prizeConfig } from "../common";
 import { getConfig, getCurrentHexathon } from "./utils";
-import { queryRegistration } from "src/registration";
+// import { queryRegistration } from "src/registration";
 
 /*
     - Classify team into prize based on user tracks (from registration)
@@ -21,14 +22,14 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
       let numEmerging = 0;
 
       for (const user of users) {
-        if (!user || !user.confirmationBranch) {
+        if (!user || !user.applicationBranch) {
           return {
             error: true,
             message: `User: ${user.email} does not have a confirmation branch`,
           };
         }
 
-        if (user.confirmationBranch === "Emerging Participant Confirmation") {
+        if (user.applicationBranch.name === "Emerging Participant Confirmation") {
           numEmerging += 1;
         }
       }
@@ -46,7 +47,7 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
       let numEmerging = 0;
 
       for (const user of users) {
-        if (!user || !user.confirmationBranch) {
+        if (!user || !user.applicationBranch) {
           return {
             error: true,
             message: `User: ${user.email} does not have a confirmation branch`,
@@ -54,8 +55,8 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
         }
 
         if (
-          user.confirmationBranch === "Emerging In-Person Participant Confirmation" ||
-          user.confirmationBranch === "Emerging Virtual Participant Confirmation"
+          user.applicationBranch.name === "Emerging In-Person Participant Confirmation" ||
+          user.applicationBranch.name === "Emerging Virtual Participant Confirmation"
         ) {
           numEmerging += 1;
         }
@@ -113,6 +114,52 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
 
       return generalDBPrizes;
     }
+    case "Test": {
+      // TODO: fix case name
+      console.log("Checking prizes for TEST hackathon");
+      let numEmerging = 0;
+
+      for (const user of users) {
+        if (!user || !user.applicationBranch) {
+          return {
+            error: true,
+            message: `User: ${user.email} does not have a confirmation branch`,
+          };
+        }
+
+        if (user.applicationBranch.name === "Emerging In-Person Participant Confirmation") {
+          numEmerging += 1;
+        }
+      }
+
+      // A team must be greater than 50% emerging to be eligible for emerging prizes
+      if (numEmerging / users.length > 0.5) {
+        const emergingPrizes = prizeConfig.hexathon["HackGT 9"].emergingPrizes
+          .concat(prizeConfig.hexathons["HackGT 9"].sponsorPrizes)
+          .concat(prizeConfig.hexathons["HackGT 9"].generalPrizes)
+          .concat(prizeConfig.hexathons["HackGT 9"].openSourcePrizes);
+        const emergingDBPrizes = await prisma.category.findMany({
+          where: {
+            name: {
+              in: emergingPrizes,
+            },
+          },
+        });
+        return emergingDBPrizes;
+      }
+      const generalPrizes = prizeConfig.hexathons["HackGT 9"].sponsorPrizes
+        .concat(prizeConfig.hexathons["HackGT 9"].generalPrizes)
+        .concat(prizeConfig.hexathons["HackGT 9"].openSourcePrizes);
+      const generalDBPrizes = await prisma.category.findMany({
+        where: {
+          name: {
+            in: generalPrizes,
+          },
+        },
+      });
+      return generalDBPrizes;
+    }
+
     default: {
       return [];
     }
@@ -149,7 +196,21 @@ export const validateTeam = async (
     memberEmails.map(async email => {
       let res: any;
       try {
-        res = await queryRegistration(email);
+        // res = await queryRegistration(email); // query from registration endpoint
+
+        res = await apiCall(
+          Service.REGISTRATION,
+          {
+            url: `/applications`,
+            method: "GET",
+            params: {
+              hexathon: currentHexathon.id,
+              status: "CONFIRMED",
+              search: email,
+            },
+          },
+          req
+        );
       } catch (error) {
         console.error(error);
         registrationError = {
@@ -159,9 +220,21 @@ export const validateTeam = async (
         return "";
       }
 
-      const searchUsers = res.data.data.search_user.users;
+      // const searchUsers = res.data.data.search_user.users;
+      const userApplications = res.applications;
 
-      if (searchUsers.length === 0 || !searchUsers[0].confirmed) {
+      let userApp;
+      // Checks the user's applications and if they are confirmed for the current hexathon
+      let confirmedForHexathon = false;
+      // eslint-disable-next-line guard-for-in
+      for (const app in userApplications) {
+        if (userApplications[app].hexathon === currentHexathon.id) {
+          confirmedForHexathon = true;
+          userApp = userApplications[app];
+          break;
+        }
+      }
+      if (!confirmedForHexathon) {
         registrationError = {
           error: true,
           message: `User: ${email} not confirmed for current ${currentHexathon.name}`,
@@ -169,11 +242,16 @@ export const validateTeam = async (
         return "";
       }
 
+      // console.log(userApp);
+
       const user = await prisma.user.findUnique({
         where: {
           email,
         },
       });
+
+      console.log("USER:");
+      console.log(user);
 
       if (!user) {
         try {
@@ -183,7 +261,7 @@ export const validateTeam = async (
 
           await prisma.user.create({
             data: {
-              name: searchUsers[0].name,
+              name: userApp.name,
               email,
               role: UserRole.GENERAL,
               userId: newUser.uid,
@@ -200,7 +278,7 @@ export const validateTeam = async (
                 id: user.id,
               },
             },
-            hexathon: currentHexathon,
+            hexathon: currentHexathon.id,
           },
         });
 
@@ -213,7 +291,7 @@ export const validateTeam = async (
         }
       }
 
-      return searchUsers[0];
+      return userApp;
     })
   );
 

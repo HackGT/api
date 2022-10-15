@@ -1,5 +1,5 @@
 {
-  "hackathons": {
+  "hexathons": {
     "HackGT 7": {
       "emergingPrizes": [
         "Emerging: Best Overall",
@@ -64,6 +64,36 @@
     },
     "Prototypical 2022": {
       "tracks": ["Textiles Track", "Cardboard Track"]
+    },
+    "HackGT 9": {
+      "generalPrizes": [
+        "HackGT - Best Social Impact",
+        "HackGT - Best Design",
+        "HackGT - Best Hardware Hack",
+        "HackGT - Most Sustainable Hack",
+        "HackGT - Most Unique/Out of the Box/Creative"
+      ],
+      "openSourcePrizes": ["HackGT - Best Open Source Hack"],
+      "emergingPrizes": [
+        "Emerging - Best Overall",
+        "Emerging - Best in App/Web Development",
+        "Emerging - Best in Data Science",
+        "Emerging - Best in Design",
+        "Emerging - Best in Systems",
+        "Emerging - Best Prototype",
+        "Emerging - Best Presentation"
+      ],
+      "sponsorPrizes": [
+        "NCR - Best Use of NCR APIs",
+        "NCR - Best Use of Cryptocurrency",
+        "NCR - Retail Gamification",
+        "NCR - Machine Learning in Retail",
+        "BlackRock - Best Overall",
+        "Anthem - Best Overall",
+        "NSA - Secure the Server",
+        "NSA - Secure Code Zero Trust",
+        "Best Use of Google Cloud"
+      ]
     }
   }
 }

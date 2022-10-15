@@ -21,7 +21,6 @@ defaultRouter.use("/projects", projectRoutes);
 defaultRouter.use("/categories", categoryRoutes);
 defaultRouter.use("/categorygroups", categoryGroupRoutes);
 defaultRouter.use("/tablegroups", tableGroupRoutes);
-// defaultRouter.use("/hackathon", hackathonRoutes);
 defaultRouter.use("/config", configRoutes);
 defaultRouter.use("/criteria", criteriaRoutes);
 defaultRouter.use("/ballots", ballotsRoutes);

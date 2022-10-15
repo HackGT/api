@@ -1,8 +1,10 @@
+/* eslint-disable guard-for-in */
 import express from "express";
 import axios from "axios";
 import { TableGroup } from "@prisma/client";
 import { PrismaClientInitializationError } from "@prisma/client/runtime";
-import { asyncHandler } from "@api/common";
+import { apiCall, asyncHandler } from "@api/common";
+import config, { Service } from "@api/config";
 
 import { prisma } from "../common";
 import { getConfig, getCurrentHexathon } from "../utils/utils";
@@ -118,11 +120,11 @@ projectRoutes.route("/").post(async (req, res) => {
     return;
   }
 
-  const devpostValidation = await validateDevpost(data.devpostUrl, data.name);
-  if (devpostValidation.error) {
-    res.status(400).send(devpostValidation);
-    return;
-  }
+  // const devpostValidation = await validateDevpost(data.devpostUrl, data.name);
+  // if (devpostValidation.error) {
+  //   res.status(400).send(devpostValidation);
+  //   return;
+  // }
 
   let dailyUrl;
   // try {
@@ -197,12 +199,12 @@ projectRoutes.route("/").post(async (req, res) => {
     },
   });
 
-  if (data.prizes.includes(openSource.id) && data.prizes.length > 1) {
+  if (openSource && data.prizes.includes(openSource.id) && data.prizes.length > 1) {
     res.status(400).send({
       error: true,
       message: "If you submit to open source you can only submit to that category",
     });
-  } else if (!data.prizes.includes(openSource.id)) {
+  } else if (openSource && !data.prizes.includes(openSource.id)) {
     data.prizes.push(bestOverall.id);
   }
 
@@ -266,14 +268,18 @@ projectRoutes.route("/").post(async (req, res) => {
       }
     }
 
+    console.log("MIN EXPO");
+    console.log(minExpoNumber);
+    console.log(data);
+
     await prisma.project.create({
       data: {
         name: data.name,
         description: data.description,
         devpostUrl: data.devpostUrl,
         githubUrl: "",
-        expo: minExpoNumber,
-        roomUrl: dailyUrl,
+        expo: 1,
+        roomUrl: "",
         table: tableNumber,
         hexathon: currentHexathon.id,
         members: {
@@ -282,7 +288,7 @@ projectRoutes.route("/").post(async (req, res) => {
               email: user.email,
             },
             create: {
-              name: user.name,
+              name: user.name === undefined ? "" : user.name,
               email: user.email,
             },
           })),
@@ -480,6 +486,20 @@ projectRoutes.route("/:id").get(
         categories: true,
       },
     });
+
+    const hexathon = await apiCall(
+      Service.HEXATHONS,
+      {
+        url: `/hexathons/${project?.hexathon}`,
+        method: "GET",
+      },
+      req
+    );
+
+    if (project) {
+      project.hexathon = hexathon;
+    }
+
     res.status(200).json(project);
   })
 );
@@ -499,6 +519,21 @@ projectRoutes.route("/special/dashboard").get(
         assignment: true,
       },
     });
+
+    const hexathons = await apiCall(
+      Service.HEXATHONS,
+      {
+        url: `/hexathons`,
+        method: "GET",
+      },
+      req
+    );
+
+    for (const project in projects) {
+      for (const hexathon in hexathons) {
+        projects[project].hexathon = hexathons[hexathon];
+      }
+    }
 
     res.status(200).json(projects);
   })

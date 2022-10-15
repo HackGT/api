@@ -1,4 +1,5 @@
-import { asyncHandler } from "@api/common";
+import { apiCall, asyncHandler } from "@api/common";
+import { Service } from "@api/config";
 import express from "express";
 
 import { isAdmin } from "../auth/auth";
@@ -24,7 +25,33 @@ function updateConfigFields(data: any, fields: string[]) {
 
 configRoutes.route("/").get(
   asyncHandler(async (req, res) => {
-    res.status(200).json(await prisma.config.findFirst());
+    const config = await prisma.config.findFirst();
+    const hexathon = await apiCall(
+      Service.HEXATHONS,
+      {
+        url: `/hexathons/${config?.currentHexathon}`,
+        method: "GET",
+      },
+      req
+    );
+    if (config) {
+      config.currentHexathon = hexathon;
+    }
+    res.status(200).json(config);
+  })
+);
+
+configRoutes.route("/hexathons").get(
+  asyncHandler(async (req, res) => {
+    const hexathons = await apiCall(
+      Service.HEXATHONS,
+      {
+        url: `/hexathons`,
+        method: "GET",
+      },
+      req
+    );
+    res.status(200).json(hexathons);
   })
 );
 
