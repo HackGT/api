@@ -21,6 +21,14 @@ eventRoutes.route("/").get(
   })
 );
 
+eventRoutes.route("/:id").get(
+  checkAbility("read", "Event"),
+  asyncHandler(async (req, res) => {
+    const event = await EventModel.findById(req.params.id);
+    return res.send(event);
+  })
+);
+
 eventRoutes.route("/").post(
   checkAbility("create", "Event"),
   asyncHandler(async (req, res) => {
@@ -66,6 +74,7 @@ eventRoutes.route("/:id").put(
       req.params.id,
       {
         $set: {
+          hexathon: req.body.hexathon,
           name: req.body.name,
           type: req.body.type,
           startDate: req.body.startDate,
