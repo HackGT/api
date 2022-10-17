@@ -1,8 +1,8 @@
 import { asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import express from "express";
 
-import { EventModel } from "src/models/event";
-import { LocationModel, Location } from "../models/location";
+import { EventModel } from "../models/event";
+import { LocationModel } from "../models/location";
 
 export const locationRoutes = express.Router();
 
@@ -18,7 +18,7 @@ locationRoutes.route("/").get(
 locationRoutes.route("/:id").get(
   checkAbility("read", "Location"),
   asyncHandler(async (req, res) => {
-    const location = await LocationModel.findById(req.params.id);
+    const location = await LocationModel.findById(req.params.id).accessibleBy(req.ability);
     return res.send(location);
   })
 );

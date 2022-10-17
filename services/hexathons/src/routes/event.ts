@@ -24,7 +24,7 @@ eventRoutes.route("/").get(
 eventRoutes.route("/:id").get(
   checkAbility("read", "Event"),
   asyncHandler(async (req, res) => {
-    const event = await EventModel.findById(req.params.id);
+    const event = await EventModel.findById(req.params.id).accessibleBy(req.ability);
     return res.send(event);
   })
 );

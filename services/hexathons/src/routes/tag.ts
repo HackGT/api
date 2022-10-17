@@ -2,7 +2,7 @@ import { asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import express from "express";
 import { FilterQuery } from "mongoose";
 
-import { EventModel } from "src/models/event";
+import { EventModel } from "../models/event";
 import { TagModel, Tag } from "../models/tag";
 
 export const tagRoutes = express.Router();
@@ -25,7 +25,7 @@ tagRoutes.route("/").get(
 tagRoutes.route("/:id").get(
   checkAbility("read", "Tag"),
   asyncHandler(async (req, res) => {
-    const tag = await TagModel.findById(req.params.id);
+    const tag = await TagModel.findById(req.params.id).accessibleBy(req.ability);
     return res.send(tag);
   })
 );
