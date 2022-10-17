@@ -1,6 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import { AxiosResponse } from "axios";
 import { FirebaseError } from "firebase-admin";
+import mongoose from "mongoose";
 
 /**
  * Error thrown when the user makes an invalid API call. This signals
@@ -60,6 +61,9 @@ export const shouldHandleError = (err: any): boolean => {
   if (
     err instanceof BadRequestError ||
     err instanceof ForbiddenError ||
+    err instanceof mongoose.Error.CastError ||
+    err instanceof mongoose.Error.ValidationError ||
+    err instanceof mongoose.Error.ValidatorError ||
     (err as FirebaseError).code?.startsWith("auth/")
   ) {
     return false;
