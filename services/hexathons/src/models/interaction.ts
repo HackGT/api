@@ -5,8 +5,8 @@ import { HexathonModel } from "./hexathon";
 
 export enum InteractionType {
   EVENT = "event",
-  SCAVENGER_HUNT = "scavenger_hunt",
-  EXPO_SUBMISSION = "expo_submission",
+  SCAVENGER_HUNT = "scavenger-hunt",
+  EXPO_SUBMISSION = "expo-submission",
 }
 
 export enum InteractionEventType {
