@@ -1,4 +1,4 @@
-import { MongoClient, ObjectId } from "mongodb";
+import { MongoClient } from "mongodb";
 import fs from "fs";
 import path from "path";
 
@@ -18,31 +18,26 @@ const client = new MongoClient("mongodb://localhost:7777");
   const res = await collection
     .find({
       status: "CONFIRMED",
-      applicationBranch: {
-        $in: [
-          new ObjectId("62d9f03418d8d494b683c316"),
-          new ObjectId("630540a63d16456628e36b8a"),
-          new ObjectId("630540c23d16456628e36b8b"),
-          new ObjectId("630a87ad4350de7de590ebd8"),
-        ],
-      },
     })
     .toArray();
 
-  const emails: any[] = [];
+  const resumeFileIds: any[] = [];
   for (const doc of res) {
-    if (doc.email) {
-      emails.push(doc.email);
+    if (doc.applicationData?.resume) {
+      resumeFileIds.push(doc.applicationData.resume);
     }
   }
 
   fs.mkdir(path.resolve(__dirname, "../output"), { recursive: true }, err => {
     if (err) throw err;
 
-    fs.writeFileSync(path.resolve(__dirname, "../output/emails.csv"), emails.join("\n"));
+    fs.writeFileSync(
+      path.resolve(__dirname, "../output/resume_file_ids.txt"),
+      JSON.stringify(resumeFileIds)
+    );
   });
 
-  console.log(`${emails.length} matching applications found`);
+  console.log(`${resumeFileIds.length} resumes found`);
 
   console.info("\nDone.");
 })();

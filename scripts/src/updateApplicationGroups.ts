@@ -14,12 +14,12 @@ const updateApplicationGroups = async () => {
 
   const updatedApplications = await collection.updateMany(
     {
-      applicationBranch: new ObjectId("62d9f1ae18d8d494b683c360"),
+      applicationBranch: new ObjectId("62e1d823a74cdec5d68e47c2"),
       status: "APPLIED",
     },
     {
       $set: {
-        confirmationBranch: new ObjectId("6347a7bb9302d0a8c4d0c18f"),
+        confirmationBranch: new ObjectId("6347a4bc9302d0a8c4d0c0b6"),
         status: "ACCEPTED",
       },
     }
