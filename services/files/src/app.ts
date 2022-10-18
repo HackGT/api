@@ -18,6 +18,7 @@ import * as Tracing from "@sentry/tracing";
 
 import { defaultRouter } from "./routes";
 import { addAbilities } from "./permission";
+import { startJobProcessing } from "./jobs";
 
 export const app = express();
 
@@ -92,6 +93,10 @@ if (config.common.production) {
   );
 }
 app.use(handleError);
+
+startJobProcessing().catch(err => {
+  throw err;
+});
 
 app.listen(config.services.FILES.port, () => {
   console.log(`FILES service started on port ${config.services.FILES.port}`);
