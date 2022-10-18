@@ -2,7 +2,7 @@
 import { apiCall, asyncHandler, BadRequestError, getFullName, checkAbility } from "@api/common";
 import { Service } from "@api/config";
 import express from "express";
-import { FilterQuery, isValidObjectId, Types } from "mongoose";
+import { FilterQuery, isValidObjectId, Types, UpdateQuery } from "mongoose";
 import _ from "lodash";
 import { DateTime } from "luxon";
 
@@ -437,6 +437,9 @@ applicationRouter.route("/:id/actions/update-status").post(
     }
 
     const newStatus = StatusType[req.body.status as keyof typeof StatusType];
+    const updateBody: UpdateQuery<Application> = {
+      status: newStatus,
+    };
 
     // Non-member users are restricted to changing status in only very limited circumstances
     if (!req.user?.roles.member) {
@@ -446,7 +449,7 @@ applicationRouter.route("/:id/actions/update-status").post(
         (existingApplication.confirmationBranch === undefined ||
           existingApplication.confirmationBranch.formPages.length === 0)
       ) {
-        // pass
+        updateBody.confirmationSubmitTime = new Date();
       } else if (
         existingApplication.status === StatusType.ACCEPTED &&
         newStatus === StatusType.NOT_ATTENDING
@@ -459,13 +462,7 @@ applicationRouter.route("/:id/actions/update-status").post(
       }
     }
 
-    await ApplicationModel.findByIdAndUpdate(
-      req.params.id,
-      {
-        status: newStatus,
-      },
-      { new: true }
-    );
+    await ApplicationModel.findByIdAndUpdate(req.params.id, updateBody, { new: true });
 
     return res.sendStatus(204);
   })
