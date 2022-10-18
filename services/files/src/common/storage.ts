@@ -5,8 +5,7 @@ import path from "path";
 import { File } from "../models/file";
 
 const storage = new Storage();
-
-const bucket = storage.bucket(config.services.FILES.storageBucket || "");
+const bucket = storage.bucket(config.common.googleCloud.storageBucket || "");
 
 export const uploadFile = async (file: Express.Multer.File) => {
   const { originalname, buffer } = file;
