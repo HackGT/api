@@ -12,9 +12,10 @@ export interface Event extends mongoose.Document {
   hexathon: Types.ObjectId;
   name: string;
   type: InteractionEventType;
+  description: string;
   startDate: Date;
   endDate: Date;
-  location: AutoPopulatedDoc<Location>;
+  location: AutoPopulatedDoc<Location>[];
   tags: AutoPopulatedDoc<Tag>[];
 }
 
@@ -35,6 +36,11 @@ const eventSchema = new Schema<Event>({
     required: true,
     index: true,
   },
+  description: {
+    type: String,
+    required: true,
+    default: " ",
+  },
   startDate: {
     type: Date,
     required: true,
@@ -44,11 +50,16 @@ const eventSchema = new Schema<Event>({
     required: true,
   },
   location: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: LocationModel,
-    autopopulate: true,
-    index: true,
+    type: [
+      {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: LocationModel,
+        autopopulate: true,
+        index: true,
+      },
+    ],
+    default: [],
   },
   tags: {
     type: [
