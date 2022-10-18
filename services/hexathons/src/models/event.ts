@@ -1,9 +1,11 @@
 import { AccessibleRecordModel, accessibleRecordsPlugin } from "@casl/mongoose";
 import mongoose, { Schema, model, Types } from "mongoose";
+import mongooseAutopopulate from "mongoose-autopopulate";
+import { AutoPopulatedDoc } from "@api/common";
 
 import { HexathonModel } from "./hexathon";
-import { LocationModel } from "./location";
-import { TagModel } from "./tag";
+import { Location, LocationModel } from "./location";
+import { Tag, TagModel } from "./tag";
 import { InteractionEventType } from "./interaction";
 
 export interface Event extends mongoose.Document {
@@ -12,8 +14,8 @@ export interface Event extends mongoose.Document {
   type: InteractionEventType;
   startDate: Date;
   endDate: Date;
-  location: Types.ObjectId;
-  tags?: Types.ObjectId[];
+  location: AutoPopulatedDoc<Location>;
+  tags: AutoPopulatedDoc<Tag>[];
 }
 
 const eventSchema = new Schema<Event>({
@@ -55,6 +57,7 @@ const eventSchema = new Schema<Event>({
   },
 });
 
+eventSchema.plugin(mongooseAutopopulate);
 eventSchema.plugin(accessibleRecordsPlugin);
 
 export const EventModel = model<Event, AccessibleRecordModel<Event>>("Event", eventSchema);
