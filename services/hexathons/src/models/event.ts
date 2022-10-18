@@ -23,6 +23,7 @@ const eventSchema = new Schema<Event>({
     type: Schema.Types.ObjectId,
     required: true,
     ref: HexathonModel,
+    index: true,
   },
   name: {
     type: String,
@@ -32,6 +33,7 @@ const eventSchema = new Schema<Event>({
     type: String,
     enum: Object.values(InteractionEventType),
     required: true,
+    index: true,
   },
   startDate: {
     type: Date,
@@ -45,12 +47,16 @@ const eventSchema = new Schema<Event>({
     type: Schema.Types.ObjectId,
     required: true,
     ref: LocationModel,
+    autopopulate: true,
+    index: true,
   },
   tags: {
     type: [
       {
         type: Schema.Types.ObjectId,
         ref: TagModel,
+        autopopulate: true,
+        index: true,
       },
     ],
     default: [],

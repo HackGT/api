@@ -13,6 +13,7 @@ const tagSchema = new Schema<Tag>({
     type: Schema.Types.ObjectId,
     required: true,
     ref: HexathonModel,
+    index: true,
   },
   name: {
     type: String,

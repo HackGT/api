@@ -20,11 +20,13 @@ const hexathonSchema = new Schema<Hexathon>({
     type: String,
     required: true,
     unique: true,
+    index: true,
   },
   isActive: {
     type: Boolean,
     required: true,
     default: true,
+    index: true,
   },
   startDate: {
     type: Date,
