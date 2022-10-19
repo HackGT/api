@@ -127,7 +127,7 @@ export const SERVICES: Record<Service, ServiceConfig> = {
   },
   HARDWARE: {
     url: "/hardware",
-    port: 8007,
+    port: 8008,
     auth: false,
     proxy: {
       target: "http://localhost:8007",
