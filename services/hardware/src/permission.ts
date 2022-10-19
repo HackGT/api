@@ -11,30 +11,21 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
   }
 
   if (req.user.roles.admin) {
-    can("manage", "Item");
-    can("manage", "Category");
     can("manage", "Location");
-    can("manage", "Request");
-    can("manage", "Cart");
   }
 
   if (req.user.roles.member) {
-    can("read", "Application");
-    can("read", "Grader");
-    can("manage", "Grader", { userId: req.user.uid });
-    can("read", "Review");
-    can("manage", "Review", { reviewerId: req.user.uid });
-    can("create", "Email");
-    can("create", "Cart");
+    can("manage", "Item");
   }
 
   if (req.user.roles.admin || req.user.roles.member) {
-    can("aggregate", "Application");
-    can("aggregate", "Review");
+    can("manage", "Item");
+    can("manage", "Category");
   }
 
-  can(["create", "read", "update"], "Application", { userId: req.user.uid });
-  can("read", "Branch");
+  can("read", "Item");
+  can("read", "Category");
+  can("manage", "Request");
 
   req.ability = build();
   next();
