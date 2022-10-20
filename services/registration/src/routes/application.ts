@@ -471,6 +471,12 @@ applicationRouter.route("/:id/actions/update-status").post(
 applicationRouter.route("/:id/actions/update-application").post(
   checkAbility("update", "Application"),
   asyncHandler(async (req, res) => {
+    if (!req.user?.roles.member) {
+      throw new BadRequestError(
+        "You do not have permission to change this application to the new status provided."
+      );
+    }
+
     const existingApplication = await ApplicationModel.findById(req.params.id).accessibleBy(
       req.ability
     );
@@ -503,12 +509,6 @@ applicationRouter.route("/:id/actions/update-application").post(
     const newStatus = StatusType[status as keyof typeof StatusType];
     const newApplicationExtendedDeadline = applicationExtendedDeadline;
     const newConfirmationExtendedDeadline = confirmationExtendedDeadline;
-
-    if (!req.user?.roles.admin) {
-      throw new BadRequestError(
-        "You do not have permission to change this application to the new status provided."
-      );
-    }
 
     if ([StatusType.CONFIRMED, StatusType.ACCEPTED, StatusType.NOT_ATTENDING].includes(newStatus)) {
       if (!confirmationBranch) {
