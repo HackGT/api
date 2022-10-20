@@ -7,6 +7,7 @@ export enum InteractionType {
   EVENT = "event",
   SCAVENGER_HUNT = "scavenger-hunt",
   EXPO_SUBMISSION = "expo-submission",
+  CHECK_IN = "check-in",
 }
 
 export enum InteractionEventType {
