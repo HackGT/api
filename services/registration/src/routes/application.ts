@@ -469,7 +469,7 @@ applicationRouter.route("/:id/actions/update-status").post(
 );
 
 applicationRouter.route("/:id/actions/update-application").post(
-  // checkAbility("update", "Application"),
+  checkAbility("update", "Application"),
   asyncHandler(async (req, res) => {
     const existingApplication = await ApplicationModel.findById(req.params.id).accessibleBy(
       req.ability
