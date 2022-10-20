@@ -15,6 +15,9 @@ export const DATABASE: DatabaseConfig = {
   redis: {
     uri: "redis://localhost",
   },
+  postgres: {
+    uri: "postgres://postgres@localhost",
+  },
 };
 
 export const SERVICES: Record<Service, ServiceConfig> = {

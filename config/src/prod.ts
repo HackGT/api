@@ -15,6 +15,9 @@ export const DATABASE: DatabaseConfig = {
   redis: {
     uri: String(process.env.REDIS_URI),
   },
+  postgres: {
+    uri: String(process.env.POSTGRES_URI),
+  },
 };
 
 export const SERVICES: Record<Service, ServiceConfig> = {
@@ -144,6 +147,22 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     database: {
       type: "mongo",
       name: "hardware",
+    },
+  },
+  EXPO: {
+    url: "/expo",
+    port: parseInt(process.env.PORT || "8080"),
+    auth: false,
+    proxy: {
+      target: "https://expo.api.hexlabs.org",
+      changeOrigin: true,
+      pathRewrite: {
+        [`^/expo`]: "",
+      },
+    },
+    database: {
+      type: "postgres",
+      name: "expo",
     },
   },
 };

@@ -34,6 +34,9 @@ export interface DatabaseConfig {
   redis: {
     uri: string;
   };
+  postgres: {
+    uri: string;
+  };
 }
 
 export enum Service {
@@ -44,6 +47,7 @@ export enum Service {
   FILES = "FILES",
   AUTH = "AUTH",
   HARDWARE = "HARDWARE",
+  EXPO = "EXPO",
 }
 
 export interface ServiceConfig {
