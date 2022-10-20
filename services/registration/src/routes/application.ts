@@ -511,7 +511,7 @@ applicationRouter.route("/:id/actions/update-application").post(
       } else if (
         existingApplication.status === StatusType.APPLIED &&
         newStatus === StatusType.CONFIRMED &&
-        confirmationBranch === null
+        confirmationBranch === "None"
       ) {
         // Applicant moved to confirmed without a confirmation branch
         throw new BadRequestError("Applicant must have a confirmation branch to be confirmed.");
