@@ -1,0 +1,424 @@
+import rp from "request-promise";
+import cheerio from "cheerio";
+import { UserRole } from "@prisma/client";
+import { URL } from "url";
+import { apiCall, User } from "@api/common";
+import admin from "firebase-admin";
+import express from "express";
+import { Service } from "@api/config";
+
+import { prisma, prizeConfig } from "../common";
+import { getConfig, getCurrentHexathon } from "./utils";
+// import { queryRegistration } from "src/registration";
+
+/*
+    - Classify team into prize based on user tracks (from registration)
+    - Return eligible prizes based on team type
+*/
+export const getEligiblePrizes = async (users: any[], req: express.Request) => {
+  const currentHexathon = await getCurrentHexathon(req);
+  switch (currentHexathon.name) {
+    case "HackGT 7": {
+      let numEmerging = 0;
+
+      for (const user of users) {
+        if (!user || !user.applicationBranch) {
+          return {
+            error: true,
+            message: `User: ${user.email} does not have a confirmation branch`,
+          };
+        }
+
+        if (user.applicationBranch.name === "Emerging Participant Confirmation") {
+          numEmerging += 1;
+        }
+      }
+
+      // A team must be greater than 50% emerging to be eligible for emerging prizes
+      if (numEmerging / users.length > 0.5) {
+        return prizeConfig.hexathon["HackGT 7"].emergingPrizes.concat(
+          prizeConfig.hexathon["HackGT 7"].sponsorPrizes
+        );
+      }
+
+      return prizeConfig.hexathon["HackGT 7"].sponsorPrizes;
+    }
+    case "HackGT 8": {
+      let numEmerging = 0;
+
+      for (const user of users) {
+        if (!user || !user.applicationBranch) {
+          return {
+            error: true,
+            message: `User: ${user.email} does not have a confirmation branch`,
+          };
+        }
+
+        if (
+          user.applicationBranch.name === "Emerging In-Person Participant Confirmation" ||
+          user.applicationBranch.name === "Emerging Virtual Participant Confirmation"
+        ) {
+          numEmerging += 1;
+        }
+      }
+
+      // A team must be greater than 50% emerging to be eligible for emerging prizes
+      if (numEmerging / users.length > 0.5) {
+        const emergingPrizes = prizeConfig.hexathon["HackGT 8"].emergingPrizes
+          .concat(prizeConfig.hexathon["HackGT 8"].sponsorPrizes)
+          .concat(prizeConfig.hexathons["HackGT 8"].generalPrizes)
+          .concat(prizeConfig.hexathons["HackGT 8"].openSourcePrizes);
+        const emergingDBPrizes = await prisma.category.findMany({
+          where: {
+            name: {
+              in: emergingPrizes,
+            },
+          },
+        });
+        return emergingDBPrizes;
+      }
+      const generalPrizes = prizeConfig.hexathons["HackGT 8"].sponsorPrizes
+        .concat(prizeConfig.hexathons["HackGT 8"].generalPrizes)
+        .concat(prizeConfig.hexathons["HackGT 8"].openSourcePrizes);
+      const generalDBPrizes = await prisma.category.findMany({
+        where: {
+          name: {
+            in: generalPrizes,
+          },
+        },
+      });
+      return generalDBPrizes;
+    }
+    case "Horizons": {
+      const { tracks, challenges } = prizeConfig.hexathons.Horizons;
+
+      const generalDBPrizes = await prisma.category.findMany({
+        where: {
+          name: {
+            in: tracks.concat(challenges),
+          },
+        },
+      });
+      return generalDBPrizes;
+    }
+    case "Prototypical 2022": {
+      const { tracks } = prizeConfig.hexathons["Prototypical 2022"];
+
+      const generalDBPrizes = await prisma.category.findMany({
+        where: {
+          name: {
+            in: tracks,
+          },
+        },
+      });
+
+      return generalDBPrizes;
+    }
+    case "Test": {
+      // TODO: fix case name
+      let numEmerging = 0;
+
+      for (const user of users) {
+        if (!user || !user.applicationBranch) {
+          return {
+            error: true,
+            message: `User: ${user.email} does not have a confirmation branch`,
+          };
+        }
+
+        if (user.applicationBranch.name === "Emerging In-Person Participant Confirmation") {
+          numEmerging += 1;
+        }
+      }
+
+      // A team must be greater than 50% emerging to be eligible for emerging prizes
+      if (numEmerging / users.length > 0.5) {
+        const emergingPrizes = prizeConfig.hexathon["HackGT 9"].emergingPrizes
+          .concat(prizeConfig.hexathons["HackGT 9"].sponsorPrizes)
+          .concat(prizeConfig.hexathons["HackGT 9"].generalPrizes)
+          .concat(prizeConfig.hexathons["HackGT 9"].openSourcePrizes);
+        const emergingDBPrizes = await prisma.category.findMany({
+          where: {
+            name: {
+              in: emergingPrizes,
+            },
+          },
+        });
+        return emergingDBPrizes;
+      }
+      const generalPrizes = prizeConfig.hexathons["HackGT 9"].sponsorPrizes
+        .concat(prizeConfig.hexathons["HackGT 9"].generalPrizes)
+        .concat(prizeConfig.hexathons["HackGT 9"].openSourcePrizes);
+      const generalDBPrizes = await prisma.category.findMany({
+        where: {
+          name: {
+            in: generalPrizes,
+          },
+        },
+      });
+      return generalDBPrizes;
+    }
+
+    default: {
+      return [];
+    }
+  }
+};
+
+/*
+    - Query emails from check-in and ensure users accepted to event
+    - Create new user objects for users not in db (with email field and name from check-in)
+*/
+export const validateTeam = async (
+  currentUser: User | null,
+  members: any[],
+  req: express.Request
+) => {
+  if (!members || members.length === 0) {
+    return { error: true, message: "Must include at least one member" };
+  }
+
+  if (members.length > 4) {
+    return { error: true, message: "Too many members on team" };
+  }
+
+  const memberEmails: string[] = members.map(member => member.email);
+
+  if (!currentUser || memberEmails[0] !== currentUser.email) {
+    return { error: true, message: "Email does not match current user" };
+  }
+
+  let registrationError: { error: boolean; message: string } | null = null;
+  const currentHexathon = await getCurrentHexathon(req);
+
+  const registrationUsers: any[] = await Promise.all(
+    memberEmails.map(async email => {
+      let res: any;
+      try {
+        // res = await queryRegistration(email); // query from registration endpoint
+
+        res = await apiCall(
+          Service.REGISTRATION,
+          {
+            url: `/applications`,
+            method: "GET",
+            params: {
+              hexathon: currentHexathon.id,
+              status: "CONFIRMED",
+              search: email,
+            },
+          },
+          req
+        );
+        console.log("USER'S APPLICATION INFO");
+        console.log(res);
+      } catch (error) {
+        console.error(error);
+        registrationError = {
+          error: true,
+          message: `There was an unknown error accessing registration. Please contact a member of the event staff.`,
+        };
+        return "";
+      }
+
+      // const searchUsers = res.data.data.search_user.users;
+      const userApplications = res.applications;
+
+      let userApp;
+      // Checks the user's applications and if they are confirmed for the current hexathon
+      let confirmedForHexathon = false;
+      // eslint-disable-next-line guard-for-in
+      for (const app in userApplications) {
+        if (userApplications[app].hexathon === currentHexathon.id) {
+          confirmedForHexathon = true;
+          userApp = userApplications[app];
+          break;
+        }
+      }
+      if (!confirmedForHexathon) {
+        registrationError = {
+          error: true,
+          message: `User: ${email} not confirmed for current ${currentHexathon.name}`,
+        };
+        return "";
+      }
+
+      // console.log(userApp);
+
+      const user = await prisma.user.findUnique({
+        where: {
+          email,
+        },
+      });
+
+      if (!user) {
+        try {
+          const newUser = await admin.auth().getUserByEmail(email);
+
+          // console.log(newUser);
+
+          await prisma.user.create({
+            data: {
+              name: userApp.name,
+              email,
+              role: UserRole.GENERAL,
+              userId: newUser.uid,
+            },
+          });
+        } catch (error) {
+          return registrationError;
+        }
+      } else {
+        const existingProject = await prisma.project.findFirst({
+          where: {
+            members: {
+              some: {
+                id: user.id,
+              },
+            },
+            hexathon: currentHexathon.id,
+          },
+        });
+
+        if (existingProject != null) {
+          registrationError = {
+            error: true,
+            message: `User: ${user.email} already has a submission for current ${currentHexathon.name}`,
+          };
+          return "";
+        }
+      }
+      return userApp;
+    })
+  );
+
+  if (registrationError != null) {
+    return registrationError;
+  }
+
+  const eligiblePrizes = await getEligiblePrizes(registrationUsers, req);
+  return { error: false, eligiblePrizes, registrationUsers };
+};
+
+/*
+  - Validate prizes to ensure the correct selection is made
+*/
+export const validatePrizes = async (prizes: any[], req: express.Request) => {
+  const currentHexathon = await getCurrentHexathon(req);
+  const prizeObjects = await prisma.category.findMany({
+    where: {
+      id: {
+        in: prizes,
+      },
+    },
+  });
+  const prizeNames = prizeObjects.map(prize => prize.name);
+
+  switch (currentHexathon.name) {
+    case "HackGT 8": {
+      if (prizeNames.includes("HackGT - Best Open Source Hack") && prizeObjects.length > 1) {
+        return {
+          error: true,
+          message: "If you are submitting to open source you can only submit to that prize",
+        };
+      }
+
+      return { error: false };
+    }
+    case "Horizons": {
+      if (
+        prizeNames.filter(prize => prizeConfig.hexathons.Horizons.tracks.includes(prize)).length > 1
+      ) {
+        return {
+          error: true,
+          message: "You are only eligible to submit for one track.",
+        };
+      }
+
+      if (
+        prizeNames.filter(prize => prizeConfig.hexathons.Horizons.tracks.includes(prize)).length ===
+        0
+      ) {
+        return {
+          error: true,
+          message: "You must submit to at least one track.",
+        };
+      }
+
+      return { error: false };
+    }
+    default: {
+      return { error: false };
+    }
+  }
+};
+
+/*
+    - Ensure url is the right devpost url
+    - Ensure project isn't submitted to multiple hexathons
+*/
+export const validateDevpost = async (devpostUrl: string, submissionName: string) => {
+  const config = await getConfig();
+
+  if (!config.isDevpostCheckingOn) {
+    return { error: false };
+  }
+
+  if (!devpostUrl) {
+    return { error: true, message: "No url specified" };
+  }
+
+  const { hostname } = new URL(devpostUrl);
+  if (hostname !== "devpost.com") {
+    return { error: true, message: "Invalid URL: Not a devpost domain" };
+  }
+
+  let html = "";
+  try {
+    html = await rp(devpostUrl);
+  } catch (err) {
+    return { error: true, message: "Invalid Project URL" };
+  }
+
+  const $ = cheerio.load(html);
+  const devpostUrls = [];
+  let submitted = false;
+  $("#submissions")
+    .find("ul")
+    .children("li")
+    .each((_index, elem) => {
+      const item = $(elem).find("div a").attr("href");
+      if (item) {
+        devpostUrls.push(item);
+        if (item.includes(String(process.env.HACKGT_DEVPOST))) {
+          submitted = true;
+        }
+      }
+    });
+
+  const devpostCount = await prisma.project.count({ where: { devpostUrl } });
+  const nameCount = await prisma.project.count({ where: { name: submissionName } });
+
+  const eligible = submitted && devpostUrls.length === 1 && devpostCount === 0 && nameCount === 0;
+
+  if (eligible) {
+    return { error: false };
+  }
+  if (!submitted) {
+    return {
+      error: true,
+      message:
+        "Please submit your project to the hackathon devpost and try again. Follow the instructions below.",
+    };
+  }
+  if (devpostUrls.length !== 1) {
+    return { error: true, message: "You cannot have multiple hackathon submissions." };
+  }
+  if (devpostCount !== 0) {
+    return { error: true, message: "A submission with this Devpost URL already exists." };
+  }
+  if (nameCount !== 0) {
+    return { error: true, message: "A submission with this name already exists." };
+  }
+  return { error: true, message: "Please contact help desk" };
+};

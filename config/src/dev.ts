@@ -15,6 +15,9 @@ export const DATABASE: DatabaseConfig = {
   redis: {
     uri: "redis://localhost",
   },
+  postgres: {
+    uri: "postgres://postgres@localhost",
+  },
 };
 
 export const SERVICES: Record<Service, ServiceConfig> = {
@@ -122,6 +125,22 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     database: {
       type: "mongo",
       name: "auth",
+    },
+  },
+  EXPO: {
+    url: "/expo",
+    port: 8007,
+    auth: false,
+    proxy: {
+      target: "http://localhost:8007",
+      changeOrigin: false,
+      pathRewrite: {
+        [`^/expo`]: "",
+      },
+    },
+    database: {
+      type: "postgres",
+      name: "expo",
     },
   },
 };

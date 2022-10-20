@@ -10,4 +10,5 @@ concurrently([
   { command: "cd services/registration && yarn dev", name: "registration" },
   { command: "cd services/notifications && yarn dev", name: "notifications" },
   { command: "cd services/files && yarn dev", name: "files" },
+  { command: "cd services/expo && yarn dev", name: "expo" },
 ]);
