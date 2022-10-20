@@ -7,13 +7,13 @@
   "scripts": {
     "build": "tsc --build --force",
     "clean": "tsc --build --clean",
-    "start": "node dist/app.js",
+    "start:normal": "node dist/app.js",
     "dev": "nodemon --watch 'src/**/*' --exec \"ts-node\" -r tsconfig-paths/register src/app.ts",
     "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
     "prisma-generate": "prisma format && prisma generate",
     "seed": "prisma db seed --preview-feature",
-    "start-migrate": "yarn migrate:deploy && yarn start"
+    "start": "yarn migrate:deploy && yarn start:normal"
   },
   "author": "",
   "license": "ISC",
