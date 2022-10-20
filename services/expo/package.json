@@ -5,6 +5,7 @@
   "main": "dist/app",
   "types": "dist/app",
   "scripts": {
+    "prebuild": "yarn prisma-generate",
     "build": "tsc --build --force",
     "clean": "tsc --build --clean",
     "start:normal": "node dist/app.js",
