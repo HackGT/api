@@ -20,7 +20,6 @@
   "license": "ISC",
   "devDependencies": {
     "nodemon": "^2.0.15",
-    "prisma": "^2.30.3",
     "ts-node": "^10.5.0",
     "tsconfig-paths": "^3.12.0"
   },
@@ -48,6 +47,7 @@
     "http-status-codes": "^2.2.0",
     "morgan": "^1.10.0",
     "path": "^0.12.7",
+    "prisma": "^2.30.3",
     "re2": "^1.17.4",
     "request": "^2.88.2",
     "request-promise": "^4.2.6",
