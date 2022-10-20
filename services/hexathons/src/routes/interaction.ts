@@ -2,7 +2,7 @@ import { asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import express from "express";
 import { FilterQuery } from "mongoose";
 
-import { InteractionModel, Interaction } from "../models/interaction";
+import { InteractionModel, Interaction, InteractionType } from "../models/interaction";
 
 export const interactionRoutes = express.Router();
 
@@ -30,13 +30,20 @@ interactionRoutes.route("/").get(
 interactionRoutes.route("/").post(
   checkAbility("create", "Interaction"),
   asyncHandler(async (req, res) => {
-    const existingInteraction = await InteractionModel.findOne({
-      userId: req.body.userId,
-      identifier: req.body.identifier,
-    });
+    if (!req.body.type) {
+      throw new BadRequestError("Type is required for an interaction");
+    }
 
-    if (existingInteraction) {
-      throw new BadRequestError("Interaction already exists for this user and identifier");
+    // For event or scavenger hunt interactions, the identifier is required and must be unique
+    if ([InteractionType.EVENT, InteractionType.SCAVENGER_HUNT].includes(req.body.type)) {
+      const existingInteraction = await InteractionModel.findOne({
+        userId: req.body.userId,
+        identifier: req.body.identifier,
+      });
+
+      if (existingInteraction) {
+        throw new BadRequestError("Interaction already exists for this user and identifier");
+      }
     }
 
     const interaction = await InteractionModel.create({
