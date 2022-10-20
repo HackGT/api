@@ -56,7 +56,9 @@ interactionRoutes.route("/").post(
         hexathon: req.body.hexathon,
       });
 
-      return res.send(existingInteraction);
+      if (existingInteraction) {
+        return res.send(existingInteraction);
+      }
     } else {
       throw new ConfigError(
         "Interaction type must be setup on the backend. Please contact tech team."
