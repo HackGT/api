@@ -9,7 +9,6 @@ import cookieParser from "cookie-parser";
 
 import { defaultRouter } from "./routes";
 import { addAbilities } from "./permission";
-import { prisma } from "./common";
 
 export const app = express();
 
@@ -21,22 +20,6 @@ process.on("unhandledRejection", err => {
 if (config.common.production) {
   app.enable("trust proxy");
 }
-
-// mongoose
-//   .connect(config.database.mongo.uri, {
-//     dbName: config.services.USERS.database?.name,
-//   })
-//   .catch(err => {
-//     throw err;
-//   });
-// mongoose.set("runValidators", true);
-// mongoose.set("toJSON", {
-//   virtuals: true,
-//   transform: (doc, converted) => {
-//     delete converted._id; // eslint-disable-line no-underscore-dangle, no-param-reassign
-//     delete converted.__v; // eslint-disable-line no-underscore-dangle, no-param-reassign
-//   },
-// });
 
 app.use(helmet());
 app.use(rateLimiter());
