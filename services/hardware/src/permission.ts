@@ -25,7 +25,7 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
 
   can("read", "Item");
   can("read", "Category");
-  can("manage", "Request");
+  can("manage", "HardwareRequest");
 
   req.ability = build();
   next();

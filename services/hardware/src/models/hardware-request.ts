@@ -3,7 +3,7 @@ import mongoose, { model, ObjectId, Schema, Types } from "mongoose";
 
 import { Item, ItemModel } from "./item";
 
-export enum RequestStatus {
+export enum HardwareRequestStatus {
   SUBMITTED = "SUBMITTED",
   APPROVED = "APPROVED",
   DENIED = "DENIED",
@@ -16,25 +16,25 @@ export enum RequestStatus {
   DAMAGED = "DAMAGED",
 }
 
-export interface Request extends mongoose.Document {
+export interface HardwareRequest extends mongoose.Document {
   quantity: number;
-  status: RequestStatus;
+  status: HardwareRequestStatus;
   createdAt: Date;
   updatedAt: Date;
   item: Types.ObjectId;
   user: User;
 }
 
-const RequestSchema = new Schema<Request>({
+const HardwareRequestSchema = new Schema<HardwareRequest>({
   quantity: {
     type: Number,
     required: true,
   },
   status: {
     type: String,
-    enum: RequestStatus,
+    enum: HardwareRequestStatus,
     required: true,
-    default: RequestStatus.SUBMITTED,
+    default: HardwareRequestStatus.SUBMITTED,
   },
   createdAt: {
     type: Date,
@@ -51,7 +51,7 @@ const RequestSchema = new Schema<Request>({
     required: true,
     ref: ItemModel,
   },
-  user: { type: Schema.Types.Mixed, required: true },
+  user: { type: String, required: true },
   //   user: {
   //     type: Schema.Types.ObjectId,
   //     required: true,
@@ -59,4 +59,7 @@ const RequestSchema = new Schema<Request>({
   //   },
 });
 
-export const RequestModel = model<Request>("Request", RequestSchema);
+export const HardwareRequestModel = model<HardwareRequest>(
+  "HardwareRequest",
+  HardwareRequestSchema
+);

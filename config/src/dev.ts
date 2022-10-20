@@ -129,10 +129,10 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     port: 8008,
     auth: false,
     proxy: {
-      target: "http://localhost:8007",
+      target: "http://localhost:8008",
       changeOrigin: false,
       pathRewrite: {
-        [`^/registration`]: "",
+        [`^/hardware`]: "",
       },
     },
     database: {

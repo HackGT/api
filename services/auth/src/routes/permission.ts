@@ -14,7 +14,6 @@ export const permissionRoutes = express.Router();
 permissionRoutes.route("/:userId").get(
   asyncHandler(async (req, res) => {
     // If the user is not checking their own permissions, they must have the member role
-    console.log(req.user?.uid);
     if (req.params.userId !== req.user?.uid) {
       const currentUserPermissions = await PermissionModel.findOne({
         userId: req.user?.uid,
