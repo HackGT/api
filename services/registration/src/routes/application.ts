@@ -468,6 +468,76 @@ applicationRouter.route("/:id/actions/update-status").post(
   })
 );
 
+applicationRouter.route("/:id/actions/update-application").post(
+  // checkAbility("update", "Application"),
+  asyncHandler(async (req, res) => {
+    const existingApplication = await ApplicationModel.findById(req.params.id).accessibleBy(
+      req.ability
+    );
+
+    if (!existingApplication) {
+      throw new BadRequestError(
+        "No application exists with this id or you do not have permission."
+      );
+    }
+
+    const {
+      applicationBranch,
+      confirmationBranch,
+      status,
+      applicationExtendedDeadline,
+      confirmationExtendedDeadline,
+    } = req.body;
+
+    const newApplicationBranch =
+      applicationBranch !== "None"
+        ? await BranchModel.findById(applicationBranch).accessibleBy(req.ability)
+        : null;
+    let newConfirmationBranch =
+      confirmationBranch !== "None"
+        ? await BranchModel.findById(confirmationBranch).accessibleBy(req.ability)
+        : null;
+    const newStatus = StatusType[status as keyof typeof StatusType];
+    const newApplicationExtendedDeadline = applicationExtendedDeadline;
+    const newConfirmationExtendedDeadline = confirmationExtendedDeadline;
+
+    if (req.user?.roles.member) {
+      if (
+        existingApplication.status === StatusType.CONFIRMED &&
+        (newStatus === StatusType.ACCEPTED || newStatus === StatusType.APPLIED)
+      ) {
+        // Applicant moved from confirmed to accepted, delete confirmation branch
+        newConfirmationBranch = null;
+      } else if (
+        existingApplication.status === StatusType.APPLIED &&
+        newStatus === StatusType.CONFIRMED &&
+        confirmationBranch === null
+      ) {
+        // Applicant moved to confirmed without a confirmation branch
+        throw new BadRequestError("Applicant must have a confirmation branch to be confirmed.");
+      }
+    } else {
+      throw new BadRequestError(
+        "You do not have permission to change this application to the new status provided."
+      );
+    }
+
+    await ApplicationModel.findByIdAndUpdate(
+      req.params.id,
+      {
+        applicationBranch: newApplicationBranch,
+        confirmationBranch: newConfirmationBranch,
+        status: newStatus,
+        applicationExtendedDeadline: newApplicationExtendedDeadline,
+        confirmationExtendedDeadline: newConfirmationExtendedDeadline,
+      },
+      { new: true }
+    );
+
+    return res.sendStatus(204);
+  })
+);
+
 applicationRouter.route("/:id/actions/reset-application").post(
   checkAbility("manage", "Application"),
   asyncHandler(async (req, res) => {
