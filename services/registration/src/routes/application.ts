@@ -489,37 +489,41 @@ applicationRouter.route("/:id/actions/update-application").post(
       confirmationExtendedDeadline,
     } = req.body;
 
-    const newApplicationBranch =
-      applicationBranch !== "None"
-        ? await BranchModel.findById(applicationBranch).accessibleBy(req.ability)
-        : null;
+    if (!applicationBranch) {
+      throw new BadRequestError("Applicant muust have an application branch.");
+    }
+
+    const newApplicationBranch = await BranchModel.findById(applicationBranch).accessibleBy(
+      req.ability
+    );
     let newConfirmationBranch =
-      confirmationBranch !== "None"
+      confirmationBranch !== undefined
         ? await BranchModel.findById(confirmationBranch).accessibleBy(req.ability)
         : null;
     const newStatus = StatusType[status as keyof typeof StatusType];
     const newApplicationExtendedDeadline = applicationExtendedDeadline;
     const newConfirmationExtendedDeadline = confirmationExtendedDeadline;
 
-    if (req.user?.roles.member) {
-      if (
-        existingApplication.status === StatusType.CONFIRMED &&
-        (newStatus === StatusType.ACCEPTED || newStatus === StatusType.APPLIED)
-      ) {
-        // Applicant moved from confirmed to accepted, delete confirmation branch
-        newConfirmationBranch = null;
-      } else if (
-        existingApplication.status === StatusType.APPLIED &&
-        newStatus === StatusType.CONFIRMED &&
-        confirmationBranch === "None"
-      ) {
-        // Applicant moved to confirmed without a confirmation branch
-        throw new BadRequestError("Applicant must have a confirmation branch to be confirmed.");
-      }
-    } else {
+    if (!req.user?.roles.admin) {
       throw new BadRequestError(
         "You do not have permission to change this application to the new status provided."
       );
+    }
+
+    if ([StatusType.CONFIRMED, StatusType.ACCEPTED, StatusType.NOT_ATTENDING].includes(newStatus)) {
+      if (!confirmationBranch) {
+        throw new BadRequestError(
+          `Applicant must have a confirmation branch with status ${newStatus}.`
+        );
+      } else if (
+        existingApplication.status === StatusType.APPLIED &&
+        confirmationBranch === undefined
+      ) {
+        // Applicant moved to accepted, confirmed, or not_attending without a confirmation branch
+        throw new BadRequestError("Applicant must have a confirmation branch to be confirmed.");
+      }
+    } else {
+      newConfirmationBranch = null;
     }
 
     await ApplicationModel.findByIdAndUpdate(
