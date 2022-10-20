@@ -12,13 +12,14 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
 
   if (req.user.roles.admin) {
     can("manage", "File");
+    can("manage", "Jobs");
   }
 
   if (req.user.roles.member) {
     can("read", "File");
   }
 
-  can("manage", "File", { userId: req.user.uid });
+  can(["create", "read"], "File", { userId: req.user.uid });
 
   req.ability = build();
   next();

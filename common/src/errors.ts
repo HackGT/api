@@ -1,6 +1,7 @@
 /* eslint-disable max-classes-per-file */
-
 import { AxiosResponse } from "axios";
+import { FirebaseError } from "firebase-admin";
+import mongoose from "mongoose";
 
 /**
  * Error thrown when the user makes an invalid API call. This signals
@@ -50,3 +51,22 @@ export class ApiCallError extends Error {
     }
   }
 }
+
+/**
+ * Used by Sentry to determine when to handle error
+ * @param err the error that was thrown
+ * @returns a boolean indicating if the error should be handled
+ */
+export const shouldHandleError = (err: any): boolean => {
+  if (
+    err instanceof BadRequestError ||
+    err instanceof ForbiddenError ||
+    err instanceof mongoose.Error.CastError ||
+    err instanceof mongoose.Error.ValidationError ||
+    err instanceof mongoose.Error.ValidatorError ||
+    (err as FirebaseError).code?.startsWith("auth/")
+  ) {
+    return false;
+  }
+  return true;
+};

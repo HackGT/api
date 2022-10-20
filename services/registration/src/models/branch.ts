@@ -28,6 +28,7 @@ export interface Branch extends mongoose.Document {
   hexathon: Types.ObjectId;
   type: BranchType;
   applicationGroup: ApplicationGroupType;
+  description?: string;
   settings: {
     open: Date;
     close: Date;
@@ -48,6 +49,11 @@ export interface Branch extends mongoose.Document {
     enabled?: boolean;
     group?: GradingGroupType;
   };
+  postSubmitEmailTemplate: {
+    enabled: boolean;
+    subject?: string;
+    content?: string;
+  };
 }
 
 const branchSchema = new Schema<Branch>({
@@ -58,16 +64,22 @@ const branchSchema = new Schema<Branch>({
   hexathon: {
     type: Schema.Types.ObjectId,
     required: true,
+    index: true,
   },
   type: {
     type: String,
     required: true,
     enum: BranchType,
+    index: true,
   },
   applicationGroup: {
     type: String,
     required: true,
     enum: ApplicationGroupType,
+    index: true,
+  },
+  description: {
+    type: String,
   },
   settings: {
     open: {
@@ -104,6 +116,18 @@ const branchSchema = new Schema<Branch>({
     default: false,
     required: true,
   },
+  automaticConfirmation: {
+    enabled: {
+      type: Boolean,
+    },
+    confirmationBranch: {
+      type: Schema.Types.ObjectId,
+      ref: "Branch",
+    },
+    emails: {
+      type: [String],
+    },
+  },
   grading: {
     enabled: {
       type: Boolean,
@@ -115,19 +139,19 @@ const branchSchema = new Schema<Branch>({
       enum: GradingGroupType,
     },
   },
-});
-
-// Need this here since it uses a self reference to this schema
-branchSchema.add({
-  automaticConfirmation: {
+  postSubmitEmailTemplate: {
     enabled: {
       type: Boolean,
+      default: false,
+      required: true,
     },
-    confirmationBranch: {
-      type: branchSchema,
+    subject: {
+      type: String,
+      default: "",
     },
-    emails: {
-      type: [String],
+    content: {
+      type: String,
+      default: "",
     },
   },
 });

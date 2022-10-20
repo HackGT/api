@@ -22,6 +22,8 @@
     "@api/config": "*",
     "@casl/ability": "^5.4.4",
     "@casl/mongoose": "^6.0.0",
+    "@sentry/node": "^7.15.0",
+    "@sentry/tracing": "^7.15.0",
     "@types/compression": "^1.7.2",
     "@types/cookie-parser": "^1.4.2",
     "@types/cors": "^2.8.12",
@@ -36,6 +38,7 @@
     "helmet": "^5.0.2",
     "lodash": "^4.17.21",
     "mongoose": "^6.1.9",
+    "mongoose-autopopulate": "^0.16.1",
     "morgan": "^1.10.0",
     "path": "^0.12.7",
     "typescript": "^4.5.5"

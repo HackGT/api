@@ -2,8 +2,9 @@
 import { apiCall, asyncHandler, BadRequestError, getFullName, checkAbility } from "@api/common";
 import { Service } from "@api/config";
 import express from "express";
-import { FilterQuery, Types } from "mongoose";
+import { FilterQuery, isValidObjectId, Types, UpdateQuery } from "mongoose";
 import _ from "lodash";
+import { DateTime } from "luxon";
 
 import { getBranch, validateApplicationData } from "../common/util";
 import { Application, ApplicationModel, Essay, StatusType } from "../models/application";
@@ -20,9 +21,39 @@ applicationRouter.route("/").get(
 
     const filter: FilterQuery<Application> = {};
     filter.hexathon = req.query.hexathon;
+    if (req.query.status?.length) {
+      filter.status = req.query.status;
+    }
+    if (req.query.applicationBranch?.length) {
+      filter.applicationBranch = req.query.applicationBranch;
+    }
+    if (req.query.confirmationBranch?.length) {
+      filter.confirmationBranch = req.query.confirmationBranch;
+    }
+    let company;
+    try {
+      company = await apiCall(
+        Service.USERS,
+        {
+          method: "GET",
+          url: `/companies/employees/${req.user?.uid}`,
+          params: {
+            hexathon: req.query.hexathon,
+          },
+        },
+        req
+      );
+    } catch (err) {
+      company = null;
+    }
 
     if (req.query.userId) {
       filter.userId = req.query.userId;
+    }
+
+    // If user is not a member and has no associated company, set filter to access only their own applications
+    if (!req.user?.roles.member && !company) {
+      filter.userId = req.user?.uid;
     }
 
     if (req.query.search) {
@@ -32,6 +63,7 @@ applicationRouter.route("/").get(
           ? (req.query.search as string).slice(0, 75)
           : (req.query.search as string);
       filter.$or = [
+        { _id: isValidObjectId(search) ? new Types.ObjectId(search) : undefined },
         { userId: { $regex: new RegExp(search, "i") } },
         { email: { $regex: new RegExp(search, "i") } },
         { name: { $regex: new RegExp(search, "i") } },
@@ -46,7 +78,7 @@ applicationRouter.route("/").get(
       .find(filter)
       .skip(offset)
       .limit(limit)
-      .select("-applicationData -confirmationData");
+      .select("-applicationData");
 
     return res.status(200).json({
       offset,
@@ -64,6 +96,31 @@ applicationRouter.route("/:id").get(
 
     if (!application) {
       throw new BadRequestError("Application not found or you do not have permission to access.");
+    }
+
+    // If this is not the current user's application and they're not a member, check for company permission
+    if (application.userId !== req.user?.uid && !req.user?.roles.member) {
+      let company;
+      try {
+        company = await apiCall(
+          Service.USERS,
+          {
+            method: "GET",
+            url: `/companies/employees/${req.user?.uid}`,
+            params: {
+              hexathon: application.hexathon,
+            },
+          },
+          req
+        );
+      } catch (err) {
+        company = null;
+      }
+
+      // If user is not a member and has no associated company, throw error
+      if (!company) {
+        throw new BadRequestError("Application not found or you do not have permission to access.");
+      }
     }
 
     const applicationData = { ...application.applicationData };
@@ -85,10 +142,10 @@ applicationRouter.route("/:id").get(
 applicationRouter.route("/actions/choose-application-branch").post(
   checkAbility("create", "Application"),
   asyncHandler(async (req, res) => {
-    const existingApplication = await ApplicationModel.findOne({
+    const existingApplication = await ApplicationModel.accessibleBy(req.ability).findOne({
       userId: req.user?.uid,
       hexathon: req.body.hexathon,
-    }).accessibleBy(req.ability);
+    });
 
     const userInfo = await apiCall(
       Service.USERS,
@@ -107,21 +164,37 @@ applicationRouter.route("/actions/choose-application-branch").post(
     }
 
     if (existingApplication) {
-      if (existingApplication.status !== StatusType.DRAFT) {
+      if ([StatusType.ACCEPTED, StatusType.CONFIRMED].includes(existingApplication.status)) {
         throw new BadRequestError(
           "Cannot select an application branch. You have already submitted an application."
         );
       }
 
-      existingApplication.applicationBranch = req.body.applicationBranch;
-      existingApplication.applicationStartTime = new Date();
-      existingApplication.applicationData = {};
-      existingApplication.name = getFullName(userInfo.name);
-      existingApplication.email = userInfo.email;
+      const updatedApplication = await ApplicationModel.accessibleBy(req.ability).findOneAndUpdate(
+        {
+          userId: req.user?.uid,
+          hexathon: req.body.hexathon,
+        },
+        {
+          status: StatusType.DRAFT,
+          applicationBranch: req.body.applicationBranch,
+          applicationStartTime: new Date(),
+          applicationSubmitTime: undefined,
+          applicationExtendedDeadline: undefined,
+          applicationData: {},
+          confirmationBranch: undefined,
+          confirmationSubmitTime: undefined,
+          confirmationExtendedDeadline: undefined,
+          gradingComplete: false,
+          name: getFullName(userInfo.name),
+          email: userInfo.email,
+        },
+        {
+          new: true,
+        }
+      );
 
-      await existingApplication.save();
-
-      return res.send(existingApplication);
+      return res.send(updatedApplication);
     }
 
     const newApplication = await ApplicationModel.create({
@@ -151,7 +224,23 @@ applicationRouter.route("/:id/actions/save-application-data").post(
     }
 
     const [branch] = getBranch(existingApplication, req);
-    if (new Date() < branch.settings.open || new Date() > branch.settings.close) {
+
+    if (
+      branch.type === BranchType.APPLICATION &&
+      existingApplication.applicationExtendedDeadline &&
+      new Date() < existingApplication.applicationExtendedDeadline
+    ) {
+      // Application ok to save data with extended deadline
+    } else if (
+      branch.type === BranchType.CONFIRMATION &&
+      existingApplication.confirmationExtendedDeadline &&
+      new Date() < existingApplication.confirmationExtendedDeadline
+    ) {
+      // Application ok to save data with extended deadline
+    } else if (
+      DateTime.now() < DateTime.fromJSDate(branch.settings.open) ||
+      DateTime.now() > DateTime.fromJSDate(branch.settings.close).plus({ hours: 1 }) // Add 1 hour grace period
+    ) {
       throw new BadRequestError("Unable to save application data. Branch is not currently open.");
     }
 
@@ -220,7 +309,23 @@ applicationRouter.route("/:id/actions/submit-application").post(
     );
 
     const [branch, branchType] = getBranch(existingApplication, req);
-    if (new Date() < branch.settings.open || new Date() > branch.settings.close) {
+
+    if (
+      branch.type === BranchType.APPLICATION &&
+      existingApplication.applicationExtendedDeadline &&
+      new Date() < existingApplication.applicationExtendedDeadline
+    ) {
+      // Application ok to save data with extended deadline
+    } else if (
+      branch.type === BranchType.CONFIRMATION &&
+      existingApplication.confirmationExtendedDeadline &&
+      new Date() < existingApplication.confirmationExtendedDeadline
+    ) {
+      // Application ok to save data with extended deadline
+    } else if (
+      DateTime.now() < DateTime.fromJSDate(branch.settings.open) ||
+      DateTime.now() > DateTime.fromJSDate(branch.settings.close).plus({ hours: 1 }) // Add 1 hour grace period
+    ) {
       throw new BadRequestError("Unable to submit application data. Branch is not currently open.");
     }
 
@@ -252,6 +357,27 @@ applicationRouter.route("/:id/actions/submit-application").post(
       })
     );
 
+    const autoConfirm = branch.automaticConfirmation;
+    if (
+      branchType === BranchType.APPLICATION &&
+      autoConfirm?.enabled &&
+      ((autoConfirm.emails ?? []).includes("*") || // matches all emails
+        (autoConfirm.emails ?? []).includes(existingApplication.email) || // matches complete emails
+        (autoConfirm.emails ?? []).includes(`@${existingApplication.email.split("@").pop()}`)) // matches emails by domain
+    ) {
+      await ApplicationModel.findByIdAndUpdate(
+        req.params.id,
+        {
+          applicationSubmitTime: new Date(),
+          confirmationSubmitTime: new Date(),
+          confirmationBranch: autoConfirm?.confirmationBranch,
+          status: StatusType.CONFIRMED,
+        },
+        { new: true }
+      );
+      return res.sendStatus(204);
+    }
+
     switch (branchType) {
       case BranchType.APPLICATION:
         await ApplicationModel.findByIdAndUpdate(
@@ -276,6 +402,23 @@ applicationRouter.route("/:id/actions/submit-application").post(
       // no default
     }
 
+    // Send confirmation email after submission
+    if (branch.postSubmitEmailTemplate.enabled) {
+      await apiCall(
+        Service.NOTIFICATIONS,
+        {
+          method: "POST",
+          url: "/email/send-registration-confirmation",
+          data: {
+            message: branch.postSubmitEmailTemplate.content,
+            subject: branch.postSubmitEmailTemplate.subject,
+            hexathon: existingApplication.hexathon,
+          },
+        },
+        req
+      );
+    }
+
     return res.sendStatus(204);
   })
 );
@@ -294,6 +437,9 @@ applicationRouter.route("/:id/actions/update-status").post(
     }
 
     const newStatus = StatusType[req.body.status as keyof typeof StatusType];
+    const updateBody: UpdateQuery<Application> = {
+      status: newStatus,
+    };
 
     // Non-member users are restricted to changing status in only very limited circumstances
     if (!req.user?.roles.member) {
@@ -303,7 +449,7 @@ applicationRouter.route("/:id/actions/update-status").post(
         (existingApplication.confirmationBranch === undefined ||
           existingApplication.confirmationBranch.formPages.length === 0)
       ) {
-        // pass
+        updateBody.confirmationSubmitTime = new Date();
       } else if (
         existingApplication.status === StatusType.ACCEPTED &&
         newStatus === StatusType.NOT_ATTENDING
@@ -316,13 +462,7 @@ applicationRouter.route("/:id/actions/update-status").post(
       }
     }
 
-    await ApplicationModel.findByIdAndUpdate(
-      req.params.id,
-      {
-        status: newStatus,
-      },
-      { new: true }
-    );
+    await ApplicationModel.findByIdAndUpdate(req.params.id, updateBody, { new: true });
 
     return res.sendStatus(204);
   })
@@ -352,5 +492,34 @@ applicationRouter.route("/:id/actions/reset-application").post(
     );
 
     return res.sendStatus(204);
+  })
+);
+
+applicationRouter.route("/compile-extra-info").get(
+  checkAbility("aggregate", "Application"),
+  asyncHandler(async (req, res) => {
+    if (!req.query.hexathon) {
+      throw new BadRequestError("Hexathon filter is required");
+    }
+
+    const filter: FilterQuery<Application> = {};
+    filter.hexathon = req.query.hexathon;
+
+    const compiledExtraInfo: string[] = [];
+
+    const applications = await ApplicationModel.accessibleBy(req.ability)
+      .find(filter)
+      .select("applicationData");
+
+    for (const application of applications) {
+      if (
+        application.applicationData.extraInfo &&
+        application.applicationData.extraInfo.length > 0
+      ) {
+        compiledExtraInfo.push(application.applicationData.extraInfo);
+      }
+    }
+
+    return res.status(200).json(compiledExtraInfo);
   })
 );

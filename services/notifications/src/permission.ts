@@ -15,6 +15,8 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
     can("manage", "Text");
   }
 
+  can("create", "Email");
+
   req.ability = build();
   next();
 };

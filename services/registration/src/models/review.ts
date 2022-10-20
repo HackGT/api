@@ -15,18 +15,22 @@ const reviewSchema = new Schema<Review>({
   reviewerId: {
     type: String,
     required: true,
+    index: true,
   },
   hexathon: {
     type: Schema.Types.ObjectId,
     required: true,
+    index: true,
   },
   applicationId: {
     type: Schema.Types.ObjectId,
     required: true,
+    index: true,
   },
   essayId: {
     type: Schema.Types.ObjectId,
     required: true,
+    index: true,
   },
   score: {
     type: Number,

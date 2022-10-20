@@ -864,6 +864,204 @@
         }
       }
     },
+    "/events": {
+      "get": {
+        "tags": ["hexathons"],
+        "summary": "Finds and displays information of all events.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathon",
+            "in": "query",
+            "description": "hexathon id that needs to be considered for filter.",
+            "required": true,
+            "type": "string",
+            "collectionFormat": "multi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Event"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      },
+      "post": {
+        "tags": ["hexathons"],
+        "summary": "Create a new event.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "hexathon": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "food",
+                    "workshop",
+                    "ceremony",
+                    "tech-talk",
+                    "mini-event",
+                    "important",
+                    "speaker",
+                    "mini-challenge"
+                  ]
+                },
+                "startDate": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "endDate": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "location": {
+                  "type": "string"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Interaction"
+              }
+            }
+          },
+          "400": {
+            "description": "Interaction already exists for this user and identifier"
+          }
+        }
+      }
+    },
+    "/events/{id}": {
+      "put": {
+        "tags": ["hexathons"],
+        "summary": "Update an existing interaction by id.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Event id that needs to be considered for filter.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "hexathon": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "food",
+                    "workshop",
+                    "ceremony",
+                    "tech-talk",
+                    "mini-event",
+                    "important",
+                    "speaker",
+                    "mini-challenge"
+                  ]
+                },
+                "startDate": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "endDate": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "location": {
+                  "type": "string"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Interaction"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        },
+        "delete": {
+          "tags": ["hexathons"],
+          "summary": "Deletes an event by id",
+          "description": "",
+          "produces": ["application/json"],
+          "responses": {
+            "204": {
+              "description": "successful operation"
+            },
+            "400": {
+              "description": "Invalid status"
+            }
+          }
+        }
+      }
+    },
     "/prize-items": {
       "get": {
         "tags": ["hexathons"],
@@ -1226,6 +1424,27 @@
             "required": true
           },
           {
+            "name": "status",
+            "in": "query",
+            "description": "Filter applications by status",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "applicationBranch",
+            "in": "query",
+            "description": "Filter applications by application branch",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "confirmationBranch",
+            "in": "query",
+            "description": "Filter applications by confirmation branch",
+            "type": "string",
+            "required": false
+          },
+          {
             "name": "userId",
             "in": "query",
             "description": "Filter applications by user id",
@@ -1271,6 +1490,28 @@
                     "$ref": "#/definitions/BasicApplication"
                   }
                 }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      }
+    },
+    "/applications/compile-extra-info": {
+      "get": {
+        "tags": ["registration"],
+        "summary": "Compiles the extra information of all applications",
+        "description": "",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
               }
             }
           },
@@ -1709,9 +1950,6 @@
                     "confirmedUsers": {
                       "type": "integer"
                     },
-                    "nonConfirmedUsers": {
-                      "type": "integer"
-                    },
                     "deniedUsers": {
                       "type": "integer"
                     }
@@ -1723,11 +1961,22 @@
                 "confirmationStatistics": {
                   "type": "object"
                 },
-                "rejectionStatistics": {
-                  "type": "object"
-                },
                 "applicationDataStatistics": {
-                  "type": "object"
+                  "type": "object",
+                  "properties": {
+                    "genderData": {
+                      "type": "object"
+                    },
+                    "schoolData": {
+                      "type": "object"
+                    },
+                    "majorData": {
+                      "type": "object"
+                    },
+                    "schoolYearData": {
+                      "type": "object"
+                    }
+                  }
                 }
               }
             }
@@ -1913,6 +2162,58 @@
                     }
                   }
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/grading/export": {
+      "get": {
+        "tags": ["registration"],
+        "summary": "Exports the grading data as csv for a hexathon",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathon",
+            "in": "query",
+            "description": "Hexathon id.",
+            "type": "string",
+            "collectionFormat": "multi",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/email": {
+      "get": {
+        "tags": ["registration"],
+        "summary": "Gets all the emails for a hexathon",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathon",
+            "in": "query",
+            "description": "The hexathon id.",
+            "type": "string",
+            "collectionFormat": "multi",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Email"
               }
             }
           }
@@ -2425,7 +2726,14 @@
             "description": "successful operation",
             "schema": {
               "type": "object",
-              "allOf": [{ "$ref": "#/definitions/Profile" }, { "$ref": "#/definitions/Permission" }]
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Profile"
+                },
+                {
+                  "$ref": "#/definitions/Permission"
+                }
+              ]
             }
           },
           "400": {
@@ -2634,6 +2942,53 @@
         "name": "Interaction"
       }
     },
+    "Event": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "hexathon": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "food",
+            "workshop",
+            "ceremony",
+            "tech-talk",
+            "mini-event",
+            "important",
+            "speaker",
+            "mini-challenge"
+          ]
+        },
+        "startDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "endDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "location": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "xml": {
+        "name": "Event"
+      }
+    },
     "BasicApplication": {
       "type": "object",
       "properties": {
@@ -2664,19 +3019,26 @@
           "type": "string",
           "format": "date-time"
         },
+        "decisionData": {
+          "type": "object",
+          "properties": {
+            "travelReimbursement": {
+              "type": "string"
+            },
+            "travelReimbursementAmount": {
+              "type": "number"
+            },
+            "travelReimbursementInfoLink": {
+              "type": "string"
+            }
+          }
+        },
         "confirmationBranch": {
           "$ref": "#/definitions/Branch"
-        },
-        "confirmationStartTime": {
-          "type": "string",
-          "format": "date-time"
         },
         "confirmationSubmitTime": {
           "type": "string",
           "format": "date-time"
-        },
-        "confirmationData": {
-          "type": "object"
         },
         "status": {
           "type": "string",
@@ -2708,9 +3070,6 @@
           "properties": {
             "applicationData": {
               "$ref": "#/definitions/ApplicationData"
-            },
-            "confirmationData": {
-              "type": "object"
             }
           }
         }
@@ -2725,7 +3084,13 @@
         "adult": {
           "type": "boolean"
         },
-        "occupation": {
+        "dateOfBirth": {
+          "type": "string"
+        },
+        "jobTitle": {
+          "type": "string"
+        },
+        "company": {
           "type": "string"
         },
         "school": {
@@ -2740,13 +3105,25 @@
         "graduationYear": {
           "type": "number"
         },
+        "levelOfStudy": {
+          "type": "string"
+        },
+        "countryOfResidence": {
+          "type": "string"
+        },
         "major": {
           "type": "string"
         },
         "shirtSize": {
           "type": "string"
         },
-        "dietaryRestriction": {
+        "dietaryRestrictions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "allergies": {
           "type": "string"
         },
         "phoneNumber": {
@@ -2787,7 +3164,22 @@
         "website": {
           "type": "string"
         },
-        "linknedin": {
+        "linkedin": {
+          "type": "string"
+        },
+        "pastExperience": {
+          "type": "string"
+        },
+        "skills": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "numberOfHackathons": {
+          "type": "number"
+        },
+        "travelReimbursement": {
           "type": "string"
         },
         "extraInfo": {
@@ -2836,6 +3228,9 @@
           "type": "string",
           "enum": ["PARTICIPANT", "JUDGE", "MENTOR", "VOLUNTEER", "SPONSOR", "PARTNER", "STAFF"]
         },
+        "description": {
+          "type": "string"
+        },
         "settings": {
           "type": "object",
           "properties": {
@@ -2878,6 +3273,9 @@
           "properties": {
             "enabled": {
               "type": "boolean"
+            },
+            "confirmationBranch": {
+              "$ref": "#/definitions/Branch"
             },
             "emails": {
               "type": "array",
@@ -3132,13 +3530,7 @@
         "filter": {
           "type": "object",
           "properties": {
-            "applicationBranchList": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "confirmationBranchList": {
+            "branchList": {
               "type": "array",
               "items": {
                 "type": "string"

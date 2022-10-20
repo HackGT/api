@@ -35,10 +35,10 @@ fileRoutes.route("/upload").post(
     });
 
     if (req.body?.type === "resume") {
-      apiCall(
+      await apiCall(
         Service.USERS,
         {
-          url: `/users/${req.user?.uid}/profile`,
+          url: `/users/${req.user?.uid}`,
           method: "PUT",
           data: {
             resume: file.id,

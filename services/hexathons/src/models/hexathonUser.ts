@@ -45,6 +45,7 @@ const hexathonUserSchema = new Schema<HexathonUser>({
     type: Schema.Types.ObjectId,
     required: true,
     ref: HexathonModel,
+    index: true,
   },
   points: {
     numCollected: {

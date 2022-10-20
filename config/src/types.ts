@@ -14,6 +14,7 @@ export interface CommonConfig {
     serviceAccount: string;
     oAuthClientId?: string;
     taskQueue: string;
+    storageBucket: string;
   };
   memberEmailDomains: string[];
 }
@@ -49,6 +50,7 @@ export interface ServiceConfig {
   url: string;
   port: number;
   auth: boolean;
+  sentryDSN?: string;
   proxy: {
     target: string;
     changeOrigin: boolean;
@@ -68,7 +70,6 @@ export interface ServiceConfig {
       sendgridApiKey?: string;
     };
   };
-  storageBucket?: string;
 }
 
 export interface Config {
