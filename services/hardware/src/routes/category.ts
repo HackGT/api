@@ -1,7 +1,7 @@
 import { asyncHandler, checkAbility } from "@api/common";
 import express from "express";
 
-import { CategoryModel } from "src/models/category";
+import { CategoryModel } from "../models/category";
 
 export const categoryRouter = express.Router();
 

@@ -2,7 +2,7 @@ import { asyncHandler, checkAbility } from "@api/common";
 import express from "express";
 import { FilterQuery } from "mongoose";
 
-import { Item, ItemModel } from "src/models/item";
+import { Item, ItemModel } from "../models/item";
 
 export const itemRouter = express.Router();
 

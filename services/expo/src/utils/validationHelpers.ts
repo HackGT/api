@@ -9,7 +9,7 @@ import { Service } from "@api/config";
 
 import { prisma, prizeConfig } from "../common";
 import { getConfig, getCurrentHexathon } from "./utils";
-// import { queryRegistration } from "src/registration";
+// import { queryRegistration } from "../registration";
 
 /*
     - Classify team into prize based on user tracks (from registration)

@@ -1,8 +1,8 @@
 import { asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import express from "express";
 
-import { ItemModel } from "src/models/item";
-import { HardwareRequestModel } from "src/models/hardware-request";
+import { ItemModel } from "../models/item";
+import { HardwareRequestModel } from "../models/hardware-request";
 
 export const hardwareRequestRouter = express.Router();
 
