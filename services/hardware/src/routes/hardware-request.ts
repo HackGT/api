@@ -7,7 +7,7 @@ import { HardwareRequestModel } from "../models/hardware-request";
 export const hardwareRequestRouter = express.Router();
 
 hardwareRequestRouter.route("/").post(
-  checkAbility("create", "Request"),
+  checkAbility("create", "HardwareRequest"),
   asyncHandler(async (req, res) => {
     const hardwareRequestData = req.body;
     const hardwareRequest = await HardwareRequestModel.create(hardwareRequestData);
