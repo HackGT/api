@@ -133,6 +133,22 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       name: "auth",
     },
   },
+  HARDWARE: {
+    url: "/hardware",
+    port: parseInt(process.env.PORT || "8080"),
+    auth: false,
+    proxy: {
+      target: "https://hardware.api.hexlabs.org",
+      changeOrigin: true,
+      pathRewrite: {
+        [`^/hardware`]: "",
+      },
+    },
+    database: {
+      type: "mongo",
+      name: "hardware",
+    },
+  },
   EXPO: {
     url: "/expo",
     port: parseInt(process.env.PORT || "8080"),

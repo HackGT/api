@@ -46,6 +46,7 @@ export enum Service {
   REGISTRATION = "REGISTRATION",
   FILES = "FILES",
   AUTH = "AUTH",
+  HARDWARE = "HARDWARE",
   EXPO = "EXPO",
 }
 
