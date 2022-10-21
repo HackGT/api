@@ -63,7 +63,7 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/check-valid-user").
       Service.REGISTRATION,
       {
         method: "GET",
-        baseURL: "/applications",
+        url: "/applications",
         params: {
           hexathon: req.params.hexathonId,
           userId: req.params.userId,
