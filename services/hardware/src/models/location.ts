@@ -14,6 +14,7 @@ const LocationSchema = new Schema<Location>({
     type: Boolean,
     required: true,
     default: false,
+    unique: true,
   },
 });
 

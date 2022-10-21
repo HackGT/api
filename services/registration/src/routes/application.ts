@@ -496,48 +496,35 @@ applicationRouter.route("/:id/actions/update-application").post(
     } = req.body;
 
     if (!applicationBranch) {
-      throw new BadRequestError("Applicant muust have an application branch.");
+      throw new BadRequestError("Applicant must have an application branch.");
     }
 
-    const newApplicationBranch = await BranchModel.findById(applicationBranch).accessibleBy(
-      req.ability
-    );
-    let newConfirmationBranch =
-      confirmationBranch !== undefined
-        ? await BranchModel.findById(confirmationBranch).accessibleBy(req.ability)
-        : null;
+    let newConfirmationBranch = confirmationBranch;
+    let newConfirmationExtendedDeadline = confirmationExtendedDeadline;
     const newStatus = StatusType[status as keyof typeof StatusType];
-    const newApplicationExtendedDeadline = applicationExtendedDeadline;
-    const newConfirmationExtendedDeadline = confirmationExtendedDeadline;
 
     if ([StatusType.CONFIRMED, StatusType.ACCEPTED, StatusType.NOT_ATTENDING].includes(newStatus)) {
       if (!confirmationBranch) {
         throw new BadRequestError(
           `Applicant must have a confirmation branch with status ${newStatus}.`
         );
-      } else if (
-        existingApplication.status === StatusType.APPLIED &&
-        confirmationBranch === undefined
-      ) {
-        // Applicant moved to accepted, confirmed, or not_attending without a confirmation branch
-        throw new BadRequestError("Applicant must have a confirmation branch to be confirmed.");
       }
     } else {
       newConfirmationBranch = null;
+      newConfirmationExtendedDeadline = null;
     }
 
     await ApplicationModel.findByIdAndUpdate(
       req.params.id,
       {
-        applicationBranch: newApplicationBranch,
+        applicationBranch,
         confirmationBranch: newConfirmationBranch,
         status: newStatus,
-        applicationExtendedDeadline: newApplicationExtendedDeadline,
+        applicationExtendedDeadline,
         confirmationExtendedDeadline: newConfirmationExtendedDeadline,
       },
       { new: true }
     );
-
     return res.sendStatus(204);
   })
 );

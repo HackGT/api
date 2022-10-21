@@ -64,3 +64,14 @@ itemRouter.route("/").post(
     res.send(item);
   })
 );
+
+itemRouter.route("/locations").get(
+  checkAbility("read", "Item"),
+  asyncHandler(async (req, res) => {
+    console.log("test");
+    // const items = await ItemModel.find();
+    // console.log(items);
+
+    // res.send([...new Set(items.map(item => item.location))]);
+  })
+);
