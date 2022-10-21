@@ -26,7 +26,7 @@ const itemSchema = new Schema<Item>({
   },
   description: {
     type: String,
-    required: true,
+    required: false,
   },
   imageUrl: {
     type: String,
@@ -64,14 +64,14 @@ const itemSchema = new Schema<Item>({
     required: true,
   },
   category: {
-    type: Types.ObjectId,
+    type: String,
     required: true,
-    ref: CategoryModel,
+    // ref: CategoryModel,
   },
   location: {
-    type: Types.ObjectId,
+    type: String,
     required: true,
-    ref: LocationModel,
+    // ref: LocationModel,
   },
   requests: {
     type: [Types.ObjectId],

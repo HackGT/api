@@ -24,3 +24,18 @@ locationRouter.route("/").get(
     res.send(locations);
   })
 );
+
+locationRouter.route("/").put(
+  checkAbility("create", "Location"),
+  asyncHandler(async (req, res) => {
+    const { name } = req.body;
+    const location = await LocationModel.find({ name });
+
+    if (location) {
+      res.send(location);
+    }
+    const newLocation = await LocationModel.create({ name });
+
+    res.send(newLocation);
+  })
+);
