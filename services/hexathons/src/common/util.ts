@@ -1,10 +1,11 @@
 import { BadRequestError } from "@api/common";
 import express from "express";
 
+import { EventType } from "../models/event";
 import { HexathonUserModel } from "../models/hexathonUser";
-import { InteractionEventType, InteractionModel, InteractionType } from "../models/interaction";
+import { InteractionModel, InteractionType } from "../models/interaction";
 
-const EVENT_TYPE_POINTS: { [key in InteractionEventType]: number } = {
+const EVENT_TYPE_POINTS: { [key in EventType]: number } = {
   "food": 0,
   "workshop": 20,
   "ceremony": 10,
@@ -34,20 +35,22 @@ export const getHexathonUserWithUpdatedPoints = async (
   }
 
   // Load user events
-  const interactions = await InteractionModel.accessibleBy(req.ability).find({
-    userId,
-    hexathon,
-  });
+  const interactions = await InteractionModel.accessibleBy(req.ability)
+    .find({
+      userId,
+      hexathon,
+    })
+    .populate("event");
 
   // Calculate points
   const points = interactions.reduce((prev, interaction) => {
     // Check that interaction type is event and eventType is defined
     if (
       interaction.type === InteractionType.EVENT &&
-      interaction.eventType &&
-      Object.values(InteractionEventType).includes(interaction.eventType)
+      interaction.event?.type &&
+      Object.values(EventType).includes(interaction.event.type)
     ) {
-      return prev + EVENT_TYPE_POINTS[interaction.eventType];
+      return prev + EVENT_TYPE_POINTS[interaction.event.type];
     }
     return prev;
   }, 0);

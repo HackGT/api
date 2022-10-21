@@ -6,12 +6,22 @@ import { AutoPopulatedDoc } from "@api/common";
 import { HexathonModel } from "./hexathon";
 import { Location, LocationModel } from "./location";
 import { Tag, TagModel } from "./tag";
-import { InteractionEventType } from "./interaction";
+
+export enum EventType {
+  FOOD = "food",
+  WORKSHOP = "workshop",
+  CEREMONY = "ceremony",
+  TECH_TALK = "tech-talk",
+  MINI_EVENT = "mini-event",
+  IMPORTANT = "important",
+  SPEAKER = "speaker",
+  MINI_CHALLENGE = "mini-challenge",
+}
 
 export interface Event extends mongoose.Document {
   hexathon: Types.ObjectId;
   name: string;
-  type: InteractionEventType;
+  type: EventType;
   description: string;
   startDate: Date;
   endDate: Date;
@@ -32,7 +42,7 @@ const eventSchema = new Schema<Event>({
   },
   type: {
     type: String,
-    enum: Object.values(InteractionEventType),
+    enum: Object.values(EventType),
     required: true,
     index: true,
   },

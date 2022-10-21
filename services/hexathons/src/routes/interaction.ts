@@ -2,6 +2,7 @@ import { asyncHandler, BadRequestError, checkAbility, ConfigError } from "@api/c
 import express from "express";
 import { FilterQuery } from "mongoose";
 
+import { EventModel } from "../models/event";
 import { InteractionModel, Interaction, InteractionType } from "../models/interaction";
 
 export const interactionRoutes = express.Router();
@@ -65,13 +66,35 @@ interactionRoutes.route("/").post(
       );
     }
 
-    const interaction = await InteractionModel.create({
-      ...(req.body.identifier && { identifier: req.body.identifier }),
-      userId: req.body.userId,
-      type: req.body.type,
-      timestamp: new Date(),
-      hexathon: req.body.hexathon,
-    });
+    let interaction;
+
+    if (req.body.type === InteractionType.EVENT) {
+      const event = await EventModel.findOne({
+        _id: req.body.identifier,
+        hexathon: req.body.hexathon,
+      });
+
+      if (!event) {
+        throw new BadRequestError("No event found in this hexathon with this identifier");
+      }
+
+      interaction = await InteractionModel.create({
+        identifier: req.body.identifier,
+        userId: req.body.userId,
+        type: req.body.type,
+        timestamp: new Date(),
+        hexathon: req.body.hexathon,
+        event: event.id,
+      });
+    } else {
+      interaction = await InteractionModel.create({
+        ...(req.body.identifier && { identifier: req.body.identifier }),
+        userId: req.body.userId,
+        type: req.body.type,
+        timestamp: new Date(),
+        hexathon: req.body.hexathon,
+      });
+    }
 
     return res.send(interaction);
   })
