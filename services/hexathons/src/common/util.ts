@@ -7,13 +7,13 @@ import { InteractionModel, InteractionType } from "../models/interaction";
 
 const EVENT_TYPE_POINTS: { [key in EventType]: number } = {
   "food": 0,
-  "workshop": 20,
-  "ceremony": 10,
-  "tech-talk": 20,
-  "mini-event": 10,
+  "workshop": 100,
+  "ceremony": 25,
+  "tech-talk": 125,
+  "mini-event": 100,
   "important": 0,
-  "speaker": 20,
-  "mini-challenge": 10,
+  "speaker": 150,
+  "mini-challenge": 125,
 };
 
 /** For each 'event' a user attends, if the user is `inperson`, they get full points. If `virtual`, it scales so that if
