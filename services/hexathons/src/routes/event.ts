@@ -15,6 +15,19 @@ eventRoutes.route("/").get(
       filter.hexathon = String(req.query.hexathon);
     }
 
+    if (req.query.search) {
+      const searchLength = (req.query.search as string).length;
+      const search =
+        searchLength > 75
+          ? (req.query.search as string).slice(0, 75)
+          : (req.query.search as string);
+      filter.$or = [
+        { name: { $regex: new RegExp(search, "i") } },
+        { type: { $regex: new RegExp(search, "i") } },
+        { description: { $regex: new RegExp(search, "i") } },
+      ];
+    }
+
     const events = await EventModel.accessibleBy(req.ability).find(filter);
 
     return res.send(events);
@@ -65,7 +78,7 @@ eventRoutes.route("/:id").put(
       name: req.body.name,
     });
 
-    if (existingEvent?.id !== req.params.id) {
+    if (existingEvent && existingEvent.id !== req.params.id) {
       throw new BadRequestError(
         `Event with name ${req.body.name} already exists for this hexathon`
       );

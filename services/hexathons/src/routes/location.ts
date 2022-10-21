@@ -49,7 +49,7 @@ locationRoutes.route("/:id").put(
       name: req.body.name,
     });
 
-    if (existingLocation?.id !== req.params.id) {
+    if (existingLocation && existingLocation.id !== req.params.id) {
       throw new BadRequestError(`Location with name ${req.body.name} already exists`);
     }
 
