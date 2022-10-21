@@ -60,7 +60,7 @@ tagRoutes.route("/:id").put(
       name: req.body.name,
     });
 
-    if (existingTag?.id !== req.params.id) {
+    if (existingTag && existingTag.id !== req.params.id) {
       throw new BadRequestError(
         `Event with name ${req.body.name} already exists for this hexathon`
       );
