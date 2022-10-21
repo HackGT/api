@@ -31,7 +31,6 @@ hardwareRequestRouter.route("/").get(
   asyncHandler(async (req, res) => {
     const hardwareRequests = await HardwareRequestModel.find().populate({
       path: "item",
-      populate: { path: "location", model: "Location" },
     });
 
     res.send(hardwareRequests);
@@ -42,11 +41,32 @@ hardwareRequestRouter.route("/:id").get(
   checkAbility("read", "HardwareRequest"),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const hardwareRequests = await HardwareRequestModel.find({ userId: id }).populate({
-      path: "item",
-      populate: { path: "location", model: "Location" },
-    });
+    const hardwareRequests = await HardwareRequestModel.findById(id);
 
     res.send(hardwareRequests);
+  })
+);
+
+hardwareRequestRouter.route("/:id").delete(
+  checkAbility("create", "HardwareRequest"),
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const hardwareRequest = await HardwareRequestModel.findById(id);
+    if (!hardwareRequest) {
+      throw new BadRequestError("Hardware request not found");
+    }
+
+    console.log(hardwareRequest.quantity);
+
+    const item = await ItemModel.findByIdAndUpdate(hardwareRequest.item, {
+      $inc: { totalAvailable: hardwareRequest.quantity },
+      $pull: {
+        requests: hardwareRequest.id,
+      },
+    });
+
+    await hardwareRequest.delete();
+
+    res.send(hardwareRequest);
   })
 );

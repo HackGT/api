@@ -1,7 +1,7 @@
 import { asyncHandler, checkAbility } from "@api/common";
 import express from "express";
 
-import { ItemModel } from "src/models/item";
+import { ItemModel } from "../models/item";
 import { LocationModel } from "../models/location";
 
 export const locationRouter = express.Router();
