@@ -4,8 +4,16 @@ import morgan from "morgan";
 import cors from "cors";
 import helmet from "helmet";
 import config, { Service } from "@api/config";
-import { decodeToken, handleError, isAuthenticated, rateLimiter } from "@api/common";
+import {
+  decodeToken,
+  handleError,
+  isAuthenticated,
+  rateLimiter,
+  shouldHandleError,
+} from "@api/common";
 import cookieParser from "cookie-parser";
+import * as Sentry from "@sentry/node";
+import * as Tracing from "@sentry/tracing";
 
 import { defaultRouter } from "./routes";
 import { addAbilities } from "./permission";
@@ -19,6 +27,21 @@ process.on("unhandledRejection", err => {
 
 if (config.common.production) {
   app.enable("trust proxy");
+
+  Sentry.init({
+    dsn: config.services.EXPO.sentryDSN,
+    integrations: [
+      new Sentry.Integrations.Http({ tracing: true }),
+      new Tracing.Integrations.Express({ app }),
+    ],
+    tracesSampleRate: 1.0,
+  });
+  app.use(
+    Sentry.Handlers.requestHandler({
+      user: ["uid", "email"],
+    })
+  );
+  app.use(Sentry.Handlers.tracingHandler());
 }
 
 app.use(helmet());
@@ -44,6 +67,13 @@ app.get("/status", (req, res) => {
 app.use(isAuthenticated);
 app.use("/", defaultRouter);
 
+if (config.common.production) {
+  app.use(
+    Sentry.Handlers.errorHandler({
+      shouldHandleError,
+    })
+  );
+}
 app.use(handleError);
 
 app.listen(config.services.EXPO.port, () => {
