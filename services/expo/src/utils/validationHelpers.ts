@@ -375,7 +375,7 @@ export const validateDevpost = async (devpostUrl: string, submissionName: string
   }
 
   const { hostname } = new URL(devpostUrl);
-  if (hostname !== "hackgt-9.devpost.com") {
+  if (hostname !== "devpost.com") {
     return { error: true, message: "Invalid URL: Not a devpost domain" };
   }
 
