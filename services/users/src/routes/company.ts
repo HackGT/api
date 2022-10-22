@@ -1,27 +1,19 @@
-import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/common";
-import { Service } from "@api/config";
+import { asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import express from "express";
 import { getAuth } from "firebase-admin/auth"; // eslint-disable-line import/no-unresolved
 import { FilterQuery } from "mongoose";
 
+import { ProfileModel } from "../models/profile";
 import { Company, CompanyModel } from "../models/company";
 
-const populateCompanyEmployees = async (company: Company | null, req: express.Request) => {
+const populateCompanyEmployees = async (company: Company | null) => {
   if (!company) {
     throw new BadRequestError("Error updating company");
   }
 
-  const users = await apiCall(
-    Service.USERS,
-    {
-      url: "/users/actions/retrieve",
-      method: "POST",
-      data: {
-        userIds: company.employees.concat(company.pendingEmployees),
-      },
-    },
-    req
-  );
+  const users = await ProfileModel.find({
+    userId: { $in: company.employees.concat(company.pendingEmployees) },
+  });
 
   return {
     ...company.toJSON(),
@@ -76,17 +68,9 @@ companyRoutes.route("/").get(
     const companyEmployeeUserIds = companies.map(company => company.employees).flat();
     const companyPendingEmployeeUserIds = companies.map(company => company.pendingEmployees).flat();
 
-    const users = await apiCall(
-      Service.USERS,
-      {
-        url: "/users/actions/retrieve",
-        method: "POST",
-        data: {
-          userIds: companyEmployeeUserIds.concat(companyPendingEmployeeUserIds),
-        },
-      },
-      req
-    );
+    const users = await ProfileModel.find({
+      userId: { $in: companyEmployeeUserIds.concat(companyPendingEmployeeUserIds) },
+    });
 
     const companiesWithProfiles = companies.map(company => ({
       ...company.toJSON(),
@@ -107,7 +91,7 @@ companyRoutes.route("/:id").get(
       throw new BadRequestError("Company not found or you do not have permission.");
     }
 
-    const companyWithProfiles = await populateCompanyEmployees(company, req);
+    const companyWithProfiles = await populateCompanyEmployees(company);
 
     return res.status(200).send(companyWithProfiles);
   })
@@ -130,7 +114,7 @@ companyRoutes.route("/:id").put(
     const updatedCompany = await CompanyModel.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
-    const companyWithProfiles = await populateCompanyEmployees(updatedCompany, req);
+    const companyWithProfiles = await populateCompanyEmployees(updatedCompany);
 
     return res.status(200).send(companyWithProfiles);
   })
@@ -163,7 +147,7 @@ companyRoutes.route("/employees/:employeeId").get(
       );
     }
 
-    const companyWithProfiles = await populateCompanyEmployees(company, req);
+    const companyWithProfiles = await populateCompanyEmployees(company);
 
     return res.status(200).send(companyWithProfiles);
   })
@@ -203,7 +187,7 @@ companyRoutes.route("/:id/employees/accept-request").post(
       },
       { new: true }
     );
-    const companyWithProfiles = await populateCompanyEmployees(updatedCompany, req);
+    const companyWithProfiles = await populateCompanyEmployees(updatedCompany);
 
     return res.status(200).send(companyWithProfiles);
   })
@@ -244,7 +228,7 @@ companyRoutes.route("/:id/employees/add").post(
       },
       { new: true }
     );
-    const companyWithProfiles = await populateCompanyEmployees(updatedCompany, req);
+    const companyWithProfiles = await populateCompanyEmployees(updatedCompany);
 
     return res.status(200).send(companyWithProfiles);
   })
@@ -266,7 +250,7 @@ companyRoutes.route("/:id/employees/request").post(
       },
       { new: true }
     );
-    const companyWithProfiles = await populateCompanyEmployees(updatedCompany, req);
+    const companyWithProfiles = await populateCompanyEmployees(updatedCompany);
 
     return res.status(200).send(companyWithProfiles);
   })
@@ -295,7 +279,7 @@ companyRoutes.route("/:id/employees").delete(
       },
       { new: true }
     );
-    const companyWithProfiles = await populateCompanyEmployees(updatedCompany, req);
+    const companyWithProfiles = await populateCompanyEmployees(updatedCompany);
 
     return res.status(204).send(companyWithProfiles);
   })
