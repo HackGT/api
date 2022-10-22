@@ -41,7 +41,7 @@ hardwareRequestRouter.route("/:id").get(
   checkAbility("read", "HardwareRequest"),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const hardwareRequests = await HardwareRequestModel.findById(id);
+    const hardwareRequests = await HardwareRequestModel.find({ user: id });
 
     res.send(hardwareRequests);
   })
