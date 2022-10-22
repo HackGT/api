@@ -203,7 +203,7 @@ export const validateTeam = async (
         userApplication = await apiCall(
           Service.REGISTRATION,
           {
-            url: `/applications/actions/expo-check`,
+            url: `/applications/actions/expo-user`,
             method: "GET",
             params: {
               hexathon: currentHexathon.id,
