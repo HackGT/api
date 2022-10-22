@@ -137,7 +137,7 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
       }
 
       // A team must be 100% emerging to be eligible for emerging prizes
-      if (numEmerging / users.length === 1) {
+      if (numEmerging === users.length) {
         const emergingPrizes = prizeConfig.hexathons["HackGT 9"].emergingPrizes
           .concat(prizeConfig.hexathons["HackGT 9"].sponsorPrizes)
           .concat(prizeConfig.hexathons["HackGT 9"].generalPrizes);
@@ -150,6 +150,7 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
         });
         return emergingDBPrizes;
       }
+
       const generalPrizes = prizeConfig.hexathons["HackGT 9"].sponsorPrizes.concat(
         prizeConfig.hexathons["HackGT 9"].generalPrizes
       );
@@ -202,7 +203,7 @@ export const validateTeam = async (
         userApplication = await apiCall(
           Service.REGISTRATION,
           {
-            url: `/actions/expo-check`,
+            url: `/applications/actions/expo-check`,
             method: "GET",
             params: {
               hexathon: currentHexathon.id,
