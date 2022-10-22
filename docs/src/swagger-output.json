@@ -512,6 +512,69 @@
         }
       }
     },
+    "/hexathon-users/{hexathonId}/users": {
+      "get": {
+        "tags": ["hexathons"],
+        "summary": "Gets all hexathon users",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathonId",
+            "in": "path",
+            "description": "hexathon id to find user",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "type": "string",
+            "description": "Search term"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "string",
+            "description": "Specifies the number of valid objects to return"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "string",
+            "description": "Specifies offset in pagination"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "offset": {
+                  "type": "integer"
+                },
+                "total": {
+                  "type": "integer"
+                },
+                "count": {
+                  "type": "integer"
+                },
+                "hexathonUsers": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/HexathonUser"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      }
+    },
     "/hexathon-users/{hexathonId}/users/{userId}": {
       "get": {
         "tags": ["hexathons"],

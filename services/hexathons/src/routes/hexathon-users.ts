@@ -2,12 +2,52 @@ import express from "express";
 import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import _ from "lodash";
 import { Service } from "@api/config";
+import { FilterQuery, isValidObjectId, Types } from "mongoose";
 
-import { HexathonUserModel } from "../models/hexathonUser";
+import { HexathonUser, HexathonUserModel } from "../models/hexathonUser";
 import { getHexathonUserWithUpdatedPoints } from "../common/util";
 import { PrizeItemModel } from "../models/prizeItem";
 
 export const hexathonUserRouter = express.Router();
+
+hexathonUserRouter.route("/:hexathonId/users").get(
+  checkAbility("manage", "HexathonUser"),
+  asyncHandler(async (req, res) => {
+    const filter: FilterQuery<HexathonUser> = {
+      hexathon: req.params.hexathonId,
+    };
+
+    if (req.query.search) {
+      const searchLength = (req.query.search as string).length;
+      const search =
+        searchLength > 75
+          ? (req.query.search as string).slice(0, 75)
+          : (req.query.search as string);
+      filter.$or = [
+        { _id: isValidObjectId(search) ? new Types.ObjectId(search) : undefined },
+        { userId: { $regex: new RegExp(search, "i") } },
+        { email: { $regex: new RegExp(search, "i") } },
+        { name: { $regex: new RegExp(search, "i") } },
+      ];
+    }
+
+    const matchCount = await HexathonUserModel.accessibleBy(req.ability).find(filter).count();
+
+    const limit = parseInt(req.query.limit as string) || 50;
+    const offset = parseInt(req.query.offset as string) || 0;
+    const hexathonUsers = await HexathonUserModel.accessibleBy(req.ability)
+      .find(filter)
+      .skip(offset)
+      .limit(limit);
+
+    return res.status(200).json({
+      offset,
+      total: matchCount,
+      count: hexathonUsers.length,
+      hexathonUsers,
+    });
+  })
+);
 
 hexathonUserRouter.route("/:hexathonId/users/:userId").get(
   checkAbility("read", "HexathonUser"),
