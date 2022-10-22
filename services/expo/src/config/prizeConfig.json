@@ -67,32 +67,24 @@
     },
     "HackGT 9": {
       "generalPrizes": [
-        "HackGT - Best Social Impact",
-        "HackGT - Best Design",
-        "HackGT - Best Hardware Hack",
-        "HackGT - Most Sustainable Hack",
-        "HackGT - Most Unique/Out of the Box/Creative"
+        "HackGT - Effortlessly Entertaining",
+        "HackGT - Retro Hack",
+        "HackGT - Altruistic Hack",
+        "HackGT - Twisted Reality",
+        "HackGT - Upgrade!",
+        "HackGT - Data-Driven",
+        "HackGT - Cheat Code Hack"
       ],
-      "openSourcePrizes": ["HackGT - Best Open Source Hack"],
       "emergingPrizes": [
-        "Emerging - Best Overall",
-        "Emerging - Best in App/Web Development",
-        "Emerging - Best in Data Science",
-        "Emerging - Best in Design",
-        "Emerging - Best in Systems",
-        "Emerging - Best Prototype",
-        "Emerging - Best Presentation"
+        "Emerging - Best Hardware Hack",
+        "Emerging - Best Application",
+        "Emerging - Best Expo Pitch",
+        "Emerging - Best Design"
       ],
       "sponsorPrizes": [
-        "NCR - Best Use of NCR APIs",
-        "NCR - Best Use of Cryptocurrency",
-        "NCR - Retail Gamification",
-        "NCR - Machine Learning in Retail",
         "BlackRock - Best Overall",
-        "Anthem - Best Overall",
-        "NSA - Secure the Server",
-        "NSA - Secure Code Zero Trust",
-        "Best Use of Google Cloud"
+        "T-Mobile - Privacy & Information Security",
+        "Carelon - Best Overall"
       ]
     }
   }

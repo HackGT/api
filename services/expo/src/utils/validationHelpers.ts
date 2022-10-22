@@ -114,8 +114,7 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
 
       return generalDBPrizes;
     }
-    case "Test": {
-      // TODO: fix case name
+    case "HackGT 9": {
       let numEmerging = 0;
 
       for (const user of users) {
@@ -126,17 +125,21 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
           };
         }
 
-        if (user.applicationBranch.name === "Emerging In-Person Participant Confirmation") {
+        if (
+          user.applicationBranch.name === "Accepted - Participant Emerging [Bus]" ||
+          user.applicationBranch.name === "Accepted - Participant Emerging [No Travel]" ||
+          user.applicationBranch.name === "Accepted - Participant Emerging [Flight]" ||
+          user.applicationBranch.name === "Accepted - Participant Emerging [Gas]"
+        ) {
           numEmerging += 1;
         }
       }
 
-      // A team must be greater than 50% emerging to be eligible for emerging prizes
-      if (numEmerging / users.length > 0.5) {
-        const emergingPrizes = prizeConfig.hexathon["HackGT 9"].emergingPrizes
+      // A team must be 100% emerging to be eligible for emerging prizes
+      if (numEmerging / users.length === 1) {
+        const emergingPrizes = prizeConfig.hexathons["HackGT 9"].emergingPrizes
           .concat(prizeConfig.hexathons["HackGT 9"].sponsorPrizes)
-          .concat(prizeConfig.hexathons["HackGT 9"].generalPrizes)
-          .concat(prizeConfig.hexathons["HackGT 9"].openSourcePrizes);
+          .concat(prizeConfig.hexathons["HackGT 9"].generalPrizes);
         const emergingDBPrizes = await prisma.category.findMany({
           where: {
             name: {
@@ -146,9 +149,9 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
         });
         return emergingDBPrizes;
       }
-      const generalPrizes = prizeConfig.hexathons["HackGT 9"].sponsorPrizes
-        .concat(prizeConfig.hexathons["HackGT 9"].generalPrizes)
-        .concat(prizeConfig.hexathons["HackGT 9"].openSourcePrizes);
+      const generalPrizes = prizeConfig.hexathons["HackGT 9"].sponsorPrizes.concat(
+        prizeConfig.hexathons["HackGT 9"].generalPrizes
+      );
       const generalDBPrizes = await prisma.category.findMany({
         where: {
           name: {
@@ -210,8 +213,6 @@ export const validateTeam = async (
           },
           req
         );
-        console.log("USER'S APPLICATION INFO");
-        console.log(res);
       } catch (error) {
         console.error(error);
         registrationError = {
@@ -242,8 +243,6 @@ export const validateTeam = async (
         };
         return "";
       }
-
-      // console.log(userApp);
 
       const user = await prisma.user.findUnique({
         where: {
