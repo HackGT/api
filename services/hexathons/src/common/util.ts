@@ -62,9 +62,11 @@ export const getHexathonUserWithUpdatedPoints = async (
       hexathon,
     },
     {
-      points: {
-        numCollected: points,
-        updatedAt: new Date(),
+      $set: {
+        points: {
+          numCollected: points,
+          updatedAt: new Date(),
+        },
       },
     },
     {
