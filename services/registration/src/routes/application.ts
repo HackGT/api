@@ -594,7 +594,7 @@ applicationRouter.route("/compile-extra-info").get(
 applicationRouter.route("/actions/expo-user").get(
   checkAbility("read", "Application"),
   asyncHandler(async (req, res) => {
-    const application = await ApplicationModel.find({
+    const application = await ApplicationModel.findOne({
       hexathon: req.query.hexathon,
       email: req.query.email,
     }).select("id name email applicationBranch confirmationBranch status");
