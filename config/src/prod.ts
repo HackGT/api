@@ -153,6 +153,7 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     url: "/expo",
     port: parseInt(process.env.PORT || "8080"),
     auth: false,
+    sentryDSN: "https://ee2a8e3295ad44939d44f1b4f38a1528@o429043.ingest.sentry.io/4504029245407232",
     proxy: {
       target: "https://expo.api.hexlabs.org",
       changeOrigin: true,
