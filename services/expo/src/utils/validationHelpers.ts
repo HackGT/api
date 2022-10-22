@@ -214,7 +214,7 @@ export const validateTeam = async (
           req
         );
       } catch (error) {
-        console.error(error);
+        console.error(`validation error: ${error}`);
         registrationError = {
           error: true,
           message: `There was an unknown error accessing registration. Please contact a member of the event staff.`,
@@ -348,7 +348,7 @@ export const validatePrizes = async (prizes: any[], req: express.Request) => {
     }
     case "HackGT 9": {
       if (
-        prizeNames.filter(prize => prizeConfig.hexathons["Hack GT 9"].generalPrizes.includes(prize))
+        prizeNames.filter(prize => prizeConfig.hexathons["HackGT 9"].generalPrizes.includes(prize))
           .length > 1
       ) {
         return {
@@ -390,7 +390,7 @@ export const validateDevpost = async (devpostUrl: string, submissionName: string
   }
 
   const { hostname } = new URL(devpostUrl);
-  if (hostname !== "devpost.com") {
+  if (hostname !== "hackgt-9.devpost.com") {
     return { error: true, message: "Invalid URL: Not a devpost domain" };
   }
 
