@@ -52,6 +52,13 @@ export const getHexathonUserWithUpdatedPoints = async (
     ) {
       return prev + EVENT_TYPE_POINTS[interaction.event.type];
     }
+    if (
+      interaction.type === InteractionType.SCAVENGER_HUNT &&
+      interaction.event?.type &&
+      Object.values(EventType).includes(interaction.event.type)
+    ) {
+      return prev + EVENT_TYPE_POINTS[interaction.event.type];
+    }
     return prev;
   }, 0);
 
