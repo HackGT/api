@@ -133,7 +133,8 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/check-valid-user").
 hexathonUserRouter.route("/:hexathonId/users/:userId/actions/purchase-prize-item").post(
   checkAbility("manage", "HexathonUser"),
   asyncHandler(async (req, res) => {
-    const { prizeItemId, quantity } = req.body;
+    const { prizeItemId } = req.body;
+    const quantity = parseInt(req.body.quantity);
 
     const hexathonUser = await getHexathonUserWithUpdatedPoints(
       req,
