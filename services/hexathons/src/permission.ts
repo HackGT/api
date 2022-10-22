@@ -31,6 +31,7 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
 
   can("read", "Hexathon", { isActive: true });
   can("read", "Interaction", { userId: req.user.uid });
+  can("create", "Interaction");
   can("read", "Event");
   can("read", "Location");
   can("read", "Tag");

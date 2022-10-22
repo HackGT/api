@@ -35,6 +35,10 @@ interactionRoutes.route("/").post(
       throw new BadRequestError("Type is required for an interaction");
     }
 
+    if (!req.user?.roles.member && req.body.type === InteractionType.EVENT) {
+      throw new BadRequestError("Only members can create event interactions");
+    }
+
     // For event or scavenger hunt interactions, the identifier is required and must be unique
     if ([InteractionType.EVENT, InteractionType.SCAVENGER_HUNT].includes(req.body.type)) {
       const existingInteraction = await InteractionModel.findOne({
