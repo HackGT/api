@@ -1,7 +1,7 @@
-{
-  "hexathons": {
+export const prizeConfig = {
+  hexathons: {
     "HackGT 7": {
-      "emergingPrizes": [
+      emergingPrizes: [
         "Emerging: Best Overall",
         "Emerging: Most Impactful",
         "Emerging: Most Creative",
@@ -9,9 +9,9 @@
         "Best Web Dev Track",
         "Best Data Science Track",
         "Best Video Game Dev Track",
-        "Best Mobile App Dev Track"
+        "Best Mobile App Dev Track",
       ],
-      "sponsorPrizes": [
+      sponsorPrizes: [
         "NCR - Disruptive and innovative solution",
         "BlackRock - Best chatbot",
         "Anthem - Digital medicine",
@@ -25,28 +25,28 @@
         "MLH - Best domain",
         "MLH - Best use of Google Cloud",
         "MLH - Best hardware hack",
-        "MLH - Best use of DataStax Astra"
-      ]
+        "MLH - Best use of DataStax Astra",
+      ],
     },
     "HackGT 8": {
-      "generalPrizes": [
+      generalPrizes: [
         "HackGT - Best Social Impact",
         "HackGT - Best Design",
         "HackGT - Best Hardware Hack",
         "HackGT - Most Sustainable Hack",
-        "HackGT - Most Unique/Out of the Box/Creative"
+        "HackGT - Most Unique/Out of the Box/Creative",
       ],
-      "openSourcePrizes": ["HackGT - Best Open Source Hack"],
-      "emergingPrizes": [
+      openSourcePrizes: ["HackGT - Best Open Source Hack"],
+      emergingPrizes: [
         "Emerging - Best Overall",
         "Emerging - Best in App/Web Development",
         "Emerging - Best in Data Science",
         "Emerging - Best in Design",
         "Emerging - Best in Systems",
         "Emerging - Best Prototype",
-        "Emerging - Best Presentation"
+        "Emerging - Best Presentation",
       ],
-      "sponsorPrizes": [
+      sponsorPrizes: [
         "NCR - Best Use of NCR APIs",
         "NCR - Best Use of Cryptocurrency",
         "NCR - Retail Gamification",
@@ -55,37 +55,37 @@
         "Anthem - Best Overall",
         "NSA - Secure the Server",
         "NSA - Secure Code Zero Trust",
-        "Best Use of Google Cloud"
-      ]
+        "Best Use of Google Cloud",
+      ],
     },
     "Horizons": {
-      "tracks": ["Digital Track", "Physical Track"],
-      "challenges": ["Sustainability Challenge", "Educational Challenge", "Music Tech Challenge"]
+      tracks: ["Digital Track", "Physical Track"],
+      challenges: ["Sustainability Challenge", "Educational Challenge", "Music Tech Challenge"],
     },
     "Prototypical 2022": {
-      "tracks": ["Textiles Track", "Cardboard Track"]
+      tracks: ["Textiles Track", "Cardboard Track"],
     },
     "HackGT 9": {
-      "generalPrizes": [
+      generalPrizes: [
         "HackGT - Effortlessly Entertaining",
         "HackGT - Retro Hack",
         "HackGT - Altruistic Hack",
         "HackGT - Twisted Reality",
         "HackGT - Upgrade!",
         "HackGT - Data-Driven",
-        "HackGT - Cheat Code Hack"
+        "HackGT - Cheat Code Hack",
       ],
-      "emergingPrizes": [
+      emergingPrizes: [
         "Emerging - Best Hardware Hack",
         "Emerging - Best Application",
         "Emerging - Best Expo Pitch",
-        "Emerging - Best Design"
+        "Emerging - Best Design",
       ],
-      "sponsorPrizes": [
+      sponsorPrizes: [
         "BlackRock - Best Overall",
         "T-Mobile - Privacy & Information Security",
-        "Carelon - Best Overall"
-      ]
-    }
-  }
-}
+        "Carelon - Best Overall",
+      ],
+    },
+  },
+};

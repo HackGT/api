@@ -7,7 +7,8 @@ import admin from "firebase-admin";
 import express from "express";
 import { Service } from "@api/config";
 
-import { prisma, prizeConfig } from "../common";
+import { prisma } from "../common";
+import { prizeConfig } from "../config/prizeConfig";
 import { getConfig, getCurrentHexathon } from "./utils";
 // import { queryRegistration } from "../registration";
 
@@ -36,12 +37,12 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
 
       // A team must be greater than 50% emerging to be eligible for emerging prizes
       if (numEmerging / users.length > 0.5) {
-        return prizeConfig.hexathon["HackGT 7"].emergingPrizes.concat(
-          prizeConfig.hexathon["HackGT 7"].sponsorPrizes
+        return prizeConfig.hexathons["HackGT 7"].emergingPrizes.concat(
+          prizeConfig.hexathons["HackGT 7"].sponsorPrizes
         );
       }
 
-      return prizeConfig.hexathon["HackGT 7"].sponsorPrizes;
+      return prizeConfig.hexathons["HackGT 7"].sponsorPrizes;
     }
     case "HackGT 8": {
       let numEmerging = 0;
@@ -64,8 +65,8 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
 
       // A team must be greater than 50% emerging to be eligible for emerging prizes
       if (numEmerging / users.length > 0.5) {
-        const emergingPrizes = prizeConfig.hexathon["HackGT 8"].emergingPrizes
-          .concat(prizeConfig.hexathon["HackGT 8"].sponsorPrizes)
+        const emergingPrizes = prizeConfig.hexathons["HackGT 8"].emergingPrizes
+          .concat(prizeConfig.hexathons["HackGT 8"].sponsorPrizes)
           .concat(prizeConfig.hexathons["HackGT 8"].generalPrizes)
           .concat(prizeConfig.hexathons["HackGT 8"].openSourcePrizes);
         const emergingDBPrizes = await prisma.category.findMany({

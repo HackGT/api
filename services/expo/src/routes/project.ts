@@ -89,7 +89,7 @@ projectRoutes.route("/special/devpost-validation").post(async (req, res) => {
 });
 
 projectRoutes.route("/special/get-eligible-prizes").get(async (req, res) => {
-  const resp = await getEligiblePrizes([], req);
+  const resp: any = await getEligiblePrizes([], req);
   if (resp.error) {
     res.status(400).json(resp);
   } else {

@@ -24,7 +24,7 @@ if (config.common.production) {
 app.use(helmet());
 app.use(rateLimiter());
 app.use(cookieParser());
-app.use(decodeToken(Service.USERS));
+app.use(decodeToken(Service.EXPO));
 app.use(addAbilities());
 app.use(morgan("dev"));
 app.use(compression());
