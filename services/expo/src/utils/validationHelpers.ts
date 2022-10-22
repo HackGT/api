@@ -346,6 +346,28 @@ export const validatePrizes = async (prizes: any[], req: express.Request) => {
 
       return { error: false };
     }
+    case "HackGT 9": {
+      if (
+        prizeNames.filter(prize => prizeConfig.hexathons["Hack GT 9"].trackPrizes.includes(prize))
+          .length > 1
+      ) {
+        return {
+          error: true,
+          message: "You are only eligible to submit for one track.",
+        };
+      }
+
+      if (
+        prizeNames.filter(prize => prizeConfig.hexathons["HackGT 9"].trackPrizes.includes(prize))
+          .length === 0
+      ) {
+        return {
+          error: true,
+          message: "You must submit to at least one track.",
+        };
+      }
+      return { error: false };
+    }
     default: {
       return { error: false };
     }
