@@ -150,7 +150,7 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/purchase-prize-item
       throw new BadRequestError("Invalid prize item id provided.");
     }
 
-    if (prizeItem.totalNumRequested + quantity > prizeItem.capacity) {
+    if (prizeItem.purchased + quantity > prizeItem.capacity) {
       throw new BadRequestError("Prize item is full.");
     }
 
@@ -177,6 +177,10 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/purchase-prize-item
         new: true,
       }
     );
+
+    await PrizeItemModel.findByIdAndUpdate(prizeItem.id, {
+      purchased: prizeItem.purchased + quantity,
+    });
 
     return res.sendStatus(204);
   })

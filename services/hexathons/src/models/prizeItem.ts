@@ -6,14 +6,13 @@ import { HexathonModel } from "./hexathon";
 export interface PrizeItem extends mongoose.Document {
   name: string;
   hexathon: Types.ObjectId;
-  number: number;
+  purchased: number;
   capacity: number;
   points: number;
   description: string;
   image: string;
   status: string;
   shippable: boolean;
-  totalNumRequested: number;
   location: string;
   image_url: string;
 }
@@ -30,7 +29,7 @@ const prizeItemSchema = new Schema<PrizeItem>({
     ref: HexathonModel,
     index: true,
   },
-  number: {
+  purchased: {
     type: Number,
   },
   capacity: {
@@ -56,11 +55,6 @@ const prizeItemSchema = new Schema<PrizeItem>({
     type: Boolean,
     default: true,
     required: true,
-  },
-  totalNumRequested: {
-    type: Number,
-    required: true,
-    default: 0,
   },
   location: {
     type: String,
