@@ -164,10 +164,8 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/purchase-prize-item
         hexathon: req.params.hexathonId,
       },
       {
-        points: {
-          numSpent: hexathonUser.points.numSpent - prizeItem.points * quantity,
-        },
-        $push: {
+        "points.numSpent": hexathonUser.points.numSpent + prizeItem.points * quantity,
+        "$push": {
           purchasedPrizeItems: {
             prizeItemId,
             quantity,
@@ -192,11 +190,9 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/update-points").pos
     const hexathonUser = await HexathonUserModel.findOneAndUpdate(
       { userId: req.params.userId, hexathon: req.params.hexathonId },
       {
-        points: {
-          numSpent,
-          numAdditional,
-          lastUpdated: new Date(),
-        },
+        "points.numSpent": numSpent,
+        "points.numAdditional": numAdditional,
+        "points.lastUpdated": new Date(),
       },
       {
         new: true,
