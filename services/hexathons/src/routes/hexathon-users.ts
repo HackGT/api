@@ -144,7 +144,7 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/purchase-prize-item
 
     const prizeItem = await PrizeItemModel.findOne({
       hexathon: req.params.hexathonId,
-      id: prizeItemId,
+      _id: prizeItemId,
     });
 
     if (!prizeItem) {

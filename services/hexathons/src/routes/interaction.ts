@@ -22,7 +22,9 @@ interactionRoutes.route("/").get(
       filter.identifier = String(req.query.identifier);
     }
 
-    const interactions = await InteractionModel.accessibleBy(req.ability).find(filter);
+    const interactions = await InteractionModel.accessibleBy(req.ability)
+      .find(filter)
+      .populate("event");
 
     return res.send(interactions);
   })
@@ -33,6 +35,10 @@ interactionRoutes.route("/").post(
   asyncHandler(async (req, res) => {
     if (!req.body.type) {
       throw new BadRequestError("Type is required for an interaction");
+    }
+
+    if (!req.user?.roles.member && req.body.type === InteractionType.EVENT) {
+      throw new BadRequestError("Only members can create event interactions");
     }
 
     // For event or scavenger hunt interactions, the identifier is required and must be unique
