@@ -14,7 +14,6 @@ const EVENT_TYPE_POINTS: { [key in EventType]: number } = {
   "important": 0,
   "speaker": 150,
   "mini-challenge": 125,
-  "scavenger-hunt": 50,
 };
 
 /** For each 'event' a user attends, if the user is `inperson`, they get full points. If `virtual`, it scales so that if
@@ -55,7 +54,10 @@ export const getHexathonUserWithUpdatedPoints = async (
     }
     if (interaction.type === InteractionType.SCAVENGER_HUNT) {
       // Future consideration: event types unique to order of scavenger hunt
-      return prev + EVENT_TYPE_POINTS[InteractionType.SCAVENGER_HUNT];
+      return prev + 50;
+    }
+    if (interaction.type === InteractionType.EXPO_SUBMISSION) {
+      return prev + 250;
     }
     return prev;
   }, 0);
