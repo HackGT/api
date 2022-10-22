@@ -16,6 +16,7 @@ export enum EventType {
   IMPORTANT = "important",
   SPEAKER = "speaker",
   MINI_CHALLENGE = "mini-challenge",
+  SCAVENGER_HUNT = "scavenger-hunt",
 }
 
 export interface Event extends mongoose.Document {
