@@ -22,7 +22,9 @@ interactionRoutes.route("/").get(
       filter.identifier = String(req.query.identifier);
     }
 
-    const interactions = await InteractionModel.accessibleBy(req.ability).find(filter);
+    const interactions = await InteractionModel.accessibleBy(req.ability)
+      .find(filter)
+      .populate("event");
 
     return res.send(interactions);
   })
