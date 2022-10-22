@@ -348,7 +348,7 @@ export const validatePrizes = async (prizes: any[], req: express.Request) => {
     }
     case "HackGT 9": {
       if (
-        prizeNames.filter(prize => prizeConfig.hexathons["Hack GT 9"].trackPrizes.includes(prize))
+        prizeNames.filter(prize => prizeConfig.hexathons["Hack GT 9"].generalPrizes.includes(prize))
           .length > 1
       ) {
         return {
@@ -358,7 +358,7 @@ export const validatePrizes = async (prizes: any[], req: express.Request) => {
       }
 
       if (
-        prizeNames.filter(prize => prizeConfig.hexathons["HackGT 9"].trackPrizes.includes(prize))
+        prizeNames.filter(prize => prizeConfig.hexathons["HackGT 9"].generalPrizes.includes(prize))
           .length === 0
       ) {
         return {

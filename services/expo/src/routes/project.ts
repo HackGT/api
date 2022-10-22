@@ -234,6 +234,28 @@ projectRoutes.route("/").post(async (req, res) => {
         },
       },
     });
+
+    const members = data.registrationUsers;
+
+    const interactionPromises = members.map((member: any) =>
+      apiCall(
+        Service.HEXATHONS,
+        {
+          method: "POST",
+          url: `/interactions`,
+          data: {
+            hexathon: currentHexathon.id,
+            userId: member.userId,
+            type: "expo-submission",
+          },
+        },
+        req
+      )
+    );
+
+    const response = await Promise.all(interactionPromises);
+
+    console.log(response);
   } catch (err) {
     console.error(err);
     res.status(400).send({
