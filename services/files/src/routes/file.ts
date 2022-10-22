@@ -2,9 +2,11 @@ import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/commo
 import express from "express";
 import multer from "multer";
 import { Service } from "@api/config";
+import { FilterQuery } from "mongoose";
+import { ObjectId } from "mongodb";
 
 import { uploadFile, getFileViewingUrl } from "../common/storage";
-import { FileModel } from "../models/file";
+import { File, FileModel } from "../models/file";
 
 const multerMid = multer({
   storage: multer.memoryStorage(),
@@ -55,7 +57,35 @@ fileRoutes.route("/upload").post(
 fileRoutes.route("/:id").get(
   checkAbility("read", "File"),
   asyncHandler(async (req, res) => {
-    const file = await FileModel.findById(req.params.id).accessibleBy(req.ability);
+    const filter: FilterQuery<File> = {
+      _id: new ObjectId(req.params.id),
+    };
+
+    let company;
+    try {
+      if (req.query.hexathon) {
+        company = await apiCall(
+          Service.USERS,
+          {
+            method: "GET",
+            url: `/companies/employees/${req.user?.uid}`,
+            params: {
+              hexathon: req.query.hexathon,
+            },
+          },
+          req
+        );
+      }
+    } catch (err) {
+      company = null;
+    }
+
+    // If user is not a member and has no associated company, set filter to access only their own applications
+    if (!req.user?.roles.member && !company) {
+      filter.userId = req.user?.uid;
+    }
+
+    const file = await FileModel.findOne(filter);
 
     res.status(200).send(file);
   })
@@ -64,7 +94,35 @@ fileRoutes.route("/:id").get(
 fileRoutes.route("/:id/view").get(
   checkAbility("read", "File"),
   asyncHandler(async (req, res) => {
-    const file = await FileModel.findById(req.params.id).accessibleBy(req.ability);
+    const filter: FilterQuery<File> = {
+      _id: new ObjectId(req.params.id),
+    };
+
+    let company;
+    try {
+      if (req.query.hexathon) {
+        company = await apiCall(
+          Service.USERS,
+          {
+            method: "GET",
+            url: `/companies/employees/${req.user?.uid}`,
+            params: {
+              hexathon: req.query.hexathon,
+            },
+          },
+          req
+        );
+      }
+    } catch (err) {
+      company = null;
+    }
+
+    // If user is not a member and has no associated company, set filter to access only their own applications
+    if (!req.user?.roles.member && !company) {
+      filter.userId = req.user?.uid;
+    }
+
+    const file = await FileModel.findOne(filter);
 
     if (!file || !file.storageId) {
       throw new BadRequestError("You do not have access or invalid file id provided.");

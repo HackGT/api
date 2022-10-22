@@ -108,7 +108,7 @@ applicationRouter.route("/:id").get(
             method: "GET",
             url: `/companies/employees/${req.user?.uid}`,
             params: {
-              hexathon: application.hexathon,
+              hexathon: application.hexathon.toString(),
             },
           },
           req
@@ -127,7 +127,13 @@ applicationRouter.route("/:id").get(
     if (applicationData.resume) {
       applicationData.resume = await apiCall(
         Service.FILES,
-        { method: "GET", url: `files/${applicationData.resume}` },
+        {
+          method: "GET",
+          url: `files/${applicationData.resume}`,
+          params: {
+            hexathon: application.hexathon.toString(),
+          },
+        },
         req
       );
     }
