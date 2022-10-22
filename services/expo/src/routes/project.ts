@@ -1,10 +1,8 @@
 /* eslint-disable guard-for-in */
 import express from "express";
-import axios from "axios";
-import { TableGroup } from "@prisma/client";
-import { PrismaClientInitializationError } from "@prisma/client/runtime";
+import { Project, TableGroup } from "@prisma/client";
 import { apiCall, asyncHandler } from "@api/common";
-import config, { Service } from "@api/config";
+import { Service } from "@api/config";
 
 import { prisma } from "../common";
 import { getConfig, getCurrentHexathon } from "../utils/utils";
@@ -14,7 +12,7 @@ import {
   validatePrizes,
   getEligiblePrizes,
 } from "../utils/validationHelpers";
-import { isAdmin, isAdminOrIsJudging } from "../auth/auth";
+import { isAdmin } from "../auth/auth";
 
 export const projectRoutes = express.Router();
 
@@ -126,47 +124,52 @@ projectRoutes.route("/").post(async (req, res) => {
     return;
   }
 
-  const bestOverall: any = await prisma.category.findFirst({
-    where: {
-      name: { in: ["HackGT - Best Overall"] },
-    },
-  });
+  // const bestOverall: any = await prisma.category.findFirst({
+  //   where: {
+  //     name: { in: ["HackGT - Best Overall"] },
+  //   },
+  // });
 
-  const openSource: any = await prisma.category.findFirst({
-    where: {
-      name: { in: ["HackGT - Best Open Source Hack"] },
-    },
-  });
+  // const openSource: any = await prisma.category.findFirst({
+  //   where: {
+  //     name: { in: ["HackGT - Best Open Source Hack"] },
+  //   },
+  // });
 
-  if (openSource && data.prizes.includes(openSource.id) && data.prizes.length > 1) {
-    res.status(400).send({
-      error: true,
-      message: "If you submit to open source you can only submit to that category",
-    });
-  } else if (openSource && !data.prizes.includes(openSource.id)) {
-    data.prizes.push(bestOverall.id);
-  }
+  // if (openSource && data.prizes.includes(openSource.id) && data.prizes.length > 1) {
+  //   res.status(400).send({
+  //     error: true,
+  //     message: "If you submit to open source you can only submit to that category",
+  //   });
+  // } else if (openSource && !data.prizes.includes(openSource.id)) {
+  //   data.prizes.push(bestOverall.id);
+  // }
 
-  // find all table groups
+  const projectExpo = Math.floor(Math.random() * config.numberOfExpo + 1);
+
   const tableGroups = await prisma.tableGroup.findMany();
-  // loop over length of table groups
-  let openTableGroup;
-  let projectsWithOpenTableGroup;
+  const projectsInCurrentExpo = await prisma.project.findMany({
+    where: {
+      expo: projectExpo,
+    },
+  });
+
+  let minCapacityTableGroup: undefined | TableGroup;
+  const minCapacityValue = 1;
+
   for (const tableGroup of tableGroups) {
-    // eslint-disable-next-line no-await-in-loop
-    const projectsWithTableGroupId = await prisma.project.findMany({
-      where: {
-        tableGroupId: tableGroup.id,
-      },
-    });
-    if (projectsWithTableGroupId.length !== tableGroup.tableCapacity) {
-      openTableGroup = tableGroup;
-      projectsWithOpenTableGroup = projectsWithTableGroupId;
-      break;
+    const projectsInCurrentExpoAndTableGroup = projectsInCurrentExpo.filter(
+      project => project.tableGroupId === tableGroup.id
+    );
+    if (
+      projectsInCurrentExpoAndTableGroup.length < tableGroup.tableCapacity &&
+      projectsInCurrentExpoAndTableGroup.length / tableGroup.tableCapacity < minCapacityValue
+    ) {
+      minCapacityTableGroup = tableGroup;
     }
   }
 
-  if (openTableGroup === undefined || projectsWithOpenTableGroup === undefined) {
+  if (!minCapacityTableGroup) {
     res.status(400).send({
       error: true,
       message:
@@ -175,17 +178,19 @@ projectRoutes.route("/").post(async (req, res) => {
     return;
   }
 
+  const projectsInCurrentExpoAndTableGroup = projectsInCurrentExpo.filter(
+    project => project.tableGroupId === minCapacityTableGroup?.id
+  );
+
   let tableNumber;
-  if (openTableGroup !== undefined && projectsWithOpenTableGroup !== undefined) {
-    const tableNumberSet = new Set();
-    for (const project of projectsWithOpenTableGroup) {
-      tableNumberSet.add(project.table);
-    }
-    for (let i = 1; i <= openTableGroup.tableCapacity; i++) {
-      if (!tableNumberSet.has(i)) {
-        tableNumber = i;
-        break;
-      }
+  const tableNumberSet = new Set();
+  for (const project of projectsInCurrentExpoAndTableGroup) {
+    tableNumberSet.add(project.table);
+  }
+  for (let i = 1; i <= minCapacityTableGroup.tableCapacity; i++) {
+    if (!tableNumberSet.has(i)) {
+      tableNumber = i;
+      break;
     }
   }
 
@@ -198,7 +203,7 @@ projectRoutes.route("/").post(async (req, res) => {
         description: data.description,
         devpostUrl: data.devpostUrl,
         githubUrl: "",
-        expo: Math.floor(Math.random() * config.numberOfExpo + 1),
+        expo: projectExpo,
         roomUrl: "",
         table: tableNumber,
         hexathon: currentHexathon.id,
@@ -218,7 +223,7 @@ projectRoutes.route("/").post(async (req, res) => {
           connect: data.prizes.map((prizeId: any) => ({ id: prizeId })),
         },
         tableGroup: {
-          connect: openTableGroup !== undefined ? { id: openTableGroup.id } : {},
+          connect: { id: minCapacityTableGroup.id },
         },
       },
     });
