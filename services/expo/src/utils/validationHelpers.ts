@@ -197,19 +197,16 @@ export const validateTeam = async (
 
   const registrationUsers: any[] = await Promise.all(
     memberEmails.map(async email => {
-      let res: any;
+      let userApplication: any;
       try {
-        // res = await queryRegistration(email); // query from registration endpoint
-
-        res = await apiCall(
+        userApplication = await apiCall(
           Service.REGISTRATION,
           {
-            url: `/applications`,
+            url: `/actions/expo-check`,
             method: "GET",
             params: {
               hexathon: currentHexathon.id,
-              status: "CONFIRMED",
-              search: email,
+              email,
             },
           },
           req
@@ -223,21 +220,8 @@ export const validateTeam = async (
         return "";
       }
 
-      // const searchUsers = res.data.data.search_user.users;
-      const userApplications = res.applications;
-
-      let userApp;
       // Checks the user's applications and if they are confirmed for the current hexathon
-      let confirmedForHexathon = false;
-      // eslint-disable-next-line guard-for-in
-      for (const app in userApplications) {
-        if (userApplications[app].hexathon === currentHexathon.id) {
-          confirmedForHexathon = true;
-          userApp = userApplications[app];
-          break;
-        }
-      }
-      if (!confirmedForHexathon) {
+      if (userApplication.status !== "CONFIRMED") {
         registrationError = {
           error: true,
           message: `User: ${email} not confirmed for current ${currentHexathon.name}`,
@@ -255,11 +239,9 @@ export const validateTeam = async (
         try {
           const newUser = await admin.auth().getUserByEmail(email);
 
-          // console.log(newUser);
-
           await prisma.user.create({
             data: {
-              name: userApp.name,
+              name: userApplication.name,
               email,
               role: UserRole.GENERAL,
               userId: newUser.uid,
@@ -288,7 +270,8 @@ export const validateTeam = async (
           return "";
         }
       }
-      return userApp;
+
+      return userApplication;
     })
   );
 

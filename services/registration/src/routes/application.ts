@@ -590,3 +590,19 @@ applicationRouter.route("/compile-extra-info").get(
     return res.status(200).json(compiledExtraInfo);
   })
 );
+
+applicationRouter.route("/actions/expo-user").get(
+  checkAbility("read", "Application"),
+  asyncHandler(async (req, res) => {
+    const application = await ApplicationModel.find({
+      hexathon: req.query.hexathon,
+      email: req.query.email,
+    }).select("id name email applicationBranch confirmationBranch status");
+
+    if (!application) {
+      throw new BadRequestError("No valid application found");
+    }
+
+    return res.status(200).json(application);
+  })
+);
