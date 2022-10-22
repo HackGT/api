@@ -192,25 +192,13 @@ projectRoutes.route("/").post(async (req, res) => {
   // in loop call all projects with table group id
   // find first available table
   try {
-    // Find the expo with the least projects
-    const expoCounts = await prisma.project.groupBy({
-      by: ["expo"],
-      _count: {
-        expo: true,
-      },
-    });
-
-    const { expo } = expoCounts.reduce((prev, curr) =>
-      prev._count.expo < curr._count.expo ? prev : curr
-    );
-
     await prisma.project.create({
       data: {
         name: data.name,
         description: data.description,
         devpostUrl: data.devpostUrl,
         githubUrl: "",
-        expo,
+        expo: Math.floor(Math.random() * config.numberOfExpo + 1),
         roomUrl: "",
         table: tableNumber,
         hexathon: currentHexathon.id,
