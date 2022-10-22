@@ -18,11 +18,11 @@ locationRouter.route("/").post(
 );
 
 locationRouter.route("/").get(
-  checkAbility("create", "Location"),
+  checkAbility("read", "Location"),
   asyncHandler(async (req, res) => {
-    const items = await ItemModel.find();
+    const locations = await LocationModel.find();
 
-    res.send([...new Set(items.map(item => item.location))]);
+    res.send([locations.map(location => location.name)]);
   })
 );
 
