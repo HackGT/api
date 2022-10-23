@@ -196,6 +196,14 @@ projectRoutes.route("/").post(async (req, res) => {
     }
   }
 
+  if (!teamValidation.registrationUsers) {
+    res.status(400).send({
+      error: true,
+      message: "There was an error contacting registration. Please contact help desk.",
+    });
+    return;
+  }
+
   // in loop call all projects with table group id
   // find first available table
   try {
@@ -210,7 +218,7 @@ projectRoutes.route("/").post(async (req, res) => {
         table: tableNumber,
         hexathon: currentHexathon.id,
         members: {
-          connectOrCreate: data.registrationUsers.map((application: any) => ({
+          connectOrCreate: teamValidation.registrationUsers.map((application: any) => ({
             where: {
               email: application.email,
             },
@@ -230,9 +238,7 @@ projectRoutes.route("/").post(async (req, res) => {
       },
     });
 
-    const members = data.registrationUsers;
-
-    const interactionPromises = members.map((member: any) =>
+    const interactionPromises = teamValidation.registrationUsers.map((member: any) =>
       apiCall(
         Service.HEXATHONS,
         {
