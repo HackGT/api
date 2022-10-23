@@ -65,7 +65,7 @@ ballotsRoutes.route("/").post(
       criteriaId: parseInt(key),
       round: req.body.round,
       projectId: req.body.projectId,
-      userId: req.body.userId,
+      userId: 1,
     }));
 
     const createdBallots = await prisma.ballot.createMany({
