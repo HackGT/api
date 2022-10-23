@@ -112,6 +112,8 @@ projectRoutes.route("/").post(async (req, res) => {
 
   const data = req.body.submission;
 
+  console.log(data);
+
   const teamValidation = await validateTeam(req.user, data.members, req);
   if (teamValidation.error) {
     res.status(400).send(teamValidation);
