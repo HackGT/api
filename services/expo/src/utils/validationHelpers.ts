@@ -126,13 +126,7 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
           };
         }
 
-        if (
-          user.applicationBranch.name === "Accepted - Participant Emerging [Bus]" ||
-          user.applicationBranch.name === "Accepted - Participant Emerging [No Travel]" ||
-          user.applicationBranch.name === "Accepted - Participant Emerging [Flight]" ||
-          user.applicationBranch.name === "Accepted - Participant Emerging [Gas]" ||
-          user.applicationBranch.name === "Participant - Emerging"
-        ) {
+        if (user.applicationBranch.name.includes("Emerging")) {
           numEmerging += 1;
         }
       }
