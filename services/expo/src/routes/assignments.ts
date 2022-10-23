@@ -321,7 +321,7 @@ assignmentRoutes.route("/current-project").get(
     const updatedProject = {
       ...project,
       categories: filteredCategories,
-      assignmentId: assignment.id,
+      assignment,
     };
     res.status(200).json(updatedProject);
   })
