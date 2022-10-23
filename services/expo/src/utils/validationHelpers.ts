@@ -211,7 +211,7 @@ export const validateTeam = async (
         console.error(`validation error: ${error}`);
         registrationError = {
           error: true,
-          message: `There was an unknown error accessing registration. Please contact a member of the event staff.`,
+          message: `We couldn't find the emails you entered in our registration system. Please make sure you entered the emails you used to register for this event.`,
         };
         return "";
       }
