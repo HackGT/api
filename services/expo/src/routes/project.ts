@@ -1,7 +1,7 @@
 /* eslint-disable guard-for-in */
 import express from "express";
 import { Project, TableGroup } from "@prisma/client";
-import { apiCall, asyncHandler } from "@api/common";
+import { apiCall, asyncHandler, BadRequestError } from "@api/common";
 import { Service } from "@api/config";
 
 import { prisma } from "../common";
@@ -282,6 +282,13 @@ projectRoutes.route("/:id").patch(
     let categories: any[] = [];
     let tableGroup;
 
+    const config = await getConfig();
+    const currentProject = await prisma.project.findUnique({
+      where: { id: parseInt(req.params.id) },
+    });
+
+    const expo: number = req.body.expo || currentProject?.expo;
+
     if (req.body.members) {
       members = req.body.members;
       delete req.body.members;
@@ -295,9 +302,6 @@ projectRoutes.route("/:id").patch(
     if (req.body.tableGroupId) {
       tableGroup = parseInt(req.body.tableGroupId);
       delete req.body.tableGroupId;
-      const currentProject = await prisma.project.findUnique({
-        where: { id: parseInt(req.params.id) },
-      });
 
       if (tableGroup !== currentProject?.tableGroupId) {
         // reassign
@@ -307,7 +311,7 @@ projectRoutes.route("/:id").patch(
     if (req.body.table) {
       const tableNumber = parseInt(req.body.table);
       const projectsInSameGroup = await prisma.project.findMany({
-        where: { tableGroupId: tableGroup },
+        where: { tableGroupId: tableGroup, expo },
       });
 
       const tableGroups = await prisma.tableGroup.findMany();
@@ -335,24 +339,6 @@ projectRoutes.route("/:id").patch(
       }
     }
 
-    if (req.body.table) {
-      const tableNumber = parseInt(req.body.table);
-      const projectsInSameGroup = await prisma.project.findMany({
-        where: { tableGroupId: tableGroup },
-      });
-
-      const isDuplicate = projectsInSameGroup.some(
-        project => project.id !== parseInt(req.params.id) && project.table === tableNumber
-      );
-      if (isDuplicate) {
-        res.status(200).send({
-          error: true,
-          message: "Error: Duplicate Table Number.",
-        });
-        return;
-      }
-    }
-
     const dbCategories = await prisma.category.findMany({
       where: { name: { in: categories } },
     });
@@ -368,18 +354,46 @@ projectRoutes.route("/:id").patch(
       }
     }
 
+    let applications;
+    try {
+      applications = await Promise.all(
+        members.map(async (member: any) =>
+          apiCall(
+            Service.REGISTRATION,
+            {
+              url: `/applications/actions/expo-user`,
+              method: "GET",
+              params: {
+                hexathon: config.currentHexathon,
+                email: member.email,
+              },
+            },
+            req
+          )
+        )
+      );
+    } catch (err) {
+      console.error(err);
+      res.status(200).send({
+        error: true,
+        message: "Error getting registration information.",
+      });
+      return;
+    }
+
     const updated = await prisma.project.update({
       where: { id: parseInt(req.params.id) },
       data: {
         ...req.body,
         members: {
-          connectOrCreate: members.map((member: any) => ({
+          connectOrCreate: applications.map((application: any) => ({
             where: {
-              email: member.email,
+              email: application.email,
             },
             create: {
-              name: member.name,
-              email: member.email,
+              name: application.name,
+              email: application.email,
+              userId: application.userId,
             },
           })),
         },
