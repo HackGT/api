@@ -339,7 +339,7 @@ export const validatePrizes = async (prizes: any[], req: express.Request) => {
 
       if (
         prizeNames.filter(prize => prizeConfig.hexathons["HackGT 9"].generalPrizes.includes(prize))
-          .length === 0 ||
+          .length === 0 &&
         prizeNames.filter(prize => prizeConfig.hexathons["HackGT 9"].emergingPrizes.includes(prize))
           .length === 0
       ) {
