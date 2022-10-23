@@ -25,6 +25,7 @@ enum WinnerRank {
   SECOND
   THIRD
   GENERAL
+  EMERGING
 }
 
 model Assignment {
