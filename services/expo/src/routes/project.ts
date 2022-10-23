@@ -157,7 +157,7 @@ projectRoutes.route("/").post(async (req, res) => {
   });
 
   let minCapacityTableGroup: undefined | TableGroup;
-  const minCapacityValue = 1;
+  let minCapacityValue = 1;
 
   for (const tableGroup of tableGroups) {
     const projectsInCurrentExpoAndTableGroup = projectsInCurrentExpo.filter(
@@ -168,6 +168,7 @@ projectRoutes.route("/").post(async (req, res) => {
       projectsInCurrentExpoAndTableGroup.length / tableGroup.tableCapacity < minCapacityValue
     ) {
       minCapacityTableGroup = tableGroup;
+      minCapacityValue = projectsInCurrentExpoAndTableGroup.length / tableGroup.tableCapacity;
     }
   }
 
