@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc --build --force",
     "clean": "tsc --build --clean",
-    "start": "node dist/app.js",
+    "start": "node -r tsconfig-paths/register dist/app.js",
     "dev": "nodemon --watch 'src/**/*' --exec \"ts-node\" -r tsconfig-paths/register src/app.ts"
   },
   "dependencies": {
