@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "./generated"
 }
 
 datasource db {
@@ -40,6 +41,7 @@ model Assignment {
 
   userId    Int
   projectId Int
+
   @@map("assignment")
 }
 
@@ -57,6 +59,7 @@ model Ballot {
   projectId  Int
   criteriaId Int
   userId     Int
+
   @@map("ballot")
 }
 
@@ -110,6 +113,7 @@ model Criteria {
   rubrics     Rubric[]
 
   categoryId Int
+
   @@map("criteria")
 }
 
@@ -122,6 +126,7 @@ model Notification {
   sentAt    DateTime @default(now())
 
   senderId Int
+
   @@map("notification")
 }
 
@@ -154,6 +159,7 @@ model Rubric {
   criteria    Criteria @relation(fields: [criteriaId], references: [id])
 
   criteriaId Int
+
   @@map("rubric")
 }
 
@@ -183,6 +189,7 @@ model User {
   notifications Notification[]
 
   categoryGroupId Int?
+
   @@map("user")
 }
 

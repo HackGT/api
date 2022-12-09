@@ -1,6 +1,5 @@
 import rp from "request-promise";
 import cheerio from "cheerio";
-import { UserRole } from "@prisma/client";
 import { URL } from "url";
 import { apiCall, User } from "@api/common";
 import admin from "firebase-admin";
@@ -10,6 +9,7 @@ import { Service } from "@api/config";
 import { prisma } from "../common";
 import { prizeConfig } from "../config/prizeConfig";
 import { getConfig, getCurrentHexathon } from "./utils";
+import { UserRole } from "@prisma/generated";
 // import { queryRegistration } from "../registration";
 
 /*

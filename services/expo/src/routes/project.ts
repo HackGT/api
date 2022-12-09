@@ -1,7 +1,6 @@
 /* eslint-disable guard-for-in */
 import express from "express";
-import { Project, TableGroup } from "@prisma/client";
-import { apiCall, asyncHandler, BadRequestError } from "@api/common";
+import { apiCall, asyncHandler } from "@api/common";
 import { Service } from "@api/config";
 
 import { prisma } from "../common";
@@ -13,6 +12,7 @@ import {
   getEligiblePrizes,
 } from "../utils/validationHelpers";
 import { isAdmin } from "../auth/auth";
+import { TableGroup } from "@prisma/generated";
 
 export const projectRoutes = express.Router();
 

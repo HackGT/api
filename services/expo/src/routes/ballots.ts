@@ -1,10 +1,10 @@
 import express from "express";
 import { StatusCodes } from "http-status-codes";
-import { Ballot, User } from "@prisma/client";
 import { asyncHandler } from "@api/common";
 
 import { prisma } from "../common";
 import { isAdmin, isAdminOrIsJudging } from "../auth/auth";
+import { Ballot } from "@prisma/generated";
 
 export const ballotsRoutes = express.Router();
 

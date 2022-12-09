@@ -1,10 +1,10 @@
 import express from "express";
-import { User, UserRole } from "@prisma/client";
 import { Service } from "@api/config";
 import { apiCall, asyncHandler } from "@api/common";
 
 import { prisma } from "../common";
 import { isAdmin } from "../auth/auth";
+import { UserRole } from "@prisma/generated";
 
 export const userRoutes = express.Router();
 

@@ -1,8 +1,8 @@
 import express from "express";
-import { UserRole } from "@prisma/client";
 import { ForbiddenError } from "@api/common";
 
 import { prisma } from "../common";
+import { UserRole } from "@prisma/generated";
 
 export const isAdmin = async (
   request: express.Request,
