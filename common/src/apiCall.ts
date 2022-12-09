@@ -6,7 +6,7 @@ import { ApiCallError } from "./errors";
 
 /**
  * Allows making an api call to an external service. Returns the response data or throws an error.
- * Adds authorization from the current request and forwards to the next server.
+ * Adds authorization from the current request and forwards on to the next server.
  * @param service the service to make a request to
  * @param requestConfig axios config for the request
  * @returns the response data from the api call
