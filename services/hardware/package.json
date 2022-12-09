@@ -26,11 +26,11 @@
     "helmet": "^6.0.0",
     "mongoose": "^6.6.0",
     "morgan": "^1.10.0",
+    "tsconfig-paths": "^4.1.1",
     "typescript": "^4.8.3"
   },
   "devDependencies": {
     "nodemon": "^2.0.19",
-    "ts-node": "^10.9.1",
-    "tsconfig-paths": "^4.1.0"
+    "ts-node": "^10.9.1"
   }
 }

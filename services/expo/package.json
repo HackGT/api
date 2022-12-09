@@ -20,8 +20,7 @@
   "license": "ISC",
   "devDependencies": {
     "nodemon": "^2.0.15",
-    "ts-node": "^10.5.0",
-    "tsconfig-paths": "^3.12.0"
+    "ts-node": "^10.5.0"
   },
   "dependencies": {
     "@api/common": "*",
@@ -53,6 +52,7 @@
     "re2": "^1.17.4",
     "request": "^2.88.2",
     "request-promise": "^4.2.6",
+    "tsconfig-paths": "^4.1.1",
     "typescript": "^4.5.5"
   }
 }
