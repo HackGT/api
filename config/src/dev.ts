@@ -159,6 +159,22 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       name: "hardware",
     },
   },
+  FINANCE: {
+    url: "/finance",
+    port: 8009,
+    auth: false,
+    proxy: {
+      target: "http://localhost:8009",
+      changeOrigin: false,
+      pathRewrite: {
+        [`^/finance`]: "",
+      },
+    },
+    database: {
+      type: "postgres",
+      name: "finance",
+    },
+  },
 };
 
 // const SERVICES = [

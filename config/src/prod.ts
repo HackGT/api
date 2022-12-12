@@ -133,6 +133,23 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       name: "auth",
     },
   },
+  EXPO: {
+    url: "/expo",
+    port: parseInt(process.env.PORT || "8080"),
+    auth: false,
+    sentryDSN: "https://ee2a8e3295ad44939d44f1b4f38a1528@o429043.ingest.sentry.io/4504029245407232",
+    proxy: {
+      target: "https://expo.api.hexlabs.org",
+      changeOrigin: true,
+      pathRewrite: {
+        [`^/expo`]: "",
+      },
+    },
+    database: {
+      type: "postgres",
+      name: "expo",
+    },
+  },
   HARDWARE: {
     url: "/hardware",
     port: parseInt(process.env.PORT || "8080"),
@@ -149,21 +166,21 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       name: "hardware",
     },
   },
-  EXPO: {
-    url: "/expo",
+  FINANCE: {
+    url: "/finance",
     port: parseInt(process.env.PORT || "8080"),
     auth: false,
-    sentryDSN: "https://ee2a8e3295ad44939d44f1b4f38a1528@o429043.ingest.sentry.io/4504029245407232",
+    sentryDSN: "https://3de94f743c954cc89b656dcc2a3996b9@o429043.ingest.sentry.io/4504317998858240",
     proxy: {
-      target: "https://expo.api.hexlabs.org",
+      target: "https://finance.api.hexlabs.org",
       changeOrigin: true,
       pathRewrite: {
-        [`^/expo`]: "",
+        [`^/finance`]: "",
       },
     },
     database: {
       type: "postgres",
-      name: "expo",
+      name: "finance",
     },
   },
 };

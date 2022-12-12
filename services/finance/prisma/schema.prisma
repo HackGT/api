@@ -1,0 +1,207 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URL")
+}
+
+enum AccessLevel {
+  NONE
+  MEMBER
+  EXEC
+  ADMIN
+}
+
+enum RequisitionStatus {
+  DRAFT
+  SUBMITTED
+  PENDING_CHANGES
+  READY_TO_ORDER
+  ORDERED
+  PARTIALLY_RECEIVED
+  RECEIVED
+  CLOSED
+  CANCELLED
+  READY_FOR_REIMBURSEMENT
+  AWAITING_INFORMATION
+  REIMBURSEMENT_IN_PROGRESS
+}
+
+enum Month {
+  JANUARY
+  FEBRUARY
+  MARCH
+  APRIL
+  MAY
+  JUNE
+  JULY
+  AUGUST
+  SEPTEMBER
+  OCTOBER
+  NOVEMBER
+  DECEMBER
+}
+
+model Budget {
+  id           Int           @id @default(autoincrement())
+  name         String
+  categories   Category[]
+  requisitions Requisition[]
+  archived     Boolean       @default(false)
+}
+
+model Category {
+  id        Int        @id @default(autoincrement())
+  name      String
+  budgetId  Int
+  budget    Budget     @relation(fields: [budgetId], references: [id])
+  lineItems LineItem[]
+}
+
+model LineItem {
+  id               Int               @id @default(autoincrement())
+  name             String
+  quantity         Int
+  unitCost         Float
+  categoryId       Int
+  category         Category          @relation(fields: [categoryId], references: [id])
+  requisitionItems RequisitionItem[]
+}
+
+model OperatingBudget {
+  id                 Int                 @id @default(autoincrement())
+  month              Month
+  year               Int
+  operatingLineItems OperatingLineItem[]
+}
+
+model OperatingLineItem {
+  id                Int             @id @default(autoincrement())
+  name              String
+  cost              Float
+  operatingBudgetId Int
+  OperatingBudget   OperatingBudget @relation(fields: [operatingBudgetId], references: [id])
+}
+
+model Approval {
+  id            Int         @id @default(autoincrement())
+  isApproving   Boolean
+  notes         String?
+  date          DateTime    @default(now())
+  approverId    Int
+  requisitionId Int
+  approver      User        @relation(fields: [approverId], references: [id])
+  requisition   Requisition @relation(fields: [requisitionId], references: [id])
+}
+
+model File {
+  id            Int         @id @default(autoincrement())
+  name          String
+  googleName    String      @unique
+  isActive      Boolean     @default(true)
+  requisitionId Int
+  mimetype      String
+  requisition   Requisition @relation(fields: [requisitionId], references: [id])
+}
+
+model Payment {
+  id              Int           @id @default(autoincrement())
+  amount          Float
+  date            String
+  fundingSourceId Int
+  requisitionId   Int
+  fundingSource   PaymentMethod @relation(fields: [fundingSourceId], references: [id])
+  requisition     Requisition   @relation(fields: [requisitionId], references: [id])
+}
+
+model PaymentMethod {
+  id                        Int           @id @default(autoincrement())
+  name                      String        @unique
+  isActive                  Boolean       @default(true)
+  reimbursementInstructions String?
+  isDirectPayment           Boolean       @default(false)
+  payments                  Payment[]
+  requisitions              Requisition[]
+}
+
+model Project {
+  id           Int           @id @default(autoincrement())
+  name         String
+  archived     Boolean       @default(false)
+  shortCode    String
+  year         Int
+  leads        User[]
+  requisitions Requisition[]
+}
+
+model Requisition {
+  id                   Int               @id @default(autoincrement())
+  headline             String?
+  description          String?
+  status               RequisitionStatus @default(DRAFT)
+  projectId            Int
+  projectRequisitionId Int
+  createdById          Int
+  paymentRequiredBy    String?
+  otherFees            Float?
+  orderDate            String?
+  shippingLocation     String?
+  isReimbursement      Boolean           @default(false)
+  fundingSourceId      Int?
+  budgetId             Int?
+  purchaseDate         String?
+  budget               Budget?           @relation(fields: [budgetId], references: [id])
+  createdBy            User              @relation(fields: [createdById], references: [id])
+  fundingSource        PaymentMethod?    @relation(fields: [fundingSourceId], references: [id])
+  project              Project           @relation(fields: [projectId], references: [id])
+  approvals            Approval[]
+  files                File[]
+  payments             Payment[]
+  items                RequisitionItem[]
+}
+
+model RequisitionItem {
+  id            Int         @id @default(autoincrement())
+  name          String?
+  quantity      Int?
+  unitPrice     Float?
+  requisitionId Int
+  link          String?
+  notes         String?
+  received      Boolean?
+  lineItemId    Int?
+  vendorId      Int?
+  lineItem      LineItem?   @relation(fields: [lineItemId], references: [id])
+  requisition   Requisition @relation(fields: [requisitionId], references: [id])
+  vendor        Vendor?     @relation(fields: [vendorId], references: [id])
+}
+
+model Vendor {
+  id               Int               @id @default(autoincrement())
+  name             String            @unique
+  isActive         Boolean           @default(true)
+  requisitionItems RequisitionItem[]
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  uuid         String        @unique
+  name         String
+  email        String        @unique
+  token        String
+  accessLevel  AccessLevel
+  slackId      String?
+  approvals    Approval[]
+  projects     Project[]
+  requisitions Requisition[]
+}
+
+model Session {
+  id        String   @id
+  sid       String   @unique
+  data      String
+  expiresAt DateTime
+}
