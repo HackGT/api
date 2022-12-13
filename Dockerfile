@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ---- Base ----
-FROM node:16-alpine as base
+FROM node:14-alpine3.16 as base
 
 ARG SERVICE
 ENV SERVICE=${SERVICE}
