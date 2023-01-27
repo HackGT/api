@@ -1,4 +1,4 @@
-import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/common";
+import { apiCall, asyncHandler, BadRequestError, ForbiddenError, checkAbility } from "@api/common";
 import { Service } from "@api/config";
 import express from "express";
 import { FilterQuery } from "mongoose";
@@ -108,6 +108,14 @@ userRoutes.route("/:userId").get(
     };
 
     res.send(combinedProfile || {});
+  })
+);
+
+userRoutes.route("/:userId").delete(
+  checkAbility("delete", "Profile"),
+  asyncHandler(async (req, res) => {
+    await ProfileModel.findByIdAndDelete(req.params.userId);
+    return res.sendStatus(204);
   })
 );
 
