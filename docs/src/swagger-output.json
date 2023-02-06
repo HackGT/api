@@ -1038,6 +1038,50 @@
         }
       }
     },
+    "/interactions/statistics": {
+      "get": {
+        "tags": [
+          "hexathons"
+        ],
+        "summary": "Get the statistics of the interactions.",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "type": {
+                    "type": "string"
+                  },
+                  "count": {
+                    "type": "integer"
+                  },
+                  "firstTimestamp": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "lastTimestamp": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
     "/events": {
       "get": {
         "tags": [
