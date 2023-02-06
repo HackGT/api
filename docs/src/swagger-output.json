@@ -271,6 +271,129 @@
         }
       }
     },
+    "/permissions/{userId}": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "Finds the permissions given to the user.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "type": "integer",
+            "description": "User ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["auth"],
+        "summary": "Updates existing user permissions by ID.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "type": "integer",
+            "description": "User ID",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "disabled": {
+                  "type": "boolean",
+                  "description": "To edit user permissions"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/actions/retrieve": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "Retrieves permissions of all users.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "user",
+            "type": "integer",
+            "description": "User ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["auth"],
+        "summary": "Updates existing user permissions by ID.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "user",
+            "type": "integer",
+            "description": "User ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
     "/files/upload": {
       "post": {
         "tags": ["files"],
