@@ -2983,6 +2983,258 @@
         }
       }
     },
+    "/tag": {
+      "get": {
+        "tags": [
+          "hexathons"
+        ],
+        "summary": "Read the tags.",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "type": {
+                    "type": "string"
+                  },
+                  "required": {
+                    "type": "boolean"
+                  },
+                  "ref": {
+                    "type": "string"
+                  },
+                  "index": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "hexathons"
+        ],
+        "summary": "Create a new tag.",
+        "description": "",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "ref": {
+                  "type": "string"
+                },
+                "index": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "type": {
+                    "type": "string"
+                  },
+                  "required": {
+                    "type": "boolean"
+                  },
+                  "ref": {
+                    "type": "string"
+                  },
+                  "index": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/tag/{id}": {
+      "get": {
+        "tags": [
+          "hexathons"
+        ],
+        "summary": "Get an existing tag by id.",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Tag id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "ref": {
+                  "type": "string"
+                },
+                "index": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "hexathons"
+        ],
+        "summary": "Update an existing location by id.",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Location id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "ref": {
+                  "type": "string"
+                },
+                "index": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "type": {
+                    "type": "string"
+                  },
+                  "required": {
+                    "type": "boolean"
+                  },
+                  "ref": {
+                    "type": "string"
+                  },
+                  "index": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "hexathons"
+        ],
+        "summary": "Deletes a tag by ID.",
+        "description": "",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "description": "Tag ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully deleted"
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
     "/companies": {
       "post": {
         "tags": [
