@@ -196,7 +196,7 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       },
     },
     database: {
-      type: "postgres",
+      type: "mongo",
       name: "cms",
     },
   },
