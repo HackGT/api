@@ -29,21 +29,26 @@
     {
       "name": "auth",
       "description": "Everything about auth."
-    },
-    {
-      "name": "hardware",
-      "description": "Everything about hardware."
     }
   ],
-  "schemes": ["https", "http"],
+  "schemes": [
+    "https",
+    "http"
+  ],
   "paths": {
     "/auth/login": {
       "post": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "summary": "Create the session cookie for a user.",
         "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "idToken",
@@ -67,10 +72,14 @@
     },
     "/auth/status": {
       "get": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "summary": "User status.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "responses": {
           "200": {
             "description": "successful operation",
@@ -92,10 +101,14 @@
     },
     "/auth/logout": {
       "get": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "summary": "User logout.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "responses": {
           "204": {
             "description": "successful operation"
@@ -108,10 +121,14 @@
     },
     "/firebase-users": {
       "get": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "summary": "Finds and displays all users.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "pageSize",
@@ -157,10 +174,14 @@
     },
     "/firebase-users/{userId}": {
       "get": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "summary": "Finds a user by user ID.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "userId",
@@ -183,10 +204,14 @@
         }
       },
       "patch": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "summary": "Updates existing user by ID.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "userId",
@@ -224,10 +249,14 @@
         }
       },
       "delete": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "summary": "Deletes a user by ID.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "userId",
@@ -249,10 +278,14 @@
     },
     "/firebase-users/email/{email}": {
       "get": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "summary": "Finds a user by email",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "email",
@@ -275,570 +308,19 @@
         }
       }
     },
-    "/permissions/{userId}": {
-      "get": {
-        "tags": ["auth"],
-        "summary": "Get user permission info by user ID.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "type": "integer",
-            "description": "User ID",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Permission"
-            }
-          },
-          "400": {
-            "description": "Empty JSON object"
-          }
-        }
-      },
-      "post": {
-        "tags": ["auth"],
-        "summary": "Update user permissions.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "type": "integer",
-            "description": "User ID",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "roles": {
-                  "type": "array",
-                  "description": "array of roles for user"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Permission"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/permissions/actions/retrieve": {
-      "get": {
-        "tags": ["auth"],
-        "summary": "Get permission info for all users.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "type": "integer",
-            "description": "User ID for admin check",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Permission"
-              }
-            }
-          },
-          "400": {
-            "description": "Empty JSON object"
-          }
-        }
-      },
-      "post": {
-        "tags": ["auth"],
-        "summary": "Batch update users' permissions.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "type": "integer",
-            "description": "User ID",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "roles": {
-                  "type": "array",
-                  "description": "array of user ids"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Permission"
-              }
-            }
-          },
-          "400": {
-            "description": "Empty JSON object"
-          }
-        }
-      }
-    },
-    "/categories": {
-      "get": {
-        "tags": ["hardware"],
-        "summary": "Get all categories.",
-        "description": "",
-        "produces": ["application/json"],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Category"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      },
-      "post": {
-        "tags": ["hardware"],
-        "summary": "Create a category.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string",
-                  "description": "name of category"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Category"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      },
-      "patch": {
-        "tags": ["hardware"],
-        "summary": "Update a category.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number",
-                  "description": "category id"
-                },
-                "name": {
-                  "type": "string",
-                  "description": "name of category"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Category"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/hardware-requests": {
-      "get": {
-        "tags": ["hardware"],
-        "summary": "Get all hardware requests.",
-        "description": "",
-        "produces": ["application/json"],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/HardwareRequest"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      },
-      "post": {
-        "tags": ["hardware"],
-        "summary": "Make a hardware request.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/HardwareRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/HardwareRequest"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/hardware-requests/{id}": {
-      "get": {
-        "tags": ["hardware"],
-        "summary": "Get a hardware request.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "type": "integer",
-            "description": "Hardware request ID",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/HardwareRequest"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      },
-      "delete": {
-        "tags": ["hardware"],
-        "summary": "Delete a hardware request.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "type": "integer",
-            "description": "Hardware request ID",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/HardwareRequest"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/items": {
-      "get": {
-        "tags": ["hardware"],
-        "summary": "Get all items by filter.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "name",
-            "in": "query",
-            "type": "string",
-            "description": "Item name"
-          },
-          {
-            "name": "location",
-            "in": "query",
-            "type": "string",
-            "description": "Item location"
-          },
-          {
-            "name": "category",
-            "in": "query",
-            "type": "string",
-            "description": "Item category"
-          },
-          {
-            "name": "description",
-            "in": "query",
-            "type": "string",
-            "description": "Item description"
-          },
-          {
-            "name": "hidden",
-            "in": "query",
-            "type": "boolean",
-            "description": "Item visibility"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/HardwareItem"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      },
-      "post": {
-        "tags": ["hardware"],
-        "summary": "Create an item.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/HardwareItem"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/HardwareItem"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/items/{id}": {
-      "get": {
-        "tags": ["hardware"],
-        "summary": "Get an item.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "type": "number",
-            "description": "Item ID"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/HardwareItem"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/items/amount/{id}": {
-      "get": {
-        "tags": ["hardware"],
-        "summary": "Get item quantity.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "type": "number",
-            "description": "Item ID"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "number"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/locations": {
-      "get": {
-        "tags": ["hardware"],
-        "summary": "Get all item locations.",
-        "description": "",
-        "produces": ["application/json"],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      },
-      "post": {
-        "tags": ["hardware"],
-        "summary": "Create an item location.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Location"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      },
-      "put": {
-        "tags": ["hardware"],
-        "summary": "Create an item location if not already present.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Location"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
     "/files/upload": {
       "post": {
-        "tags": ["files"],
+        "tags": [
+          "files"
+        ],
         "summary": "Upload a new file.",
         "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "responses": {
           "200": {
             "description": "File successfully uploaded",
@@ -854,10 +336,14 @@
     },
     "/files/{id}": {
       "get": {
-        "tags": ["files"],
+        "tags": [
+          "files"
+        ],
         "summary": "Finds a file by id.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -882,10 +368,14 @@
     },
     "/files/{id}/view": {
       "get": {
-        "tags": ["files"],
+        "tags": [
+          "files"
+        ],
         "summary": "Finds and displays file url by id.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -907,10 +397,14 @@
     },
     "/hexathons": {
       "get": {
-        "tags": ["hexathons"],
+        "tags": [
+          "hexathons"
+        ],
         "summary": "Finds and displays information of all hexathons.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "responses": {
           "200": {
             "description": "successful operation",
@@ -927,11 +421,17 @@
         }
       },
       "post": {
-        "tags": ["hexathons"],
+        "tags": [
+          "hexathons"
+        ],
         "summary": "Create a new hexathon.",
         "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "body",
@@ -983,10 +483,14 @@
     },
     "/hexathons/{id}": {
       "get": {
-        "tags": ["hexathons"],
+        "tags": [
+          "hexathons"
+        ],
         "summary": "Finds and displays hexathon by id.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -1012,11 +516,17 @@
         }
       },
       "put": {
-        "tags": ["hexathons"],
+        "tags": [
+          "hexathons"
+        ],
         "summary": "Update an existing hexathon by id.",
         "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -1075,10 +585,14 @@
     },
     "/hexathon-users/{hexathonId}/users": {
       "get": {
-        "tags": ["hexathons"],
+        "tags": [
+          "hexathons"
+        ],
         "summary": "Gets all hexathon users",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "hexathonId",
@@ -1138,10 +652,14 @@
     },
     "/hexathon-users/{hexathonId}/users/{userId}": {
       "get": {
-        "tags": ["hexathons"],
+        "tags": [
+          "hexathons"
+        ],
         "summary": "Gets a hexathon user",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "hexathonId",
@@ -1174,10 +692,14 @@
         }
       },
       "patch": {
-        "tags": ["hexathons"],
+        "tags": [
+          "hexathons"
+        ],
         "summary": "Updates a hexathon user",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "hexathonId",
@@ -1231,10 +753,14 @@
     },
     "/hexathon-users/{hexathonId}/users/{userId}/actions/check-valid-user": {
       "post": {
-        "tags": ["hexathons"],
+        "tags": [
+          "hexathons"
+        ],
         "summary": "Checks if a user is valid for a hexathon",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "hexathonId",
@@ -1263,10 +789,14 @@
     },
     "/hexathon-users/{hexathonId}/users/{userId}/actions/purchase-prize-item": {
       "post": {
-        "tags": ["hexathons"],
+        "tags": [
+          "hexathons"
+        ],
         "summary": "Purchases a prize item for a selected user",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "hexathonId",
@@ -1312,10 +842,14 @@
     },
     "/hexathon-users/{hexathonId}/users/{userId}/actions/update-points": {
       "post": {
-        "tags": ["hexathons"],
+        "tags": [
+          "hexathons"
+        ],
         "summary": "Updates points for a user",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "hexathonId",
@@ -1361,10 +895,14 @@
     },
     "/interactions": {
       "get": {
-        "tags": ["hexathons"],
+        "tags": [
+          "hexathons"
+        ],
         "summary": "Finds and displays information of all interactions.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "hexathon",
@@ -1399,11 +937,17 @@
         }
       },
       "post": {
-        "tags": ["hexathons"],
+        "tags": [
+          "hexathons"
+        ],
         "summary": "Create a new interaction.",
         "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "body",
@@ -1441,11 +985,17 @@
     },
     "/interactions/{id}": {
       "put": {
-        "tags": ["hexathons"],
+        "tags": [
+          "hexathons"
+        ],
         "summary": "Update an existing interaction by id.",
         "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -1490,10 +1040,14 @@
     },
     "/events": {
       "get": {
-        "tags": ["hexathons"],
+        "tags": [
+          "hexathons"
+        ],
         "summary": "Finds and displays information of all events.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "hexathon",
@@ -1520,11 +1074,17 @@
         }
       },
       "post": {
-        "tags": ["hexathons"],
+        "tags": [
+          "hexathons"
+        ],
         "summary": "Create a new event.",
         "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "body",
@@ -1592,11 +1152,17 @@
     },
     "/events/{id}": {
       "put": {
-        "tags": ["hexathons"],
+        "tags": [
+          "hexathons"
+        ],
         "summary": "Update an existing interaction by id.",
         "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -1671,10 +1237,14 @@
           }
         },
         "delete": {
-          "tags": ["hexathons"],
+          "tags": [
+            "hexathons"
+          ],
           "summary": "Deletes an event by id",
           "description": "",
-          "produces": ["application/json"],
+          "produces": [
+            "application/json"
+          ],
           "responses": {
             "204": {
               "description": "successful operation"
@@ -1688,10 +1258,14 @@
     },
     "/prize-items": {
       "get": {
-        "tags": ["hexathons"],
+        "tags": [
+          "hexathons"
+        ],
         "summary": "Finds all prize items",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "hexathon",
@@ -1717,11 +1291,17 @@
         }
       },
       "post": {
-        "tags": ["hexathons"],
+        "tags": [
+          "hexathons"
+        ],
         "summary": "Create a new prize item.",
         "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "body",
@@ -1752,10 +1332,14 @@
     },
     "/prize-items/{id}": {
       "get": {
-        "tags": ["hexathons"],
+        "tags": [
+          "hexathons"
+        ],
         "summary": "Gets a prize item by id",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "responses": {
           "200": {
             "description": "successful operation",
@@ -1769,11 +1353,17 @@
         }
       },
       "put": {
-        "tags": ["hexathons"],
+        "tags": [
+          "hexathons"
+        ],
         "summary": "Update an existing prize item by id.",
         "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -1809,10 +1399,14 @@
         }
       },
       "delete": {
-        "tags": ["hexathons"],
+        "tags": [
+          "hexathons"
+        ],
         "summary": "Deletes a prize item by id",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "responses": {
           "204": {
             "description": "successful operation"
@@ -1825,11 +1419,17 @@
     },
     "/email/send": {
       "post": {
-        "tags": ["notifications"],
+        "tags": [
+          "notifications"
+        ],
         "summary": "Send an email.",
         "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "body",
@@ -1887,11 +1487,17 @@
     },
     "/email/send-personalized": {
       "post": {
-        "tags": ["notifications"],
+        "tags": [
+          "notifications"
+        ],
         "summary": "Send a personalized email by user data.",
         "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "body",
@@ -1949,11 +1555,17 @@
     },
     "/email/render": {
       "post": {
-        "tags": ["notifications"],
+        "tags": [
+          "notifications"
+        ],
         "summary": "Renders an email from the template.",
         "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "body",
@@ -1996,11 +1608,17 @@
     },
     "/text/send": {
       "post": {
-        "tags": ["notifications"],
+        "tags": [
+          "notifications"
+        ],
         "summary": "Send a text.",
         "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "body",
@@ -2035,10 +1653,14 @@
     },
     "/applications": {
       "get": {
-        "tags": ["registration"],
+        "tags": [
+          "registration"
+        ],
         "summary": "Finds and displays information of all applications without data.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "hexathon",
@@ -2125,10 +1747,14 @@
     },
     "/applications/compile-extra-info": {
       "get": {
-        "tags": ["registration"],
+        "tags": [
+          "registration"
+        ],
         "summary": "Compiles the extra information of all applications",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "responses": {
           "200": {
             "description": "successful operation",
@@ -2147,10 +1773,14 @@
     },
     "/applications/{id}": {
       "get": {
-        "tags": ["registration"],
+        "tags": [
+          "registration"
+        ],
         "summary": "Finds and displays application by id.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -2175,11 +1805,17 @@
     },
     "/applications/actions/choose-application-branch": {
       "post": {
-        "tags": ["registration"],
+        "tags": [
+          "registration"
+        ],
         "summary": "Creates a new application based on the branch chosen.",
         "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "body",
@@ -2214,11 +1850,17 @@
     },
     "/applications/{id}/actions/save-application-data": {
       "post": {
-        "tags": ["registration"],
+        "tags": [
+          "registration"
+        ],
         "summary": "Saves application data.",
         "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -2240,7 +1882,10 @@
                 },
                 "branchType": {
                   "type": "string",
-                  "enum": ["APPLICATION", "CONFIRMATION"]
+                  "enum": [
+                    "APPLICATION",
+                    "CONFIRMATION"
+                  ]
                 },
                 "branchFormPage": {
                   "type": "number"
@@ -2285,11 +1930,17 @@
     },
     "/applications/{id}/actions/submit-application": {
       "post": {
-        "tags": ["registration"],
+        "tags": [
+          "registration"
+        ],
         "summary": "Submit an application.",
         "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -2308,7 +1959,10 @@
               "properties": {
                 "branchType": {
                   "type": "string",
-                  "enum": ["APPLICATION", "CONFIRMATION"]
+                  "enum": [
+                    "APPLICATION",
+                    "CONFIRMATION"
+                  ]
                 }
               }
             }
@@ -2326,11 +1980,17 @@
     },
     "/applications/{id}/actions/reset-application": {
       "post": {
-        "tags": ["registration"],
+        "tags": [
+          "registration"
+        ],
         "summary": "Reset an application back to draft.",
         "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -2352,10 +2012,14 @@
     },
     "/branches": {
       "get": {
-        "tags": ["registration"],
+        "tags": [
+          "registration"
+        ],
         "summary": "Finds and displays information of all branches.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "hexathon",
@@ -2381,11 +2045,17 @@
         }
       },
       "post": {
-        "tags": ["registration"],
+        "tags": [
+          "registration"
+        ],
         "summary": "Create a new branch.",
         "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "body",
@@ -2444,10 +2114,14 @@
     },
     "/branches/{id}": {
       "get": {
-        "tags": ["registration"],
+        "tags": [
+          "registration"
+        ],
         "summary": "Find a branch by id.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -2470,11 +2144,17 @@
         }
       },
       "patch": {
-        "tags": ["registration"],
+        "tags": [
+          "registration"
+        ],
         "summary": "Update an existing branch by id.",
         "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -2540,10 +2220,14 @@
     },
     "/statistics": {
       "get": {
-        "tags": ["registration"],
+        "tags": [
+          "registration"
+        ],
         "summary": "Displays registration statistics.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "hexathon",
@@ -2610,10 +2294,14 @@
     },
     "/grading/actions/retrieve-question": {
       "post": {
-        "tags": ["registration"],
+        "tags": [
+          "registration"
+        ],
         "summary": "Gets a question for grading",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "body",
@@ -2628,7 +2316,10 @@
                 },
                 "gradingGroup": {
                   "type": "string",
-                  "enum": ["generalGroup", "emergingGroup"]
+                  "enum": [
+                    "generalGroup",
+                    "emergingGroup"
+                  ]
                 }
               }
             }
@@ -2675,10 +2366,14 @@
     },
     "/grading/actions/submit-review": {
       "post": {
-        "tags": ["registration"],
+        "tags": [
+          "registration"
+        ],
         "summary": "Submits a graded question",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "body",
@@ -2699,7 +2394,10 @@
                 },
                 "gradingGroup": {
                   "type": "string",
-                  "enum": ["generalGroup", "emergingGroup"]
+                  "enum": [
+                    "generalGroup",
+                    "emergingGroup"
+                  ]
                 },
                 "score": {
                   "type": "integer"
@@ -2720,10 +2418,14 @@
     },
     "/grading/actions/skip-question": {
       "post": {
-        "tags": ["registration"],
+        "tags": [
+          "registration"
+        ],
         "summary": "Skips a question to grade",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "body",
@@ -2749,10 +2451,14 @@
     },
     "/grading/leaderboard": {
       "get": {
-        "tags": ["registration"],
+        "tags": [
+          "registration"
+        ],
         "summary": "Gets the current grading leaderboard",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "hexathon",
@@ -2794,10 +2500,14 @@
     },
     "/grading/export": {
       "get": {
-        "tags": ["registration"],
+        "tags": [
+          "registration"
+        ],
         "summary": "Exports the grading data as csv for a hexathon",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "hexathon",
@@ -2817,10 +2527,14 @@
     },
     "/email": {
       "get": {
-        "tags": ["registration"],
+        "tags": [
+          "registration"
+        ],
         "summary": "Gets all the emails for a hexathon",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "hexathon",
@@ -2846,10 +2560,14 @@
     },
     "/email/actions/send-emails": {
       "post": {
-        "tags": ["registration"],
+        "tags": [
+          "registration"
+        ],
         "summary": "Sends email to a set of users",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "body",
@@ -2902,11 +2620,17 @@
     },
     "/checkin": {
       "get": {
-        "tags": ["hexathons"],
+        "tags": [
+          "hexathons"
+        ],
         "summary": "Gets the checkin information of every user.",
         "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "responses": {
           "200": {
             "description": "successful operation",
@@ -2923,11 +2647,17 @@
         }
       },
       "post": {
-        "tags": ["hexathons"],
+        "tags": [
+          "hexathons"
+        ],
         "summary": "Checkin a new user.",
         "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "body",
@@ -2968,10 +2698,14 @@
     },
     "/checkin/{id}": {
       "get": {
-        "tags": ["hexathons"],
+        "tags": [
+          "hexathons"
+        ],
         "summary": "Finds and displays checkin by id.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -2997,11 +2731,17 @@
         }
       },
       "patch": {
-        "tags": ["hexathons"],
+        "tags": [
+          "hexathons"
+        ],
         "summary": "Update an existing checkin.",
         "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -3036,13 +2776,182 @@
         }
       }
     },
+    "/location": {
+      "get": {
+        "tags": [
+          "hexathons"
+        ],
+        "summary": "Get all locations.",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "hexathons"
+        ],
+        "summary": "Create new location.",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/location/{id}": {
+      "put": {
+        "tags": [
+          "hexathons"
+        ],
+        "summary": "Update an existing location by id.",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Location id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "hexathons"
+        ],
+        "summary": "Deletes a location by ID.",
+        "description": "",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "description": "Location ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully deleted"
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
     "/companies": {
       "post": {
-        "tags": ["users"],
+        "tags": [
+          "users"
+        ],
         "summary": "Create a new company.",
         "description": "",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "body",
@@ -3095,10 +3004,14 @@
     },
     "/companies/{id}": {
       "get": {
-        "tags": ["users"],
+        "tags": [
+          "users"
+        ],
         "summary": "Finds and displays company by id.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -3124,10 +3037,14 @@
         }
       },
       "put": {
-        "tags": ["users"],
+        "tags": [
+          "users"
+        ],
         "summary": "Updates an existing company by id.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -3155,10 +3072,14 @@
     },
     "/companies/{id}/employees/add": {
       "post": {
-        "tags": ["users"],
+        "tags": [
+          "users"
+        ],
         "summary": "Adds an employee to the company.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -3186,10 +3107,14 @@
     },
     "/companies/{id}/employees/": {
       "put": {
-        "tags": ["users"],
+        "tags": [
+          "users"
+        ],
         "summary": "Updates an employee in the company.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -3217,10 +3142,14 @@
     },
     "/users": {
       "get": {
-        "tags": ["users"],
+        "tags": [
+          "users"
+        ],
         "summary": "Search for a user profile.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "search",
@@ -3277,10 +3206,14 @@
         }
       },
       "post": {
-        "tags": ["users"],
+        "tags": [
+          "users"
+        ],
         "summary": "Create a user's profile.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "body",
@@ -3332,10 +3265,14 @@
     },
     "/users/{userId}": {
       "get": {
-        "tags": ["users"],
+        "tags": [
+          "users"
+        ],
         "summary": "Finds and displays profile by user ID.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "userId",
@@ -3366,10 +3303,14 @@
         }
       },
       "put": {
-        "tags": ["users"],
+        "tags": [
+          "users"
+        ],
         "summary": "Update a user's profile.",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "userId",
@@ -3394,10 +3335,14 @@
     },
     "/users/actions/retrieve": {
       "post": {
-        "tags": ["users"],
+        "tags": [
+          "users"
+        ],
         "summary": "Gets user profiles by list of userIds",
         "description": "",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "body",
@@ -3539,7 +3484,11 @@
         },
         "type": {
           "type": "string",
-          "enum": ["event", "scavenger_hunt", "expo_submission"]
+          "enum": [
+            "event",
+            "scavenger_hunt",
+            "expo_submission"
+          ]
         },
         "identifier": {
           "type": "string"
@@ -3666,7 +3615,14 @@
         },
         "status": {
           "type": "string",
-          "enum": ["DRAFT", "APPLIED", "ACCEPTED", "WAITLISTED", "CONFIRMED", "DENIED"]
+          "enum": [
+            "DRAFT",
+            "APPLIED",
+            "ACCEPTED",
+            "WAITLISTED",
+            "CONFIRMED",
+            "DENIED"
+          ]
         },
         "gradingComplete": {
           "type": "number"
@@ -3846,11 +3802,22 @@
         },
         "type": {
           "type": "string",
-          "enum": ["APPLICATION", "CONFIRMATION"]
+          "enum": [
+            "APPLICATION",
+            "CONFIRMATION"
+          ]
         },
         "applicationGroup": {
           "type": "string",
-          "enum": ["PARTICIPANT", "JUDGE", "MENTOR", "VOLUNTEER", "SPONSOR", "PARTNER", "STAFF"]
+          "enum": [
+            "PARTICIPANT",
+            "JUDGE",
+            "MENTOR",
+            "VOLUNTEER",
+            "SPONSOR",
+            "PARTNER",
+            "STAFF"
+          ]
         },
         "description": {
           "type": "string"
@@ -3917,7 +3884,10 @@
             },
             "group": {
               "type": "string",
-              "enum": ["generalGroup", "emergingGroup"]
+              "enum": [
+                "generalGroup",
+                "emergingGroup"
+              ]
             }
           }
         }
@@ -3948,7 +3918,10 @@
             "properties": {
               "group": {
                 "type": "string",
-                "enum": ["generalGroup", "emergingGroup"]
+                "enum": [
+                  "generalGroup",
+                  "emergingGroup"
+                ]
               },
               "score": {
                 "type": "number"
@@ -4292,133 +4265,6 @@
         },
         "image_url": {
           "type": "string"
-        }
-      }
-    },
-    "Cart": {
-      "type": "object",
-      "properties": {
-        "orderNumber": {
-          "type": "number"
-        },
-        "items": {
-          "$ref": "#/definitions/HardwareItem"
-        },
-        "uid": {
-          "type": "string"
-        }
-      }
-    },
-    "HardwareItem": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "required": true
-        },
-        "description": {
-          "type": "string",
-          "required": false
-        },
-        "imageUrl": {
-          "type": "string",
-          "required": false
-        },
-        "totalAvailable": {
-          "type": "number",
-          "required": true
-        },
-        "maxRequestQty": {
-          "type": "number",
-          "required": true
-        },
-        "price": {
-          "type": "number",
-          "required": true
-        },
-        "hidden": {
-          "type": "boolean",
-          "required": true,
-          "default": false
-        },
-        "returnRequired": {
-          "type": "boolean",
-          "required": true,
-          "default": true
-        },
-        "approvalRequired": {
-          "type": "boolean",
-          "required": true,
-          "default": true
-        },
-        "owner": {
-          "type": "string",
-          "required": true
-        },
-        "category": {
-          "type": "string",
-          "required": true
-        },
-        "location": {
-          "type": "string",
-          "required": true
-        },
-        "requests": {
-          "type": "array",
-          "items": {
-            "type": "number"
-          },
-          "default": []
-        }
-      }
-    },
-    "Location": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "required": true
-        },
-        "hidden": {
-          "type": "boolean",
-          "required": true,
-          "default": false
-        }
-      }
-    },
-    "Category": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "required": true
-        }
-      }
-    },
-    "HardwareRequest": {
-      "type": "object",
-      "properties": {
-        "quantity": {
-          "type": "number",
-          "required": true
-        },
-        "status": {
-          "type": "string",
-          "required": true
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "required": true
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "required": true
-        },
-        "item": {
-          "type": "number",
-          "required": true
         }
       }
     }
