@@ -49,6 +49,7 @@ export enum Service {
   EXPO = "EXPO",
   HARDWARE = "HARDWARE",
   FINANCE = "FINANCE",
+  CMS = "CMS",
 }
 
 export interface ServiceConfig {

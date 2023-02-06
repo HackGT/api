@@ -6,6 +6,7 @@
   "private": true,
   "workspaces": [
     "services/auth",
+    "services/cms",
     "services/expo",
     "services/files",
     "services/finance",

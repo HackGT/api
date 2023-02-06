@@ -183,6 +183,23 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       name: "finance",
     },
   },
+  CMS: {
+    url: "/cms",
+    port: parseInt(process.env.PORT || "8080"),
+    auth: false,
+    sentryDSN: "https://0f121b80f2894e14906bc0f208e1078e@o429043.ingest.sentry.io/4504616714633216",
+    proxy: {
+      target: "https://cms.api.hexlabs.org",
+      changeOrigin: true,
+      pathRewrite: {
+        [`^/cms`]: "",
+      },
+    },
+    database: {
+      type: "postgres",
+      name: "cms",
+    },
+  },
 };
 
 // const SERVICES = [

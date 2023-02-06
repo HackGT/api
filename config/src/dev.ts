@@ -175,6 +175,22 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       name: "finance",
     },
   },
+  CMS: {
+    url: "/cms",
+    port: 8010,
+    auth: false,
+    proxy: {
+      target: "http://localhost:8010",
+      changeOrigin: false,
+      pathRewrite: {
+        [`^/cms`]: "",
+      },
+    },
+    database: {
+      type: "postgres",
+      name: "cms",
+    },
+  },
 };
 
 // const SERVICES = [
