@@ -29,6 +29,10 @@
     {
       "name": "auth",
       "description": "Everything about auth."
+    },
+    {
+      "name": "hardware",
+      "description": "Everything about hardware."
     }
   ],
   "schemes": ["https", "http"],
@@ -263,6 +267,563 @@
             "description": "successful operation",
             "schema": {
               "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/permissions/{userId}": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "Get user permission info by user ID.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "type": "integer",
+            "description": "User ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Permission"
+            }
+          },
+          "400": {
+            "description": "Empty JSON object"
+          }
+        }
+      },
+      "post": {
+        "tags": ["auth"],
+        "summary": "Update user permissions.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "type": "integer",
+            "description": "User ID",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "roles": {
+                  "type": "array",
+                  "description": "array of roles for user"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Permission"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/permissions/actions/retrieve": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "Get permission info for all users.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "type": "integer",
+            "description": "User ID for admin check",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Permission"
+              }
+            }
+          },
+          "400": {
+            "description": "Empty JSON object"
+          }
+        }
+      },
+      "post": {
+        "tags": ["auth"],
+        "summary": "Batch update users' permissions.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "type": "integer",
+            "description": "User ID",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "roles": {
+                  "type": "array",
+                  "description": "array of user ids"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Permission"
+              }
+            }
+          },
+          "400": {
+            "description": "Empty JSON object"
+          }
+        }
+      }
+    },
+    "/categories": {
+      "get": {
+        "tags": ["hardware"],
+        "summary": "Get all categories.",
+        "description": "",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Category"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "post": {
+        "tags": ["hardware"],
+        "summary": "Create a category.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "name of category"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Category"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["hardware"],
+        "summary": "Update a category.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number",
+                  "description": "category id"
+                },
+                "name": {
+                  "type": "string",
+                  "description": "name of category"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Category"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/hardware-requests": {
+      "get": {
+        "tags": ["hardware"],
+        "summary": "Get all hardware requests.",
+        "description": "",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/HardwareRequest"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "post": {
+        "tags": ["hardware"],
+        "summary": "Make a hardware request.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/HardwareRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/HardwareRequest"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/hardware-requests/{id}": {
+      "get": {
+        "tags": ["hardware"],
+        "summary": "Get a hardware request.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "description": "Hardware request ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/HardwareRequest"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["hardware"],
+        "summary": "Delete a hardware request.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "description": "Hardware request ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/HardwareRequest"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/items": {
+      "get": {
+        "tags": ["hardware"],
+        "summary": "Get all items by filter.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "type": "string",
+            "description": "Item name"
+          },
+          {
+            "name": "location",
+            "in": "query",
+            "type": "string",
+            "description": "Item location"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "type": "string",
+            "description": "Item category"
+          },
+          {
+            "name": "description",
+            "in": "query",
+            "type": "string",
+            "description": "Item description"
+          },
+          {
+            "name": "hidden",
+            "in": "query",
+            "type": "boolean",
+            "description": "Item visibility"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/HardWareItem"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "post": {
+        "tags": ["hardware"],
+        "summary": "Create an item.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/HardWareItem"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/HardWareItem"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/items/{id}": {
+      "get": {
+        "tags": ["hardware"],
+        "summary": "Get an item.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "number",
+            "description": "Item ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/HardWareItem"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/items/amount/{id}": {
+      "get": {
+        "tags": ["hardware"],
+        "summary": "Get item quantity.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "number",
+            "description": "Item ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "number"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/locations": {
+      "get": {
+        "tags": ["hardware"],
+        "summary": "Get all item locations.",
+        "description": "",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "post": {
+        "tags": ["hardware"],
+        "summary": "Create an item location.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Location"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "put": {
+        "tags": ["hardware"],
+        "summary": "Create an item location if not already present.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Location"
             }
           },
           "400": {
@@ -3731,6 +4292,133 @@
         },
         "image_url": {
           "type": "string"
+        }
+      }
+    },
+    "Cart": {
+      "type": "object",
+      "properties": {
+        "orderNumber": {
+          "type": "number"
+        },
+        "items": {
+          "$ref": "#/definitions/HardWareItem"
+        },
+        "uid": {
+          "type": "string"
+        }
+      }
+    },
+    "HardWareItem": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "required": true
+        },
+        "description": {
+          "type": "string",
+          "required": false
+        },
+        "imageUrl": {
+          "type": "string",
+          "required": false
+        },
+        "totalAvailable": {
+          "type": "number",
+          "required": true
+        },
+        "maxRequestQty": {
+          "type": "number",
+          "required": true
+        },
+        "price": {
+          "type": "number",
+          "required": true
+        },
+        "hidden": {
+          "type": "boolean",
+          "required": true,
+          "default": false
+        },
+        "returnRequired": {
+          "type": "boolean",
+          "required": true,
+          "default": true
+        },
+        "approvalRequired": {
+          "type": "boolean",
+          "required": true,
+          "default": true
+        },
+        "owner": {
+          "type": "string",
+          "required": true
+        },
+        "category": {
+          "type": "string",
+          "required": true
+        },
+        "location": {
+          "type": "string",
+          "required": true
+        },
+        "requests": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "default": []
+        }
+      }
+    },
+    "Location": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "required": true
+        },
+        "hidden": {
+          "type": "boolean",
+          "required": true,
+          "default": false
+        }
+      }
+    },
+    "Category": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "required": true
+        }
+      }
+    },
+    "HardwareRequest": {
+      "type": "object",
+      "properties": {
+        "quantity": {
+          "type": "number",
+          "required": true
+        },
+        "status": {
+          "type": "string",
+          "required": true
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "required": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "required": true
+        },
+        "item": {
+          "type": "number",
+          "required": true
         }
       }
     }
