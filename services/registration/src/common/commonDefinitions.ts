@@ -258,6 +258,21 @@ const commonDefinitions = {
       "Other [International]",
     ],
   },
+  georgiaUniversity: {
+    type: "string",
+    enum: [
+      "Georgia Institute of Technology",
+      "Georgia State University",
+      "University of Georgia",
+      "Emory University",
+      "Savannah College of Art and Design",
+      "Georgia Southern University",
+      "Berry College",
+      "University of North Georgia",
+      "Kennesaw State University",
+      "Other",
+    ],
+  },
   levelOfStudy: {
     type: "string",
     enum: [
