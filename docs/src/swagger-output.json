@@ -1071,6 +1071,29 @@
             "description": "Hexathon not found"
           }
         }
+      },
+      "delete": {
+        "tags": ["hexathons"],
+        "summary": "Deletes a hexathon by id.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Hexathon id that needs to be considered for filter.",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Hexathon not found"
+          }
+        }
       }
     },
     "/hexathon-users/{hexathonId}/users": {
