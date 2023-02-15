@@ -19,6 +19,8 @@ blockRoutes.route("/").get(
 
     if (req.query.slug) {
       filter.slug = String(req.query.slug);
+    } else if (req.query.id) {
+      filter._id = String(req.query.id);
     }
 
     const blocks = await BlockModel.accessibleBy(req.ability).find(filter);
@@ -49,15 +51,7 @@ blockRoutes.route("/").post(
   })
 );
 
-blockRoutes.route("/:id").get(
-  checkAbility("read", "Block"),
-  asyncHandler(async (req, res) => {
-    const block = await BlockModel.findById(req.params.id).accessibleBy(req.ability);
-    return res.status(200).json(block);
-  })
-);
-
-blockRoutes.route("/:id").put(
+blockRoutes.route("/:id").patch(
   checkAbility("update", "Block"),
   asyncHandler(async (req, res) => {
     const currentBlock = await BlockModel.findById(req.params.id);
@@ -66,24 +60,15 @@ blockRoutes.route("/:id").put(
       title: req.body.title,
     });
 
-    if (existingBlock && existingBlock.id !== req.params.id) {
+    console.log(existingBlock?.id === req.params.id);
+
+    if (existingBlock && existingBlock.title === req.body.title) {
       throw new BadRequestError(
         `Block with title ${req.body.title} already exists for this hexathon`
       );
     }
 
-    const block = await BlockModel.findByIdAndUpdate(
-      req.params.id,
-      {
-        $set: {
-          hexathon: req.body.hexathon,
-          title: req.body.title,
-          slug: req.body.slug,
-          content: req.body.content,
-        },
-      },
-      { new: true }
-    );
+    const block = await BlockModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
 
     res.status(200).json(block);
   })
