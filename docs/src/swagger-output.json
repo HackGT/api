@@ -325,7 +325,10 @@
               "properties": {
                 "roles": {
                   "type": "array",
-                  "description": "array of roles for user"
+                  "description": "array of roles for user",
+                  "items": {
+                    "type": "string"
+                  }
                 }
               }
             }
@@ -1511,6 +1514,171 @@
         }
       }
     },
+    "/blocks": {
+      "get": {
+        "tags": ["hexathons"],
+        "summary": "Finds and displays information of all blocks.",
+        "description": "The hexathon filter is required and only one of the id or slug filters can be applied",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathon",
+            "in": "query",
+            "description": "hexathon id that needs to be considered for filter.",
+            "required": true,
+            "type": "string",
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "slug",
+            "in": "query",
+            "description": "slug that needs to be considered for filter.",
+            "required": false,
+            "type": "string",
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "description": "id that needs to be considered for filter.",
+            "required": false,
+            "type": "string",
+            "collectionFormat": "multi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Block"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      },
+      "post": {
+        "tags": ["hexathons"],
+        "summary": "Create a new content block.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "hexathon": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Block"
+            }
+          },
+          "400": {
+            "description": "Block already exists with this title for this hexathon"
+          }
+        }
+      }
+    },
+    "/blocks/{id}": {
+      "patch": {
+        "tags": ["hexathons"],
+        "summary": "Update an existing block by id.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Block id that needs to be considered for filter.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "hexathon": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Block"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["hexathons"],
+        "summary": "Deletes a block by id",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Block id that needs to be considered for filter.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
     "/events": {
       "get": {
         "tags": ["hexathons"],
@@ -1692,19 +1860,28 @@
           "400": {
             "description": "Invalid Status"
           }
-        },
-        "delete": {
-          "tags": ["hexathons"],
-          "summary": "Deletes an event by id",
-          "description": "",
-          "produces": ["application/json"],
-          "responses": {
-            "204": {
-              "description": "successful operation"
-            },
-            "400": {
-              "description": "Invalid status"
-            }
+        }
+      },
+      "delete": {
+        "tags": ["hexathons"],
+        "summary": "Deletes an event by id",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Event id that needs to be considered for filter.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid status"
           }
         }
       }
@@ -3637,6 +3814,29 @@
       },
       "xml": {
         "name": "Event"
+      }
+    },
+    "Block": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "hexathon": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "xml": {
+        "name": "Block"
       }
     },
     "BasicApplication": {
