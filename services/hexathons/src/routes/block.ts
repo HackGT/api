@@ -60,8 +60,6 @@ blockRoutes.route("/:id").patch(
       title: req.body.title,
     });
 
-    console.log(existingBlock?.id === req.params.id);
-
     if (existingBlock && existingBlock.title === req.body.title) {
       throw new BadRequestError(
         `Block with title ${req.body.title} already exists for this hexathon`
