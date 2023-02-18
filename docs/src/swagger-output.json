@@ -2038,6 +2038,15 @@
                     },
                     "schoolYearData": {
                       "type": "object"
+                    },
+                    "marketingData": {
+                      "type": "object"
+                    },
+                    "shirtSizeData": {
+                      "type": "object"
+                    },
+                    "dietaryRestrictionsData": {
+                      "type": "object"
                     }
                   }
                 }

@@ -106,6 +106,54 @@ statisticsRouter.route("/").get(
               },
             },
           ],
+          // marketing data for applied applications
+          marketingData: [
+            {
+              $match: {
+                "status": { $ne: StatusType.DRAFT },
+                "applicationData.marketing": { $ne: null },
+              },
+            },
+            {
+              $group: {
+                _id: "$applicationData.marketing",
+                count: { $sum: 1 },
+              },
+            },
+          ],
+          // shirt size data for applied applications
+          shirtSizeData: [
+            {
+              $match: {
+                "status": { $ne: StatusType.DRAFT },
+                "applicationData.shirtSize": { $ne: null },
+              },
+            },
+            {
+              $group: {
+                _id: "$applicationData.shirtSize",
+                count: { $sum: 1 },
+              },
+            },
+          ],
+          // dietary restrictions data for applied applications
+          dietaryRestrictionsData: [
+            {
+              $match: {
+                "status": { $ne: StatusType.DRAFT },
+                "applicationData.dietaryRestrictions": { $ne: null },
+              },
+            },
+            {
+              $unwind: "$applicationData.dietaryRestrictions",
+            },
+            {
+              $group: {
+                _id: "$applicationData.dietaryRestrictions",
+                count: { $sum: 1 },
+              },
+            },
+          ],
           // groups all applications by application branch and status
           applicationBranches: [
             {
@@ -240,6 +288,11 @@ statisticsRouter.route("/").get(
       schoolData: transformAggregateArray(aggregatedApplications[0].schoolData),
       majorData: transformAggregateArray(aggregatedApplications[0].majorData),
       schoolYearData: transformAggregateArray(aggregatedApplications[0].schoolYearData),
+      marketingData: transformAggregateArray(aggregatedApplications[0].marketingData),
+      shirtSizeData: transformAggregateArray(aggregatedApplications[0].shirtSizeData),
+      dietaryRestrictionsData: transformAggregateArray(
+        aggregatedApplications[0].dietaryRestrictionsData
+      ),
     };
 
     return res.send({
