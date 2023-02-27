@@ -33,6 +33,33 @@ export const uploadFile = async (file: Express.Multer.File) => {
   return googleFileName;
 };
 
+export const uploadFileCDN = async (file: Express.Multer.File) => {
+  const { originalname, buffer } = file;
+  const bucket = storage.bucket("hexlabs-public-cdn");
+
+  const googleFileName = `${path.parse(originalname).name}_${Date.now()}`;
+  const blob = bucket.file(googleFileName);
+
+  const blobStream = blob.createWriteStream({
+    resumable: false,
+    contentType: file.mimetype,
+  });
+
+  blobStream
+    .on("finish", async () => {
+      await blob.makePublic();
+      await blob.setMetadata({
+        contentType: file.mimetype,
+      });
+    })
+    .on("error", err => {
+      throw new Error(err.message);
+    })
+    .end(buffer);
+
+  return googleFileName;
+};
+
 export const getFileViewingUrl = async (file: File): Promise<string> => {
   const options: GetSignedUrlConfig = {
     version: "v4",
