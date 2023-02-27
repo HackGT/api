@@ -293,6 +293,10 @@ const commonDefinitions = {
     type: "string",
     enum: ["1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year+", "Master's", "PhD"],
   },
+  highSchoolYear: {
+    type: "string",
+    enum: ["Freshman", "Sophomore", "Junior", "Senior"],
+  },
   major: {
     type: "string",
     enum: [
