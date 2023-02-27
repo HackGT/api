@@ -47,7 +47,6 @@ export const uploadFileCDN = async (file: Express.Multer.File) => {
 
   blobStream
     .on("finish", async () => {
-      await blob.makePublic();
       await blob.setMetadata({
         contentType: file.mimetype,
       });

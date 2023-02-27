@@ -72,20 +72,6 @@ fileRoutes.route("/upload-cdn").post(
       type: req.body.type,
     });
 
-    if (req.body?.type === "resume") {
-      await apiCall(
-        Service.USERS,
-        {
-          url: `/users/${req.user?.uid}`,
-          method: "PUT",
-          data: {
-            resume: file.id,
-          },
-        },
-        req
-      );
-    }
-
     res.status(200).json(file);
   })
 );
