@@ -384,6 +384,10 @@ const commonDefinitions = {
     type: "string",
     enum: ["Vegetarian", "Vegan", "Gluten Free", "Dairy Free", "No Pork", "No Beef"],
   },
+  computerOS: {
+    type: "string",
+    enum: ["Windows", "MacOS", "Linux", "ChromeOS", "I do not have a computer", "Other"],
+  },
   skills: {
     type: "string",
     enum: [
