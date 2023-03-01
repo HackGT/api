@@ -2345,6 +2345,36 @@
         }
       }
     },
+    "/applications/slack/confirmed-users": {
+      "get": {
+        "tags": ["registration"],
+        "summary": "Compiles confirmed user emails for slack",
+        "description": "",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "confirmationBranch": {
+                  "type": "string"
+                },
+                "confirmedEmails": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      }
+    },
     "/applications/{id}": {
       "get": {
         "tags": ["registration"],
