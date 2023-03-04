@@ -3239,7 +3239,7 @@
     "/companies/employees/{employeeId}": {
       "get": {
         "tags": ["users"],
-        "summary": "Finds and displays employee by id.",
+        "summary": "Finds and displays company by id.",
         "description": "",
         "produces": ["application/json"],
         "parameters": [
@@ -3530,9 +3530,6 @@
               "allOf": [
                 {
                   "$ref": "#/definitions/Team"
-                },
-                {
-                  "$ref": "#/definitions/Permission"
                 }
               ]
             }
