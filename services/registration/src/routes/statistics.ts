@@ -281,7 +281,7 @@ statisticsRouter.route("/").get(
       }
     }
 
-    // CALCULATES APPLICATION DATA STATISTICS AND CONFIRMATION DATA STATISTICS
+    // CALCULATES APPLICATION DATA STATISTICS
 
     const applicationDataStatistics = {
       genderData: transformAggregateArray(aggregatedApplications[0].genderData),
@@ -289,9 +289,6 @@ statisticsRouter.route("/").get(
       majorData: transformAggregateArray(aggregatedApplications[0].majorData),
       schoolYearData: transformAggregateArray(aggregatedApplications[0].schoolYearData),
       marketingData: transformAggregateArray(aggregatedApplications[0].marketingData),
-    };
-
-    const confirmationDataStatistics = {
       shirtSizeData: transformAggregateArray(aggregatedApplications[0].shirtSizeData),
       dietaryRestrictionsData: transformAggregateArray(
         aggregatedApplications[0].dietaryRestrictionsData
@@ -303,7 +300,6 @@ statisticsRouter.route("/").get(
       applicationStatistics: applicationBranchStatistics,
       confirmationStatistics: confirmationBranchStatistics,
       applicationDataStatistics,
-      confirmationDataStatistics,
     });
   })
 );
