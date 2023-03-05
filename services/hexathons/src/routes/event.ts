@@ -13,6 +13,8 @@ eventRoutes.route("/").get(
 
     if (req.query.hexathon) {
       filter.hexathon = String(req.query.hexathon);
+    } else {
+      return res.status(400).send({ success: "false", message: "Please specify a hexathon" });
     }
 
     if (req.query.search) {
