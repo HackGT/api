@@ -13,8 +13,19 @@ blockRoutes.route("/").get(
 
     if (req.query.hexathon) {
       filter.hexathon = String(req.query.hexathon);
-    } else {
-      return res.status(400).send({ success: "false", message: "Please specify a hexathon" });
+    }
+
+    if (req.query.search) {
+      const searchLength = (req.query.search as string).length;
+      const search =
+        searchLength > 75
+          ? (req.query.search as string).slice(0, 75)
+          : (req.query.search as string);
+      filter.$or = [
+        { name: { $regex: new RegExp(search, "i") } },
+        { type: { $regex: new RegExp(search, "i") } },
+        { description: { $regex: new RegExp(search, "i") } },
+      ];
     }
 
     if (req.query.slug) {
