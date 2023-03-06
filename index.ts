@@ -1,6 +1,11 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import concurrently from "concurrently";
 
+// Throw and show a stack trace on an unhandled Promise rejection instead of logging an unhelpful warning
+// process.on("unhandledRejection", err => {
+//   throw err;
+// });
+
 concurrently([
   // TODO: Running gateway is disabled as it is not currently used
   // { command: "cd gateway && yarn dev", name: "gateway" },

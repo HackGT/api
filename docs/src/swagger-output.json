@@ -2852,12 +2852,7 @@
                     },
                     "marketingData": {
                       "type": "object"
-                    }
-                  }
-                },
-                "confirmationDataStatistics": {
-                  "type": "object",
-                  "properties": {
+                    },
                     "shirtSizeData": {
                       "type": "object"
                     },
