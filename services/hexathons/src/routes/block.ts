@@ -22,9 +22,9 @@ blockRoutes.route("/").get(
           ? (req.query.search as string).slice(0, 75)
           : (req.query.search as string);
       filter.$or = [
-        { name: { $regex: new RegExp(search, "i") } },
-        { type: { $regex: new RegExp(search, "i") } },
-        { description: { $regex: new RegExp(search, "i") } },
+        { title: { $regex: new RegExp(search, "i") } },
+        { slug: { $regex: new RegExp(search, "i") } },
+        { content: { $regex: new RegExp(search, "i") } },
       ];
     }
 
