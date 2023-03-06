@@ -1525,7 +1525,7 @@
             "name": "hexathon",
             "in": "query",
             "description": "hexathon id that needs to be considered for filter.",
-            "required": true,
+            "required": false,
             "type": "string",
             "collectionFormat": "multi"
           },
@@ -1585,7 +1585,7 @@
                 "slug": {
                   "type": "string"
                 },
-                "description": {
+                "content": {
                   "type": "string"
                 }
               }
@@ -1636,7 +1636,7 @@
                 "slug": {
                   "type": "string"
                 },
-                "description": {
+                "content": {
                   "type": "string"
                 }
               }
@@ -1690,7 +1690,7 @@
             "name": "hexathon",
             "in": "query",
             "description": "hexathon id that needs to be considered for filter.",
-            "required": true,
+            "required": false,
             "type": "string",
             "collectionFormat": "multi"
           }
@@ -4430,7 +4430,7 @@
         "slug": {
           "type": "string"
         },
-        "description": {
+        "content": {
           "type": "string"
         }
       },
