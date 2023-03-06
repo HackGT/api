@@ -51,7 +51,9 @@ eventRoutes.route("/").post(
     });
 
     if (existingEvent) {
-      throw new BadRequestError("Event already exists for this hexathon");
+      throw new BadRequestError(
+        `Event with name ${req.body.name} already exists for this hexathon`
+      );
     }
 
     const event: Event = await EventModel.create({

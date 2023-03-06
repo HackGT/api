@@ -48,7 +48,9 @@ blockRoutes.route("/").post(
     });
 
     if (existingBlock) {
-      throw new BadRequestError("Block already exists for this hexathon");
+      throw new BadRequestError(
+        `Block with title ${req.body.title} already exists for this hexathon`
+      );
     }
 
     const block: Block = await BlockModel.create({
@@ -71,9 +73,9 @@ blockRoutes.route("/:id").patch(
       title: req.body.title,
     });
 
-    if (existingBlock && existingBlock.title === req.body.title) {
+    if (existingBlock && existingBlock.id !== req.params.id) {
       throw new BadRequestError(
-        `Block with title ${req.body.title} already exists for this hexathon`
+        `Block with name ${req.body.title} already exists for this hexathon`
       );
     }
 
