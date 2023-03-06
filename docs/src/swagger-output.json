@@ -1802,7 +1802,7 @@
       }
     },
     "/events/{id}": {
-      "put": {
+      "patch": {
         "tags": ["hexathons"],
         "summary": "Update an existing interaction by id.",
         "description": "",

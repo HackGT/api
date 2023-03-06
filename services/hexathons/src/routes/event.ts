@@ -69,7 +69,7 @@ eventRoutes.route("/").post(
   })
 );
 
-eventRoutes.route("/:id").put(
+eventRoutes.route("/:id").patch(
   checkAbility("update", "Event"),
   asyncHandler(async (req, res) => {
     const currentEvent = await EventModel.findById(req.params.id);
