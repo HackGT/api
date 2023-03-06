@@ -855,6 +855,26 @@
         }
       }
     },
+    "/files/upload-cdn": {
+      "post": {
+        "tags": ["files"],
+        "summary": "Upload a new file to the CDN bucket.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "File successfully uploaded",
+            "schema": {
+              "$ref": "#/definitions/File"
+            }
+          },
+          "400": {
+            "description": "No file uploaded!"
+          }
+        }
+      }
+    },
     "/files/{id}": {
       "get": {
         "tags": ["files"],
