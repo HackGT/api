@@ -6,7 +6,7 @@ import { FilterQuery, isValidObjectId, Types } from "mongoose";
 
 import { HexathonUser, HexathonUserModel } from "../models/hexathonUser";
 import { getHexathonUserWithUpdatedPoints } from "../common/util";
-import { PrizeItemModel } from "../models/prizeItem";
+import { SwagItemModel } from "../models/swagItem";
 
 export const hexathonUserRouter = express.Router();
 
@@ -130,10 +130,10 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/check-valid-user").
   })
 );
 
-hexathonUserRouter.route("/:hexathonId/users/:userId/actions/purchase-prize-item").post(
+hexathonUserRouter.route("/:hexathonId/users/:userId/actions/purchase-swag-item").post(
   checkAbility("manage", "HexathonUser"),
   asyncHandler(async (req, res) => {
-    const { prizeItemId } = req.body;
+    const { swagItemId } = req.body;
     const quantity = parseInt(req.body.quantity);
 
     const hexathonUser = await getHexathonUserWithUpdatedPoints(
@@ -142,21 +142,21 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/purchase-prize-item
       req.params.hexathonId
     );
 
-    const prizeItem = await PrizeItemModel.findOne({
+    const swagItem = await SwagItemModel.findOne({
       hexathon: req.params.hexathonId,
-      _id: prizeItemId,
+      _id: swagItemId,
     });
 
-    if (!prizeItem) {
-      throw new BadRequestError("Invalid prize item id provided.");
+    if (!swagItem) {
+      throw new BadRequestError("Invalid swag item id provided.");
     }
 
-    if (prizeItem.purchased + quantity > prizeItem.capacity) {
-      throw new BadRequestError("Prize item is full.");
+    if (swagItem.purchased + quantity > swagItem.capacity) {
+      throw new BadRequestError("Swag item is full.");
     }
 
-    if (prizeItem.points * quantity > hexathonUser.points.currentTotal) {
-      throw new BadRequestError("User does not have enough points to purchase this prize item.");
+    if (swagItem.points * quantity > hexathonUser.points.currentTotal) {
+      throw new BadRequestError("User does not have enough points to purchase this swag item.");
     }
 
     await HexathonUserModel.findOneAndUpdate(
@@ -165,10 +165,10 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/purchase-prize-item
         hexathon: req.params.hexathonId,
       },
       {
-        "points.numSpent": hexathonUser.points.numSpent + prizeItem.points * quantity,
+        "points.numSpent": hexathonUser.points.numSpent + swagItem.points * quantity,
         "$push": {
-          purchasedPrizeItems: {
-            prizeItemId,
+          purchasedSwagItems: {
+            swagItemId,
             quantity,
             timestamp: new Date(),
           },
@@ -179,8 +179,8 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/purchase-prize-item
       }
     );
 
-    await PrizeItemModel.findByIdAndUpdate(prizeItem.id, {
-      purchased: prizeItem.purchased + quantity,
+    await SwagItemModel.findByIdAndUpdate(swagItem.id, {
+      purchased: swagItem.purchased + quantity,
     });
 
     return res.sendStatus(204);

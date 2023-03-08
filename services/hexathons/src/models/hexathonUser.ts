@@ -2,7 +2,7 @@ import { accessibleRecordsPlugin, AccessibleRecordModel } from "@casl/mongoose";
 import mongoose, { Schema, model, Types } from "mongoose";
 
 import { HexathonModel } from "./hexathon";
-import { PrizeItemModel } from "./prizeItem";
+import { SwagItemModel } from "./swagItem";
 
 export interface HexathonUser extends mongoose.Document {
   userId: string;
@@ -19,8 +19,8 @@ export interface HexathonUser extends mongoose.Document {
   address?: string;
   validAddress?: boolean;
   trackingLabel?: string;
-  purchasedPrizeItems: {
-    prizeItemId: Types.ObjectId;
+  purchasedSwagItems: {
+    swagItemId: Types.ObjectId;
     quantity: number;
     timestamp: Date;
   }[];
@@ -78,13 +78,13 @@ const hexathonUserSchema = new Schema<HexathonUser>({
   trackingLabel: {
     type: String,
   },
-  purchasedPrizeItems: {
+  purchasedSwagItems: {
     type: [
       {
-        prizeItemId: {
+        swagItemId: {
           type: Schema.Types.ObjectId,
           required: true,
-          ref: PrizeItemModel,
+          ref: SwagItemModel,
         },
         quantity: {
           type: Number,

@@ -3,7 +3,7 @@ import mongoose, { Schema, model, Types } from "mongoose";
 
 import { HexathonModel } from "./hexathon";
 
-export interface PrizeItem extends mongoose.Document {
+export interface SwagItem extends mongoose.Document {
   name: string;
   hexathon: Types.ObjectId;
   purchased: number;
@@ -17,7 +17,7 @@ export interface PrizeItem extends mongoose.Document {
   image_url: string;
 }
 
-const prizeItemSchema = new Schema<PrizeItem>({
+const swagItemSchema = new Schema<SwagItem>({
   name: {
     type: String,
     required: true,
@@ -65,9 +65,9 @@ const prizeItemSchema = new Schema<PrizeItem>({
   },
 });
 
-prizeItemSchema.plugin(accessibleRecordsPlugin);
+swagItemSchema.plugin(accessibleRecordsPlugin);
 
-export const PrizeItemModel = model<PrizeItem, AccessibleRecordModel<PrizeItem>>(
-  "PrizeItem",
-  prizeItemSchema
+export const SwagItemModel = model<SwagItem, AccessibleRecordModel<SwagItem>>(
+  "SwagItem",
+  swagItemSchema
 );
