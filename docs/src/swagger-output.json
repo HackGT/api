@@ -1307,10 +1307,10 @@
         }
       }
     },
-    "/hexathon-users/{hexathonId}/users/{userId}/actions/purchase-prize-item": {
+    "/hexathon-users/{hexathonId}/users/{userId}/actions/purchase-swag-item": {
       "post": {
         "tags": ["hexathons"],
-        "summary": "Purchases a prize item for a selected user",
+        "summary": "Purchases a swag item for a selected user",
         "description": "",
         "produces": ["application/json"],
         "parameters": [
@@ -1335,7 +1335,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "prizeItemId": {
+                "swagItemId": {
                   "type": "string"
                 },
                 "quantity": {
@@ -1906,10 +1906,10 @@
         }
       }
     },
-    "/prize-items": {
+    "/swag-items": {
       "get": {
         "tags": ["hexathons"],
-        "summary": "Finds all prize items",
+        "summary": "Finds all swag items",
         "description": "",
         "produces": ["application/json"],
         "parameters": [
@@ -1927,7 +1927,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/PrizeItem"
+                "$ref": "#/definitions/SwagItem"
               }
             }
           },
@@ -1938,7 +1938,7 @@
       },
       "post": {
         "tags": ["hexathons"],
-        "summary": "Create a new prize item.",
+        "summary": "Create a new swag item.",
         "description": "",
         "consumes": ["application/json"],
         "produces": ["application/json"],
@@ -1950,7 +1950,7 @@
             "required": true,
             "schema": {
               "type": "object",
-              "$ref": "#/definitions/PrizeItem"
+              "$ref": "#/definitions/SwagItem"
             }
           }
         ],
@@ -1960,7 +1960,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/PrizeItem"
+                "$ref": "#/definitions/SwagItem"
               }
             }
           },
@@ -1970,17 +1970,17 @@
         }
       }
     },
-    "/prize-items/{id}": {
+    "/swag-items/{id}": {
       "get": {
         "tags": ["hexathons"],
-        "summary": "Gets a prize item by id",
+        "summary": "Gets a swag item by id",
         "description": "",
         "produces": ["application/json"],
         "responses": {
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "#/definitions/PrizeItem"
+              "$ref": "#/definitions/SwagItem"
             }
           },
           "400": {
@@ -1990,7 +1990,7 @@
       },
       "put": {
         "tags": ["hexathons"],
-        "summary": "Update an existing prize item by id.",
+        "summary": "Update an existing swag item by id.",
         "description": "",
         "consumes": ["application/json"],
         "produces": ["application/json"],
@@ -1998,7 +1998,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "Prize item id",
+            "description": "Swag item id",
             "required": true,
             "type": "string"
           },
@@ -2009,7 +2009,7 @@
             "required": true,
             "schema": {
               "type": "object",
-              "$ref": "#/definitions/PrizeItem"
+              "$ref": "#/definitions/SwagItem"
             }
           }
         ],
@@ -2019,7 +2019,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/PrizeItem"
+                "$ref": "#/definitions/SwagItem"
               }
             }
           },
@@ -2030,7 +2030,7 @@
       },
       "delete": {
         "tags": ["hexathons"],
-        "summary": "Deletes a prize item by id",
+        "summary": "Deletes a swag item by id",
         "description": "",
         "produces": ["application/json"],
         "responses": {
@@ -5117,12 +5117,12 @@
         "trackingLabel": {
           "type": "string"
         },
-        "purchasedPrizeItems": {
+        "purchasedSwagItems": {
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
-              "prizeItemId": {
+              "swagItemId": {
                 "type": "string"
               },
               "quantity": {
@@ -5137,7 +5137,7 @@
         }
       }
     },
-    "PrizeItem": {
+    "SwagItem": {
       "type": "object",
       "properties": {
         "name": {
