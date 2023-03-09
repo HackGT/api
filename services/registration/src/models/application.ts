@@ -56,6 +56,7 @@ export interface Application extends mongoose.Document {
       country?: string;
     };
     marketing?: string;
+    computerOS?: string;
     website?: string;
     linkedin?: string;
     pastExperience?: string;
@@ -64,6 +65,7 @@ export interface Application extends mongoose.Document {
     travelReimbursement?: string;
     extraInfo?: string;
     confirmChecks?: Schema.Types.Mixed;
+    customData?: Schema.Types.Mixed;
     essays?: Types.DocumentArray<Essay>;
     resume?: Types.ObjectId;
   };
@@ -187,6 +189,9 @@ const applicationSchema = new Schema<Application>(
       marketing: {
         type: String,
       },
+      computerOS: {
+        type: String,
+      },
       website: {
         type: String,
       },
@@ -211,6 +216,9 @@ const applicationSchema = new Schema<Application>(
         type: String,
       },
       confirmChecks: {
+        type: Schema.Types.Mixed,
+      },
+      customData: {
         type: Schema.Types.Mixed,
       },
       essays: [

@@ -388,6 +388,19 @@ const commonDefinitions = {
     type: "string",
     enum: ["Windows", "MacOS", "Linux", "ChromeOS", "I do not have a computer", "Other"],
   },
+  courses: {
+    type: "array",
+    items: {
+      type: "string",
+      enum: [
+        "AP Computer Science A",
+        "AP Computer Science Principles",
+        "Introduction to Computing",
+        "Introduction to Programming",
+        "None to these",
+      ],
+    },
+  },
   skills: {
     type: "string",
     enum: [
