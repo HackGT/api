@@ -58,9 +58,26 @@ export const prizeConfig = {
         "Best Use of Google Cloud",
       ],
     },
-    "Horizons": {
+    "Horizons 2022": {
       tracks: ["Digital Track", "Physical Track"],
       challenges: ["Sustainability Challenge", "Educational Challenge", "Music Tech Challenge"],
+    },
+    "Horizons 2023": {
+      tracks: ["Digital Track", "Physical Track"],
+      challenges: [
+        "Accessibility Challenge",
+        "Educational Challenge",
+        "Music Tech Challenge",
+        "Mixed Reality Challenge",
+      ],
+      generalPrizes: [
+        "Digital Track",
+        "Physical Track",
+        "Accessibility Challenge",
+        "Educational Challenge",
+        "Music Tech Challenge",
+        "Mixed Reality Challenge",
+      ],
     },
     "Prototypical 2022": {
       tracks: ["Textiles Track", "Cardboard Track"],
