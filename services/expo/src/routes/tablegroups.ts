@@ -13,7 +13,7 @@ tableGroupRoutes.route("/").get(
     const filter: any = {};
 
     if (hexathon !== undefined) {
-      filter.hexathon = parseInt(hexathon as string);
+      filter.hexathon = hexathon;
     }
 
     const tableGroups = await prisma.tableGroup.findMany({ where: filter });

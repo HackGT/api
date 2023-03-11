@@ -13,7 +13,7 @@ categoryGroupRoutes.route("/").get(
     const filter: any = {};
 
     if (hexathon !== undefined) {
-      filter.hexathon = parseInt(hexathon as string);
+      filter.hexathon = hexathon;
     }
 
     if (name !== undefined) {
