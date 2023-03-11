@@ -1416,7 +1416,7 @@
             "name": "hexathon",
             "in": "query",
             "description": "hexathon id that needs to be considered for filter.",
-            "required": true,
+            "required": false,
             "type": "integer",
             "collectionFormat": "multi"
           },
@@ -1424,7 +1424,23 @@
             "name": "userId",
             "in": "query",
             "description": "User id that needs to be considered for filter.",
-            "required": true,
+            "required": false,
+            "type": "integer",
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "identifier",
+            "in": "query",
+            "description": "Event identifier that needs to be considered for filter.",
+            "required": false,
+            "type": "integer",
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Event type that needs to be considered for filter.",
+            "required": false,
             "type": "integer",
             "collectionFormat": "multi"
           }

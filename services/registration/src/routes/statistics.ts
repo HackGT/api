@@ -37,6 +37,7 @@ statisticsRouter.route("/").get(
         method: "GET",
         params: {
           hexathon: new mongoose.Types.ObjectId(hexathon as string),
+          type: "check-in",
         },
       },
       req
