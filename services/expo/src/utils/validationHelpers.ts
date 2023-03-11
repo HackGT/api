@@ -159,12 +159,12 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
       return generalDBPrizes;
     }
     case "Horizons 2023": {
-      const { tracks, challenges } = prizeConfig.hexathons["Horizons 2023"];
+      const { generalPrizes } = prizeConfig.hexathons["Horizons 2023"];
 
       const generalDBPrizes = await prisma.category.findMany({
         where: {
           name: {
-            in: tracks.concat(challenges),
+            in: generalPrizes,
           },
         },
       });
