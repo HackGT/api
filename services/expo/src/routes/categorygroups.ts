@@ -9,12 +9,11 @@ export const categoryGroupRoutes = express.Router();
 
 categoryGroupRoutes.route("/").get(
   asyncHandler(async (req, res) => {
-    const { hackathon, name } = req.query;
+    const { hexathon, name } = req.query;
     const filter: any = {};
 
-    if (hackathon !== undefined) {
-      const hackathonId: number = parseInt(hackathon as string);
-      filter.hackathonId = hackathonId;
+    if (hexathon !== undefined) {
+      filter.hexathon = parseInt(hexathon as string);
     }
 
     if (name !== undefined) {
