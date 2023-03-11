@@ -70,14 +70,6 @@ export const prizeConfig = {
         "Music Tech Challenge",
         "Mixed Reality Challenge",
       ],
-      generalPrizes: [
-        "Digital Track",
-        "Physical Track",
-        "Accessibility Challenge",
-        "Educational Challenge",
-        "Music Tech Challenge",
-        "Mixed Reality Challenge",
-      ],
     },
     "Prototypical 2022": {
       tracks: ["Textiles Track", "Cardboard Track"],

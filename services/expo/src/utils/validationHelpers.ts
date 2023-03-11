@@ -159,12 +159,12 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
       return generalDBPrizes;
     }
     case "Horizons 2023": {
-      const { generalPrizes } = prizeConfig.hexathons["Horizons 2023"];
+      const { tracks, challenges } = prizeConfig.hexathons["Horizons 2023"];
 
       const generalDBPrizes = await prisma.category.findMany({
         where: {
           name: {
-            in: generalPrizes,
+            in: tracks.concat(challenges),
           },
         },
       });
@@ -365,13 +365,22 @@ export const validatePrizes = async (prizes: any[], req: express.Request) => {
     }
     case "Horizons 2023": {
       if (
-        prizeNames.filter(prize =>
-          prizeConfig.hexathons["Horizons 2023"].generalPrizes.includes(prize)
-        ).length === 0
+        prizeNames.filter(prize => prizeConfig.hexathons["Horizons 2023"].tracks.includes(prize))
+          .length === 0
       ) {
         return {
           error: true,
           message: "You must submit to at least one track.",
+        };
+      }
+
+      if (
+        prizeNames.filter(prize => prizeConfig.hexathons["Horizons 2023"].tracks.includes(prize))
+          .length > 1
+      ) {
+        return {
+          error: true,
+          message: "You can only submit to at most one track.",
         };
       }
 
