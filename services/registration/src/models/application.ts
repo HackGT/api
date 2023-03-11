@@ -76,6 +76,7 @@ export interface Application extends mongoose.Document {
   confirmationSubmitTime?: Date;
   confirmationExtendedDeadline?: Date;
   status: StatusType;
+  swagClaimed: boolean;
   gradingComplete: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -268,6 +269,11 @@ const applicationSchema = new Schema<Application>(
       default: StatusType.DRAFT,
       enum: StatusType,
       index: true,
+    },
+    swagClaimed: {
+      type: Boolean,
+      required: true,
+      default: false,
     },
     gradingComplete: {
       type: Boolean,

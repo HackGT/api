@@ -3116,6 +3116,9 @@
           "type": "string",
           "enum": ["DRAFT", "APPLIED", "ACCEPTED", "WAITLISTED", "CONFIRMED", "DENIED"]
         },
+        "swagClaimed": {
+          "type": "boolean"
+        },
         "gradingComplete": {
           "type": "number"
         },

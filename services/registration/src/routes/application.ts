@@ -606,3 +606,34 @@ applicationRouter.route("/actions/expo-user").get(
     return res.status(200).json(application);
   })
 );
+
+applicationRouter.route("/:id/actions/claim-swag").post(
+  checkAbility("update", "Application"),
+  asyncHandler(async (req, res) => {
+    const existingApplication = await ApplicationModel.findById(req.params.id).accessibleBy(
+      req.ability
+    );
+
+    if (!existingApplication) {
+      throw new BadRequestError(
+        "No application exists with this id or you do not have permission."
+      );
+    }
+
+    if (!(existingApplication.status === StatusType.CONFIRMED)) {
+      throw new BadRequestError("Application has not been confirmed.");
+    }
+
+    if (existingApplication.swagClaimed) {
+      throw new BadRequestError("Applicant has already claimed their swag.");
+    }
+
+    const updateBody: UpdateQuery<Application> = {
+      swagClaimed: true,
+    };
+
+    await ApplicationModel.findByIdAndUpdate(req.params.id, updateBody, { new: true });
+
+    return res.sendStatus(204);
+  })
+);
