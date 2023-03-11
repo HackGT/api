@@ -90,8 +90,8 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
       });
       return generalDBPrizes;
     }
-    case "Horizons": {
-      const { tracks, challenges } = prizeConfig.hexathons.Horizons;
+    case "Horizons 2022": {
+      const { tracks, challenges } = prizeConfig.hexathons["Horizons 2022"];
 
       const generalDBPrizes = await prisma.category.findMany({
         where: {
@@ -153,6 +153,18 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
         where: {
           name: {
             in: generalPrizes,
+          },
+        },
+      });
+      return generalDBPrizes;
+    }
+    case "Horizons 2023": {
+      const { tracks, challenges } = prizeConfig.hexathons["Horizons 2023"];
+
+      const generalDBPrizes = await prisma.category.findMany({
+        where: {
+          name: {
+            in: tracks.concat(challenges),
           },
         },
       });
@@ -304,9 +316,10 @@ export const validatePrizes = async (prizes: any[], req: express.Request) => {
 
       return { error: false };
     }
-    case "Horizons": {
+    case "Horizons 2022": {
       if (
-        prizeNames.filter(prize => prizeConfig.hexathons.Horizons.tracks.includes(prize)).length > 1
+        prizeNames.filter(prize => prizeConfig.hexathons["Horizons 2022"].tracks.includes(prize))
+          .length > 1
       ) {
         return {
           error: true,
@@ -315,8 +328,8 @@ export const validatePrizes = async (prizes: any[], req: express.Request) => {
       }
 
       if (
-        prizeNames.filter(prize => prizeConfig.hexathons.Horizons.tracks.includes(prize)).length ===
-        0
+        prizeNames.filter(prize => prizeConfig.hexathons["Horizons 2022"].tracks.includes(prize))
+          .length === 0
       ) {
         return {
           error: true,
@@ -348,6 +361,29 @@ export const validatePrizes = async (prizes: any[], req: express.Request) => {
           message: "You must submit to at least one track.",
         };
       }
+      return { error: false };
+    }
+    case "Horizons 2023": {
+      if (
+        prizeNames.filter(prize => prizeConfig.hexathons["Horizons 2023"].tracks.includes(prize))
+          .length > 1
+      ) {
+        return {
+          error: true,
+          message: "You are only eligible to submit for one track.",
+        };
+      }
+
+      if (
+        prizeNames.filter(prize => prizeConfig.hexathons["Horizons 2023"].tracks.includes(prize))
+          .length === 0
+      ) {
+        return {
+          error: true,
+          message: "You must submit to at least one track.",
+        };
+      }
+
       return { error: false };
     }
     default: {
