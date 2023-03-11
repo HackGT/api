@@ -1,6 +1,7 @@
 /* eslint-disable prefer-destructuring */
 /* eslint-disable no-underscore-dangle */
-import { asyncHandler, checkAbility } from "@api/common";
+import { apiCall, asyncHandler, checkAbility } from "@api/common";
+import { Service } from "@api/config";
 import express from "express";
 import mongoose from "mongoose";
 
@@ -28,6 +29,20 @@ statisticsRouter.route("/").get(
     const branches = await BranchModel.find({
       hexathon: new mongoose.Types.ObjectId(hexathon as string),
     });
+
+    const checkins = await apiCall(
+      Service.HEXATHONS,
+      {
+        url: `/interactions`,
+        method: "GET",
+        params: {
+          hexathon: new mongoose.Types.ObjectId(hexathon as string),
+        },
+      },
+      req
+    );
+
+    const checkinCount = checkins.length;
 
     const aggregatedApplications = await ApplicationModel.aggregate([
       {
@@ -209,6 +224,7 @@ statisticsRouter.route("/").get(
         (allUsersStatusCount.CONFIRMED || 0) +
         (allUsersStatusCount.NOT_ATTENDING || 0),
       confirmedUsers: allUsersStatusCount.CONFIRMED || 0,
+      checkedinUsers: checkinCount,
       deniedUsers: allUsersStatusCount.DENIED || 0,
     };
 
