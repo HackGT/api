@@ -8,13 +8,6 @@ datasource db {
   url      = env("POSTGRES_URL")
 }
 
-enum AccessLevel {
-  NONE
-  MEMBER
-  EXEC
-  ADMIN
-}
-
 enum RequisitionStatus {
   DRAFT
   SUBMITTED
@@ -91,9 +84,9 @@ model Approval {
   isApproving   Boolean
   notes         String?
   date          DateTime    @default(now())
-  approverId    Int
+  approverId    String
   requisitionId Int
-  approver      User        @relation(fields: [approverId], references: [id])
+  approver      User        @relation(fields: [approverId], references: [userId])
   requisition   Requisition @relation(fields: [requisitionId], references: [id])
 }
 
@@ -144,7 +137,7 @@ model Requisition {
   status               RequisitionStatus @default(DRAFT)
   projectId            Int
   projectRequisitionId Int
-  createdById          Int
+  createdById          String
   paymentRequiredBy    String?
   otherFees            Float?
   orderDate            String?
@@ -154,7 +147,7 @@ model Requisition {
   budgetId             Int?
   purchaseDate         String?
   budget               Budget?           @relation(fields: [budgetId], references: [id])
-  createdBy            User              @relation(fields: [createdById], references: [id])
+  createdBy            User              @relation(fields: [createdById], references: [userId])
   fundingSource        PaymentMethod?    @relation(fields: [fundingSourceId], references: [id])
   project              Project           @relation(fields: [projectId], references: [id])
   approvals            Approval[]
@@ -187,20 +180,11 @@ model Vendor {
 }
 
 model User {
-  id           Int           @id @default(autoincrement())
-  userId       String        @unique
+  userId       String        @id @unique
   name         String
   email        String        @unique
-  accessLevel  AccessLevel
   slackId      String?
   approvals    Approval[]
   projects     Project[]
   requisitions Requisition[]
-}
-
-model Session {
-  id        String   @id
-  sid       String   @unique
-  data      String
-  expiresAt DateTime
 }

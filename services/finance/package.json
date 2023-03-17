@@ -30,7 +30,7 @@
     "@graphql-codegen/cli": "^1.21.4",
     "@graphql-codegen/typescript": "^1.22.0",
     "@graphql-codegen/typescript-resolvers": "^1.19.1",
-    "@prisma/client": "^4.7.1",
+    "@prisma/client": "^4.11.0",
     "@sentry/node": "^7.16.0",
     "@sentry/tracing": "^7.16.0",
     "@slack/web-api": "^6.8.0",
@@ -61,7 +61,7 @@
     "morgan": "^1.10.0",
     "node-fetch": "^3.3.0",
     "path": "^0.12.7",
-    "prisma": "^4.7.1",
+    "prisma": "^4.11.0",
     "request": "^2.88.2",
     "tsconfig-paths": "^4.1.1",
     "typescript": "^4.5.5"
