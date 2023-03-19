@@ -1,5 +1,5 @@
-// 20230318214605
-// https://raw.githubusercontent.com/HackGT/api/main/docs/src/swagger-output.json
+// 20230318221003
+// https://raw.githubusercontent.com/HackGT/api/1c44c14ead19001ec9b87523abbc2cc41017064a/docs/src/swagger-output.json
 
 {
   "swagger": "2.0",
@@ -32,10 +32,6 @@
     {
       "name": "auth",
       "description": "Everything about auth."
-    },
-    {
-      "name": "hardware",
-      "description": "Everything about hardware."
     }
   ],
   "schemes": [
@@ -315,670 +311,12 @@
         }
       }
     },
-    "/permissions/{userId}": {
-      "get": {
-        "tags": [
-          "auth"
-        ],
-        "summary": "Get user permission info by user ID.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "type": "integer",
-            "description": "User ID",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Permission"
-            }
-          },
-          "400": {
-            "description": "Empty JSON object"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "auth"
-        ],
-        "summary": "Update user permissions.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "type": "integer",
-            "description": "User ID",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "roles": {
-                  "type": "array",
-                  "description": "array of roles for user",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Permission"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/permissions/actions/retrieve": {
-      "get": {
-        "tags": [
-          "auth"
-        ],
-        "summary": "Get permission info for all users.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "type": "integer",
-            "description": "User ID for admin check",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Permission"
-              }
-            }
-          },
-          "400": {
-            "description": "Empty JSON object"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "auth"
-        ],
-        "summary": "Batch update users' permissions.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "type": "integer",
-            "description": "User ID",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "roles": {
-                  "type": "array",
-                  "description": "array of user ids"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Permission"
-              }
-            }
-          },
-          "400": {
-            "description": "Empty JSON object"
-          }
-        }
-      }
-    },
-    "/categories": {
-      "get": {
-        "tags": [
-          "hardware"
-        ],
-        "summary": "Get all categories.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Category"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "hardware"
-        ],
-        "summary": "Create a category.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string",
-                  "description": "name of category"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Category"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      },
-      "patch": {
-        "tags": [
-          "hardware"
-        ],
-        "summary": "Update a category.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number",
-                  "description": "category id"
-                },
-                "name": {
-                  "type": "string",
-                  "description": "name of category"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Category"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/hardware-requests": {
-      "get": {
-        "tags": [
-          "hardware"
-        ],
-        "summary": "Get all hardware requests.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/HardwareRequest"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "hardware"
-        ],
-        "summary": "Make a hardware request.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/HardwareRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/HardwareRequest"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/hardware-requests/{id}": {
-      "get": {
-        "tags": [
-          "hardware"
-        ],
-        "summary": "Get a hardware request.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "type": "integer",
-            "description": "Hardware request ID",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/HardwareRequest"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "hardware"
-        ],
-        "summary": "Delete a hardware request.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "type": "integer",
-            "description": "Hardware request ID",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/HardwareRequest"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/items": {
-      "get": {
-        "tags": [
-          "hardware"
-        ],
-        "summary": "Get all items by filter.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "name",
-            "in": "query",
-            "type": "string",
-            "description": "Item name"
-          },
-          {
-            "name": "location",
-            "in": "query",
-            "type": "string",
-            "description": "Item location"
-          },
-          {
-            "name": "category",
-            "in": "query",
-            "type": "string",
-            "description": "Item category"
-          },
-          {
-            "name": "description",
-            "in": "query",
-            "type": "string",
-            "description": "Item description"
-          },
-          {
-            "name": "hidden",
-            "in": "query",
-            "type": "boolean",
-            "description": "Item visibility"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/HardwareItem"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "hardware"
-        ],
-        "summary": "Create an item.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/HardwareItem"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/HardwareItem"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/items/{id}": {
-      "get": {
-        "tags": [
-          "hardware"
-        ],
-        "summary": "Get an item.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "type": "number",
-            "description": "Item ID"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/HardwareItem"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/items/amount/{id}": {
-      "get": {
-        "tags": [
-          "hardware"
-        ],
-        "summary": "Get item quantity.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "type": "number",
-            "description": "Item ID"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "number"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/locations": {
-      "get": {
-        "tags": [
-          "hardware"
-        ],
-        "summary": "Get all item locations.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "hardware"
-        ],
-        "summary": "Create an item location.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Location"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "hardware"
-        ],
-        "summary": "Create an item location if not already present.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Location"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
     "/files/upload": {
       "post": {
         "tags": [
           "files"
         ],
         "summary": "Upload a new file.",
-        "description": "",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "responses": {
-          "200": {
-            "description": "File successfully uploaded",
-            "schema": {
-              "$ref": "#/definitions/File"
-            }
-          },
-          "400": {
-            "description": "No file uploaded!"
-          }
-        }
-      }
-    },
-    "/files/upload-cdn": {
-      "post": {
-        "tags": [
-          "files"
-        ],
-        "summary": "Upload a new file to the CDN bucket.",
         "description": "",
         "consumes": [
           "application/json"
@@ -1246,33 +584,6 @@
             "description": "Hexathon not found"
           }
         }
-      },
-      "delete": {
-        "tags": [
-          "hexathons"
-        ],
-        "summary": "Deletes a hexathon by id.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Hexathon id that needs to be considered for filter.",
-            "required": true,
-            "type": "integer"
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "successful operation"
-          },
-          "400": {
-            "description": "Hexathon not found"
-          }
-        }
       }
     },
     "/hexathon-users/{hexathonId}/users": {
@@ -1479,12 +790,12 @@
         }
       }
     },
-    "/hexathon-users/{hexathonId}/users/{userId}/actions/purchase-swag-item": {
+    "/hexathon-users/{hexathonId}/users/{userId}/actions/purchase-prize-item": {
       "post": {
         "tags": [
           "hexathons"
         ],
-        "summary": "Purchases a swag item for a selected user",
+        "summary": "Purchases a prize item for a selected user",
         "description": "",
         "produces": [
           "application/json"
@@ -1511,7 +822,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "swagItemId": {
+                "prizeItemId": {
                   "type": "string"
                 },
                 "quantity": {
@@ -1600,7 +911,7 @@
             "name": "hexathon",
             "in": "query",
             "description": "hexathon id that needs to be considered for filter.",
-            "required": false,
+            "required": true,
             "type": "integer",
             "collectionFormat": "multi"
           },
@@ -1608,23 +919,7 @@
             "name": "userId",
             "in": "query",
             "description": "User id that needs to be considered for filter.",
-            "required": false,
-            "type": "integer",
-            "collectionFormat": "multi"
-          },
-          {
-            "name": "identifier",
-            "in": "query",
-            "description": "Event identifier that needs to be considered for filter.",
-            "required": false,
-            "type": "integer",
-            "collectionFormat": "multi"
-          },
-          {
-            "name": "type",
-            "in": "query",
-            "description": "Event type that needs to be considered for filter.",
-            "required": false,
+            "required": true,
             "type": "integer",
             "collectionFormat": "multi"
           }
@@ -1746,41 +1041,18 @@
         }
       }
     },
-    "/blocks": {
+    "/interactions/statistics": {
       "get": {
         "tags": [
           "hexathons"
         ],
-        "summary": "Finds and displays information of all blocks.",
-        "description": "The hexathon filter is required and only one of the id or slug filters can be applied",
-        "produces": [
+        "summary": "Get the statistics of the interactions.",
+        "description": "",
+        "consumes": [
           "application/json"
         ],
-        "parameters": [
-          {
-            "name": "hexathon",
-            "in": "query",
-            "description": "hexathon id that needs to be considered for filter.",
-            "required": false,
-            "type": "string",
-            "collectionFormat": "multi"
-          },
-          {
-            "name": "slug",
-            "in": "query",
-            "description": "slug that needs to be considered for filter.",
-            "required": false,
-            "type": "string",
-            "collectionFormat": "multi"
-          },
-          {
-            "name": "id",
-            "in": "query",
-            "description": "id that needs to be considered for filter.",
-            "required": false,
-            "type": "string",
-            "collectionFormat": "multi"
-          }
+        "produces": [
+          "application/json"
         ],
         "responses": {
           "200": {
@@ -1788,142 +1060,24 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/Block"
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid status"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "hexathons"
-        ],
-        "summary": "Create a new content block.",
-        "description": "",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "hexathon": {
-                  "type": "string"
-                },
-                "title": {
-                  "type": "string"
-                },
-                "slug": {
-                  "type": "string"
-                },
-                "content": {
-                  "type": "string"
+                "properties": {
+                  "type": {
+                    "type": "string"
+                  },
+                  "count": {
+                    "type": "integer"
+                  },
+                  "firstTimestamp": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "lastTimestamp": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
                 }
               }
             }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Block"
-            }
-          },
-          "400": {
-            "description": "Block already exists with this title for this hexathon"
-          }
-        }
-      }
-    },
-    "/blocks/{id}": {
-      "patch": {
-        "tags": [
-          "hexathons"
-        ],
-        "summary": "Update an existing block by id.",
-        "description": "",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Block id that needs to be considered for filter.",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "hexathon": {
-                  "type": "string"
-                },
-                "title": {
-                  "type": "string"
-                },
-                "slug": {
-                  "type": "string"
-                },
-                "content": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Block"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "hexathons"
-        ],
-        "summary": "Deletes a block by id",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Block id that needs to be considered for filter.",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "successful operation"
           },
           "400": {
             "description": "Invalid Status"
@@ -1946,7 +1100,7 @@
             "name": "hexathon",
             "in": "query",
             "description": "hexathon id that needs to be considered for filter.",
-            "required": false,
+            "required": true,
             "type": "string",
             "collectionFormat": "multi"
           }
@@ -2044,7 +1198,7 @@
       }
     },
     "/events/{id}": {
-      "patch": {
+      "put": {
         "tags": [
           "hexathons"
         ],
@@ -2128,42 +1282,33 @@
           "400": {
             "description": "Invalid Status"
           }
-        }
-      },
-      "delete": {
-        "tags": [
-          "hexathons"
-        ],
-        "summary": "Deletes an event by id",
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Event id that needs to be considered for filter.",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "responses": {
-          "204": {
-            "description": "successful operation"
-          },
-          "400": {
-            "description": "Invalid status"
+        },
+        "delete": {
+          "tags": [
+            "hexathons"
+          ],
+          "summary": "Deletes an event by id",
+          "description": "",
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "204": {
+              "description": "successful operation"
+            },
+            "400": {
+              "description": "Invalid status"
+            }
           }
         }
       }
     },
-    "/swag-items": {
+    "/prize-items": {
       "get": {
         "tags": [
           "hexathons"
         ],
-        "summary": "Finds all swag items",
+        "summary": "Finds all prize items",
         "description": "",
         "produces": [
           "application/json"
@@ -2183,7 +1328,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/SwagItem"
+                "$ref": "#/definitions/PrizeItem"
               }
             }
           },
@@ -2196,7 +1341,7 @@
         "tags": [
           "hexathons"
         ],
-        "summary": "Create a new swag item.",
+        "summary": "Create a new prize item.",
         "description": "",
         "consumes": [
           "application/json"
@@ -2212,7 +1357,7 @@
             "required": true,
             "schema": {
               "type": "object",
-              "$ref": "#/definitions/SwagItem"
+              "$ref": "#/definitions/PrizeItem"
             }
           }
         ],
@@ -2222,7 +1367,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/SwagItem"
+                "$ref": "#/definitions/PrizeItem"
               }
             }
           },
@@ -2232,12 +1377,12 @@
         }
       }
     },
-    "/swag-items/{id}": {
+    "/prize-items/{id}": {
       "get": {
         "tags": [
           "hexathons"
         ],
-        "summary": "Gets a swag item by id",
+        "summary": "Gets a prize item by id",
         "description": "",
         "produces": [
           "application/json"
@@ -2246,7 +1391,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "#/definitions/SwagItem"
+              "$ref": "#/definitions/PrizeItem"
             }
           },
           "400": {
@@ -2258,7 +1403,7 @@
         "tags": [
           "hexathons"
         ],
-        "summary": "Update an existing swag item by id.",
+        "summary": "Update an existing prize item by id.",
         "description": "",
         "consumes": [
           "application/json"
@@ -2270,7 +1415,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "Swag item id",
+            "description": "Prize item id",
             "required": true,
             "type": "string"
           },
@@ -2281,7 +1426,7 @@
             "required": true,
             "schema": {
               "type": "object",
-              "$ref": "#/definitions/SwagItem"
+              "$ref": "#/definitions/PrizeItem"
             }
           }
         ],
@@ -2291,7 +1436,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/SwagItem"
+                "$ref": "#/definitions/PrizeItem"
               }
             }
           },
@@ -2304,7 +1449,7 @@
         "tags": [
           "hexathons"
         ],
-        "summary": "Deletes a swag item by id",
+        "summary": "Deletes a prize item by id",
         "description": "",
         "produces": [
           "application/json"
@@ -2664,40 +1809,6 @@
               "type": "array",
               "items": {
                 "type": "string"
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid status"
-          }
-        }
-      }
-    },
-    "/applications/slack/confirmed-users": {
-      "get": {
-        "tags": [
-          "registration"
-        ],
-        "summary": "Compiles confirmed user emails for slack",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "confirmationBranch": {
-                  "type": "string"
-                },
-                "confirmedEmails": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
               }
             }
           },
@@ -3227,15 +2338,6 @@
                     },
                     "schoolYearData": {
                       "type": "object"
-                    },
-                    "marketingData": {
-                      "type": "object"
-                    },
-                    "shirtSizeData": {
-                      "type": "object"
-                    },
-                    "dietaryRestrictionsData": {
-                      "type": "object"
                     }
                   }
                 }
@@ -3729,61 +2831,28 @@
         }
       }
     },
-    "/companies": {
+    "/location": {
       "get": {
         "tags": [
-          "users"
+          "hexathons"
         ],
-        "summary": "Search for a company.",
+        "summary": "Get all locations.",
         "description": "",
-        "produces": [
+        "consumes": [
           "application/json"
         ],
-        "parameters": [
-          {
-            "name": "search",
-            "in": "query",
-            "type": "string",
-            "description": "Search term"
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "type": "string",
-            "description": "Specifies the number of valid objects to return"
-          },
-          {
-            "name": "offset",
-            "in": "query",
-            "type": "string",
-            "description": "Specifies offset in pagination"
-          },
-          {
-            "name": "regex",
-            "in": "query",
-            "type": "string",
-            "description": "Specifies if search term uses regex or not"
-          }
+        "produces": [
+          "application/json"
         ],
         "responses": {
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "object",
-              "properties": {
-                "offset": {
-                  "type": "integer"
-                },
-                "total": {
-                  "type": "integer"
-                },
-                "count": {
-                  "type": "integer"
-                },
-                "profiles": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/Company"
+              "type": "array",
+              "items": {
+                "properties": {
+                  "name": {
+                    "type": "string"
                   }
                 }
               }
@@ -3794,6 +2863,670 @@
           }
         }
       },
+      "post": {
+        "tags": [
+          "hexathons"
+        ],
+        "summary": "Create new location.",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/location/{id}": {
+      "put": {
+        "tags": [
+          "hexathons"
+        ],
+        "summary": "Update an existing location by id.",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Location id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "hexathons"
+        ],
+        "summary": "Deletes a location by ID.",
+        "description": "",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "description": "Location ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully deleted"
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/tag": {
+      "get": {
+        "tags": [
+          "hexathons"
+        ],
+        "summary": "Read the tags.",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "type": {
+                    "type": "string"
+                  },
+                  "required": {
+                    "type": "boolean"
+                  },
+                  "ref": {
+                    "type": "string"
+                  },
+                  "index": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "hexathons"
+        ],
+        "summary": "Create a new tag.",
+        "description": "",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "ref": {
+                  "type": "string"
+                },
+                "index": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "type": {
+                    "type": "string"
+                  },
+                  "required": {
+                    "type": "boolean"
+                  },
+                  "ref": {
+                    "type": "string"
+                  },
+                  "index": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/tag/{id}": {
+      "get": {
+        "tags": [
+          "hexathons"
+        ],
+        "summary": "Get an existing tag by id.",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Tag id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "ref": {
+                  "type": "string"
+                },
+                "index": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "hexathons"
+        ],
+        "summary": "Update an existing location by id.",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Location id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "ref": {
+                  "type": "string"
+                },
+                "index": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "type": {
+                    "type": "string"
+                  },
+                  "required": {
+                    "type": "boolean"
+                  },
+                  "ref": {
+                    "type": "string"
+                  },
+                  "index": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "hexathons"
+        ],
+        "summary": "Deletes a tag by ID.",
+        "description": "",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "description": "Tag ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully deleted"
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/sponsor-visit": {
+      "get": {
+        "tags": [
+          "hexathons"
+        ],
+        "summary": "Read the sponsor visits.",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/SponsorVisit"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "hexathons"
+        ],
+        "summary": "Create a new sponsor visit.",
+        "description": "",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "visitorId": {
+                  "type": "string"
+                },
+                "hexathon": {
+                  "type": "string"
+                },
+                "company": {
+                  "type": "string"
+                },
+                "employee": {
+                  "type": "string"
+                },
+                "starred": {
+                  "type": "boolean"
+                },
+                "tags": {
+                  "type": "string"
+                },
+                "notes": {
+                  "type": "string"
+                },
+                "time": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "visitorId": {
+                    "type": "string"
+                  },
+                  "hexathon": {
+                    "type": "string"
+                  },
+                  "company": {
+                    "type": "string"
+                  },
+                  "employee": {
+                    "type": "string"
+                  },
+                  "starred": {
+                    "type": "boolean"
+                  },
+                  "tags": {
+                    "type": "string"
+                  },
+                  "notes": {
+                    "type": "string"
+                  },
+                  "time": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/sponsor-visit/{id}": {
+      "get": {
+        "tags": [
+          "hexathons"
+        ],
+        "summary": "Get an existing tag by id.",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Sponsor Visit id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/SponsorVisit"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "hexathons"
+        ],
+        "summary": "Update an existing location by id.",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Sponsor Visit id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "visitorId": {
+                  "type": "string"
+                },
+                "hexathon": {
+                  "type": "string"
+                },
+                "company": {
+                  "type": "string"
+                },
+                "employee": {
+                  "type": "string"
+                },
+                "starred": {
+                  "type": "boolean"
+                },
+                "tags": {
+                  "type": "string"
+                },
+                "notes": {
+                  "type": "string"
+                },
+                "time": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "visitorId": {
+                    "type": "string"
+                  },
+                  "hexathon": {
+                    "type": "string"
+                  },
+                  "company": {
+                    "type": "string"
+                  },
+                  "employee": {
+                    "type": "string"
+                  },
+                  "starred": {
+                    "type": "boolean"
+                  },
+                  "tags": {
+                    "type": "string"
+                  },
+                  "notes": {
+                    "type": "string"
+                  },
+                  "time": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "hexathons"
+        ],
+        "summary": "Deletes a tag by ID.",
+        "description": "",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "description": "Sponsor Visit ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully deleted"
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/companies": {
       "post": {
         "tags": [
           "users"
@@ -3926,110 +3659,6 @@
             "description": "Company not found"
           }
         }
-      },
-      "delete": {
-        "tags": [
-          "users"
-        ],
-        "summary": "Deletes a company by ID.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "type": "integer",
-            "description": "Company ID",
-            "required": true
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Successfully deleted"
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/companies/employees/{employeeId}": {
-      "get": {
-        "tags": [
-          "users"
-        ],
-        "summary": "Finds and displays company by id.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "employeeId",
-            "in": "path",
-            "type": "integer",
-            "description": "Employee ID",
-            "required": true
-          },
-          {
-            "name": "hexathon",
-            "in": "query",
-            "type": "string",
-            "description": "Hexathon",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Company"
-              }
-            }
-          },
-          "400": {
-            "description": "Company not found"
-          }
-        }
-      }
-    },
-    "/companies/{id}/employees/accept-request": {
-      "post": {
-        "tags": [
-          "users"
-        ],
-        "summary": "Accepts employee join requests.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "type": "integer",
-            "description": "ID",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Company"
-              }
-            }
-          },
-          "400": {
-            "description": "Company not found"
-          }
-        }
       }
     },
     "/companies/{id}/employees/add": {
@@ -4038,41 +3667,6 @@
           "users"
         ],
         "summary": "Adds an employee to the company.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "type": "integer",
-            "description": "ID",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Company"
-              }
-            }
-          },
-          "400": {
-            "description": "Company not found"
-          }
-        }
-      }
-    },
-    "/companies/{id}/employees/request": {
-      "post": {
-        "tags": [
-          "users"
-        ],
-        "summary": "Sends a request to join the company.",
         "description": "",
         "produces": [
           "application/json"
@@ -4133,418 +3727,6 @@
           },
           "400": {
             "description": "Company not found"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "users"
-        ],
-        "summary": "Deletes an employee by ID.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "type": "integer",
-            "description": "Employee ID",
-            "required": true
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Successfully deleted"
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/teams": {
-      "get": {
-        "tags": [
-          "users"
-        ],
-        "summary": "Search for a team.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "hexathon",
-            "in": "query",
-            "type": "string",
-            "description": ""
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "offset": {
-                  "type": "integer"
-                },
-                "total": {
-                  "type": "integer"
-                },
-                "count": {
-                  "type": "integer"
-                },
-                "profiles": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/Team"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "users"
-        ],
-        "summary": "Create a team.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "hexathon": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "publicTeam": {
-                  "type": "boolean"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Team"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/teams/{id}": {
-      "get": {
-        "tags": [
-          "users"
-        ],
-        "summary": "Finds and displays team by team ID.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "type": "integer",
-            "description": "Team ID",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "object",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/Team"
-                }
-              ]
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/teams/add": {
-      "post": {
-        "tags": [
-          "users"
-        ],
-        "summary": "",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "hexathon": {
-                  "type": "string"
-                },
-                "email": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Team"
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/teams/{id}/accept-user": {
-      "post": {
-        "tags": [
-          "users"
-        ],
-        "summary": "Accepts a new user to an existing team.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "type": "integer",
-            "description": "Team ID",
-            "required": true
-          },
-          {
-            "name": "userId",
-            "in": "body",
-            "description": "User ID"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Profile"
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/teams/user/{userId}": {
-      "get": {
-        "tags": [
-          "users"
-        ],
-        "summary": "Gets the profile of a team member.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "hexathon",
-            "in": "query",
-            "type": "integer",
-            "description": "User ID",
-            "required": true
-          },
-          {
-            "name": "userId",
-            "in": "path",
-            "type": "integer",
-            "description": "User ID",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "object",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/Profile"
-                },
-                {
-                  "$ref": "#/definitions/Permission"
-                }
-              ]
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/teams/join": {
-      "post": {
-        "tags": [
-          "users"
-        ],
-        "summary": "Submits a request to join a team.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "hexathon": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Join Request has been sent!",
-            "type": "string"
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/teams/leave": {
-      "post": {
-        "tags": [
-          "users"
-        ],
-        "summary": "Submits a request to leave a team.",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "hexathon": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": ""
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/teams/{id}/put": {
-      "put": {
-        "tags": [
-          "users"
-        ],
-        "summary": "",
-        "description": "",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "params",
-            "in": "params",
-            "description": "",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "integer",
-                  "description": "Team ID"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Team"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
           }
         }
       }
@@ -4982,9 +4164,6 @@
             "mini-challenge"
           ]
         },
-        "description": {
-          "type": "string"
-        },
         "startDate": {
           "type": "string",
           "format": "date-time"
@@ -5005,29 +4184,6 @@
       },
       "xml": {
         "name": "Event"
-      }
-    },
-    "Block": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "hexathon": {
-          "type": "string"
-        },
-        "title": {
-          "type": "string"
-        },
-        "slug": {
-          "type": "string"
-        },
-        "content": {
-          "type": "string"
-        }
-      },
-      "xml": {
-        "name": "Block"
       }
     },
     "BasicApplication": {
@@ -5484,53 +4640,6 @@
         "name": "Company"
       }
     },
-    "Team": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "name": {
-          "type": "string"
-        },
-        "hexathon": {
-          "type": "string"
-        },
-        "members": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": [
-            
-          ]
-        },
-        "description": {
-          "type": "string"
-        },
-        "public": {
-          "type": "boolean"
-        },
-        "memberRequests": {
-          "type": "object",
-          "properties": {
-            "userId": {
-              "type": "string"
-            },
-            "message": {
-              "type": "string"
-            }
-          },
-          "default": [
-            
-          ]
-        }
-      },
-      "xml": {
-        "name": "Team"
-      }
-    },
     "Profile": {
       "type": "object",
       "properties": {
@@ -5732,12 +4841,12 @@
         "trackingLabel": {
           "type": "string"
         },
-        "purchasedSwagItems": {
+        "purchasedPrizeItems": {
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
-              "swagItemId": {
+              "prizeItemId": {
                 "type": "string"
               },
               "quantity": {
@@ -5752,7 +4861,7 @@
         }
       }
     },
-    "SwagItem": {
+    "PrizeItem": {
       "type": "object",
       "properties": {
         "name": {
@@ -5790,135 +4899,6 @@
         },
         "image_url": {
           "type": "string"
-        }
-      }
-    },
-    "Cart": {
-      "type": "object",
-      "properties": {
-        "orderNumber": {
-          "type": "number"
-        },
-        "items": {
-          "$ref": "#/definitions/HardwareItem"
-        },
-        "uid": {
-          "type": "string"
-        }
-      }
-    },
-    "HardwareItem": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "required": true
-        },
-        "description": {
-          "type": "string",
-          "required": false
-        },
-        "imageUrl": {
-          "type": "string",
-          "required": false
-        },
-        "totalAvailable": {
-          "type": "number",
-          "required": true
-        },
-        "maxRequestQty": {
-          "type": "number",
-          "required": true
-        },
-        "price": {
-          "type": "number",
-          "required": true
-        },
-        "hidden": {
-          "type": "boolean",
-          "required": true,
-          "default": false
-        },
-        "returnRequired": {
-          "type": "boolean",
-          "required": true,
-          "default": true
-        },
-        "approvalRequired": {
-          "type": "boolean",
-          "required": true,
-          "default": true
-        },
-        "owner": {
-          "type": "string",
-          "required": true
-        },
-        "category": {
-          "type": "string",
-          "required": true
-        },
-        "location": {
-          "type": "string",
-          "required": true
-        },
-        "requests": {
-          "type": "array",
-          "items": {
-            "type": "number"
-          },
-          "default": [
-            
-          ]
-        }
-      }
-    },
-    "Location": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "required": true
-        },
-        "hidden": {
-          "type": "boolean",
-          "required": true,
-          "default": false
-        }
-      }
-    },
-    "Category": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "required": true
-        }
-      }
-    },
-    "HardwareRequest": {
-      "type": "object",
-      "properties": {
-        "quantity": {
-          "type": "number",
-          "required": true
-        },
-        "status": {
-          "type": "string",
-          "required": true
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "required": true
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "required": true
-        },
-        "item": {
-          "type": "number",
-          "required": true
         }
       }
     }
