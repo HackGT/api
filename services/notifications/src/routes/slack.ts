@@ -5,13 +5,13 @@ import { WebClient } from "@slack/web-api";
 export const slackRoutes = express.Router();
 
 const client = new WebClient(process.env.SLACK_BOT_TOKEN);
+const CHANNEL_ID = "C04SCD2AVDG";
 
 slackRoutes.route("/announcements").get(
   asyncHandler(async (req, res) => {
     try {
       const response = await client.conversations.history({
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        channel: process.env.CHANNEL_ID!,
+        channel: CHANNEL_ID,
       });
       const messageText = response.messages?.map(message => message.text);
       const announcements = messageText?.filter(
