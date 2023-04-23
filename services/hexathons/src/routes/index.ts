@@ -7,8 +7,9 @@ import { locationRoutes } from "./location";
 import { tagRoutes } from "./tag";
 import { checkinRouter } from "./checkin";
 import { hexathonUserRouter } from "./hexathon-users";
-import { prizeItemRouter } from "./prize-item";
+import { swagItemRouter } from "./swag-item";
 import { sponsorVisitRouter } from "./sponsor-visit";
+import { blockRoutes } from "./block";
 
 export const defaultRouter = express.Router();
 
@@ -19,5 +20,6 @@ defaultRouter.use("/locations", locationRoutes);
 defaultRouter.use("/tags", tagRoutes);
 defaultRouter.use("/checkin", checkinRouter);
 defaultRouter.use("/hexathon-users", hexathonUserRouter);
-defaultRouter.use("/prize-items", prizeItemRouter);
+defaultRouter.use("/swag-items", swagItemRouter);
 defaultRouter.use("/sponsor-visit", sponsorVisitRouter);
+defaultRouter.use("/blocks", blockRoutes);

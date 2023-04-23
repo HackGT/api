@@ -606,3 +606,35 @@ applicationRouter.route("/actions/expo-user").get(
     return res.status(200).json(application);
   })
 );
+
+applicationRouter.route("/slack/confirmed-users").get(
+  checkAbility("read", "Application"),
+  asyncHandler(async (req, res) => {
+    if (!req.query.hexathon) {
+      throw new BadRequestError("Hexathon filter is required");
+    }
+
+    const filter: FilterQuery<Application> = {};
+    filter.hexathon = req.query.hexathon;
+    filter.status = StatusType.CONFIRMED;
+
+    // for a specific slack channel
+    if (req.query.confirmationBranch?.length) {
+      filter.confirmationBranch = req.query.confirmationBranch;
+    }
+
+    const applications = await ApplicationModel.accessibleBy(req.ability)
+      .find(filter)
+      .select("-applicationData");
+
+    const confirmedEmails = [];
+    for (const application of applications) {
+      confirmedEmails.push(application.email);
+    }
+
+    return res.status(200).json({
+      confirmationBranch: req.query.confirmationBranch || "All",
+      confirmedEmails,
+    });
+  })
+);

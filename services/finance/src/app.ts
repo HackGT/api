@@ -14,9 +14,15 @@ import {
 import cookieParser from "cookie-parser";
 import * as Sentry from "@sentry/node";
 import * as Tracing from "@sentry/tracing";
+import { ApolloServer, gql, makeExecutableSchema } from "apollo-server-express";
+import { applyMiddleware } from "graphql-middleware";
+import { graphqlUploadExpress } from "graphql-upload";
+import fs from "fs";
+import path from "path";
 
 import { defaultRouter } from "./routes";
 import { addAbilities } from "./permission";
+import { resolvers, permissions } from "./api/api";
 
 export const app = express();
 
@@ -65,6 +71,33 @@ app.get("/status", (req, res) => {
 });
 
 app.use(isAuthenticated);
+
+const typeDefs = gql`
+  ${fs.readFileSync(path.resolve(__dirname, "./api.graphql"), "utf8")}
+`;
+
+const schema = applyMiddleware(makeExecutableSchema({ typeDefs, resolvers }), permissions);
+
+const server = new ApolloServer({
+  schema,
+  context: ({ req }: { req: express.Request }) => ({ user: req.user }),
+  playground: process.env.PRODUCTION !== "true" && {
+    settings: {
+      "editor.theme": "dark",
+      "request.credentials": "include",
+    },
+  },
+  introspection: process.env.PRODUCTION !== "true",
+  formatError: err => {
+    console.error(err);
+    return err;
+  },
+  uploads: false, // https://github.com/apollographql/apollo-server/issues/3508#issuecomment-662371289
+});
+
+app.use(graphqlUploadExpress({ maxFileSize: 1024 * 1024 * 6, maxFiles: 15 }));
+server.applyMiddleware({ app });
+
 app.use("/", defaultRouter);
 
 if (config.common.production) {

@@ -1,0 +1,12 @@
+overwrite: true
+schema:
+  - "./src/api.graphql"
+  - "scalar Upload"
+config:
+  scalars:
+    ID: "number"
+generates:
+  src/generated/types.ts:
+    plugins:
+      - "typescript"
+      - "typescript-resolvers"

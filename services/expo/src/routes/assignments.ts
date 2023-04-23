@@ -91,6 +91,7 @@ const autoAssign = async (judge: number, isStarted: boolean): Promise<Assignment
 
   // where clause for finding projects
   const projectFilter: any = {
+    hexathon: config?.currentHexathon,
     expo: config?.currentExpo,
     round: config?.currentRound,
     categories: {

@@ -46,3 +46,11 @@ hexathonRouter.route("/:id").put(
     res.status(200).json(updatedHexathon);
   })
 );
+
+hexathonRouter.route("/:id").delete(
+  checkAbility("delete", "Hexathon"),
+  asyncHandler(async (req, res) => {
+    await HexathonModel.findByIdAndDelete(req.params.id);
+    return res.sendStatus(204);
+  })
+);

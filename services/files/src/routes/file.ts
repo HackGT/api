@@ -5,7 +5,7 @@ import { Service } from "@api/config";
 import { FilterQuery } from "mongoose";
 import { ObjectId } from "mongodb";
 
-import { uploadFile, getFileViewingUrl } from "../common/storage";
+import { uploadFile, getFileViewingUrl, uploadFileCDN } from "../common/storage";
 import { File, FileModel } from "../models/file";
 
 const multerMid = multer({
@@ -49,6 +49,28 @@ fileRoutes.route("/upload").post(
         req
       );
     }
+
+    res.status(200).json(file);
+  })
+);
+
+fileRoutes.route("/upload-cdn").post(
+  checkAbility("create", "File"),
+  multerMid.single("file"),
+  asyncHandler(async (req, res) => {
+    if (!req.file) {
+      throw new BadRequestError("No file uploaded!");
+    }
+
+    const googleFileName = await uploadFileCDN(req.file);
+
+    const file = await FileModel.create({
+      name: req.file.originalname,
+      mimeType: req.file.mimetype,
+      userId: req.user?.uid,
+      storageId: googleFileName,
+      type: req.body.type,
+    });
 
     res.status(200).json(file);
   })

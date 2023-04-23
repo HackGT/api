@@ -11,6 +11,9 @@ winnerRoutes.route("/").get(
   isAdmin,
   asyncHandler(async (req, res) => {
     const winners = await prisma.winner.findMany({
+      where: {
+        hexathon: String(req.query.hexathon),
+      },
       include: {
         project: {
           include: {

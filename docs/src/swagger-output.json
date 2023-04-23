@@ -1747,7 +1747,6 @@
       "post": {
         "tags": ["hexathons"],
         "summary": "Purchases a swag item for a selected user",
->>>>>>> main
         "description": "",
         "consumes": [
           "application/json"
@@ -2382,7 +2381,6 @@
           }
         ],
         "produces": ["application/json"],
->>>>>>> main
         "responses": {
           "204": {
             "description": "successful operation"
@@ -4483,7 +4481,6 @@
         "summary": "",
         "description": "",
         "produces": ["application/json"],
->>>>>>> main
         "parameters": [
           {
             "name": "body",

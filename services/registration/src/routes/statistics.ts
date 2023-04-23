@@ -1,6 +1,7 @@
 /* eslint-disable prefer-destructuring */
 /* eslint-disable no-underscore-dangle */
-import { asyncHandler, checkAbility } from "@api/common";
+import { apiCall, asyncHandler, checkAbility } from "@api/common";
+import { Service } from "@api/config";
 import express from "express";
 import mongoose from "mongoose";
 
@@ -28,6 +29,21 @@ statisticsRouter.route("/").get(
     const branches = await BranchModel.find({
       hexathon: new mongoose.Types.ObjectId(hexathon as string),
     });
+
+    const checkins = await apiCall(
+      Service.HEXATHONS,
+      {
+        url: `/interactions`,
+        method: "GET",
+        params: {
+          hexathon,
+          type: "check-in",
+        },
+      },
+      req
+    );
+
+    const checkinCount = checkins.length;
 
     const aggregatedApplications = await ApplicationModel.aggregate([
       {
@@ -106,6 +122,54 @@ statisticsRouter.route("/").get(
               },
             },
           ],
+          // marketing data for applied applications
+          marketingData: [
+            {
+              $match: {
+                "status": { $ne: StatusType.DRAFT },
+                "applicationData.marketing": { $ne: null },
+              },
+            },
+            {
+              $group: {
+                _id: "$applicationData.marketing",
+                count: { $sum: 1 },
+              },
+            },
+          ],
+          // shirt size data for applied applications
+          shirtSizeData: [
+            {
+              $match: {
+                "status": { $ne: StatusType.DRAFT },
+                "applicationData.shirtSize": { $ne: null },
+              },
+            },
+            {
+              $group: {
+                _id: "$applicationData.shirtSize",
+                count: { $sum: 1 },
+              },
+            },
+          ],
+          // dietary restrictions data for applied applications
+          dietaryRestrictionsData: [
+            {
+              $match: {
+                "status": { $ne: StatusType.DRAFT },
+                "applicationData.dietaryRestrictions": { $ne: null },
+              },
+            },
+            {
+              $unwind: "$applicationData.dietaryRestrictions",
+            },
+            {
+              $group: {
+                _id: "$applicationData.dietaryRestrictions",
+                count: { $sum: 1 },
+              },
+            },
+          ],
           // groups all applications by application branch and status
           applicationBranches: [
             {
@@ -161,6 +225,7 @@ statisticsRouter.route("/").get(
         (allUsersStatusCount.CONFIRMED || 0) +
         (allUsersStatusCount.NOT_ATTENDING || 0),
       confirmedUsers: allUsersStatusCount.CONFIRMED || 0,
+      checkedinUsers: checkinCount,
       deniedUsers: allUsersStatusCount.DENIED || 0,
     };
 
@@ -240,6 +305,11 @@ statisticsRouter.route("/").get(
       schoolData: transformAggregateArray(aggregatedApplications[0].schoolData),
       majorData: transformAggregateArray(aggregatedApplications[0].majorData),
       schoolYearData: transformAggregateArray(aggregatedApplications[0].schoolYearData),
+      marketingData: transformAggregateArray(aggregatedApplications[0].marketingData),
+      shirtSizeData: transformAggregateArray(aggregatedApplications[0].shirtSizeData),
+      dietaryRestrictionsData: transformAggregateArray(
+        aggregatedApplications[0].dietaryRestrictionsData
+      ),
     };
 
     return res.send({

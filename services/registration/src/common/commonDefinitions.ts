@@ -258,6 +258,21 @@ const commonDefinitions = {
       "Other [International]",
     ],
   },
+  georgiaUniversity: {
+    type: "string",
+    enum: [
+      "Georgia Institute of Technology",
+      "Georgia State University",
+      "University of Georgia",
+      "Emory University",
+      "Savannah College of Art and Design",
+      "Georgia Southern University",
+      "Berry College",
+      "University of North Georgia",
+      "Kennesaw State University",
+      "Other",
+    ],
+  },
   levelOfStudy: {
     type: "string",
     enum: [
@@ -277,6 +292,10 @@ const commonDefinitions = {
   year: {
     type: "string",
     enum: ["1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year+", "Master's", "PhD"],
+  },
+  highSchoolYear: {
+    type: "string",
+    enum: ["Freshman", "Sophomore", "Junior", "Senior"],
   },
   major: {
     type: "string",
@@ -364,6 +383,23 @@ const commonDefinitions = {
   dietaryRestrictions: {
     type: "string",
     enum: ["Vegetarian", "Vegan", "Gluten Free", "Dairy Free", "No Pork", "No Beef"],
+  },
+  computerOS: {
+    type: "string",
+    enum: ["Windows", "MacOS", "Linux", "ChromeOS", "I do not have a computer", "Other"],
+  },
+  courses: {
+    type: "array",
+    items: {
+      type: "string",
+      enum: [
+        "AP Computer Science A",
+        "AP Computer Science Principles",
+        "Introduction to Computing",
+        "Introduction to Programming",
+        "None to these",
+      ],
+    },
   },
   skills: {
     type: "string",

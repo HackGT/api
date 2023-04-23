@@ -21,6 +21,9 @@ interactionRoutes.route("/").get(
     if (req.query.identifier) {
       filter.identifier = String(req.query.identifier);
     }
+    if (req.query.type) {
+      filter.type = String(req.query.type);
+    }
 
     const interactions = await InteractionModel.accessibleBy(req.ability)
       .find(filter)

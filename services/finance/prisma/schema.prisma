@@ -188,10 +188,9 @@ model Vendor {
 
 model User {
   id           Int           @id @default(autoincrement())
-  uuid         String        @unique
+  userId       String        @unique
   name         String
   email        String        @unique
-  token        String
   accessLevel  AccessLevel
   slackId      String?
   approvals    Approval[]

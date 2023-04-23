@@ -9,12 +9,11 @@ export const tableGroupRoutes = express.Router();
 
 tableGroupRoutes.route("/").get(
   asyncHandler(async (req, res) => {
-    const { hackathon } = req.query;
+    const { hexathon } = req.query;
     const filter: any = {};
 
-    if (hackathon !== undefined) {
-      const hackathonId: number = parseInt(hackathon as string);
-      filter.hackathonId = hackathonId;
+    if (hexathon !== undefined) {
+      filter.hexathon = hexathon;
     }
 
     const tableGroups = await prisma.tableGroup.findMany({ where: filter });
