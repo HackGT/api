@@ -37,9 +37,10 @@ branchRouter.route("/").post(
     if (req.body?.grading?.enabled && !req.body?.grading?.group) {
       throw new BadRequestError("Grading group is required when grading is set");
     }
-    if (
-      DateTime.fromJSDate(req.body?.settings?.close) < DateTime.fromJSDate(req.body?.settings?.open)
-    ) {
+
+    const openTime = DateTime.fromJSDate(new Date(req.body?.settings?.open));
+    const closeTime = DateTime.fromJSDate(new Date(req.body?.settings?.close));
+    if (closeTime < openTime) {
       throw new BadRequestError("Close time must be after open time");
     }
 
@@ -55,9 +56,10 @@ branchRouter.route("/:id").patch(
     if (req.body?.grading?.enabled && !req.body?.grading?.group) {
       throw new BadRequestError("Grading group is required when grading is set");
     }
-    if (
-      DateTime.fromJSDate(req.body?.settings?.close) < DateTime.fromJSDate(req.body?.settings?.open)
-    ) {
+
+    const openTime = DateTime.fromJSDate(new Date(req.body?.settings?.open));
+    const closeTime = DateTime.fromJSDate(new Date(req.body?.settings?.close));
+    if (closeTime < openTime) {
       throw new BadRequestError("Close time must be after open time");
     }
 
