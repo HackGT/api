@@ -1,5 +1,6 @@
 import { accessibleRecordsPlugin, AccessibleRecordModel } from "@casl/mongoose";
 import mongoose, { Schema, model, Types } from "mongoose";
+import commonDefinitions from "@api/common/src/commonDefinitions";
 
 import { HexathonModel } from "./hexathon";
 import { SwagItemModel } from "./swagItem";
@@ -24,6 +25,16 @@ export interface HexathonUser extends mongoose.Document {
     quantity: number;
     timestamp: Date;
   }[];
+  profile: {
+    matched: boolean;
+    school?: string;
+    year?: string;
+    major?: string;
+    description?: string;
+    commitmentLevel?: string;
+    skills?: string[];
+    isJudging?: boolean;
+  };
 }
 
 const hexathonUserSchema = new Schema<HexathonUser>({
@@ -97,6 +108,40 @@ const hexathonUserSchema = new Schema<HexathonUser>({
       },
     ],
     default: [],
+  },
+  profile: {
+    matched: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+    school: {
+      type: String,
+      enum: commonDefinitions.university.enum,
+    },
+    year: {
+      type: String,
+      enum: commonDefinitions.year.enum,
+    },
+    major: {
+      type: String,
+      enum: commonDefinitions.major.enum,
+    },
+    description: {
+      type: String,
+      maxLength: 200,
+    },
+    commitmentLevel: {
+      type: String,
+      enum: ["High", "Medium", "Low"],
+    },
+    skills: {
+      type: [String],
+      enum: commonDefinitions.skills.enum,
+    },
+    isJudging: {
+      type: Boolean,
+    },
   },
 });
 
