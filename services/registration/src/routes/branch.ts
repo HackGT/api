@@ -1,6 +1,7 @@
 import { asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import express from "express";
 import { FilterQuery } from "mongoose";
+import { DateTime } from "luxon";
 
 import { Branch, BranchModel } from "../models/branch";
 
@@ -37,6 +38,12 @@ branchRouter.route("/").post(
       throw new BadRequestError("Grading group is required when grading is set");
     }
 
+    const openTime = DateTime.fromJSDate(new Date(req.body?.settings?.open));
+    const closeTime = DateTime.fromJSDate(new Date(req.body?.settings?.close));
+    if (closeTime < openTime) {
+      throw new BadRequestError("Close time must be after open time");
+    }
+
     const newBranch = await BranchModel.create(req.body);
 
     return res.send(newBranch);
@@ -48,6 +55,12 @@ branchRouter.route("/:id").patch(
   asyncHandler(async (req, res) => {
     if (req.body?.grading?.enabled && !req.body?.grading?.group) {
       throw new BadRequestError("Grading group is required when grading is set");
+    }
+
+    const openTime = DateTime.fromJSDate(new Date(req.body?.settings?.open));
+    const closeTime = DateTime.fromJSDate(new Date(req.body?.settings?.close));
+    if (closeTime < openTime) {
+      throw new BadRequestError("Close time must be after open time");
     }
 
     const updatedBranch = await BranchModel.findByIdAndUpdate(req.params.id, req.body, {
