@@ -1,6 +1,6 @@
 import { AccessibleRecordModel, accessibleRecordsPlugin } from "@casl/mongoose";
 import mongoose, { model, Schema, Types } from "mongoose";
-import commonDefinitions from "@api/common/src/commonDefinitions";
+import { commonDefinitions } from "@api/common";
 
 export enum BranchType {
   APPLICATION = "APPLICATION",

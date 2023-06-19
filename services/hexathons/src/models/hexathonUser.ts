@@ -1,6 +1,6 @@
 import { accessibleRecordsPlugin, AccessibleRecordModel } from "@casl/mongoose";
 import mongoose, { Schema, model, Types } from "mongoose";
-import commonDefinitions from "@api/common/src/commonDefinitions";
+import { commonDefinitions } from "@api/common";
 
 import { HexathonModel } from "./hexathon";
 import { SwagItemModel } from "./swagItem";

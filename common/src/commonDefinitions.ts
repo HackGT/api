@@ -1,4 +1,4 @@
-const commonDefinitions = {
+export const commonDefinitions = {
   university: {
     type: "string",
     enum: [
@@ -686,5 +686,3 @@ const commonDefinitions = {
     ],
   },
 };
-
-export default commonDefinitions;
