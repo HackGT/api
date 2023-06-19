@@ -5,6 +5,12 @@ import commonDefinitions from "@api/common/src/commonDefinitions";
 import { HexathonModel } from "./hexathon";
 import { SwagItemModel } from "./swagItem";
 
+export enum CommitmentType {
+  HIGH = "high",
+  MEDIUM = "medium",
+  LOW = "low",
+}
+
 export interface HexathonUser extends mongoose.Document {
   userId: string;
   email: string;
@@ -31,7 +37,7 @@ export interface HexathonUser extends mongoose.Document {
     year?: string;
     major?: string;
     description?: string;
-    commitmentLevel?: string;
+    commitmentLevel?: CommitmentType;
     skills?: string[];
     isJudging?: boolean;
   };
@@ -132,8 +138,7 @@ const hexathonUserSchema = new Schema<HexathonUser>({
       maxLength: 200,
     },
     commitmentLevel: {
-      type: String,
-      enum: ["High", "Medium", "Low"],
+      type: CommitmentType,
     },
     skills: {
       type: [String],
@@ -141,6 +146,7 @@ const hexathonUserSchema = new Schema<HexathonUser>({
     },
     isJudging: {
       type: Boolean,
+      default: false,
     },
   },
 });
