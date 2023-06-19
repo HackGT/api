@@ -138,7 +138,8 @@ const hexathonUserSchema = new Schema<HexathonUser>({
       maxLength: 200,
     },
     commitmentLevel: {
-      type: CommitmentType,
+      type: String,
+      enum: Object.values(CommitmentType),
     },
     skills: {
       type: [String],
