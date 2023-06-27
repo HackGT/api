@@ -4339,6 +4339,10 @@
           "type": "boolean",
           "default": true
         },
+        "isTeamBased": {
+          "type": "boolean",
+          "default": true
+        },
         "startDate": {
           "type": "string",
           "format": "date-time"

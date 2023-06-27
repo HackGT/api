@@ -5,6 +5,7 @@ export interface Hexathon extends mongoose.Document {
   name: string;
   shortCode: string;
   isActive: boolean;
+  isTeamBased: boolean;
   startDate: Date;
   endDate: Date;
   emailHeaderImage?: string;
@@ -27,6 +28,10 @@ const hexathonSchema = new Schema<Hexathon>({
     required: true,
     default: true,
     index: true,
+  },
+  isTeamBased: {
+    type: Boolean,
+    default: true,
   },
   startDate: {
     type: Date,
