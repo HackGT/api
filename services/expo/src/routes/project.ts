@@ -491,20 +491,22 @@ projectRoutes.route("/special/dashboard").get(
       },
     });
 
-    // const hexathons = await apiCall(
-    //   Service.HEXATHONS,
-    //   {
-    //     url: `/hexathons`,
-    //     method: "GET",
-    //   },
-    //   req
-    // );
+    const hexathons = await apiCall(
+      Service.HEXATHONS,
+      {
+        url: `/hexathons`,
+        method: "GET",
+      },
+      req
+    );
 
-    // for (const project in projects) {
-    //   for (const hexathon in hexathons) {
-    //     projects[project].hexathon = hexathons[hexathon];
-    //   }
-    // }
+    for (const project in projects) {
+      for (const hexathon in hexathons) {
+        if (projects[project].hexathon === hexathons[hexathon].id) {
+          projects[project].hexathon = hexathons[hexathon];
+        }
+      }
+    }
 
     res.status(200).json(projects);
   })
