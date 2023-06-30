@@ -10,13 +10,13 @@ export const DOCS: DocsConfig = {
 
 export const DATABASE: DatabaseConfig = {
   mongo: {
-    uri: "mongodb://localhost",
+    uri: String(process.env.MONGO_URI),
   },
   redis: {
-    uri: "redis://localhost",
+    uri: String(process.env.REDIS_URI),
   },
   postgres: {
-    uri: "postgres://postgres@localhost",
+    uri: String(process.env.POSTGRES_URI),
   },
 };
 
