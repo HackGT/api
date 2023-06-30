@@ -1,7 +1,6 @@
 {
   "name": "@api/gateway",
   "version": "1.0.0",
-  "description": "",
   "main": "dist/index",
   "types": "dist/index",
   "scripts": {
@@ -10,8 +9,6 @@
     "start": "ts-node src/index.ts",
     "dev": "nodemon --watch 'src/**/*' --exec \"ts-node\" -r tsconfig-paths/register src/index.ts"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "@api/common": "*",
     "@api/config": "*",

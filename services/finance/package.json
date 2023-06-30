@@ -1,7 +1,6 @@
 {
   "name": "@api/services-finance",
   "version": "1.0.0",
-  "description": "",
   "main": "dist/app",
   "types": "dist/app",
   "scripts": {
@@ -16,8 +15,6 @@
     "seed": "prisma db seed --preview-feature",
     "start": "yarn migrate:deploy && yarn start:normal"
   },
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "nodemon": "^2.0.15",
     "ts-node": "^10.5.0"

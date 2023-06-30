@@ -1,7 +1,6 @@
 {
   "name": "@api/services-registration",
   "version": "1.0.0",
-  "description": "",
   "main": "dist/app",
   "types": "dist/app",
   "scripts": {
@@ -10,8 +9,6 @@
     "start": "node -r tsconfig-paths/register dist/app.js",
     "dev": "nodemon --watch 'src/**/*' --exec \"ts-node\" -r tsconfig-paths/register src/app.ts"
   },
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "nodemon": "^2.0.15",
     "ts-node": "^10.5.0"
