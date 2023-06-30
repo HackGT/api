@@ -5154,6 +5154,39 @@
               }
             }
           }
+        },
+        "profile": {
+          "type": "object",
+          "properties": {
+            "matched": {
+              "type": "boolean"
+            },
+            "school": {
+              "type": "string"
+            },
+            "year": {
+              "type": "string"
+            },
+            "major": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "commitmentLevel": {
+              "type": "string",
+              "enum": ["high", "medium", "low"]
+            },
+            "skills": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "isJudging": {
+              "type": "boolean"
+            }
+          }
         }
       }
     },
