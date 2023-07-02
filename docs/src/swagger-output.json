@@ -4229,6 +4229,35 @@
           }
         }
       }
+    },
+    "/users/actions/retrieve-members": {
+      "post": {
+        "tags": ["users"],
+        "summary": "Gets full user profiles of HexLabs members",
+        "description": "",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  {
+                    "$ref": "#/definitions/Profile"
+                  },
+                  {
+                    "$ref": "#/definitions/Permission"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
     }
   },
   "definitions": {

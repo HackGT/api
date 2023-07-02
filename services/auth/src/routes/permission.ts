@@ -86,3 +86,21 @@ permissionRoutes.route("/actions/retrieve").post(
     return res.status(200).json(permissions);
   })
 );
+
+permissionRoutes.route("/actions/retrieve-members").post(
+  asyncHandler(async (req, res) => {
+    // Need to have an member role to use batch retrieve other members
+    const currentUserPermissions = await PermissionModel.findOne({
+      userId: req.user?.uid,
+    });
+    if (!currentUserPermissions?.roles?.member) {
+      throw new ForbiddenError("You do not have permission to retrieve permissions.");
+    }
+
+    const memberPermissions = await PermissionModel.find({
+      "roles.member": true,
+    });
+
+    return res.status(200).json(memberPermissions);
+  })
+);
