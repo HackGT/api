@@ -20,6 +20,7 @@
     "docs",
     "scripts"
   ],
+  "license": "MIT",
   "scripts": {
     "test": "echo \"Tests coming soon...\"",
     "lint": "eslint './**/src/**' --fix; prettier './**/src/**' --write",
@@ -29,7 +30,6 @@
   "engines": {
     "node": ">=14"
   },
-  "license": "MIT",
   "devDependencies": {
     "@hex-labs/eslint-config": "^1.3.1",
     "@hex-labs/prettier-config": "^1.3.1",

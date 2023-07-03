@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "dist/app",
   "types": "dist/app",
+  "license": "MIT",
   "scripts": {
     "prebuild": "yarn prisma-generate",
     "build": "tsc --build --force",

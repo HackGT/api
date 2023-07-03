@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "dist/app",
   "types": "dist/app",
+  "license": "MIT",
   "scripts": {
     "build": "tsc --build --force",
     "postbuild": "shx cp -R src/email-template dist/",

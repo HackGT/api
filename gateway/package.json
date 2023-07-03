@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "dist/index",
   "types": "dist/index",
+  "license": "MIT",
   "scripts": {
     "build": "tsc --build --force",
     "clean": "tsc --build --clean",
