@@ -7,13 +7,13 @@
     "prebuild": "yarn prisma-generate",
     "build": "tsc --build --force",
     "clean": "tsc --build --clean",
-    "start:normal": "node -r tsconfig-paths/register dist/app.js",
     "dev": "nodemon --watch 'src/**/*' --exec \"ts-node\" -r tsconfig-paths/register src/app.ts",
-    "migrate:dev": "prisma migrate dev",
+    "migrate:dev": "dotenv -e ../../config/.env prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
     "prisma-generate": "prisma format && prisma generate",
     "seed": "prisma db seed --preview-feature",
-    "start": "yarn migrate:deploy && yarn start:normal"
+    "start": "yarn migrate:deploy && yarn start:normal",
+    "start:normal": "node -r tsconfig-paths/register dist/app.js"
   },
   "devDependencies": {
     "nodemon": "^2.0.15",
