@@ -1,4 +1,4 @@
-import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/common";
+import { apiCall, asyncHandler, checkAbility, ForbiddenError } from "@api/common";
 import { Service } from "@api/config";
 import express from "express";
 import { FilterQuery } from "mongoose";
@@ -162,5 +162,37 @@ userRoutes.route("/actions/retrieve").post(
     });
 
     return res.status(200).json(profiles);
+  })
+);
+
+userRoutes.route("/actions/retrieve-members").post(
+  checkAbility("read", "Profile"),
+  asyncHandler(async (req, res) => {
+    if (!req.user?.roles.member) {
+      throw new ForbiddenError("You do not have permission to access this resource.");
+    }
+
+    const memberPermissions = await apiCall(
+      Service.AUTH,
+      { method: "POST", url: "permissions/actions/retrieve-members" },
+      req
+    );
+
+    const profiles = await ProfileModel.accessibleBy(req.ability).find({
+      userId: memberPermissions.map((permission: any) => permission.userId),
+    });
+
+    const combinedProfiles = [];
+    for (const profile of profiles) {
+      const userPermissions = memberPermissions.find(
+        (permission: any) => permission.userId === profile.userId
+      );
+      combinedProfiles.push({
+        ...profile.toJSON(),
+        ...(userPermissions ?? {}),
+      });
+    }
+
+    return res.status(200).json(combinedProfiles);
   })
 );

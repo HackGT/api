@@ -70,7 +70,7 @@ permissionRoutes.route("/actions/retrieve").post(
       userId: req.user?.uid,
     });
     if (!currentUserPermissions?.roles?.admin) {
-      throw new ForbiddenError("You do not have permission to update permissions.");
+      throw new ForbiddenError("You do not have permission to retrieve permissions.");
     }
 
     const { userIds }: { userIds: string[] } = req.body;
@@ -87,18 +87,20 @@ permissionRoutes.route("/actions/retrieve").post(
   })
 );
 
-permissionRoutes.route("/actions/retrieve").get(
+permissionRoutes.route("/actions/retrieve-members").post(
   asyncHandler(async (req, res) => {
-    // Need to have an admin role to use batch retrieve
+    // Need to have an member role to use batch retrieve other members
     const currentUserPermissions = await PermissionModel.findOne({
       userId: req.user?.uid,
     });
-    if (!currentUserPermissions?.roles?.admin) {
-      throw new ForbiddenError("You do not have permission to update permissions.");
+    if (!currentUserPermissions?.roles?.member) {
+      throw new ForbiddenError("You do not have permission to retrieve permissions.");
     }
 
-    const permissions = await PermissionModel.find();
+    const memberPermissions = await PermissionModel.find({
+      "roles.member": true,
+    });
 
-    return res.status(200).json(permissions);
+    return res.status(200).json(memberPermissions);
   })
 );

@@ -348,48 +348,12 @@
       }
     },
     "/permissions/actions/retrieve": {
-      "get": {
-        "tags": ["auth"],
-        "summary": "Get permission info for all users.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "type": "integer",
-            "description": "User ID for admin check",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Permission"
-              }
-            }
-          },
-          "400": {
-            "description": "Empty JSON object"
-          }
-        }
-      },
       "post": {
         "tags": ["auth"],
-        "summary": "Batch update users' permissions.",
+        "summary": "Batch get user permissions.",
         "description": "",
         "produces": ["application/json"],
         "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "type": "integer",
-            "description": "User ID",
-            "required": true
-          },
           {
             "name": "body",
             "in": "body",
@@ -398,8 +362,11 @@
             "schema": {
               "type": "object",
               "properties": {
-                "roles": {
+                "userIds": {
                   "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
                   "description": "array of user ids"
                 }
               }
@@ -4254,6 +4221,35 @@
               "type": "array",
               "items": {
                 "$ref": "#/definitions/Profile"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/users/actions/retrieve-members": {
+      "post": {
+        "tags": ["users"],
+        "summary": "Gets full user profiles of HexLabs members",
+        "description": "",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  {
+                    "$ref": "#/definitions/Profile"
+                  },
+                  {
+                    "$ref": "#/definitions/Permission"
+                  }
+                ]
               }
             }
           },
