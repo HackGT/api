@@ -1,18 +1,34 @@
 import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import express from "express";
 import multer from "multer";
-import { Service } from "@api/config";
+import config, { Service } from "@api/config";
 import { FilterQuery } from "mongoose";
 import { ObjectId } from "mongodb";
 
-import { uploadFile, getFileViewingUrl, uploadFileCDN } from "../common/storage";
+import { uploadFile, uploadFiles, getFileViewingUrl } from "../common/storage";
 import { File, FileModel } from "../models/file";
+
+const fileMimeTypesAllowlist = [
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "image/png",
+  "image/jpeg",
+  "text/plain",
+];
 
 const multerMid = multer({
   storage: multer.memoryStorage(),
   limits: {
     // no larger than 5mb.
     fileSize: 5 * 1024 * 1024,
+  },
+  fileFilter: (req, file, callback) => {
+    if (!fileMimeTypesAllowlist.includes(file.mimetype)) {
+      callback(new Error("Invalid file format"));
+      return;
+    }
+    callback(null, true);
   },
 });
 
@@ -23,20 +39,21 @@ fileRoutes.route("/upload").post(
   multerMid.single("file"),
   asyncHandler(async (req, res) => {
     if (!req.file) {
-      throw new BadRequestError("No file uploaded!");
+      throw new BadRequestError("No file uploaded");
     }
 
-    const googleFileName = await uploadFile(req.file);
+    const googleFileName = await uploadFile(req.file, config.common.googleCloud.storageBucket);
 
     const file = await FileModel.create({
       name: req.file.originalname,
       mimeType: req.file.mimetype,
       userId: req.user?.uid,
       storageId: googleFileName,
+      storageBucket: config.common.googleCloud.storageBucket,
       type: req.body.type,
     });
 
-    if (req.body?.type === "resume") {
+    if (req.body.type === "resume") {
       await apiCall(
         Service.USERS,
         {
@@ -58,21 +75,60 @@ fileRoutes.route("/upload-cdn").post(
   checkAbility("create", "File"),
   multerMid.single("file"),
   asyncHandler(async (req, res) => {
+    if (!req.user?.roles.member) {
+      throw new BadRequestError("You do not have access to upload files");
+    }
     if (!req.file) {
-      throw new BadRequestError("No file uploaded!");
+      throw new BadRequestError("No file uploaded");
     }
 
-    const googleFileName = await uploadFileCDN(req.file);
+    const googleFileName = await uploadFile(req.file, "hexlabs-public-cdn");
 
     const file = await FileModel.create({
       name: req.file.originalname,
       mimeType: req.file.mimetype,
       userId: req.user?.uid,
       storageId: googleFileName,
+      storageBucket: "hexlabs-public-cdn",
       type: req.body.type,
     });
 
     res.status(200).json(file);
+  })
+);
+
+fileRoutes.route("/upload-finance").post(
+  checkAbility("create", "File"),
+  multerMid.array("files", 10),
+  asyncHandler(async (req, res) => {
+    if (!req.user?.roles.member) {
+      throw new BadRequestError("You do not have access to upload files");
+    }
+    if (!req.files || req.files.length === 0) {
+      throw new BadRequestError("No files uploaded");
+    }
+
+    const googleFileNames = await uploadFiles(
+      req.files as Express.Multer.File[],
+      // TODO: Change upload bucket to finance bucket when migrated
+      config.common.googleCloud.storageBucket
+    );
+
+    if (googleFileNames.length !== req.files.length) {
+      throw new BadRequestError("Error or mismatch uploading files");
+    }
+
+    const createFilesData = (req.files as Express.Multer.File[]).map((file, index) => ({
+      name: file.originalname,
+      mimeType: file.mimetype,
+      userId: req.user?.uid,
+      storageId: googleFileNames[index],
+      storageBucket: config.common.googleCloud.storageBucket,
+      type: "finance",
+    }));
+    const files = await FileModel.create(createFilesData);
+
+    res.status(200).json(files);
   })
 );
 
@@ -145,7 +201,6 @@ fileRoutes.route("/:id/view").get(
     }
 
     const file = await FileModel.findOne(filter);
-
     if (!file || !file.storageId) {
       throw new BadRequestError("You do not have access or invalid file id provided.");
     }
@@ -153,5 +208,23 @@ fileRoutes.route("/:id/view").get(
     const fileUrl = await getFileViewingUrl(file);
 
     res.status(302).redirect(fileUrl);
+  })
+);
+
+fileRoutes.route("/actions/retrieve").post(
+  checkAbility("read", "File"),
+  asyncHandler(async (req, res) => {
+    const filter: FilterQuery<File> = {
+      _id: {
+        $in: req.body.fileIds.map((fileId: any) => new ObjectId(fileId)),
+      },
+    };
+    if (!req.user?.roles.member) {
+      filter.userId = req.user?.uid;
+    }
+
+    const files = await FileModel.find(filter);
+
+    res.status(200).send(files);
   })
 );

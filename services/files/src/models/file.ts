@@ -6,6 +6,7 @@ export interface File extends mongoose.Document {
   mimeType: string;
   name: string;
   storageId: string;
+  storageBucket?: string;
   type: string;
 }
 
@@ -27,9 +28,12 @@ const fileSchema = new Schema<File>({
     type: String,
     required: true,
   },
+  storageBucket: {
+    type: String,
+  },
   type: {
     type: String,
-    enum: ["resume", "other"],
+    enum: ["resume", "finance", "other"],
     default: "other",
   },
 });
