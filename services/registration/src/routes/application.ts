@@ -20,7 +20,7 @@ applicationRouter.route("/").get(
     }
 
     const filter: FilterQuery<Application> = {};
-    let requireApplicationData = false;
+    const requireApplicationData = req.query.requireApplicationData || false;
     filter.hexathon = req.query.hexathon;
     if (req.query.status?.length) {
       filter.status = req.query.status;
@@ -30,9 +30,6 @@ applicationRouter.route("/").get(
     }
     if (req.query.confirmationBranch?.length) {
       filter.confirmationBranch = req.query.confirmationBranch;
-    }
-    if (req.query.requireApplicationData) {
-      requireApplicationData = true;
     }
     let company;
     try {
