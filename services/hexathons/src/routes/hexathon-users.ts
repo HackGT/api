@@ -81,23 +81,23 @@ hexathonUserRouter.route("/:hexathonId/users/:userId").patch(
 hexathonUserRouter.route("/:hexathonId/users/:userId/actions/check-valid-user").post(
   checkAbility("read", "HexathonUser"),
   asyncHandler(async (req, res) => {
-    const hexathonUser = await HexathonUserModel.accessibleBy(req.ability).findOne({
+    let hexathonUser = await HexathonUserModel.accessibleBy(req.ability).findOne({
       userId: req.params.userId,
       hexathon: req.params.hexathonId,
     });
 
-    // if (hexathonUser) {
-    //   return res.sendStatus(200);
-    // }
+    if (hexathonUser) {
+      return res.sendStatus(200);
+    }
 
     // Check again if hexathonUser exists but user doesn't have permission
-    // hexathonUser = await HexathonUserModel.findOne({
-    //   userId: req.params.userId,
-    //   hexathon: req.params.hexathonId,
-    // });
-    // if (hexathonUser) {
-    //   throw new BadRequestError("You do not have access or invalid params provided.");
-    // }
+    hexathonUser = await HexathonUserModel.findOne({
+      userId: req.params.userId,
+      hexathon: req.params.hexathonId,
+    });
+    if (hexathonUser) {
+      throw new BadRequestError("You do not have access or invalid params provided.");
+    }
 
     const applications = await apiCall(
       Service.REGISTRATION,
