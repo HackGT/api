@@ -791,7 +791,7 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation",
+            "description": "Successful Operation",
             "schema": {
               "$ref": "#/definitions/Location"
             }
@@ -805,10 +805,18 @@
     "/files/upload": {
       "post": {
         "tags": ["files"],
-        "summary": "Upload a new file.",
+        "summary": "Upload a new file to the default bucket.",
         "description": "",
         "consumes": ["application/json"],
         "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "file",
+            "in": "formData",
+            "type": "file",
+            "description": "The file to upload"
+          }
+        ],
         "responses": {
           "200": {
             "description": "File successfully uploaded",
@@ -817,7 +825,7 @@
             }
           },
           "400": {
-            "description": "No file uploaded!"
+            "description": "No file uploaded"
           }
         }
       }
@@ -829,6 +837,14 @@
         "description": "",
         "consumes": ["application/json"],
         "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "file",
+            "in": "formData",
+            "type": "file",
+            "description": "The file to upload"
+          }
+        ],
         "responses": {
           "200": {
             "description": "File successfully uploaded",
@@ -837,7 +853,42 @@
             }
           },
           "400": {
-            "description": "No file uploaded!"
+            "description": "No file uploaded"
+          }
+        }
+      }
+    },
+    "/files/upload-finance": {
+      "post": {
+        "tags": ["files"],
+        "summary": "Upload new file(s) to the finance bucket.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "files",
+            "in": "formData",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "binary"
+            },
+            "description": "The file(s) to upload (max 10)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File(s) successfully uploaded",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/File"
+              }
+            }
+          },
+          "400": {
+            "description": "No file uploaded"
           }
         }
       }
@@ -859,7 +910,7 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation",
+            "description": "Successful Operation",
             "schema": {
               "$ref": "#/definitions/File"
             }
@@ -887,7 +938,43 @@
         ],
         "responses": {
           "302": {
-            "description": "successful operation"
+            "description": "Successful Operation"
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/files/actions/retrieve": {
+      "post": {
+        "tags": ["files"],
+        "summary": "Batch retrieves files by id",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "fileIds",
+            "in": "body",
+            "description": "File ids",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/File"
+              }
+            }
           },
           "400": {
             "description": "Invalid Status"
@@ -4310,8 +4397,12 @@
         "storageId": {
           "type": "string"
         },
-        "type": {
+        "storageBucket": {
           "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["resume", "finance", "other"]
         }
       },
       "xml": {
