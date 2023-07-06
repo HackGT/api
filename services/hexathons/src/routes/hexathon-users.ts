@@ -81,23 +81,23 @@ hexathonUserRouter.route("/:hexathonId/users/:userId").patch(
 hexathonUserRouter.route("/:hexathonId/users/:userId/actions/check-valid-user").post(
   checkAbility("read", "HexathonUser"),
   asyncHandler(async (req, res) => {
-    let hexathonUser = await HexathonUserModel.accessibleBy(req.ability).findOne({
+    const hexathonUser = await HexathonUserModel.accessibleBy(req.ability).findOne({
       userId: req.params.userId,
       hexathon: req.params.hexathonId,
     });
 
-    if (hexathonUser) {
-      return res.sendStatus(200);
-    }
+    // if (hexathonUser) {
+    //   return res.sendStatus(200);
+    // }
 
     // Check again if hexathonUser exists but user doesn't have permission
-    hexathonUser = await HexathonUserModel.findOne({
-      userId: req.params.userId,
-      hexathon: req.params.hexathonId,
-    });
-    if (hexathonUser) {
-      throw new BadRequestError("You do not have access or invalid params provided.");
-    }
+    // hexathonUser = await HexathonUserModel.findOne({
+    //   userId: req.params.userId,
+    //   hexathon: req.params.hexathonId,
+    // });
+    // if (hexathonUser) {
+    //   throw new BadRequestError("You do not have access or invalid params provided.");
+    // }
 
     const applications = await apiCall(
       Service.REGISTRATION,
@@ -107,6 +107,7 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/check-valid-user").
         params: {
           hexathon: req.params.hexathonId,
           userId: req.params.userId,
+          requireApplicationData: true,
         },
       },
       req
@@ -124,6 +125,11 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/check-valid-user").
       hexathon: req.params.hexathonId,
       email: applications.applications[0].email,
       name: applications.applications[0].name,
+      profile: {
+        school: applications.applications[0].applicationData.school,
+        year: applications.applications[0].applicationData.schoolYear,
+        major: applications.applications[0].applicationData.major,
+      },
     });
 
     return res.sendStatus(200);
