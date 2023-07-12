@@ -20,6 +20,7 @@ applicationRouter.route("/").get(
     }
 
     const filter: FilterQuery<Application> = {};
+    const requireApplicationData = req.query.requireApplicationData || false;
     filter.hexathon = req.query.hexathon;
     if (req.query.status?.length) {
       filter.status = req.query.status;
@@ -78,7 +79,7 @@ applicationRouter.route("/").get(
       .find(filter)
       .skip(offset)
       .limit(limit)
-      .select("-applicationData");
+      .select(requireApplicationData ? "" : "-applicationData");
 
     return res.status(200).json({
       offset,

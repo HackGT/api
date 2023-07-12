@@ -107,6 +107,7 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/check-valid-user").
         params: {
           hexathon: req.params.hexathonId,
           userId: req.params.userId,
+          requireApplicationData: true,
         },
       },
       req
@@ -124,6 +125,11 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/check-valid-user").
       hexathon: req.params.hexathonId,
       email: applications.applications[0].email,
       name: applications.applications[0].name,
+      profile: {
+        school: applications.applications[0].applicationData.school,
+        year: applications.applications[0].applicationData.schoolYear,
+        major: applications.applications[0].applicationData.major,
+      },
     });
 
     return res.sendStatus(200);
