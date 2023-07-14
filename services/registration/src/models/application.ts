@@ -68,6 +68,7 @@ export interface Application extends mongoose.Document {
     customData?: Schema.Types.Mixed;
     essays?: Types.DocumentArray<Essay>;
     resume?: Types.ObjectId;
+    matched?: boolean;
   };
   decisionData?: {
     travelReimbursement?: string;
@@ -235,6 +236,10 @@ const applicationSchema = new Schema<Application>(
       ],
       resume: {
         type: Schema.Types.ObjectId,
+      },
+      matched: {
+        type: Boolean,
+        default: false,
       },
     },
     applicationStartTime: {

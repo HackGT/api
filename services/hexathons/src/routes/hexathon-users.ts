@@ -129,6 +129,7 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/check-valid-user").
         school: applications.applications[0].applicationData.school,
         year: applications.applications[0].applicationData.schoolYear,
         major: applications.applications[0].applicationData.major,
+        matched: applications.applications[0].applicationData.matched,
       },
     });
 
