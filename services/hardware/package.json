@@ -10,8 +10,8 @@
     "dev": "nodemon --watch 'src/**/*' --exec \"ts-node\" -r tsconfig-paths/register src/app.ts"
   },
   "dependencies": {
-    "@api/common": "*",
-    "@api/config": "*",
+    "@api/common": "1.0.0",
+    "@api/config": "1.0.0",
     "@casl/ability": "^5.4.4",
     "@casl/mongoose": "^6.0.0",
     "@types/compression": "^1.7.2",
