@@ -20,6 +20,14 @@ import {
   REQUISITION_INCLUDE,
 } from "../api/resolvers/common";
 
+/**
+ * Determines permissions for the request user for a certain requisition.
+ * @returns
+ * - canEdit: true if the user is allowed to edit this requisition
+ * - canCancel: true if the user is allowed to cancel this requisition
+ * - canExpense: true if the user is allowed to update the status of the requisition
+ * to proceed with approvals, payments, etc.
+ */
 const getRequisitionPermissions = (
   requisition: Requisition & {
     project: Project & { leads: User[] };
@@ -51,6 +59,9 @@ const getRequisitionPermissions = (
   };
 };
 
+/**
+ * Fills in detailed information for a requisition from other api services
+ */
 const fillRequistion = async (
   requisition: Requisition & {
     approvals: (Approval & { approver: User })[];
@@ -104,6 +115,9 @@ const fillRequistion = async (
   };
 };
 
+/**
+ * Fills in detailed information for multiple requisitions from other api services
+ */
 const fillRequistions = async (
   requisitions: (Requisition & {
     approvals: Approval[];
@@ -259,7 +273,7 @@ requisitionRoutes.route("/").post(
   })
 );
 
-requisitionRoutes.route("/:id").put(
+requisitionRoutes.route("/:id").patch(
   asyncHandler(async (req, res) => {
     const oldRequisition = await prisma.requisition.findFirst({
       where: {
@@ -280,12 +294,16 @@ requisitionRoutes.route("/:id").put(
       throw new BadRequestError("Requisition not found");
     }
 
-    // TODO: fix requisition permissions
     const requisitionPermissions = getRequisitionPermissions(oldRequisition, req);
     if (!requisitionPermissions.canEdit) {
       throw new BadRequestError("You do not have permission to edit this requisition");
     }
     if (req.body.status) {
+      if (!requisitionPermissions.canExpense) {
+        throw new BadRequestError(
+          "You do not have permission to update the status of this requisition"
+        );
+      }
       if (req.body.status === RequisitionStatus.CANCELLED && !requisitionPermissions.canCancel) {
         throw new BadRequestError("You do not have permission to cancel this requisition");
       }
@@ -386,6 +404,27 @@ requisitionRoutes.route("/:id").put(
 
 requisitionRoutes.route("/:id/actions/create-payment").post(
   asyncHandler(async (req, res) => {
+    const requisition = await prisma.requisition.findUnique({
+      where: {
+        id: parseInt(req.params.id),
+      },
+      include: {
+        files: true,
+        items: true,
+        project: {
+          include: {
+            leads: true,
+          },
+        },
+      },
+    });
+    if (!requisition) {
+      throw new BadRequestError("This requisition does not exist");
+    }
+    if (!getRequisitionPermissions(requisition, req).canExpense) {
+      throw new BadRequestError("You do not have permission to create a payment");
+    }
+
     const payment = await prisma.payment.create({
       data: {
         ...req.body,
@@ -408,6 +447,27 @@ requisitionRoutes.route("/:id/actions/create-payment").post(
 
 requisitionRoutes.route("/:id/actions/create-approval").post(
   asyncHandler(async (req, res) => {
+    const requisition = await prisma.requisition.findUnique({
+      where: {
+        id: parseInt(req.params.id),
+      },
+      include: {
+        files: true,
+        items: true,
+        project: {
+          include: {
+            leads: true,
+          },
+        },
+      },
+    });
+    if (!requisition) {
+      throw new BadRequestError("This requisition does not exist");
+    }
+    if (!getRequisitionPermissions(requisition, req).canExpense) {
+      throw new BadRequestError("You do not have permission to create an approval");
+    }
+
     const approval = await prisma.approval.create({
       data: {
         ...req.body,
