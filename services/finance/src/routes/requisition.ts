@@ -18,7 +18,7 @@ import {
   connectOrUndefined,
   PAYMENT_INCLUDE,
   REQUISITION_INCLUDE,
-} from "../api/resolvers/common";
+} from "../util/common";
 
 /**
  * Determines permissions for the request user for a certain requisition.

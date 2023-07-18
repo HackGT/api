@@ -3,7 +3,7 @@ import { asyncHandler } from "@api/common";
 
 import { Prisma } from "@api/prisma/generated";
 import { prisma } from "../common";
-import { BUDGET_INCLUDE, CATEGORY_INCLUDE } from "../api/resolvers/common";
+import { BUDGET_INCLUDE, CATEGORY_INCLUDE } from "../util/common";
 
 export const budgetRoutes = express.Router();
 

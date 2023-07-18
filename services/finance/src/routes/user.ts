@@ -18,9 +18,8 @@ userRoutes.route("/check").get(
       },
     });
 
-    if (user) {
-      res.send(user);
-    } else {
+    // If user doesn't exist, create it in the finance database
+    if (!user) {
       const response = await apiCall(
         Service.USERS,
         {
@@ -35,11 +34,13 @@ userRoutes.route("/check").get(
         data: {
           userId: req.user.uid,
           email: req.user.email,
-          name: `${response.name.first} ${response.name.last}`,
         },
       });
-
-      res.send(user);
     }
+
+    res.send({
+      ...user,
+      roles: req.user.roles,
+    });
   })
 );

@@ -1,9 +1,5 @@
 import { Prisma, RequisitionStatus } from "@api/prisma/generated";
 
-export const requisitionReferenceString = (requisition: any) =>
-  `${requisition.project.year}-${requisition.project.shortCode}-${requisition.projectRequisitionId}`;
-export const projectReferenceString = (project: any) => `${project.year}-${project.shortCode}`;
-
 export const statusToString = (status: RequisitionStatus) => {
   switch (status) {
     case RequisitionStatus.DRAFT:
@@ -52,7 +48,7 @@ export const connectOrDisconnect = (value?: number | null, oldValue?: number | n
   return undefined;
 };
 
-export const PROJECT_INCLUDE: Prisma.ProjectInclude = {
+export const PROJECT_INCLUDE = Prisma.validator<Prisma.ProjectInclude>()({
   leads: true,
   requisitions: {
     include: {
@@ -65,13 +61,13 @@ export const PROJECT_INCLUDE: Prisma.ProjectInclude = {
       createdBy: true,
     },
   },
-};
+});
 
-export const CATEGORY_INCLUDE: Prisma.CategoryInclude = {
+export const CATEGORY_INCLUDE = Prisma.validator<Prisma.CategoryInclude>()({
   lineItems: true,
-};
+});
 
-export const REQUISITION_INCLUDE: Prisma.RequisitionInclude = {
+export const REQUISITION_INCLUDE = Prisma.validator<Prisma.RequisitionInclude>()({
   budget: true,
   createdBy: true,
   fundingSource: true,
@@ -102,9 +98,9 @@ export const REQUISITION_INCLUDE: Prisma.RequisitionInclude = {
       requisitions: true,
     },
   },
-};
+});
 
-export const BUDGET_INCLUDE: Prisma.BudgetInclude = {
+export const BUDGET_INCLUDE = Prisma.validator<Prisma.BudgetInclude>()({
   categories: {
     include: {
       lineItems: true,
@@ -116,9 +112,9 @@ export const BUDGET_INCLUDE: Prisma.BudgetInclude = {
       items: true,
     },
   },
-};
+});
 
-export const APPROVAL_INCLUDE: Prisma.ApprovalInclude = {
+export const APPROVAL_INCLUDE = Prisma.validator<Prisma.ApprovalInclude>()({
   requisition: {
     include: {
       approvals: {
@@ -128,9 +124,9 @@ export const APPROVAL_INCLUDE: Prisma.ApprovalInclude = {
       },
     },
   },
-};
+});
 
-export const PAYMENT_INCLUDE: Prisma.PaymentInclude = {
+export const PAYMENT_INCLUDE = Prisma.validator<Prisma.PaymentInclude>()({
   requisition: {
     include: {
       payments: {
@@ -140,4 +136,4 @@ export const PAYMENT_INCLUDE: Prisma.PaymentInclude = {
       },
     },
   },
-};
+});
