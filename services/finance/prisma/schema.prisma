@@ -103,12 +103,9 @@ model Approval {
 }
 
 model File {
-  id            Int         @id @default(autoincrement())
-  name          String
-  googleName    String      @unique
+  id            String      @id
   isActive      Boolean     @default(true)
   requisitionId Int
-  mimetype      String
   requisition   Requisition @relation(fields: [requisitionId], references: [id])
 
   @@map("file")
