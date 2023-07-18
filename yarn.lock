@@ -7179,7 +7179,7 @@ swagger-ui-express@^4.3.0:
   dependencies:
     swagger-ui-dist ">=4.11.0"
 
-syncpack@9.8.6:
+syncpack@^9.8.6:
   version "9.8.6"
   resolved "https://registry.yarnpkg.com/syncpack/-/syncpack-9.8.6.tgz#edc06ea03295773165fb5086bb2655be03e5f094"
   integrity sha512-4S4cUoKK9WenA/Wdk9GvlekzPR9PxC7sqcsUIsK4ypsa/pIYv8Ju1vxGNvp6Y1yI2S9EdCk0QJsB3/wRB8XYVw==
