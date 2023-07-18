@@ -3,7 +3,7 @@ import { asyncHandler } from "@api/common";
 
 import { Prisma } from "@api/prisma/generated";
 import { prisma } from "../common";
-import { BUDGET_INCLUDE, CATEGORY_INCLUDE, PROJECT_INCLUDE } from "../api/resolvers/common";
+import { BUDGET_INCLUDE, CATEGORY_INCLUDE } from "../api/resolvers/common";
 
 export const budgetRoutes = express.Router();
 
@@ -29,7 +29,7 @@ budgetRoutes.route("/:id").get(
       where: {
         id: parseInt(req.params.id),
       },
-      include: PROJECT_INCLUDE,
+      include: BUDGET_INCLUDE,
     });
     return res.status(200).json(budget);
   })
@@ -69,7 +69,7 @@ budgetRoutes.route("/:budgetId/categories").post(
         ...req.body,
         budget: {
           connect: {
-            id: req.params.budgetId,
+            id: parseInt(req.params.budgetId),
           },
         },
       },
@@ -89,7 +89,7 @@ budgetRoutes.route("/:budgetId/categories/:categoryId").put(
         ...req.body,
         budget: {
           connect: {
-            id: req.params.budgetId,
+            id: parseInt(req.params.budgetId),
           },
         },
       },
@@ -106,7 +106,7 @@ budgetRoutes.route("/:budgetId/categories/:categoryId/line-items").post(
         ...req.body,
         category: {
           connect: {
-            id: req.params.categoryId,
+            id: parseInt(req.params.categoryId),
           },
         },
       },
@@ -119,13 +119,13 @@ budgetRoutes.route("/:budgetId/categories/:categoryId/line-items/:lineItemId").p
   asyncHandler(async (req, res) => {
     const updatedLineItem = await prisma.lineItem.update({
       where: {
-        id: parseInt(req.body.lineItemId),
+        id: parseInt(req.params.lineItemId),
       },
       data: {
         ...req.body,
         category: {
           connect: {
-            id: req.params.categoryId,
+            id: parseInt(req.params.categoryId),
           },
         },
       },
