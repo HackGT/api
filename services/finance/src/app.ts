@@ -23,6 +23,7 @@ import path from "path";
 import { defaultRouter } from "./routes";
 import { addAbilities } from "./permission";
 import { resolvers, permissions } from "./api/api";
+import { handlePrismaError } from "./util/handlePrismaError";
 
 export const app = express();
 
@@ -107,6 +108,7 @@ if (config.common.production) {
     })
   );
 }
+app.use(handlePrismaError);
 app.use(handleError);
 
 app.listen(config.services.FINANCE.port, () => {
