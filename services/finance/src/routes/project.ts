@@ -23,17 +23,12 @@ projectRoutes.route("/").get(
   })
 );
 
-projectRoutes.route("/:code").get(
+projectRoutes.route("/:referenceString").get(
   asyncHandler(async (req, res) => {
-    const [year, shortCode] = req.params.code.split("-");
-
-    const filter: Prisma.ProjectWhereInput = {
-      year: parseInt(year),
-      shortCode,
-    };
-
-    const project = await prisma.project.findFirst({
-      where: filter,
+    const project = await prisma.project.findUnique({
+      where: {
+        referenceString: req.params.referenceString,
+      },
       include: PROJECT_INCLUDE,
     });
     return res.status(200).json(project);
@@ -45,9 +40,10 @@ projectRoutes.route("/").post(
     const newProject = await prisma.project.create({
       data: {
         ...req.body,
+        referenceString: `${req.body.year}-${req.body.shortCode}`,
         archived: req.body.archived ?? false,
         leads: {
-          connect: req.body.leads?.map((lead: any) => ({ id: lead })),
+          connect: req.body.leads?.map((lead: any) => ({ userId: lead })),
         },
       },
       include: PROJECT_INCLUDE,
@@ -58,19 +54,30 @@ projectRoutes.route("/").post(
 
 projectRoutes.route("/:id").put(
   asyncHandler(async (req, res) => {
-    const updatdProject = await prisma.project.update({
-      where: {
-        id: parseInt(req.params.id),
-      },
-      data: {
-        ...req.body,
-        archived: req.body.archived ?? undefined,
-        leads: {
-          connect: req.body.leads.map((lead: any) => ({ id: lead })),
+    const newProjectReferenceString = `${req.body.year}-${req.body.shortCode}`;
+
+    const [updatedProject] = await prisma.$transaction([
+      prisma.project.update({
+        where: {
+          id: parseInt(req.params.id),
         },
-      },
-      include: PROJECT_INCLUDE,
-    });
-    return res.status(200).json(updatdProject);
+        data: {
+          ...req.body,
+          referenceString: newProjectReferenceString,
+          archived: req.body.archived ?? undefined,
+          leads: {
+            connect: req.body.leads.map((lead: any) => ({ userId: lead })),
+          },
+        },
+        include: PROJECT_INCLUDE,
+      }),
+      // Update all requisitions with the new project reference string
+      prisma.$executeRaw(
+        Prisma.sql`UPDATE requisition SET "referenceString" = ${newProjectReferenceString} || '-' || "projectRequisitionId"
+      WHERE "projectId" = ${parseInt(req.params.id)}`
+      ),
+    ]);
+
+    return res.status(200).json(updatedProject);
   })
 );

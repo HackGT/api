@@ -44,6 +44,8 @@ model Budget {
   categories   Category[]
   requisitions Requisition[]
   archived     Boolean       @default(false)
+
+  @@map("budget")
 }
 
 model Category {
@@ -52,6 +54,8 @@ model Category {
   budgetId  Int
   budget    Budget     @relation(fields: [budgetId], references: [id])
   lineItems LineItem[]
+
+  @@map("category")
 }
 
 model LineItem {
@@ -62,6 +66,8 @@ model LineItem {
   categoryId       Int
   category         Category          @relation(fields: [categoryId], references: [id])
   requisitionItems RequisitionItem[]
+
+  @@map("line_item")
 }
 
 model OperatingBudget {
@@ -69,6 +75,8 @@ model OperatingBudget {
   month              Month
   year               Int
   operatingLineItems OperatingLineItem[]
+
+  @@map("operating_budget")
 }
 
 model OperatingLineItem {
@@ -77,6 +85,8 @@ model OperatingLineItem {
   cost              Float
   operatingBudgetId Int
   OperatingBudget   OperatingBudget @relation(fields: [operatingBudgetId], references: [id])
+
+  @@map("operating_line_item")
 }
 
 model Approval {
@@ -88,6 +98,8 @@ model Approval {
   requisitionId Int
   approver      User        @relation(fields: [approverId], references: [userId])
   requisition   Requisition @relation(fields: [requisitionId], references: [id])
+
+  @@map("approval")
 }
 
 model File {
@@ -98,6 +110,8 @@ model File {
   requisitionId Int
   mimetype      String
   requisition   Requisition @relation(fields: [requisitionId], references: [id])
+
+  @@map("file")
 }
 
 model Payment {
@@ -108,6 +122,8 @@ model Payment {
   requisitionId   Int
   fundingSource   PaymentMethod @relation(fields: [fundingSourceId], references: [id])
   requisition     Requisition   @relation(fields: [requisitionId], references: [id])
+
+  @@map("payment")
 }
 
 model PaymentMethod {
@@ -118,16 +134,21 @@ model PaymentMethod {
   isDirectPayment           Boolean       @default(false)
   payments                  Payment[]
   requisitions              Requisition[]
+
+  @@map("payment_method")
 }
 
 model Project {
-  id           Int           @id @default(autoincrement())
-  name         String
-  archived     Boolean       @default(false)
-  shortCode    String
-  year         Int
-  leads        User[]
-  requisitions Requisition[]
+  id              Int           @id @default(autoincrement())
+  name            String
+  archived        Boolean       @default(false)
+  shortCode       String
+  year            Int
+  referenceString String        @unique
+  leads           User[]
+  requisitions    Requisition[]
+
+  @@map("project")
 }
 
 model Requisition {
@@ -146,6 +167,7 @@ model Requisition {
   fundingSourceId      Int?
   budgetId             Int?
   purchaseDate         String?
+  referenceString      String            @unique
   budget               Budget?           @relation(fields: [budgetId], references: [id])
   createdBy            User              @relation(fields: [createdById], references: [userId])
   fundingSource        PaymentMethod?    @relation(fields: [fundingSourceId], references: [id])
@@ -154,6 +176,8 @@ model Requisition {
   files                File[]
   payments             Payment[]
   items                RequisitionItem[]
+
+  @@map("requisition")
 }
 
 model RequisitionItem {
@@ -170,6 +194,8 @@ model RequisitionItem {
   lineItem      LineItem?   @relation(fields: [lineItemId], references: [id])
   requisition   Requisition @relation(fields: [requisitionId], references: [id])
   vendor        Vendor?     @relation(fields: [vendorId], references: [id])
+
+  @@map("requisition_item")
 }
 
 model Vendor {
@@ -177,14 +203,16 @@ model Vendor {
   name             String            @unique
   isActive         Boolean           @default(true)
   requisitionItems RequisitionItem[]
+
+  @@map("vendor")
 }
 
 model User {
   userId       String        @id @unique
-  name         String
   email        String        @unique
-  slackId      String?
   approvals    Approval[]
   projects     Project[]
   requisitions Requisition[]
+
+  @@map("user")
 }
