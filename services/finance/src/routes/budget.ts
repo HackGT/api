@@ -1,5 +1,5 @@
 import express from "express";
-import { asyncHandler } from "@api/common";
+import { asyncHandler, checkAbility } from "@api/common";
 
 import { Prisma } from "@api/prisma/generated";
 import { prisma } from "../common";
@@ -8,6 +8,7 @@ import { BUDGET_INCLUDE, CATEGORY_INCLUDE } from "../util/common";
 export const budgetRoutes = express.Router();
 
 budgetRoutes.route("/").get(
+  checkAbility("read", "Budget"),
   asyncHandler(async (req, res) => {
     const filter: Prisma.BudgetWhereInput = {};
 
@@ -24,6 +25,7 @@ budgetRoutes.route("/").get(
 );
 
 budgetRoutes.route("/:id").get(
+  checkAbility("read", "Budget"),
   asyncHandler(async (req, res) => {
     const budget = await prisma.budget.findUnique({
       where: {
@@ -36,6 +38,7 @@ budgetRoutes.route("/:id").get(
 );
 
 budgetRoutes.route("/").post(
+  checkAbility("create", "Budget"),
   asyncHandler(async (req, res) => {
     const newBudget = await prisma.budget.create({
       data: {
@@ -48,6 +51,7 @@ budgetRoutes.route("/").post(
 );
 
 budgetRoutes.route("/:id").put(
+  checkAbility("update", "Budget"),
   asyncHandler(async (req, res) => {
     const updatedBudget = await prisma.budget.update({
       where: {
@@ -63,6 +67,7 @@ budgetRoutes.route("/:id").put(
 );
 
 budgetRoutes.route("/:budgetId/categories").post(
+  checkAbility("update", "Budget"),
   asyncHandler(async (req, res) => {
     const newCategory = await prisma.category.create({
       data: {
@@ -80,6 +85,7 @@ budgetRoutes.route("/:budgetId/categories").post(
 );
 
 budgetRoutes.route("/:budgetId/categories/:categoryId").put(
+  checkAbility("update", "Budget"),
   asyncHandler(async (req, res) => {
     const updatedCategory = await prisma.category.update({
       where: {
@@ -100,6 +106,7 @@ budgetRoutes.route("/:budgetId/categories/:categoryId").put(
 );
 
 budgetRoutes.route("/:budgetId/categories/:categoryId/line-items").post(
+  checkAbility("update", "Budget"),
   asyncHandler(async (req, res) => {
     const newLineItem = await prisma.lineItem.create({
       data: {
@@ -116,6 +123,7 @@ budgetRoutes.route("/:budgetId/categories/:categoryId/line-items").post(
 );
 
 budgetRoutes.route("/:budgetId/categories/:categoryId/line-items/:lineItemId").put(
+  checkAbility("update", "Budget"),
   asyncHandler(async (req, res) => {
     const updatedLineItem = await prisma.lineItem.update({
       where: {

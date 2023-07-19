@@ -12,6 +12,10 @@ userRoutes.route("/check").get(
       throw new BadRequestError("Invalid user uid or email");
     }
 
+    if (!req.user.roles.member) {
+      throw new BadRequestError("You must be a member to access this application.");
+    }
+
     let user = await prisma.user.findUnique({
       where: {
         userId: req.user.uid,

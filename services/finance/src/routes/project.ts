@@ -1,5 +1,5 @@
 import express from "express";
-import { BadRequestError, apiCall, asyncHandler } from "@api/common";
+import { BadRequestError, apiCall, asyncHandler, checkAbility } from "@api/common";
 import { Service } from "@api/config";
 import _ from "lodash";
 
@@ -64,6 +64,7 @@ const fillProjects = async (projects: (Project & { leads: User[] })[], req: expr
 export const projectRoutes = express.Router();
 
 projectRoutes.route("/").get(
+  checkAbility("read", "Project"),
   asyncHandler(async (req, res) => {
     const filter: Prisma.ProjectWhereInput = {};
 
@@ -81,6 +82,7 @@ projectRoutes.route("/").get(
 );
 
 projectRoutes.route("/:referenceString").get(
+  checkAbility("read", "Project"),
   asyncHandler(async (req, res) => {
     const project = await prisma.project.findUnique({
       where: {
@@ -98,6 +100,7 @@ projectRoutes.route("/:referenceString").get(
 );
 
 projectRoutes.route("/").post(
+  checkAbility("create", "Project"),
   asyncHandler(async (req, res) => {
     const newProject = await prisma.project.create({
       data: {
@@ -115,6 +118,7 @@ projectRoutes.route("/").post(
 );
 
 projectRoutes.route("/:id").put(
+  checkAbility("update", "Project"),
   asyncHandler(async (req, res) => {
     const newProjectReferenceString = `${req.body.year}-${req.body.shortCode}`;
 

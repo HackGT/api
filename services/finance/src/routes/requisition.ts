@@ -1,5 +1,5 @@
 import express from "express";
-import { apiCall, asyncHandler, BadRequestError } from "@api/common";
+import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import { Service } from "@api/config";
 import _ from "lodash";
 
@@ -178,6 +178,7 @@ const fillRequistions = async (
 export const requisitionRoutes = express.Router();
 
 requisitionRoutes.route("/").get(
+  checkAbility("read", "Requisition"),
   asyncHandler(async (req, res) => {
     const requisitions = await prisma.requisition.findMany({
       where: {
@@ -197,6 +198,7 @@ requisitionRoutes.route("/").get(
 );
 
 requisitionRoutes.route("/:referenceString").get(
+  checkAbility("read", "Requisition"),
   asyncHandler(async (req, res) => {
     const requisition = await prisma.requisition.findUnique({
       where: {
@@ -214,6 +216,7 @@ requisitionRoutes.route("/:referenceString").get(
 );
 
 requisitionRoutes.route("/").post(
+  checkAbility("create", "Requisition"),
   asyncHandler(async (req, res) => {
     const project = await prisma.project.findUnique({
       where: {
@@ -274,6 +277,7 @@ requisitionRoutes.route("/").post(
 );
 
 requisitionRoutes.route("/:id").patch(
+  checkAbility("update", "Requisition"),
   asyncHandler(async (req, res) => {
     const oldRequisition = await prisma.requisition.findFirst({
       where: {
@@ -403,6 +407,7 @@ requisitionRoutes.route("/:id").patch(
 );
 
 requisitionRoutes.route("/:id/actions/create-payment").post(
+  checkAbility("create", "Payment"),
   asyncHandler(async (req, res) => {
     const requisition = await prisma.requisition.findUnique({
       where: {
@@ -446,6 +451,7 @@ requisitionRoutes.route("/:id/actions/create-payment").post(
 );
 
 requisitionRoutes.route("/:id/actions/create-approval").post(
+  checkAbility("create", "Approval"),
   asyncHandler(async (req, res) => {
     const requisition = await prisma.requisition.findUnique({
       where: {

@@ -1,5 +1,5 @@
 import express from "express";
-import { asyncHandler } from "@api/common";
+import { asyncHandler, checkAbility } from "@api/common";
 
 import { Prisma } from "@api/prisma/generated";
 import { prisma } from "../common";
@@ -7,6 +7,7 @@ import { prisma } from "../common";
 export const paymentMethodRoutes = express.Router();
 
 paymentMethodRoutes.route("/").get(
+  checkAbility("read", "PaymentMethod"),
   asyncHandler(async (req, res) => {
     const filter: Prisma.PaymentMethodWhereInput = {};
 
@@ -22,6 +23,7 @@ paymentMethodRoutes.route("/").get(
 );
 
 paymentMethodRoutes.route("/").post(
+  checkAbility("create", "PaymentMethod"),
   asyncHandler(async (req, res) => {
     const newPaymentMethod = await prisma.paymentMethod.create({
       data: {
@@ -35,6 +37,7 @@ paymentMethodRoutes.route("/").post(
 );
 
 paymentMethodRoutes.route("/:id").put(
+  checkAbility("update", "PaymentMethod"),
   asyncHandler(async (req, res) => {
     const updatedPaymentMethod = await prisma.paymentMethod.update({
       where: {

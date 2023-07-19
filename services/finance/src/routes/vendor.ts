@@ -1,5 +1,5 @@
 import express from "express";
-import { asyncHandler } from "@api/common";
+import { asyncHandler, checkAbility } from "@api/common";
 
 import { Prisma } from "@api/prisma/generated";
 import { prisma } from "../common";
@@ -7,6 +7,7 @@ import { prisma } from "../common";
 export const vendorRoutes = express.Router();
 
 vendorRoutes.route("/").get(
+  checkAbility("read", "Vendor"),
   asyncHandler(async (req, res) => {
     const filter: Prisma.VendorWhereInput = {};
 
@@ -22,6 +23,7 @@ vendorRoutes.route("/").get(
 );
 
 vendorRoutes.route("/:id").get(
+  checkAbility("read", "Vendor"),
   asyncHandler(async (req, res) => {
     const vendor = await prisma.vendor.findUnique({
       where: {
@@ -33,6 +35,7 @@ vendorRoutes.route("/:id").get(
 );
 
 vendorRoutes.route("/").post(
+  checkAbility("create", "Vendor"),
   asyncHandler(async (req, res) => {
     const newVendor = await prisma.vendor.create({
       data: {
@@ -45,6 +48,7 @@ vendorRoutes.route("/").post(
 );
 
 vendorRoutes.route("/:id").put(
+  checkAbility("update", "Vendor"),
   asyncHandler(async (req, res) => {
     const updatedVendor = prisma.vendor.update({
       where: {
