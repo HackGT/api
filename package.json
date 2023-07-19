@@ -40,7 +40,8 @@
     "husky": ">=6",
     "lint-staged": "^12.3.4",
     "prettier": "^2.5.1",
-    "ts-node": "^10.4.0"
+    "syncpack": "^9.8.6",
+    "ts-node": "^10.9.1"
   },
   "dependencies": {
     "typescript": "^4.8.3"

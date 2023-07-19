@@ -22,6 +22,7 @@ if (config.common.production) {
   app.enable("trust proxy");
 }
 
+mongoose.set("strictQuery", true);
 mongoose
   .connect(config.database.mongo.uri, {
     dbName: config.services.HARDWARE.database?.name,

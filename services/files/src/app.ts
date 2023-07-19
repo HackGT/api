@@ -46,6 +46,7 @@ if (config.common.production) {
   app.use(Sentry.Handlers.tracingHandler());
 }
 
+mongoose.set("strictQuery", true);
 mongoose
   .connect(config.database.mongo.uri, {
     dbName: config.services.FILES.database?.name,

@@ -8,12 +8,12 @@
     "execute": "ts-node -r tsconfig-paths/register"
   },
   "dependencies": {
-    "@api/common": "*",
-    "@api/config": "*",
+    "@api/common": "1.0.0",
+    "@api/config": "1.0.0",
     "@google-cloud/secret-manager": "^4.0.0",
     "mongodb": "^4.9.0"
   },
   "devDependencies": {
-    "ts-node": "^10.7.0"
+    "ts-node": "^10.9.1"
   }
 }
