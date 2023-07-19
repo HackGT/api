@@ -27,6 +27,7 @@ const fileSchema = new Schema<File>({
   storageId: {
     type: String,
     required: true,
+    unique: true,
   },
   storageBucket: {
     type: String,
