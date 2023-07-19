@@ -1,9 +1,65 @@
 import express from "express";
-import { asyncHandler } from "@api/common";
+import { BadRequestError, apiCall, asyncHandler } from "@api/common";
+import { Service } from "@api/config";
+import _ from "lodash";
 
-import { Prisma } from "@api/prisma/generated";
+import { Prisma, Project, Requisition, User } from "@api/prisma/generated";
 import { prisma } from "../common";
 import { PROJECT_INCLUDE } from "../util/common";
+
+/**
+ * Fills in detailed information for a project from other api services
+ */
+const fillProject = async (
+  project: Project & { leads: User[]; requisitions: Requisition[] },
+  req: express.Request
+) => {
+  const userProfiles = await apiCall(
+    Service.USERS,
+    {
+      url: "/users/actions/retrieve",
+      method: "POST",
+      data: {
+        userIds: _.flattenDeep([
+          project.leads.map(lead => lead.userId),
+          project.requisitions.map(requisition => requisition.createdById),
+        ]),
+      },
+    },
+    req
+  );
+
+  return {
+    ...project,
+    leads: project.leads.map(lead => userProfiles.find((user: any) => user.userId === lead.userId)),
+    requisitions: project.requisitions.map(requisition => ({
+      ...requisition,
+      createdBy: userProfiles.find((user: any) => user.userId === requisition.createdById),
+    })),
+  };
+};
+
+/**
+ * Fills in detailed information for multiple projects from other api services
+ */
+const fillProjects = async (projects: (Project & { leads: User[] })[], req: express.Request) => {
+  const userProfiles = await apiCall(
+    Service.USERS,
+    {
+      url: `/users/actions/retrieve`,
+      method: "POST",
+      data: {
+        userIds: _.flattenDeep(projects.map(project => project.leads.map(lead => lead.userId))),
+      },
+    },
+    req
+  );
+
+  return projects.map(project => ({
+    ...project,
+    leads: project.leads.map(lead => userProfiles.find((user: any) => user.userId === lead.userId)),
+  }));
+};
 
 export const projectRoutes = express.Router();
 
@@ -19,7 +75,8 @@ projectRoutes.route("/").get(
       where: filter,
       include: PROJECT_INCLUDE,
     });
-    return res.status(200).json(projects);
+    const filledProjects = await fillProjects(projects, req);
+    return res.status(200).json(filledProjects);
   })
 );
 
@@ -31,7 +88,12 @@ projectRoutes.route("/:referenceString").get(
       },
       include: PROJECT_INCLUDE,
     });
-    return res.status(200).json(project);
+    if (!project) {
+      throw new BadRequestError("Project not found");
+    }
+
+    const filledProject = await fillProject(project, req);
+    return res.status(200).json(filledProject);
   })
 );
 
@@ -66,7 +128,7 @@ projectRoutes.route("/:id").put(
           referenceString: newProjectReferenceString,
           archived: req.body.archived ?? undefined,
           leads: {
-            connect: req.body.leads.map((lead: any) => ({ userId: lead })),
+            set: req.body.leads.map((lead: any) => ({ userId: lead })),
           },
         },
         include: PROJECT_INCLUDE,
