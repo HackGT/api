@@ -50,7 +50,7 @@ vendorRoutes.route("/").post(
 vendorRoutes.route("/:id").put(
   checkAbility("update", "Vendor"),
   asyncHandler(async (req, res) => {
-    const updatedVendor = prisma.vendor.update({
+    const updatedVendor = await prisma.vendor.update({
       where: {
         id: parseInt(req.params.id),
       },
