@@ -11,7 +11,9 @@
     "@api/common": "1.0.0",
     "@api/config": "1.0.0",
     "@google-cloud/secret-manager": "^4.0.0",
-    "mongodb": "^4.9.0"
+    "firebase-admin": "^10.0.2",
+    "mongodb": "^4.9.0",
+    "postgres": "^3.3.5"
   },
   "devDependencies": {
     "ts-node": "^10.9.1"
