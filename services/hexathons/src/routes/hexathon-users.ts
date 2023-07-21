@@ -78,6 +78,29 @@ hexathonUserRouter.route("/:hexathonId/users/:userId").patch(
   })
 );
 
+hexathonUserRouter.route("/:hexathonId/users/profile/:userId").patch(
+  checkAbility("update", "HexathonUser"),
+  asyncHandler(async (req, res) => {
+    const hexathonUser = await HexathonUserModel.findOneAndUpdate(
+      { userId: req.params.userId, hexathon: req.params.hexathonId },
+      _.pick(req.body.profile, [
+        "matched",
+        "school",
+        "year",
+        "major",
+        "description",
+        "commitmentLevel",
+        "skills",
+        "isJudging",
+      ]),
+      {
+        new: true,
+      }
+    );
+    return res.send(hexathonUser);
+  })
+);
+
 hexathonUserRouter.route("/:hexathonId/users/:userId/actions/check-valid-user").post(
   checkAbility("read", "HexathonUser"),
   asyncHandler(async (req, res) => {
