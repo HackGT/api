@@ -594,7 +594,7 @@ gradingRouter.route("/grading-status").get(
           1,
           (reviewsData[gradingGroup]?.reviewCount ?? 0) /
             (3 * MAX_REVIEWS_PER_ESSAY) /
-            (totalApplicationData[gradingGroup].applicationCount || 1)
+            (totalApplicationData[gradingGroup]?.applicationCount ?? 1)
         ) * 100
       );
     }
