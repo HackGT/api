@@ -4,7 +4,7 @@ import { asyncHandler } from "@api/common";
 
 import { prisma } from "../common";
 import { isAdmin, isAdminOrIsJudging } from "../auth/auth";
-import { Ballot } from "@prisma/generated";
+import { Ballot } from "@api/prisma/generated";
 
 export const ballotsRoutes = express.Router();
 

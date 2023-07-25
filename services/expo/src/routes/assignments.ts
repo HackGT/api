@@ -4,7 +4,7 @@ import { asyncHandler, BadRequestError } from "@api/common";
 import { prisma } from "../common";
 import { isAdminOrIsJudging } from "../auth/auth";
 import { getConfig } from "../utils/utils";
-import { User, AssignmentStatus, Assignment } from "@prisma/generated";
+import { User, AssignmentStatus, Assignment } from "@api/prisma/generated";
 
 const autoAssign = async (judge: number, isStarted: boolean): Promise<Assignment | null> => {
   // We are not selecting a random judge for auto-assign

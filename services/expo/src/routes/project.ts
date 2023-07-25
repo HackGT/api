@@ -12,7 +12,7 @@ import {
   getEligiblePrizes,
 } from "../utils/validationHelpers";
 import { isAdmin } from "../auth/auth";
-import { TableGroup } from "@prisma/generated";
+import { TableGroup } from "@api/prisma/generated";
 
 export const projectRoutes = express.Router();
 
