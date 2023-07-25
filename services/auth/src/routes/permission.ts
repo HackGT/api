@@ -43,14 +43,22 @@ permissionRoutes.route("/:userId").post(
     const currentUserPermissions = await PermissionModel.findOne({
       userId: req.user?.uid,
     });
-    if (!currentUserPermissions?.roles?.admin) {
+    const { member, admin, exec } = req.body.roles;
+    if (!currentUserPermissions?.roles?.admin || (exec && !currentUserPermissions?.roles?.exec)) {
       throw new ForbiddenError("You do not have permission to update permissions.");
+    }
+    if (exec ? !(admin && member) : admin && !member) {
+      throw new ForbiddenError("Invalid roles.");
     }
 
     let permission = await PermissionModel.findOne({ userId: req.params.userId });
 
     if (permission) {
       permission.roles = { ...permission.roles, ...req.body.roles };
+      if (Object.values(permission.roles).every(value => value === false)) {
+        await permission.remove();
+        return res.status(200).send("Permission removed.");
+      }
       await permission.save();
     } else {
       permission = await PermissionModel.create({
@@ -59,7 +67,7 @@ permissionRoutes.route("/:userId").post(
       });
     }
 
-    res.send(permission);
+    return res.status(200).send(permission);
   })
 );
 
