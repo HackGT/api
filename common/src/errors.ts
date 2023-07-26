@@ -22,6 +22,11 @@ export class ForbiddenError extends Error {}
 export class ConfigError extends Error {}
 
 /**
+ * Error thrown when something goes wrong on the server.
+ */
+export class ServerError extends Error {}
+
+/**
  * This error is thrown when a service-service api call fails. This is used to
  * help surface the proper error message to the user.
  */

@@ -1,4 +1,4 @@
-import { asyncHandler, DEFAULT_USER_ROLES, ForbiddenError } from "@api/common";
+import { asyncHandler, BadRequestError, DEFAULT_USER_ROLES, ForbiddenError } from "@api/common";
 import express from "express";
 
 import { PermissionModel } from "../models/permission";
@@ -39,16 +39,20 @@ permissionRoutes.route("/:userId").get(
 
 permissionRoutes.route("/:userId").post(
   asyncHandler(async (req, res) => {
-    // Need to have an admin role to update permissions
+    // Must be admin or exec to update permissions
     const currentUserPermissions = await PermissionModel.findOne({
       userId: req.user?.uid,
     });
-    const { member, admin, exec } = req.body.roles;
-    if (!currentUserPermissions?.roles?.admin || (exec && !currentUserPermissions?.roles?.exec)) {
+    if (!currentUserPermissions?.roles?.admin || !currentUserPermissions?.roles?.exec) {
       throw new ForbiddenError("You do not have permission to update permissions.");
     }
-    if (exec ? !(admin && member) : admin && !member) {
-      throw new ForbiddenError("Invalid roles.");
+
+    // For new permissions, admin or exec role cannot exist without member role
+    if (
+      (req.body.roles.admin && !req.body.roles.member) ||
+      (req.body.roles.exec && !req.body.roles.member)
+    ) {
+      throw new BadRequestError("Invalid role configuration.");
     }
 
     let permission = await PermissionModel.findOne({ userId: req.params.userId });
@@ -57,7 +61,10 @@ permissionRoutes.route("/:userId").post(
       permission.roles = { ...permission.roles, ...req.body.roles };
       if (Object.values(permission.roles).every(value => value === false)) {
         await permission.remove();
-        return res.status(200).send("Permission removed.");
+        return res.status(200).send({
+          userId: req.params.userId,
+          roles: DEFAULT_USER_ROLES,
+        });
       }
       await permission.save();
     } else {
@@ -73,11 +80,11 @@ permissionRoutes.route("/:userId").post(
 
 permissionRoutes.route("/actions/retrieve").post(
   asyncHandler(async (req, res) => {
-    // Need to have an admin role to use batch retrieve
+    // Need to have an member role to use batch retrieve
     const currentUserPermissions = await PermissionModel.findOne({
       userId: req.user?.uid,
     });
-    if (!currentUserPermissions?.roles?.admin) {
+    if (!currentUserPermissions?.roles?.member) {
       throw new ForbiddenError("You do not have permission to retrieve permissions.");
     }
 

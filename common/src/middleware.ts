@@ -9,7 +9,7 @@ import axios from "axios";
 import { Subject } from "@casl/ability";
 import { OAuth2Client } from "google-auth-library";
 
-import { ApiCallError, BadRequestError, ConfigError, ForbiddenError } from "./errors";
+import { ApiCallError, BadRequestError, ConfigError, ForbiddenError, ServerError } from "./errors";
 import { AbilityAction, DEFAULT_USER_ROLES, User, UserRoles } from "./types";
 import { apiCall } from "./apiCall";
 
@@ -134,24 +134,6 @@ export const isAuthenticated: RequestHandler = asyncHandler(async (req, res, nex
   next(new ForbiddenError("User is not authenticated. Please authenticate and try again."));
 });
 
-/*
- * Checks if a user is a member or not depending on if their email domain matches the config
- */
-export const isMember: RequestHandler = asyncHandler(async (req, res, next) => {
-  const domain = req.user?.email?.split("@").pop();
-
-  if (domain && config.common.memberEmailDomains.includes(domain)) {
-    next();
-    return;
-  }
-
-  next(
-    new ForbiddenError(
-      "Sorry, you don't have permission to access this endpoint as you are not a HexLabs member."
-    )
-  );
-});
-
 /**
  * Middleware to check that the user has the correct permissions to access the
  * endpoint. Uses @casl library for permission checking. Throws ForbiddenError
@@ -237,6 +219,13 @@ export const handleError: ErrorRequestHandler = (err, req, res, next) => {
       stack: err.stack,
     });
   } else if (err instanceof ConfigError) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      status: StatusCodes.INTERNAL_SERVER_ERROR,
+      type: "server_error",
+      message: err.message,
+      stack: err.stack,
+    });
+  } else if (err instanceof ServerError) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       status: StatusCodes.INTERNAL_SERVER_ERROR,
       type: "server_error",

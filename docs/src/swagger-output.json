@@ -106,175 +106,6 @@
         }
       }
     },
-    "/firebase-users": {
-      "get": {
-        "tags": ["auth"],
-        "summary": "Finds and displays all users.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "pageSize",
-            "in": "query",
-            "type": "string",
-            "description": "",
-            "required": false
-          },
-          {
-            "name": "pageToken",
-            "in": "query",
-            "type": "string",
-            "description": "",
-            "required": false
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "pageSize": {
-                  "type": "integer"
-                },
-                "pageToken": {
-                  "type": "string"
-                },
-                "users": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/User"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/firebase-users/{userId}": {
-      "get": {
-        "tags": ["auth"],
-        "summary": "Finds a user by user ID.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "type": "integer",
-            "description": "User ID",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/User"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      },
-      "patch": {
-        "tags": ["auth"],
-        "summary": "Updates existing user by ID.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "type": "integer",
-            "description": "User ID",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "disabled": {
-                  "type": "boolean",
-                  "description": "To enable/disable a user"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/User"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      },
-      "delete": {
-        "tags": ["auth"],
-        "summary": "Deletes a user by ID.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "type": "integer",
-            "description": "User ID",
-            "required": true
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Successfully deleted"
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/firebase-users/email/{email}": {
-      "get": {
-        "tags": ["auth"],
-        "summary": "Finds a user by email",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "email",
-            "in": "path",
-            "type": "integer",
-            "description": "User's email",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/User"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
     "/permissions/{userId}": {
       "get": {
         "tags": ["auth"],
@@ -4148,8 +3979,58 @@
                 },
                 "profiles": {
                   "type": "array",
+
                   "items": {
-                    "$ref": "#/definitions/Profile"
+                    "type": "object",
+                    "allOf": [
+                      {
+                        "$ref": "#/definitions/Profile"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "emailVerified": {
+                            "type": "boolean"
+                          },
+                          "disabled": {
+                            "type": "boolean"
+                          },
+                          "metadata": {
+                            "type": "object",
+                            "properties": {
+                              "lastSignInTime": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "creationTime": {
+                                "type": "string",
+                                "format": "date-time"
+                              }
+                            }
+                          },
+                          "providerData": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "uid": {
+                                  "type": "string"
+                                },
+                                "email": {
+                                  "type": "string"
+                                },
+                                "providerId": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "$ref": "#/definitions/Permission"
+                      }
+                    ]
                   }
                 }
               }
@@ -5090,49 +4971,6 @@
       },
       "xml": {
         "name": "Permission"
-      }
-    },
-    "User": {
-      "type": "object",
-      "properties": {
-        "uid": {
-          "type": "string"
-        },
-        "email": {
-          "type": "string"
-        },
-        "emailVerified": {
-          "type": "boolean"
-        },
-        "displayName": {
-          "type": "string"
-        },
-        "disabled": {
-          "type": "boolean"
-        },
-        "metadata": {
-          "type": "object",
-          "properties": {
-            "lastSignInTime": {
-              "type": "string",
-              "format": "date-time"
-            },
-            "creationTime": {
-              "type": "string",
-              "format": "date-time"
-            }
-          }
-        },
-        "providerData": {
-          "type": "array",
-          "items": {
-            "type": "object"
-          },
-          "default": []
-        }
-      },
-      "xml": {
-        "name": "User"
       }
     },
     "Email": {
