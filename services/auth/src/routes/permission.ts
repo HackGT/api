@@ -43,10 +43,17 @@ permissionRoutes.route("/:userId").post(
     const currentUserPermissions = await PermissionModel.findOne({
       userId: req.user?.uid,
     });
-    if (!currentUserPermissions?.roles?.admin || !currentUserPermissions?.roles?.exec) {
+    if (!currentUserPermissions?.roles?.admin && !currentUserPermissions?.roles?.exec) {
       throw new ForbiddenError("You do not have permission to update permissions.");
     }
 
+    // Cannot update your own permission to add exec/admin role
+    if (
+      (!currentUserPermissions?.roles?.exec && req.body.roles.exec) ||
+      (!currentUserPermissions?.roles?.admin && req.body.roles.admin)
+    ) {
+      throw new ForbiddenError("You do not have permission to update permissions.");
+    }
     // For new permissions, admin or exec role cannot exist without member role
     if (
       (req.body.roles.admin && !req.body.roles.member) ||
