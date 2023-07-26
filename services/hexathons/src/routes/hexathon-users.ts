@@ -83,16 +83,18 @@ hexathonUserRouter.route("/:hexathonId/users/profile/:userId").patch(
   asyncHandler(async (req, res) => {
     const hexathonUser = await HexathonUserModel.findOneAndUpdate(
       { userId: req.params.userId, hexathon: req.params.hexathonId },
-      _.pick(req.body.profile, [
-        "matched",
-        "school",
-        "year",
-        "major",
-        "description",
-        "commitmentLevel",
-        "skills",
-        "isJudging",
-      ]),
+      {
+        $set: {
+          "profile.matched": req.body.matched,
+          "profile.school": req.body.school,
+          "profile.year": req.body.year,
+          "profile.major": req.body.major,
+          "profile.description": req.body.description,
+          "profile.commitmentLevel": req.body.commitmentLevel,
+          "profile.skills": req.body.skills,
+          "profile.isJudging": req.body.isJudging,
+        },
+      },
       {
         new: true,
       }
