@@ -78,7 +78,7 @@ hexathonUserRouter.route("/:hexathonId/users/:userId").patch(
   })
 );
 
-hexathonUserRouter.route("/:hexathonId/users/profile/:userId").patch(
+hexathonUserRouter.route("/:hexathonId/users/:userId/profile").patch(
   checkAbility("update", "HexathonUser"),
   asyncHandler(async (req, res) => {
     const hexathonUser = await HexathonUserModel.findOneAndUpdate(
