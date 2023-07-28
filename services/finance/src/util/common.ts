@@ -1,4 +1,4 @@
-import { Prisma, RequisitionStatus } from "@api/prisma/generated";
+import { Prisma, RequisitionStatus } from "@api/prisma-finance/generated";
 
 export const statusToString = (status: RequisitionStatus) => {
   switch (status) {

@@ -9,7 +9,7 @@ import { Service } from "@api/config";
 import { prisma } from "../common";
 import { prizeConfig } from "../config/prizeConfig";
 import { getConfig, getCurrentHexathon } from "./utils";
-import { UserRole } from "@api/prisma/generated";
+import { UserRole } from "@api/prisma-expo/generated";
 // import { queryRegistration } from "../registration";
 
 /*

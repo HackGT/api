@@ -3,7 +3,7 @@ import { BadRequestError, apiCall, asyncHandler, checkAbility } from "@api/commo
 import { Service } from "@api/config";
 import _ from "lodash";
 
-import { Prisma, Project, Requisition, User } from "@api/prisma/generated";
+import { Prisma, Project, Requisition, User } from "@api/prisma-finance/generated";
 import { prisma } from "../common";
 import { PROJECT_INCLUDE } from "../util/common";
 

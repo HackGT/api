@@ -1,7 +1,7 @@
 import { WebClient } from "@slack/web-api";
 import { GraphQLError } from "graphql";
 
-import { RequisitionStatus } from "@api/prisma/generated";
+import { RequisitionStatus } from "@api/prisma-finance/generated";
 import {
   projectReferenceString,
   requisitionReferenceString,

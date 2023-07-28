@@ -1,7 +1,7 @@
 import express from "express";
 import { asyncHandler, checkAbility } from "@api/common";
 
-import { Prisma } from "@api/prisma/generated";
+import { Prisma } from "@api/prisma-finance/generated";
 import { prisma } from "../common";
 
 export const paymentMethodRoutes = express.Router();

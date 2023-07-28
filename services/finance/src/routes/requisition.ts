@@ -10,7 +10,7 @@ import {
   Requisition,
   RequisitionStatus,
   User,
-} from "@api/prisma/generated";
+} from "@api/prisma-finance/generated";
 import { prisma } from "../common";
 import {
   APPROVAL_INCLUDE,

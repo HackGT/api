@@ -4,7 +4,7 @@ import { apiCall, asyncHandler } from "@api/common";
 
 import { prisma } from "../common";
 import { isAdmin } from "../auth/auth";
-import { UserRole } from "@api/prisma/generated";
+import { UserRole } from "@api/prisma-expo/generated";
 
 export const userRoutes = express.Router();
 

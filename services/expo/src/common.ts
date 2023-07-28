@@ -1,6 +1,6 @@
 import config from "@api/config";
 
-import { PrismaClient } from "@api/prisma/generated";
+import { PrismaClient } from "@api/prisma-expo/generated";
 
 export const prisma = new PrismaClient({
   errorFormat: "pretty",

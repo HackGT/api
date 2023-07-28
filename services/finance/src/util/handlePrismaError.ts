@@ -1,7 +1,7 @@
 import { ErrorRequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 
-import { Prisma } from "@api/prisma/generated";
+import { Prisma } from "@api/prisma-finance/generated";
 
 /**
  * Removes ANSI color/escape codes from a string to better format error messages

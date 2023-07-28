@@ -2,7 +2,7 @@
 import { NextFunction, Response, Request } from "express";
 import { StatusCodes } from "http-status-codes";
 
-import { Prisma } from "@api/prisma/generated";
+import { Prisma } from "@api/prisma-expo/generated";
 
 /**
  * Error handling middleware for route endpoints. Will catch Prisma errors and respond with the
