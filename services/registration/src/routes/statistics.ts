@@ -170,6 +170,21 @@ statisticsRouter.route("/").get(
               },
             },
           ],
+          // track preference data for applied applications
+          trackPreferenceData: [
+            {
+              $match: {
+                "status": { $ne: StatusType.DRAFT },
+                "applicationData.customData.track": { $ne: null },
+              },
+            },
+            {
+              $group: {
+                _id: "$applicationData.customData.track",
+                count: { $sum: 1 },
+              },
+            },
+          ],
           // groups all applications by application branch and status
           applicationBranches: [
             {
@@ -310,6 +325,7 @@ statisticsRouter.route("/").get(
       dietaryRestrictionsData: transformAggregateArray(
         aggregatedApplications[0].dietaryRestrictionsData
       ),
+      trackPreferenceData: transformAggregateArray(aggregatedApplications[0].trackPreferenceData),
     };
 
     return res.send({
