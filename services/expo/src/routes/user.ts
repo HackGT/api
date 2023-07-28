@@ -27,7 +27,6 @@ userRoutes.route("/check").get(
         },
         req
       );
-      console.log(response);
 
       user = await prisma.user.create({
         data: {

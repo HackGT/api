@@ -1,6 +1,5 @@
 import express from "express";
-import { Service } from "@api/config";
-import { apiCall, asyncHandler, BadRequestError } from "@api/common";
+import { asyncHandler, BadRequestError } from "@api/common";
 
 import { prisma } from "../common";
 
@@ -24,16 +23,6 @@ userRoutes.route("/check").get(
 
     // If user doesn't exist, create it in the finance database
     if (!user) {
-      const response = await apiCall(
-        Service.USERS,
-        {
-          url: `/users/${req.user?.uid}`,
-          method: "GET",
-        },
-        req
-      );
-      console.log(response);
-
       user = await prisma.user.create({
         data: {
           userId: req.user.uid,
