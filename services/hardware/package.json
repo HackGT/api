@@ -4,16 +4,22 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
+    "prebuild": "yarn prisma-generate",
     "build": "tsc --build --force",
     "clean": "tsc --build --clean",
-    "start": "node -r tsconfig-paths/register dist/app.js",
-    "dev": "nodemon --watch 'src/**/*' --exec \"ts-node\" -r tsconfig-paths/register src/app.ts"
+    "dev": "nodemon --watch 'src/**/*' --exec \"ts-node\" -r tsconfig-paths/register src/app.ts",
+    "migrate:dev": "dotenv -e ../../config/.env prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy",
+    "prisma-generate": "prisma format && prisma generate",
+    "seed": "prisma db seed",
+    "start": "yarn migrate:deploy && yarn start:normal",
+    "start:normal": "node -r tsconfig-paths/register dist/app.js"
   },
   "dependencies": {
     "@api/common": "1.0.0",
     "@api/config": "1.0.0",
     "@casl/ability": "^5.4.4",
-    "@casl/mongoose": "^6.0.0",
+    "@prisma/client": "^5.0.0",
     "@types/compression": "^1.7.2",
     "@types/cookie-parser": "^1.4.2",
     "@types/cors": "^2.8.12",
@@ -26,8 +32,8 @@
     "express": "^4.18.1",
     "fs": "^0.0.1-security",
     "helmet": "^6.0.0",
-    "mongoose": "^6.6.0",
     "morgan": "^1.10.0",
+    "prisma": "^5.0.0",
     "tsconfig-paths": "^4.1.1",
     "typescript": "^4.8.3"
   },

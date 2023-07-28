@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URI_HARDWARE_SERVICE")
+}
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  items Item[]
+
+  @@map("category")
+}
+
+enum RequestStatus {
+  SUBMITTED
+  APPROVED
+  DENIED
+  ABANDONED
+  CANCELLED
+  READY_FOR_PICKUP
+  FULFILLED
+  RETURNED
+  LOST
+  DAMAGED
+}
+
+model Item {
+  id               Int       @id @default(autoincrement())
+  name             String
+  description      String
+  imageUrl         String?
+  totalAvailable   Int
+  maxRequestQty    Int
+  price            Decimal   @default(0) @db.Decimal(6, 2)
+  hidden           Boolean   @default(false)
+  returnRequired   Boolean   @default(true)
+  approvalRequired Boolean   @default(true)
+  owner            String
+  category         Category  @relation(fields: [categoryId], references: [id])
+  location         Location  @relation(fields: [locationId], references: [id])
+  requests         Request[]
+
+  categoryId Int
+  locationId Int @default(1)
+
+  @@map("item")
+}
+
+model Location {
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
+  hidden Boolean @default(false)
+  items  Item[]
+
+  @@map("location")
+}
+
+model Request {
+  id        Int           @id @default(autoincrement())
+  quantity  Int
+  status    RequestStatus
+  createdAt DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime      @default(now()) @db.Timestamptz(6)
+  item      Item          @relation(fields: [itemId], references: [id])
+  user      User          @relation(fields: [userId], references: [userId])
+
+  itemId Int
+  userId String
+
+  @@map("request")
+}
+
+model Setting {
+  id                        Int     @id @default(autoincrement())
+  isHardwareRequestsAllowed Boolean @default(false)
+
+  @@map("setting")
+}
+
+model User {
+  userId   String    @id
+  haveID   Boolean   @default(false)
+  requests Request[]
+
+  @@map("user")
+}

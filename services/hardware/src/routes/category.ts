@@ -1,36 +1,44 @@
 import { asyncHandler, checkAbility } from "@api/common";
 import express from "express";
 
-import { CategoryModel } from "../models/category";
+import { prisma } from "../common";
 
 export const categoryRouter = express.Router();
-
-categoryRouter.route("/").post(
-  checkAbility("create", "Category"),
-  asyncHandler(async (req, res) => {
-    const { name } = req.body;
-    await CategoryModel.create({ name });
-
-    res.send("Category created");
-  })
-);
 
 categoryRouter.route("/").get(
   checkAbility("read", "Category"),
   asyncHandler(async (req, res) => {
-    const categories = await CategoryModel.find();
+    const categories = await prisma.category.findMany();
 
-    res.send(categories);
+    res.status(200).send(categories);
   })
 );
 
-categoryRouter.route("/").patch(
+categoryRouter.route("/").post(
   checkAbility("create", "Category"),
   asyncHandler(async (req, res) => {
-    const { id, name } = req.body;
+    const category = await prisma.category.create({
+      data: {
+        name: req.body.name,
+      },
+    });
 
-    await CategoryModel.findByIdAndUpdate(id, { name });
+    res.status(200).send(category);
+  })
+);
 
-    res.send("Category updated");
+categoryRouter.route("/:id").patch(
+  checkAbility("update", "Category"),
+  asyncHandler(async (req, res) => {
+    const updatedCategory = await prisma.category.update({
+      data: {
+        name: req.body.name,
+      },
+      where: {
+        id: parseInt(req.params.id),
+      },
+    });
+
+    res.status(200).send(updatedCategory);
   })
 );

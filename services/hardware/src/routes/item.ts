@@ -1,77 +1,242 @@
-import { asyncHandler, checkAbility } from "@api/common";
+import { asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import express from "express";
-import { FilterQuery } from "mongoose";
 
-import { Item, ItemModel } from "../models/item";
+import { Category, Item, Location } from "@api/prisma-hardware/generated";
+import { QuantityController } from "../util/QuantityController";
+import { prisma } from "../common";
+import { populateItem } from "../util/util";
 
 export const itemRouter = express.Router();
 
 itemRouter.route("/").get(
   checkAbility("read", "Item"),
   asyncHandler(async (req, res) => {
-    const filter: FilterQuery<Item> = {};
+    const items = await prisma.item.findMany({
+      where: {
+        hidden: req.user?.roles.admin ? undefined : false,
+      },
+      include: {
+        location: true,
+        category: true,
+      },
+    });
 
-    if (req.query.name) {
-      filter.name = String(req.query.name);
+    const locations = await prisma.location.findMany({
+      where: {
+        hidden: req.user?.roles.admin ? undefined : false,
+      },
+    });
+
+    const itemQuantities = await QuantityController.all();
+    const itemsByLocation: {
+      location: Location;
+      categories: { category: Category; items: Item[] }[];
+    }[] = [];
+
+    for (const location of locations) {
+      const itemsAtLocation = items.filter(predItem => predItem.locationId === location.id);
+      const itemsByCategory: Record<number, { category: Category; items: Item[] }> = {};
+
+      for (const item of itemsAtLocation) {
+        if (!Object.prototype.hasOwnProperty.call(itemsByCategory, item.categoryId)) {
+          itemsByCategory[item.categoryId] = {
+            category: item.category,
+            items: [],
+          };
+        }
+
+        // @ts-ignore
+        itemsByCategory[item.categoryId].items.push(
+          populateItem(item, req.user?.roles, itemQuantities)
+        );
+      }
+
+      itemsByLocation.push({
+        location,
+        categories: Object.values(itemsByCategory).sort((a, b) =>
+          a.category.name.localeCompare(b.category.name)
+        ),
+      });
     }
 
-    if (req.query.location) {
-      filter.location = String(req.query.location);
-    }
-
-    if (req.query.category) {
-      filter.category = String(req.query.category);
-    }
-
-    if (req.query.description) {
-      filter.description = String(req.query.description);
-    }
-
-    if (req.query.hidden) {
-      filter.hidden = String(req.query.hidden);
-    }
-
-    const items = await ItemModel.find(filter).populate("location").populate("category");
-
-    return res.send(items);
+    res.status(200).send(itemsByLocation);
   })
 );
 
 itemRouter.route("/:id").get(
   checkAbility("read", "Item"),
   asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const item = await ItemModel.findById(id);
-    return res.send(item);
+    const item = await prisma.item.findUnique({
+      where: {
+        id: parseInt(req.params.id),
+      },
+    });
+
+    res.status(200).send(item);
   })
 );
 
-itemRouter.route("/amount/:id").get(
-  checkAbility("read", "Item"),
+itemRouter.route("/statistics").get(
+  checkAbility("manage", "Item"),
   asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const item = await ItemModel.findById(id);
+    const prismaItems = await prisma.item.findMany({
+      include: {
+        category: true,
+        location: true,
+      },
+    });
 
-    return res.send(item ? item.totalAvailable : item);
+    const itemQuantities = await QuantityController.all();
+    const items = prismaItems.map(item => populateItem(item, req.user?.roles, itemQuantities));
+    const detailedQuantities = await QuantityController.getQuantities();
+
+    const statistics = items.map(item => {
+      const qtyInfo = detailedQuantities[item.id] || {
+        SUBMITTED: 0,
+        APPROVED: 0,
+        DENIED: 0,
+        ABANDONED: 0,
+        CANCELLED: 0,
+        READY_FOR_PICKUP: 0,
+        FULFILLED: 0,
+        RETURNED: 0,
+        LOST: 0,
+        DAMAGED: 0,
+        total: 0,
+      };
+      return {
+        item,
+        detailedQuantities: qtyInfo,
+      };
+    });
+
+    res.status(200).send(statistics);
   })
 );
+// itemRouter.route("/amount/:id").get(
+//   checkAbility("read", "Item"),
+//   asyncHandler(async (req, res) => {
+//     const { id } = req.params;
+//     const item = await ItemModel.findById(id);
+
+//     return res.send(item ? item.totalAvailable : item);
+//   })
+// );
 
 itemRouter.route("/").post(
   checkAbility("create", "Item"),
   asyncHandler(async (req, res) => {
-    const itemData = req.body;
-    const item = await ItemModel.create(itemData);
-    res.send(item);
+    if (!req.body.name.trim().length) {
+      throw new BadRequestError("The item name can't be empty.");
+    }
+    if (!req.body.category.trim().length) {
+      throw new BadRequestError("The category for this item can't be blank.");
+    }
+    if (!req.body.location.trim().length) {
+      throw new BadRequestError("The location for this item can't be blank.");
+    }
+    if (req.body.totalAvailable < 0) {
+      throw new BadRequestError(
+        `The total quantity available (totalQtyAvailable) for a new item can't be less than 0.  Value provided: ${req.body.totalAvailable}`
+      );
+    }
+    if (req.body.maxRequestQty < 1) {
+      throw new BadRequestError(
+        `The max request quantity (maxRequestQty) must be at least 1.  Value provided: ${req.body.maxRequestQty}`
+      );
+    }
+    if (req.body.maxRequestQty > req.body.totalAvailable) {
+      throw new BadRequestError(
+        `The max request quantity (maxRequestQty) can't be greater than the total quantity of this item (totalAvailable) that is available.  maxRequestQty: ${req.body.maxRequestQty}, totalAvailable: ${req.body.totalAvailable}`
+      );
+    }
+
+    const item = await prisma.item.create({
+      data: {
+        ...req.body,
+        category: {
+          connect: {
+            id: req.body.category,
+          },
+        },
+        location: {
+          connect: {
+            id: req.body.location,
+          },
+        },
+      },
+      include: {
+        category: true,
+        location: true,
+      },
+    });
+
+    const itemQuantities = await QuantityController.all([item.id]);
+    const populatedItem = populateItem(item, req.user?.roles, itemQuantities);
+
+    res.status(200).send(populatedItem);
   })
 );
 
-itemRouter.route("/locations").get(
-  checkAbility("read", "Item"),
+itemRouter.route("/:id").put(
+  checkAbility("update", "Item"),
   asyncHandler(async (req, res) => {
-    console.log("test");
-    // const items = await ItemModel.find();
-    // console.log(items);
+    if (!req.params.id || parseInt(req.params.id) <= 0) {
+      throw new BadRequestError(
+        "You must provide a valid item ID (greater than or equal to 0) to update an item."
+      );
+    }
+    if (!req.body.name.trim().length) {
+      throw new BadRequestError("The item name can't be empty.");
+    }
+    if (!req.body.category.trim().length) {
+      throw new BadRequestError("The category for this item can't be blank.");
+    }
+    if (!req.body.location.trim().length) {
+      throw new BadRequestError("The location for this item can't be blank.");
+    }
+    if (req.body.totalAvailable < 0) {
+      throw new BadRequestError(
+        `The total quantity available (totalQtyAvailable) for a new item can't be less than 0.  Value provided: ${req.body.totalAvailable}`
+      );
+    }
+    if (req.body.maxRequestQty < 1) {
+      throw new BadRequestError(
+        `The max request quantity (maxRequestQty) must be at least 1.  Value provided: ${req.body.maxRequestQty}`
+      );
+    }
+    if (req.body.maxRequestQty > req.body.totalAvailable) {
+      throw new BadRequestError(
+        `The max request quantity (maxRequestQty) can't be greater than the total quantity of this item (totalAvailable) that is available.  maxRequestQty: ${req.body.maxRequestQty}, totalAvailable: ${req.body.totalAvailable}`
+      );
+    }
 
-    // res.send([...new Set(items.map(item => item.location))]);
+    const item = await prisma.item.update({
+      where: {
+        id: parseInt(req.params.id),
+      },
+      data: {
+        ...req.body,
+        category: {
+          connect: {
+            id: req.body.category,
+          },
+        },
+        location: {
+          connect: {
+            id: req.body.location,
+          },
+        },
+      },
+      include: {
+        category: true,
+        location: true,
+      },
+    });
+
+    const itemQuantities = await QuantityController.all([item.id]);
+    const populatedItem = populateItem(item, req.user?.roles, itemQuantities);
+
+    res.status(200).send(populatedItem);
   })
 );

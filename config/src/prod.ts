@@ -162,7 +162,7 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       },
     },
     database: {
-      type: "mongo",
+      type: "postgres",
       name: "hardware",
     },
   },
