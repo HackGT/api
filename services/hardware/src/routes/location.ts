@@ -1,42 +1,51 @@
 import { asyncHandler, checkAbility } from "@api/common";
 import express from "express";
 
-import { ItemModel } from "../models/item";
-import { LocationModel } from "../models/location";
+import { prisma } from "../common";
 
 export const locationRouter = express.Router();
-
-locationRouter.route("/").post(
-  checkAbility("create", "Location"),
-  asyncHandler(async (req, res) => {
-    const { name } = req.body;
-
-    const location = await LocationModel.create({ name });
-
-    res.send(location);
-  })
-);
 
 locationRouter.route("/").get(
   checkAbility("read", "Location"),
   asyncHandler(async (req, res) => {
-    const locations = await LocationModel.find();
+    const locations = await prisma.location.findMany();
 
-    res.send([locations.map(location => location.name)]);
+    res.status(200).send([locations.map(location => location.name)]);
   })
 );
 
-locationRouter.route("/").put(
+locationRouter.route("/").post(
   checkAbility("create", "Location"),
   asyncHandler(async (req, res) => {
-    const { name } = req.body;
-    const location = await LocationModel.find({ name });
+    const location = await prisma.location.create({
+      data: {
+        name: req.body.name,
+      },
+    });
 
-    if (location) {
-      res.send(location);
-    }
-    const newLocation = await LocationModel.create({ name });
-
-    res.send(newLocation);
+    res.status(200).send(location);
   })
 );
+
+// locationRouter.route("/").put(
+//   checkAbility("update", "Location"),
+//   asyncHandler(async (req, res) => {
+//     const updatedLocation = await LocationModel.updateOne({
+//       data: {
+//         name: req.body.name
+//       },
+//       where: {
+
+//       }
+//     }
+
+//     const location = await LocationModel.find({ name });
+
+//     if (location) {
+//       res.send(location);
+//     }
+//     const newLocation = await LocationModel.create({ name });
+
+//     res.send(newLocation);
+//   })
+// );
