@@ -1160,6 +1160,81 @@
         }
       }
     },
+    "/hexathon-users/{hexathonId}/users/{userId}/profile": {
+      "patch": {
+        "tags": ["hexathons"],
+        "summary": "Updates a hexathon user profile",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathonId",
+            "in": "path",
+            "description": "hexathon id to find user",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "user id to find user",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Fields to update",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "matched": {
+                  "type": "boolean"
+                },
+                "school": {
+                  "type": "string"
+                },
+                "year": {
+                  "type": "string"
+                },
+                "major": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "commitmentLevel": {
+                  "type": "string"
+                },
+                "skills": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "isJudging": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/HexathonUser"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      }
+    },
     "/hexathon-users/{hexathonId}/users/{userId}/actions/check-valid-user": {
       "post": {
         "tags": ["hexathons"],
@@ -2551,6 +2626,9 @@
                 },
                 "hexathon": {
                   "type": "integer"
+                },
+                "applicationGroup": {
+                  "type": "string"
                 },
                 "type": {
                   "type": "string"
