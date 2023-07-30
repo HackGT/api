@@ -1,21 +1,8 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "./generated"; // eslint-disable-line import/no-relative-packages
 
 const prisma = new PrismaClient();
 
 async function main() {
-  // const hackathon = await prisma.hackathon.upsert({
-  //   where: {
-  //     id: 1,
-  //   },
-  //   update: {},
-  //   create: {
-  //     name: "HackGT 8",
-  //   },
-  // });
-
-  // console.log("HACKATHON");
-  // console.log(hackathon);
-
   const config = await prisma.config.upsert({
     where: {
       id: 1,
@@ -24,15 +11,16 @@ async function main() {
     create: {},
   });
 
-  console.log("CONFIG");
+  console.log("Expo config seeded:");
   console.log(config);
 }
 
 main()
-  .catch(err => {
-    console.error(err);
-    process.exit(1);
-  })
-  .finally(async () => {
+  .then(async () => {
     await prisma.$disconnect();
+  })
+  .catch(async err => {
+    console.error(err);
+    await prisma.$disconnect();
+    process.exit(1);
   });
