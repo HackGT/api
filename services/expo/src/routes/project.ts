@@ -503,7 +503,7 @@ projectRoutes.route("/special/dashboard").get(
       },
       req
     );
-    console.log(hexathons);
+
     if (hexathons.length === undefined) {
       let filtered_projects = [];
       for (const project in projects) {
