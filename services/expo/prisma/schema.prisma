@@ -15,12 +15,6 @@ enum AssignmentStatus {
   SKIPPED
 }
 
-enum UserRole {
-  GENERAL
-  SPONSOR
-  ADMIN
-}
-
 enum WinnerRank {
   FIRST
   SECOND
@@ -117,19 +111,6 @@ model Criteria {
   @@map("criteria")
 }
 
-model Notification {
-  id        Int      @id @default(autoincrement())
-  header    String
-  message   String
-  sender    User     @relation(fields: [senderId], references: [id])
-  hackathon String
-  sentAt    DateTime @default(now())
-
-  senderId Int
-
-  @@map("notification")
-}
-
 model Project {
   id           Int          @id @default(autoincrement())
   name         String
@@ -180,13 +161,12 @@ model User {
   name          String
   email         String         @unique
   userId        String         @unique
-  role          UserRole       @default(GENERAL)
   isJudging     Boolean        @default(false)
+  isSponsor     Boolean        @default(false)
   categoryGroup CategoryGroup? @relation(fields: [categoryGroupId], references: [id])
   ballots       Ballot[]
   projects      Project[]
   assignments   Assignment[]
-  notifications Notification[]
 
   categoryGroupId Int?
 
