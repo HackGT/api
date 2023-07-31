@@ -193,95 +193,95 @@ export const validateTeam = async (members: any[], req: express.Request) => {
     return { error: true, message: "Email does not match current user" };
   }
 
-  // let registrationError: { error: boolean; message: string } | null = null;
+  let registrationError: { error: boolean; message: string } | null = null;
   const currentHexathon = await getCurrentHexathon(req);
 
-  // const registrationUsers: any[] = await Promise.all(
-  //   memberEmails.map(async email => {
-  //     // TODO: Need to secure this route
-  //     let userApplication: any;
-  //     try {
-  //       userApplication = await apiCall(
-  //         Service.REGISTRATION,
-  //         {
-  //           url: `/applications/actions/expo-user`,
-  //           method: "GET",
-  //           params: {
-  //             hexathon: currentHexathon.id,
-  //             email,
-  //           },
-  //         },
-  //         req
-  //       );
-  //     } catch (error) {
-  //       console.error(`validation error: ${error}`);
-  //       registrationError = {
-  //         error: true,
-  //         message: `We couldn't find the emails you entered in our registration system. Please make sure you entered the emails you used to register for this event.`,
-  //       };
-  //       return "";
-  //     }
+  const registrationUsers: any[] = await Promise.all(
+    memberEmails.map(async email => {
+      // TODO: Need to secure this route
+      let userApplication: any;
+      try {
+        userApplication = await apiCall(
+          Service.REGISTRATION,
+          {
+            url: `/applications/actions/expo-user`,
+            method: "GET",
+            params: {
+              hexathon: currentHexathon.id,
+              email,
+            },
+          },
+          req
+        );
+      } catch (error) {
+        console.error(`validation error: ${error}`);
+        registrationError = {
+          error: true,
+          message: `We couldn't find the emails you entered in our registration system. Please make sure you entered the emails you used to register for this event.`,
+        };
+        return "";
+      }
 
-  //     // Checks the user's applications and if they are confirmed for the current hexathon
-  //     if (userApplication.status !== "CONFIRMED") {
-  //       registrationError = {
-  //         error: true,
-  //         message: `User: ${email} not confirmed for current ${currentHexathon.name}`,
-  //       };
-  //       return "";
-  //     }
+      // Checks the user's applications and if they are confirmed for the current hexathon
+      if (userApplication.status !== "CONFIRMED") {
+        registrationError = {
+          error: true,
+          message: `User: ${email} not confirmed for current ${currentHexathon.name}`,
+        };
+        return "";
+      }
 
-  //     const user = await prisma.user.findUnique({
-  //       where: {
-  //         email,
-  //       },
-  //     });
+      const user = await prisma.user.findUnique({
+        where: {
+          email,
+        },
+      });
 
-  //     if (!user) {
-  //       try {
-  //         const newUser = await admin.auth().getUserByEmail(email);
+      if (!user) {
+        try {
+          const newUser = await admin.auth().getUserByEmail(email);
 
-  //         await prisma.user.create({
-  //           data: {
-  //             name: userApplication.name,
-  //             email,
-  //             userId: newUser.uid,
-  //           },
-  //         });
-  //       } catch (error) {
-  //         return registrationError;
-  //       }
-  //     } else {
-  //       const existingProject = await prisma.project.findFirst({
-  //         where: {
-  //           members: {
-  //             some: {
-  //               id: user.id,
-  //             },
-  //           },
-  //           hexathon: currentHexathon.id,
-  //         },
-  //       });
+          await prisma.user.create({
+            data: {
+              name: userApplication.name,
+              email,
+              userId: newUser.uid,
+            },
+          });
+        } catch (error) {
+          return registrationError;
+        }
+      } else {
+        const existingProject = await prisma.project.findFirst({
+          where: {
+            members: {
+              some: {
+                id: user.id,
+              },
+            },
+            hexathon: currentHexathon.id,
+          },
+        });
 
-  //       if (existingProject != null) {
-  //         registrationError = {
-  //           error: true,
-  //           message: `User: ${user.email} already has a submission for current ${currentHexathon.name}`,
-  //         };
-  //         return "";
-  //       }
-  //     }
+        if (existingProject != null) {
+          registrationError = {
+            error: true,
+            message: `User: ${user.email} already has a submission for current ${currentHexathon.name}`,
+          };
+          return "";
+        }
+      }
 
-  //     return userApplication;
-  //   })
-  // );
+      return userApplication;
+    })
+  );
 
-  // if (registrationError != null) {
-  //   return registrationError;
-  // }
+  if (registrationError != null) {
+    return registrationError;
+  }
 
-  const eligiblePrizes = await getEligiblePrizes([], req);
-  return { error: false, eligiblePrizes, registrationUsers: [] };
+  const eligiblePrizes = await getEligiblePrizes(registrationUsers, req);
+  return { error: false, eligiblePrizes, registrationUsers };
 };
 
 /*
