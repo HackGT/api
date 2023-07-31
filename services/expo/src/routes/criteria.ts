@@ -1,19 +1,18 @@
 import express from "express";
 import { asyncHandler } from "@api/common";
 
+import { Prisma } from "@api/prisma-expo/generated";
 import { prisma } from "../common";
-import { isAdmin } from "../auth/auth";
+import { isAdmin } from "../utils/utils";
 
 export const criteriaRoutes = express.Router();
 
 criteriaRoutes.route("/").get(
   asyncHandler(async (req, res) => {
-    const { category } = req.query;
-    const filter: any = {};
+    const filter: Prisma.CriteriaWhereInput = {};
 
-    if (category !== undefined) {
-      const categoryId: number = parseInt(category as string);
-      filter.categoryId = categoryId;
+    if (req.query.category !== undefined) {
+      filter.categoryId = parseInt(req.query.category as string);
     }
 
     const criteria = await prisma.criteria.findMany({
@@ -49,11 +48,9 @@ criteriaRoutes.route("/batch/create").post(
 criteriaRoutes.route("/:id").patch(
   isAdmin,
   asyncHandler(async (req, res) => {
-    const criteriaId: number = parseInt(req.params.id);
-
     const updatedCriteria = await prisma.criteria.update({
       where: {
-        id: criteriaId,
+        id: parseInt(req.params.id),
       },
       data: req.body,
     });
@@ -65,11 +62,9 @@ criteriaRoutes.route("/:id").patch(
 criteriaRoutes.route("/:id").delete(
   isAdmin,
   asyncHandler(async (req, res) => {
-    const criteriaId: number = parseInt(req.params.id);
-
-    const deletedCriteria = await prisma.criteria.delete({
+    await prisma.criteria.delete({
       where: {
-        id: criteriaId,
+        id: parseInt(req.params.id),
       },
     });
 

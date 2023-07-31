@@ -1,18 +1,17 @@
 /* eslint-disable guard-for-in */
 import express from "express";
-import { apiCall, asyncHandler } from "@api/common";
+import { BadRequestError, apiCall, asyncHandler } from "@api/common";
 import { Service } from "@api/config";
 
 import { prisma } from "../common";
-import { getConfig, getCurrentHexathon } from "../utils/utils";
+import { getConfig, getCurrentHexathon, isAdmin } from "../utils/utils";
 import {
   validateTeam,
   validateDevpost,
   validatePrizes,
   getEligiblePrizes,
 } from "../utils/validationHelpers";
-import { isAdmin } from "../auth/auth";
-import { TableGroup } from "@api/prisma-expo/generated";
+import { Prisma, TableGroup } from "@api/prisma-expo/generated";
 
 export const projectRoutes = express.Router();
 
@@ -20,11 +19,11 @@ projectRoutes.route("/").get(
   asyncHandler(async (req: any, res) => {
     const { expo, round, table, category, hexathon } = req.query;
 
-    const filter: any = {};
+    const filter: Prisma.ProjectWhereInput = {};
     if (expo) filter.expo = parseInt(expo as string);
     if (round) filter.round = parseInt(round as string);
     if (table) filter.table = parseInt(table as string);
-    if (category) filter.category = parseInt(category as string);
+    // if (category) filter.categories = parseInt(category as string); // TODO: Fix this category filter
     if (hexathon) filter.hexathon = hexathon;
 
     const matches = await prisma.project.findMany({
@@ -54,7 +53,7 @@ projectRoutes.route("/").get(
 );
 
 projectRoutes.route("/special/team-validation").post(async (req, res) => {
-  const resp = await validateTeam(req.user, req.body.members, req);
+  const resp = await validateTeam(req.body.members, req);
   if (resp.error) {
     res.status(400).json(resp);
   } else {
@@ -87,7 +86,8 @@ projectRoutes.route("/special/devpost-validation").post(async (req, res) => {
 });
 
 projectRoutes.route("/special/get-eligible-prizes").get(async (req, res) => {
-  const resp: any = await getEligiblePrizes([], req);
+  // TODO Fix this any error
+  const resp = (await getEligiblePrizes([], req)) as any;
   if (resp.error) {
     res.status(400).json(resp);
   } else {
@@ -101,20 +101,15 @@ projectRoutes.route("/").post(async (req, res) => {
   const currentHexathon = await getCurrentHexathon(req);
 
   if (!config.isProjectSubmissionOpen) {
-    res.status(400).send({ error: true, message: "Sorry, submissions are currently closed" });
-    return;
+    throw new Error("Sorry, submissions are currently closed");
   }
-
   if (!req.body.submission) {
-    res.status(400).send({ error: true, message: "Invalid submission" });
-    return;
+    throw new Error("Invalid submission");
   }
 
   const data = req.body.submission;
 
-  console.log(data);
-
-  const teamValidation = await validateTeam(req.user, data.members, req);
+  const teamValidation = await validateTeam(data.members, req);
   if (teamValidation.error) {
     res.status(400).send(teamValidation);
     return;
@@ -173,12 +168,9 @@ projectRoutes.route("/").post(async (req, res) => {
   }
 
   if (!minCapacityTableGroup) {
-    res.status(400).send({
-      error: true,
-      message:
-        "Submission could not be saved due to issue with table groups - please contact help desk",
-    });
-    return;
+    throw new BadRequestError(
+      "Submission could not be saved due to issue with table groups - please contact help desk"
+    );
   }
 
   const projectsInCurrentExpoAndTableGroup = projectsInCurrentExpo.filter(
@@ -198,11 +190,9 @@ projectRoutes.route("/").post(async (req, res) => {
   }
 
   if (!teamValidation.registrationUsers) {
-    res.status(400).send({
-      error: true,
-      message: "There was an error contacting registration. Please contact help desk.",
-    });
-    return;
+    throw new BadRequestError(
+      "There was an error contacting registration. Please contact help desk."
+    );
   }
 
   // in loop call all projects with table group id
@@ -260,11 +250,7 @@ projectRoutes.route("/").post(async (req, res) => {
     console.log(response);
   } catch (err) {
     console.error(err);
-    res.status(400).send({
-      error: true,
-      message: "Submission could not be saved - please contact help desk",
-    });
-    return;
+    throw new BadRequestError("Submission could not be saved - please contact help desk");
   }
 
   res.status(200).send({ error: false });

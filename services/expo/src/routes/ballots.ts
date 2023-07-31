@@ -3,8 +3,8 @@ import { StatusCodes } from "http-status-codes";
 import { asyncHandler } from "@api/common";
 
 import { prisma } from "../common";
-import { isAdmin, isAdminOrIsJudging } from "../auth/auth";
-import { Ballot } from "@api/prisma-expo/generated";
+import { Ballot, Prisma } from "@api/prisma-expo/generated";
+import { isAdmin, isAdminOrIsJudging } from "../utils/utils";
 
 export const ballotsRoutes = express.Router();
 
@@ -60,13 +60,16 @@ ballotsRoutes.route("/").post(
   isAdminOrIsJudging,
   asyncHandler(async (req, res) => {
     const { criterium } = req.body;
-    const data = Object.keys(criterium).map(key => ({
-      score: criterium[key] || 0,
-      criteriaId: parseInt(key),
-      round: req.body.round,
-      projectId: req.body.projectId,
-      userId: req.body.userId,
-    }));
+
+    const data: Prisma.BallotCreateManyInput[] = Object.entries(criterium).map(
+      ([criteriaId, score]: [string, any]) => ({
+        score: score || 0,
+        criteriaId: parseInt(criteriaId),
+        round: req.body.round,
+        projectId: req.body.projectId,
+        userId: req.body.userId,
+      })
+    );
 
     const createdBallots = await prisma.ballot.createMany({
       data,

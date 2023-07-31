@@ -2,22 +2,22 @@ import express from "express";
 import { asyncHandler } from "@api/common";
 
 import { prisma } from "../common";
-import { getCurrentHexathon } from "../utils/utils";
-import { isAdmin } from "../auth/auth";
+import { getCurrentHexathon, isAdmin } from "../utils/utils";
+import { Prisma } from "@api/prisma-expo/generated";
 
 export const categoryGroupRoutes = express.Router();
 
 categoryGroupRoutes.route("/").get(
   asyncHandler(async (req, res) => {
     const { hexathon, name } = req.query;
-    const filter: any = {};
+    const filter: Prisma.CategoryGroupWhereInput = {};
 
     if (hexathon !== undefined) {
-      filter.hexathon = hexathon;
+      filter.hexathon = hexathon as string;
     }
 
     if (name !== undefined) {
-      filter.name = name;
+      filter.name = name as string;
     }
 
     const categoryGroups = await prisma.categoryGroup.findMany({
@@ -67,11 +67,9 @@ categoryGroupRoutes.route("/").post(
 categoryGroupRoutes.route("/:id").patch(
   isAdmin,
   asyncHandler(async (req, res) => {
-    const categoryGroupId: number = parseInt(req.params.id);
-
     const updatedCategoryGroup = await prisma.categoryGroup.update({
       where: {
-        id: categoryGroupId,
+        id: parseInt(req.params.id),
       },
       data: {
         ...req.body,
@@ -91,11 +89,9 @@ categoryGroupRoutes.route("/:id").patch(
 categoryGroupRoutes.route("/:id").delete(
   isAdmin,
   asyncHandler(async (req, res) => {
-    const categoryGroupId: number = parseInt(req.params.id);
-
-    const deletedCategoryGroup = await prisma.categoryGroup.deleteMany({
+    await prisma.categoryGroup.deleteMany({
       where: {
-        id: categoryGroupId,
+        id: parseInt(req.params.id),
       },
     });
 

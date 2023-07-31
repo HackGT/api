@@ -1,10 +1,9 @@
-import { apiCall, asyncHandler } from "@api/common";
+import { ConfigError, apiCall, asyncHandler } from "@api/common";
 import { Service } from "@api/config";
 import express from "express";
 
-import { isAdmin } from "../auth/auth";
 import { prisma } from "../common";
-import { getConfig } from "../utils/utils";
+import { getConfig, isAdmin } from "../utils/utils";
 
 export const configRoutes = express.Router();
 
@@ -26,32 +25,29 @@ function updateConfigFields(data: any, fields: string[]) {
 configRoutes.route("/").get(
   asyncHandler(async (req, res) => {
     const config = await prisma.config.findFirst();
-    const hexathon = await apiCall(
-      Service.HEXATHONS,
-      {
-        url: `/hexathons/${config?.currentHexathon}`,
-        method: "GET",
-      },
-      req
-    );
-    if (config) {
-      config.currentHexathon = hexathon;
+    if (!config) {
+      throw new ConfigError("Config has not been setup. Please contact an admin.");
     }
-    res.status(200).json(config);
-  })
-);
 
-configRoutes.route("/hexathons").get(
-  asyncHandler(async (req, res) => {
-    const hexathons = await apiCall(
-      Service.HEXATHONS,
-      {
-        url: `/hexathons`,
-        method: "GET",
-      },
-      req
-    );
-    res.status(200).json(hexathons);
+    if (config.currentHexathon) {
+      const hexathon = await apiCall(
+        Service.HEXATHONS,
+        {
+          url: `/hexathons/${config.currentHexathon}`,
+          method: "GET",
+        },
+        req
+      );
+      if (!hexathon) {
+        throw new ConfigError("Invalid current hexathon");
+      }
+      res.status(200).json({
+        ...config,
+        currentHexathon: hexathon,
+      });
+    } else {
+      res.status(200).json(config);
+    }
   })
 );
 

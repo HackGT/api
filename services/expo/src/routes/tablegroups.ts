@@ -2,8 +2,7 @@ import express from "express";
 import { asyncHandler } from "@api/common";
 
 import { prisma } from "../common";
-import { getConfig } from "../utils/utils";
-import { isAdmin } from "../auth/auth";
+import { getConfig, isAdmin } from "../utils/utils";
 
 export const tableGroupRoutes = express.Router();
 
@@ -23,10 +22,9 @@ tableGroupRoutes.route("/").get(
 
 tableGroupRoutes.route("/:id").get(
   asyncHandler(async (req, res) => {
-    const tableGroupId: number = parseInt(req.params.id);
     const tableGroup = await prisma.tableGroup.findUnique({
       where: {
-        id: tableGroupId,
+        id: parseInt(req.params.id),
       },
     });
 
@@ -34,14 +32,13 @@ tableGroupRoutes.route("/:id").get(
   })
 );
 
+// TODO: Fix this route. Should projects have a default table group?
 // Get by projectId
 tableGroupRoutes.route("/project/:id").get(
   asyncHandler(async (req, res) => {
-    const projectId: number = parseInt(req.params.id);
-    // console.log(projectId);
     const project = await prisma.project.findUnique({
       where: {
-        id: projectId,
+        id: parseInt(req.params.id),
       },
     });
     const tableGroup = await prisma.tableGroup.findUnique({
@@ -72,11 +69,9 @@ tableGroupRoutes.route("/").post(
 tableGroupRoutes.route("/:id").patch(
   isAdmin,
   asyncHandler(async (req, res) => {
-    const tableGroupId: number = parseInt(req.params.id);
-
     const updatedTableGroup = await prisma.tableGroup.update({
       where: {
-        id: tableGroupId,
+        id: parseInt(req.params.id),
       },
       data: req.body,
     });
@@ -88,11 +83,9 @@ tableGroupRoutes.route("/:id").patch(
 tableGroupRoutes.route("/:id").delete(
   isAdmin,
   asyncHandler(async (req, res) => {
-    const tableGroupId: number = parseInt(req.params.id);
-
     const deletedCategoryGroup = await prisma.tableGroup.deleteMany({
       where: {
-        id: tableGroupId,
+        id: parseInt(req.params.id),
       },
     });
 

@@ -2,7 +2,7 @@ import express from "express";
 import { asyncHandler } from "@api/common";
 
 import { prisma } from "../common";
-import { isAdmin } from "../auth/auth";
+import { isAdmin } from "../utils/utils";
 
 export const winnerRoutes = express.Router();
 
@@ -118,11 +118,9 @@ winnerRoutes.route("/").post(
 winnerRoutes.route("/:id").patch(
   isAdmin,
   asyncHandler(async (req, res) => {
-    const winnerId: number = parseInt(req.params.id);
-
     const updatedWinner = await prisma.winner.update({
       where: {
-        id: winnerId,
+        id: parseInt(req.params.id),
       },
       data: req.body,
     });
@@ -135,11 +133,9 @@ winnerRoutes.route("/:id").patch(
 winnerRoutes.route("/:id").delete(
   isAdmin,
   asyncHandler(async (req, res) => {
-    const winnerId: number = parseInt(req.params.id);
-
-    const deletedWinner = await prisma.winner.delete({
+    await prisma.winner.delete({
       where: {
-        id: winnerId,
+        id: parseInt(req.params.id),
       },
     });
 
