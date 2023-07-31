@@ -52,209 +52,221 @@ projectRoutes.route("/").get(
   })
 );
 
-projectRoutes.route("/special/team-validation").post(async (req, res) => {
-  const resp = await validateTeam(req.body.members, req);
-  if (resp.error) {
-    res.status(400).json(resp);
-  } else {
-    res.status(200).json(resp);
-  }
-});
+projectRoutes.route("/special/team-validation").post(
+  asyncHandler(async (req, res) => {
+    const resp = await validateTeam(req.body.members, req);
+    if (resp.error) {
+      res.status(400).json(resp);
+    } else {
+      res.status(200).json(resp);
+    }
+  })
+);
 
 // TODO: Fill in prize validation as needed
-projectRoutes.route("/special/prize-validation").post(async (req, res) => {
-  const resp = await validatePrizes(req.body.prizes, req);
-  if (resp.error) {
-    res.status(400).json(resp);
-  } else {
-    res.status(200).json(resp);
-  }
-});
+projectRoutes.route("/special/prize-validation").post(
+  asyncHandler(async (req, res) => {
+    const resp = await validatePrizes(req.body.prizes, req);
+    if (resp.error) {
+      res.status(400).json(resp);
+    } else {
+      res.status(200).json(resp);
+    }
+  })
+);
 
 // TODO: Fill in detail validation as needed
-projectRoutes.route("/special/detail-validation").post(async (req, res) => {
-  res.status(200).send({ error: false });
-});
+projectRoutes.route("/special/detail-validation").post(
+  asyncHandler(async (req, res) => {
+    res.status(200).send({ error: false });
+  })
+);
 
-projectRoutes.route("/special/devpost-validation").post(async (req, res) => {
-  const resp = await validateDevpost(req.body.devpostUrl, req.body.name);
-  if (resp.error) {
-    res.status(400).json(resp);
-  } else {
-    res.status(200).json(resp);
-  }
-});
+projectRoutes.route("/special/devpost-validation").post(
+  asyncHandler(async (req, res) => {
+    const resp = await validateDevpost(req.body.devpostUrl, req.body.name);
+    if (resp.error) {
+      res.status(400).json(resp);
+    } else {
+      res.status(200).json(resp);
+    }
+  })
+);
 
-projectRoutes.route("/special/get-eligible-prizes").get(async (req, res) => {
-  // TODO Fix this any error
-  const resp = (await getEligiblePrizes([], req)) as any;
-  if (resp.error) {
-    res.status(400).json(resp);
-  } else {
-    res.status(200).json(resp);
-  }
-});
+projectRoutes.route("/special/get-eligible-prizes").get(
+  asyncHandler(async (req, res) => {
+    // TODO Fix this any error
+    const resp = (await getEligiblePrizes([], req)) as any;
+    if (resp.error) {
+      res.status(400).json(resp);
+    } else {
+      res.status(200).json(resp);
+    }
+  })
+);
 
 // Last step of the form, all the data is passed in here and a submission should be created
-projectRoutes.route("/").post(async (req, res) => {
-  const config = await getConfig();
-  const currentHexathon = await getCurrentHexathon(req);
+projectRoutes.route("/").post(
+  asyncHandler(async (req, res) => {
+    const config = await getConfig();
+    const currentHexathon = await getCurrentHexathon(req);
 
-  if (!config.isProjectSubmissionOpen) {
-    throw new Error("Sorry, submissions are currently closed");
-  }
-  if (!req.body.submission) {
-    throw new Error("Invalid submission");
-  }
-
-  const data = req.body.submission;
-
-  const teamValidation = await validateTeam(data.members, req);
-  if (teamValidation.error) {
-    res.status(400).send(teamValidation);
-    return;
-  }
-
-  const devpostValidation = await validateDevpost(data.devpostUrl, data.name);
-  if (devpostValidation.error) {
-    res.status(400).send(devpostValidation);
-    return;
-  }
-
-  // const bestOverall: any = await prisma.category.findFirst({
-  //   where: {
-  //     name: { in: ["HackGT - Best Overall"] },
-  //   },
-  // });
-
-  // const openSource: any = await prisma.category.findFirst({
-  //   where: {
-  //     name: { in: ["HackGT - Best Open Source Hack"] },
-  //   },
-  // });
-
-  // if (openSource && data.prizes.includes(openSource.id) && data.prizes.length > 1) {
-  //   res.status(400).send({
-  //     error: true,
-  //     message: "If you submit to open source you can only submit to that category",
-  //   });
-  // } else if (openSource && !data.prizes.includes(openSource.id)) {
-  //   data.prizes.push(bestOverall.id);
-  // }
-
-  const projectExpo = Math.floor(Math.random() * config.numberOfExpo + 1);
-
-  const tableGroups = await prisma.tableGroup.findMany();
-  const projectsInCurrentExpo = await prisma.project.findMany({
-    where: {
-      expo: projectExpo,
-    },
-  });
-
-  let minCapacityTableGroup: undefined | TableGroup;
-  let minCapacityValue = 1;
-
-  for (const tableGroup of tableGroups) {
-    const projectsInCurrentExpoAndTableGroup = projectsInCurrentExpo.filter(
-      project => project.tableGroupId === tableGroup.id
-    );
-    if (
-      projectsInCurrentExpoAndTableGroup.length < tableGroup.tableCapacity &&
-      projectsInCurrentExpoAndTableGroup.length / tableGroup.tableCapacity < minCapacityValue
-    ) {
-      minCapacityTableGroup = tableGroup;
-      minCapacityValue = projectsInCurrentExpoAndTableGroup.length / tableGroup.tableCapacity;
+    if (!config.isProjectSubmissionOpen) {
+      throw new Error("Sorry, submissions are currently closed");
     }
-  }
-
-  if (!minCapacityTableGroup) {
-    throw new BadRequestError(
-      "Submission could not be saved due to issue with table groups - please contact help desk"
-    );
-  }
-
-  const projectsInCurrentExpoAndTableGroup = projectsInCurrentExpo.filter(
-    project => project.tableGroupId === minCapacityTableGroup?.id
-  );
-
-  let tableNumber;
-  const tableNumberSet = new Set();
-  for (const project of projectsInCurrentExpoAndTableGroup) {
-    tableNumberSet.add(project.table);
-  }
-  for (let i = 1; i <= minCapacityTableGroup.tableCapacity; i++) {
-    if (!tableNumberSet.has(i)) {
-      tableNumber = i;
-      break;
+    if (!req.body.submission) {
+      throw new Error("Invalid submission");
     }
-  }
 
-  if (!teamValidation.registrationUsers) {
-    throw new BadRequestError(
-      "There was an error contacting registration. Please contact help desk."
-    );
-  }
+    const data = req.body.submission;
 
-  // in loop call all projects with table group id
-  // find first available table
-  try {
-    await prisma.project.create({
-      data: {
-        name: data.name,
-        description: data.description,
-        devpostUrl: data.devpostUrl,
-        githubUrl: "",
+    const teamValidation = await validateTeam(data.members, req);
+    if (teamValidation.error) {
+      res.status(400).send(teamValidation);
+      return;
+    }
+
+    const devpostValidation = await validateDevpost(data.devpostUrl, data.name);
+    if (devpostValidation.error) {
+      res.status(400).send(devpostValidation);
+      return;
+    }
+
+    // const bestOverall: any = await prisma.category.findFirst({
+    //   where: {
+    //     name: { in: ["HackGT - Best Overall"] },
+    //   },
+    // });
+
+    // const openSource: any = await prisma.category.findFirst({
+    //   where: {
+    //     name: { in: ["HackGT - Best Open Source Hack"] },
+    //   },
+    // });
+
+    // if (openSource && data.prizes.includes(openSource.id) && data.prizes.length > 1) {
+    //   res.status(400).send({
+    //     error: true,
+    //     message: "If you submit to open source you can only submit to that category",
+    //   });
+    // } else if (openSource && !data.prizes.includes(openSource.id)) {
+    //   data.prizes.push(bestOverall.id);
+    // }
+
+    const projectExpo = Math.floor(Math.random() * config.numberOfExpo + 1);
+
+    const tableGroups = await prisma.tableGroup.findMany();
+    const projectsInCurrentExpo = await prisma.project.findMany({
+      where: {
         expo: projectExpo,
-        roomUrl: "",
-        table: tableNumber,
-        hexathon: currentHexathon.id,
-        members: {
-          connectOrCreate: teamValidation.registrationUsers.map((application: any) => ({
-            where: {
-              email: application.email,
-            },
-            create: {
-              userId: application.userId,
-              name: application.name === undefined ? "" : application.name,
-              email: application.email,
-            },
-          })),
-        },
-        categories: {
-          connect: data.prizes.map((prizeId: any) => ({ id: prizeId })),
-        },
-        tableGroup: {
-          connect: { id: minCapacityTableGroup.id },
-        },
       },
     });
 
-    const interactionPromises = teamValidation.registrationUsers.map((member: any) =>
-      apiCall(
-        Service.HEXATHONS,
-        {
-          method: "POST",
-          url: `/interactions`,
-          data: {
-            hexathon: currentHexathon.id,
-            userId: member.userId,
-            type: "expo-submission",
-          },
-        },
-        req
-      )
+    let minCapacityTableGroup: undefined | TableGroup;
+    let minCapacityValue = 1;
+
+    for (const tableGroup of tableGroups) {
+      const projectsInCurrentExpoAndTableGroup = projectsInCurrentExpo.filter(
+        project => project.tableGroupId === tableGroup.id
+      );
+      if (
+        projectsInCurrentExpoAndTableGroup.length < tableGroup.tableCapacity &&
+        projectsInCurrentExpoAndTableGroup.length / tableGroup.tableCapacity < minCapacityValue
+      ) {
+        minCapacityTableGroup = tableGroup;
+        minCapacityValue = projectsInCurrentExpoAndTableGroup.length / tableGroup.tableCapacity;
+      }
+    }
+
+    if (!minCapacityTableGroup) {
+      throw new BadRequestError(
+        "Submission could not be saved due to issue with table groups - please contact help desk"
+      );
+    }
+
+    const projectsInCurrentExpoAndTableGroup = projectsInCurrentExpo.filter(
+      project => project.tableGroupId === minCapacityTableGroup?.id
     );
 
-    const response = await Promise.all(interactionPromises);
+    let tableNumber;
+    const tableNumberSet = new Set();
+    for (const project of projectsInCurrentExpoAndTableGroup) {
+      tableNumberSet.add(project.table);
+    }
+    for (let i = 1; i <= minCapacityTableGroup.tableCapacity; i++) {
+      if (!tableNumberSet.has(i)) {
+        tableNumber = i;
+        break;
+      }
+    }
 
-    console.log(response);
-  } catch (err) {
-    console.error(err);
-    throw new BadRequestError("Submission could not be saved - please contact help desk");
-  }
+    if (!teamValidation.registrationUsers) {
+      throw new BadRequestError(
+        "There was an error contacting registration. Please contact help desk."
+      );
+    }
 
-  res.status(200).send({ error: false });
-});
+    // in loop call all projects with table group id
+    // find first available table
+    try {
+      await prisma.project.create({
+        data: {
+          name: data.name,
+          description: data.description,
+          devpostUrl: data.devpostUrl,
+          githubUrl: "",
+          expo: projectExpo,
+          roomUrl: "",
+          table: tableNumber,
+          hexathon: currentHexathon.id,
+          members: {
+            connectOrCreate: teamValidation.registrationUsers.map((application: any) => ({
+              where: {
+                email: application.email,
+              },
+              create: {
+                userId: application.userId,
+                name: application.name === undefined ? "" : application.name,
+                email: application.email,
+              },
+            })),
+          },
+          categories: {
+            connect: data.prizes.map((prizeId: any) => ({ id: prizeId })),
+          },
+          tableGroup: {
+            connect: { id: minCapacityTableGroup.id },
+          },
+        },
+      });
+
+      const interactionPromises = teamValidation.registrationUsers.map((member: any) =>
+        apiCall(
+          Service.HEXATHONS,
+          {
+            method: "POST",
+            url: `/interactions`,
+            data: {
+              hexathon: currentHexathon.id,
+              userId: member.userId,
+              type: "expo-submission",
+            },
+          },
+          req
+        )
+      );
+
+      const response = await Promise.all(interactionPromises);
+
+      console.log(response);
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestError("Submission could not be saved - please contact help desk");
+    }
+
+    res.status(200).send({ error: false });
+  })
+);
 
 projectRoutes.route("/batch/update").post(
   isAdmin,
