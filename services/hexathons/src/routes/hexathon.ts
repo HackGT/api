@@ -1,14 +1,20 @@
 import { asyncHandler, BadRequestError, checkAbility } from "@api/common";
 import express from "express";
+import { FilterQuery } from "mongoose";
 
-import { HexathonModel } from "../models/hexathon";
+import { Hexathon, HexathonModel } from "../models/hexathon";
 
 export const hexathonRouter = express.Router();
 
 hexathonRouter.route("/").get(
   checkAbility("read", "Hexathon"),
   asyncHandler(async (req, res) => {
-    const hexathons = await HexathonModel.find().accessibleBy(req.ability);
+    const filter: FilterQuery<Hexathon> = {};
+    if (!req.user?.roles.member) {
+      filter.isActive = true;
+    }
+
+    const hexathons = await HexathonModel.find(filter).accessibleBy(req.ability);
 
     return res.status(200).json(hexathons);
   })
@@ -26,7 +32,14 @@ hexathonRouter.route("/").post(
 hexathonRouter.route("/:id").get(
   checkAbility("read", "Hexathon"),
   asyncHandler(async (req, res) => {
-    const hexathon = await HexathonModel.findById(req.params.id).accessibleBy(req.ability);
+    const filter: FilterQuery<Hexathon> = {
+      _id: req.params.id,
+    };
+    if (!req.user?.roles.member) {
+      filter.isActive = true;
+    }
+
+    const hexathon = await HexathonModel.findOne(filter).accessibleBy(req.ability);
 
     if (!hexathon) {
       throw new BadRequestError("Hexathon not found or you do not have permission.");
