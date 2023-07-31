@@ -54,6 +54,7 @@ projectRoutes.route("/").get(
 );
 
 projectRoutes.route("/special/team-validation").post(async (req, res) => {
+  console.log();
   const resp = await validateTeam(req.user, req.body.members, req);
   if (resp.error) {
     res.status(400).json(resp);
@@ -172,6 +173,7 @@ projectRoutes.route("/").post(async (req, res) => {
     }
   }
 
+  console.log(!minCapacityTableGroup);
   if (!minCapacityTableGroup) {
     res.status(400).send({
       error: true,
@@ -491,24 +493,35 @@ projectRoutes.route("/special/dashboard").get(
       },
     });
 
+    const hexUrl = req.query?.hexathon ? `/hexathons/${req.query?.hexathon}` : `/hexathons`;
     const hexathons = await apiCall(
       Service.HEXATHONS,
       {
-        url: `/hexathons`,
+        url: hexUrl,
         method: "GET",
+        params: { id: req.query?.hexathon },
       },
       req
     );
-
-    for (const project in projects) {
-      for (const hexathon in hexathons) {
-        if (projects[project].hexathon === hexathons[hexathon].id) {
-          projects[project].hexathon = hexathons[hexathon];
+    console.log(hexathons);
+    if (hexathons.length === undefined) {
+      let filtered_projects = [];
+      for (const project in projects) {
+        if (projects[project].hexathon === hexathons.id) {
+          filtered_projects.push(projects[project]);
         }
       }
+      res.status(200).json(filtered_projects);
+    } else {
+      for (const project in projects) {
+        for (const hexathon in hexathons) {
+          if (projects[project].hexathon === hexathons[hexathon].id) {
+            projects[project].hexathon = hexathons[hexathon];
+          }
+        }
+      }
+      res.status(200).json(projects);
     }
-
-    res.status(200).json(projects);
   })
 );
 
