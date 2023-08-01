@@ -33,6 +33,10 @@
     {
       "name": "hardware",
       "description": "Everything about hardware."
+    },
+    {
+      "name": "expo",
+      "description": "Everything about expo."
     }
   ],
   "schemes": ["https", "http"],
@@ -4304,6 +4308,40 @@
           }
         }
       }
+    },
+    "/project/special/dashboard": {
+      "post": {
+        "tags": ["expo"],
+        "summary": "Gets all submitted projects for hexathon(s)",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathon",
+            "in": "query",
+            "type": "string",
+            "description": "Hexathon id used to filter expo projects"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  {
+                    "$ref": "#/definitions/Project"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Hexathon not found or you do not have permission."
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -5358,6 +5396,86 @@
         "item": {
           "type": "number",
           "required": true
+        }
+      }
+    },
+    "Project": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "devpostUrl": {
+          "type": "string"
+        },
+        "githubUrl": {
+          "type": "string"
+        },
+        "roomUrl": {
+          "type": "string"
+        },
+        "expo": {
+          "type": "number"
+        },
+        "round": {
+          "type": "number"
+        },
+        "table": {
+          "type": "number"
+        },
+        "tableGroup": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "default": []
+        },
+        "hexathon": {
+          "type": "object"
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "default": []
+        },
+        "categories": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "default": []
+        },
+        "ballots": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "default": []
+        },
+        "assignment": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "default": []
+        },
+        "winners": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "default": []
+        },
+        "tableGroupId": {
+          "type": "number"
         }
       }
     }

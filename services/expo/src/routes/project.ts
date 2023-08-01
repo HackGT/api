@@ -491,24 +491,36 @@ projectRoutes.route("/special/dashboard").get(
       },
     });
 
+    const hexUrl = req.query?.hexathon ? `/hexathons/${req.query?.hexathon}` : `/hexathons`;
     const hexathons = await apiCall(
       Service.HEXATHONS,
       {
-        url: `/hexathons`,
+        url: hexUrl,
         method: "GET",
+        params: { id: req.query?.hexathon },
       },
       req
     );
 
-    for (const project in projects) {
-      for (const hexathon in hexathons) {
-        if (projects[project].hexathon === hexathons[hexathon].id) {
-          projects[project].hexathon = hexathons[hexathon];
+    // check for hexathon id filter
+    if (req.query?.hexathon) {
+      let filtered_projects = [];
+      for (const project in projects) {
+        if (projects[project].hexathon === hexathons.id) {
+          filtered_projects.push(projects[project]);
         }
       }
+      res.status(200).json(filtered_projects);
+    } else {
+      for (const project in projects) {
+        for (const hexathon in hexathons) {
+          if (projects[project].hexathon === hexathons[hexathon].id) {
+            projects[project].hexathon = hexathons[hexathon];
+          }
+        }
+      }
+      res.status(200).json(projects);
     }
-
-    res.status(200).json(projects);
   })
 );
 
