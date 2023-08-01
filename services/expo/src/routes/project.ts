@@ -54,7 +54,6 @@ projectRoutes.route("/").get(
 );
 
 projectRoutes.route("/special/team-validation").post(async (req, res) => {
-  console.log();
   const resp = await validateTeam(req.user, req.body.members, req);
   if (resp.error) {
     res.status(400).json(resp);
@@ -173,7 +172,6 @@ projectRoutes.route("/").post(async (req, res) => {
     }
   }
 
-  console.log(!minCapacityTableGroup);
   if (!minCapacityTableGroup) {
     res.status(400).send({
       error: true,
@@ -504,7 +502,8 @@ projectRoutes.route("/special/dashboard").get(
       req
     );
 
-    if (hexathons.length === undefined) {
+    // check for hexathon id filter
+    if (req.query?.hexathon) {
       let filtered_projects = [];
       for (const project in projects) {
         if (projects[project].hexathon === hexathons.id) {
