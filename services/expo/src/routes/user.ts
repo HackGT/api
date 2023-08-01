@@ -1,28 +1,29 @@
 import express from "express";
 import { Service } from "@api/config";
-import { apiCall, asyncHandler } from "@api/common";
+import { BadRequestError, apiCall, asyncHandler } from "@api/common";
 
 import { prisma } from "../common";
-import { isAdmin } from "../auth/auth";
-import { UserRole } from "@api/prisma-expo/generated";
+import { isAdmin } from "../utils/utils";
 
 export const userRoutes = express.Router();
 
 userRoutes.route("/check").get(
   asyncHandler(async (req, res) => {
+    if (!req.user || !req.user.email) {
+      throw new BadRequestError("Invalid user");
+    }
+
     let user = await prisma.user.findUnique({
       where: {
-        email: req.user?.email,
+        email: req.user.email,
       },
     });
 
-    if (user) {
-      res.send(user);
-    } else {
+    if (!user) {
       const response = await apiCall(
         Service.USERS,
         {
-          url: `/users/${req.user?.uid}`,
+          url: `/users/${req.user.uid}`,
           method: "GET",
         },
         req
@@ -31,15 +32,17 @@ userRoutes.route("/check").get(
       user = await prisma.user.create({
         data: {
           name: `${response.name.first} ${response.name.last}`,
-          userId: req.user?.uid ?? "",
-          email: req.user?.email ?? "",
-          role: UserRole.GENERAL,
+          userId: req.user.uid,
+          email: req.user.email,
           isJudging: false,
         },
       });
-
-      res.send(user);
     }
+
+    res.send({
+      ...user,
+      roles: req.user.roles,
+    });
   })
 );
 
@@ -98,7 +101,7 @@ userRoutes.route("/:id").patch(
   asyncHandler(async (req, res) => {
     const data: any = {};
     Object.keys(req.body).forEach(key => {
-      if (["name", "role", "categoryGroupId", "isJudging"].includes(key)) {
+      if (["name", "categoryGroupId", "isJudging"].includes(key)) {
         data[key] = req.body[key];
       }
     });

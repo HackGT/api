@@ -8,11 +8,9 @@ import { categoryRoutes } from "./categories";
 import { categoryGroupRoutes } from "./categorygroups";
 import { configRoutes } from "./config";
 import { criteriaRoutes } from "./criteria";
-// import { hackathonRoutes } from "./hackathon";
 import { rubricRoutes } from "./rubric";
 import { tableGroupRoutes } from "./tablegroups";
 import { winnerRoutes } from "./winner";
-import { app } from "../app";
 
 export const defaultRouter = express.Router();
 

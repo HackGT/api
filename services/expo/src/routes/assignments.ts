@@ -2,8 +2,7 @@ import express from "express";
 import { asyncHandler, BadRequestError } from "@api/common";
 
 import { prisma } from "../common";
-import { isAdminOrIsJudging } from "../auth/auth";
-import { getConfig } from "../utils/utils";
+import { getConfig, isAdminOrIsJudging } from "../utils/utils";
 import { User, AssignmentStatus, Assignment } from "@api/prisma-expo/generated";
 
 const autoAssign = async (judge: number, isStarted: boolean): Promise<Assignment | null> => {
@@ -224,20 +223,14 @@ assignmentRoutes.route("/current-project").get(
     if (!user) {
       throw new BadRequestError("Invalid user");
     }
+    if (!user.isJudging) {
+      throw new BadRequestError("User is not a judge");
+    }
+    if (!user.categoryGroupId) {
+      throw new BadRequestError("Please assign a category group to this user first.");
+    }
 
     const filter: any = {};
-
-    if (!user.isJudging) {
-      res.status(400).json({ error: true, message: "User is not a judge" });
-      return;
-    }
-
-    if (!user.categoryGroupId) {
-      res
-        .status(400)
-        .json({ error: true, message: "Please assign a category group to this user first." });
-      return;
-    }
 
     filter.userId = user.id;
     filter.status = { in: ["STARTED", "QUEUED"] };
@@ -297,8 +290,7 @@ assignmentRoutes.route("/current-project").get(
     if (assignment) {
       projectFilter.id = assignment.projectId;
     } else {
-      res.status(500).json({ error: true, message: "Project not found" });
-      return;
+      throw new BadRequestError("Project not found");
     }
     const project = await prisma.project.findUnique({
       where: projectFilter,
@@ -348,14 +340,10 @@ assignmentRoutes.route("/").post(
       },
     });
 
-    console.log(checkAssignment);
-
     if (checkAssignment.length !== 0) {
-      res.status(400).json({
-        error: true,
-        message: "Judge already has a project started or project assignment is a duplicate",
-      });
-      return;
+      throw new BadRequestError(
+        "Judge already has a project started or project assignment is a duplicate"
+      );
     }
 
     const createdAssignment = await prisma.assignment.create({
@@ -368,26 +356,9 @@ assignmentRoutes.route("/").post(
 assignmentRoutes.route("/:id").patch(
   isAdminOrIsJudging,
   asyncHandler(async (req, res) => {
-    const assignmentId: number = parseInt(req.params.id);
-
-    const user = await prisma.user.findUnique({
-      where: {
-        userId: req.user?.uid ?? "",
-      },
-    });
-
-    if (!user) {
-      throw new BadRequestError("Invalid user");
-    }
-
-    if (!user.isJudging) {
-      res.status(500).json({ error: true, message: "User is not a judge" });
-      return;
-    }
-
     const updatedAssignment = await prisma.assignment.update({
       where: {
-        id: assignmentId,
+        id: parseInt(req.params.id),
       },
       data: req.body.data,
     });
@@ -399,18 +370,18 @@ assignmentRoutes.route("/:id").patch(
 assignmentRoutes.route("/autoAssign").post(
   isAdminOrIsJudging,
   asyncHandler(async (req, res) => {
-    autoAssign(req.body.judge, false)
-      .then(createdAssignment => {
-        if (createdAssignment === null) {
-          return res.status(200).json(createdAssignment);
-        }
-        return res.status(201).json(createdAssignment);
-      })
-      .catch(err =>
-        res.status(500).json({
-          error: true,
-          message: err.message,
-        })
-      );
+    try {
+      const createdAssignment = await autoAssign(req.body.judge, true);
+      if (createdAssignment === null) {
+        res.status(200).json(createdAssignment);
+      } else {
+        res.status(201).json(createdAssignment);
+      }
+    } catch (err: any) {
+      res.status(500).json({
+        error: true,
+        message: err.message,
+      });
+    }
   })
 );

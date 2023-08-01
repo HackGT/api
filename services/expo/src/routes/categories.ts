@@ -1,25 +1,24 @@
 import express from "express";
-import { asyncHandler } from "@api/common";
+import { BadRequestError, asyncHandler } from "@api/common";
 
 import { prisma } from "../common";
-import { getConfig } from "../utils/utils";
-import { isAdmin } from "../auth/auth";
+import { getConfig, isAdmin } from "../utils/utils";
+import { Prisma } from "@api/prisma-expo/generated";
 
 export const categoryRoutes = express.Router();
 
 categoryRoutes.route("/").get(
   asyncHandler(async (req, res) => {
     const { hexathon, categoryGroup } = req.query;
-    const filter: any = {};
+    const filter: Prisma.CategoryWhereInput = {};
 
     if (hexathon !== undefined) {
-      filter.hexathon = hexathon;
+      filter.hexathon = String(hexathon);
     }
 
     if (categoryGroup !== undefined) {
-      const categoryGroupId: number = parseInt(categoryGroup as string);
       filter.categoryGroups = {
-        some: { id: categoryGroupId },
+        some: { id: parseInt(categoryGroup as string) },
       };
     }
 
@@ -72,8 +71,7 @@ categoryRoutes.route("/:id").patch(
     });
 
     if (!originalCategory) {
-      res.status(400).send({ error: true, message: "This category does not exist." });
-      return;
+      throw new BadRequestError("This category does not exist.");
     }
 
     const criteriaUpdate: any = {};

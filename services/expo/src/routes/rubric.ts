@@ -2,18 +2,17 @@ import express from "express";
 import { asyncHandler } from "@api/common";
 
 import { prisma } from "../common";
-import { isAdmin } from "../auth/auth";
+import { isAdmin } from "../utils/utils";
 
 export const rubricRoutes = express.Router();
 
+// TODO: Rename this route
 // route to get all rubrics for a specific criteria
 rubricRoutes.route("/:id").get(
   asyncHandler(async (req, res) => {
-    const criteriaId: number = parseInt(req.params.id);
-
     const rubrics = await prisma.rubric.findMany({
       where: {
-        criteriaId,
+        criteriaId: parseInt(req.params.id),
       },
     });
 
@@ -47,11 +46,9 @@ rubricRoutes.route("/batch/create").post(
 rubricRoutes.route("/:id").patch(
   isAdmin,
   asyncHandler(async (req, res) => {
-    const rubricId: number = parseInt(req.params.id);
-
     const updatedRubric = await prisma.rubric.update({
       where: {
-        id: rubricId,
+        id: parseInt(req.params.id),
       },
       data: req.body,
     });
@@ -64,11 +61,9 @@ rubricRoutes.route("/:id").patch(
 rubricRoutes.route("/:id").delete(
   isAdmin,
   asyncHandler(async (req, res) => {
-    const rubricId: number = parseInt(req.params.id);
-
-    const deletedRubric = await prisma.rubric.delete({
+    await prisma.rubric.delete({
       where: {
-        id: rubricId,
+        id: parseInt(req.params.id),
       },
     });
 

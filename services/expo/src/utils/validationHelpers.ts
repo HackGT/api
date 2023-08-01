@@ -9,8 +9,6 @@ import { Service } from "@api/config";
 import { prisma } from "../common";
 import { prizeConfig } from "../config/prizeConfig";
 import { getConfig, getCurrentHexathon } from "./utils";
-import { UserRole } from "@api/prisma-expo/generated";
-// import { queryRegistration } from "../registration";
 
 /*
     - Classify team into prize based on user tracks (from registration)
@@ -181,22 +179,17 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
     - Query emails from check-in and ensure users accepted to event
     - Create new user objects for users not in db (with email field and name from check-in)
 */
-export const validateTeam = async (
-  currentUser: User | null,
-  members: any[],
-  req: express.Request
-) => {
+export const validateTeam = async (members: any[], req: express.Request) => {
   if (!members || members.length === 0) {
     return { error: true, message: "Must include at least one member" };
   }
-
   if (members.length > 4) {
     return { error: true, message: "Too many members on team" };
   }
 
   const memberEmails: string[] = members.map(member => member.email);
 
-  if (!currentUser || memberEmails[0] !== currentUser.email) {
+  if (!req.user || memberEmails[0] !== req.user.email) {
     return { error: true, message: "Email does not match current user" };
   }
 
@@ -205,6 +198,7 @@ export const validateTeam = async (
 
   const registrationUsers: any[] = await Promise.all(
     memberEmails.map(async email => {
+      // TODO: Need to secure this route
       let userApplication: any;
       try {
         userApplication = await apiCall(
@@ -251,7 +245,6 @@ export const validateTeam = async (
             data: {
               name: userApplication.name,
               email,
-              role: UserRole.GENERAL,
               userId: newUser.uid,
             },
           });

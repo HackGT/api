@@ -1,4 +1,4 @@
-import { apiCall, ConfigError } from "@api/common";
+import { apiCall, ConfigError, ForbiddenError } from "@api/common";
 import { Service } from "@api/config";
 import express from "express";
 
@@ -16,7 +16,6 @@ export const getConfig = async () => {
 
 export const getCurrentHexathon = async (request: express.Request) => {
   const config = await getConfig();
-
   if (!config.currentHexathon) {
     throw new ConfigError("Current hexathon is not setup yet.");
   }
@@ -29,10 +28,36 @@ export const getCurrentHexathon = async (request: express.Request) => {
     },
     request
   );
-
   if (!hexathon) {
     throw new ConfigError("Invalid current hexathon");
   }
 
   return hexathon;
+};
+
+export const isAdminOrIsJudging = async (
+  request: express.Request,
+  response: express.Response,
+  next: express.NextFunction
+) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      userId: request.user?.uid,
+    },
+  });
+  if (!user || !(request.user?.roles.admin || user.isJudging)) {
+    throw new ForbiddenError("Sorry, you don't have access to this endpoint.");
+  }
+  next();
+};
+
+export const isAdmin = async (
+  request: express.Request,
+  response: express.Response,
+  next: express.NextFunction
+) => {
+  if (!request.user?.roles.admin) {
+    throw new ForbiddenError("Sorry, you don't have access to this endpoint.");
+  }
+  next();
 };
