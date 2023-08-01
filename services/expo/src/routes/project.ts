@@ -508,7 +508,7 @@ projectRoutes.route("/:id").get(
 
 projectRoutes.route("/special/dashboard").get(
   asyncHandler(async (req, res) => {
-    const projects = await prisma.project.findMany({
+    let projects = await prisma.project.findMany({
       where: {
         members: {
           some: {
@@ -535,23 +535,22 @@ projectRoutes.route("/special/dashboard").get(
 
     // check for hexathon id filter
     if (req.query?.hexathon) {
-      let filtered_projects = [];
+      const filtered_projects = [];
       for (const project in projects) {
         if (projects[project].hexathon === hexathons.id) {
           filtered_projects.push(projects[project]);
         }
       }
-      res.status(200).json(filtered_projects);
-    } else {
-      for (const project in projects) {
-        for (const hexathon in hexathons) {
-          if (projects[project].hexathon === hexathons[hexathon].id) {
-            projects[project].hexathon = hexathons[hexathon];
-          }
+      projects = filtered_projects;
+    }
+    for (const project in projects) {
+      for (const hexathon in hexathons) {
+        if (projects[project].hexathon === hexathons[hexathon].id) {
+          projects[project].hexathon = hexathons[hexathon];
         }
       }
-      res.status(200).json(projects);
     }
+    res.status(200).json(projects);
   })
 );
 
