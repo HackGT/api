@@ -17,14 +17,60 @@ export const projectRoutes = express.Router();
 
 projectRoutes.route("/").get(
   asyncHandler(async (req: any, res) => {
-    const { expo, round, table, category, hexathon } = req.query;
+    const { expo, round, table, search, categories, hexathon } = req.query;
 
     const filter: Prisma.ProjectWhereInput = {};
-    if (expo) filter.expo = parseInt(expo as string);
-    if (round) filter.round = parseInt(round as string);
-    if (table) filter.table = parseInt(table as string);
-    // if (category) filter.categories = parseInt(category as string); // TODO: Fix this category filter
+    if (expo) filter.expo = parseInt(expo);
+    if (round) filter.round = parseInt(round);
+    if (table) filter.table = parseInt(table);
     if (hexathon) filter.hexathon = hexathon;
+    if (search) {
+      filter.OR = [
+        {
+          name: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+        {
+          description: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+        {
+          members: {
+            some: {
+              OR: [
+                {
+                  name: {
+                    contains: search,
+                    mode: "insensitive",
+                  },
+                },
+                {
+                  email: {
+                    contains: search,
+                    mode: "insensitive",
+                  },
+                },
+              ],
+            },
+          },
+        },
+      ];
+    }
+    if (categories) {
+      filter.categories = {
+        some: {
+          id: {
+            in: String(categories)
+              .split(",")
+              .map((category: any) => parseInt(category)),
+          },
+        },
+      };
+    }
 
     const matches = await prisma.project.findMany({
       where: filter,
@@ -52,7 +98,7 @@ projectRoutes.route("/").get(
   })
 );
 
-projectRoutes.route("/special/team-validation").post(
+projectRoutes.route("/submission/team-validation").post(
   asyncHandler(async (req, res) => {
     const resp = await validateTeam(req.body.members, req);
     if (resp.error) {
@@ -64,7 +110,7 @@ projectRoutes.route("/special/team-validation").post(
 );
 
 // TODO: Fill in prize validation as needed
-projectRoutes.route("/special/prize-validation").post(
+projectRoutes.route("/submission/prize-validation").post(
   asyncHandler(async (req, res) => {
     const resp = await validatePrizes(req.body.prizes, req);
     if (resp.error) {
@@ -76,13 +122,13 @@ projectRoutes.route("/special/prize-validation").post(
 );
 
 // TODO: Fill in detail validation as needed
-projectRoutes.route("/special/detail-validation").post(
+projectRoutes.route("/submission/detail-validation").post(
   asyncHandler(async (req, res) => {
     res.status(200).send({ error: false });
   })
 );
 
-projectRoutes.route("/special/devpost-validation").post(
+projectRoutes.route("/submission/devpost-validation").post(
   asyncHandler(async (req, res) => {
     const resp = await validateDevpost(req.body.devpostUrl, req.body.name);
     if (resp.error) {
@@ -93,7 +139,7 @@ projectRoutes.route("/special/devpost-validation").post(
   })
 );
 
-projectRoutes.route("/special/get-eligible-prizes").get(
+projectRoutes.route("/submission/get-eligible-prizes").get(
   asyncHandler(async (req, res) => {
     // TODO Fix this any error
     const resp = (await getEligiblePrizes([], req)) as any;
@@ -265,18 +311,6 @@ projectRoutes.route("/").post(
     }
 
     res.status(200).send({ error: false });
-  })
-);
-
-projectRoutes.route("/batch/update").post(
-  isAdmin,
-  asyncHandler(async (req, res) => {
-    const { ids, ...updates } = req.body;
-    const batchPayload = await prisma.project.updateMany({
-      where: { id: { in: ids } },
-      data: updates,
-    });
-    res.status(200).json(batchPayload);
   })
 );
 
@@ -456,16 +490,15 @@ projectRoutes.route("/:id").get(
       },
     });
 
-    const hexathon = await apiCall(
-      Service.HEXATHONS,
-      {
-        url: `/hexathons/${project?.hexathon}`,
-        method: "GET",
-      },
-      req
-    );
-
     if (project) {
+      const hexathon = await apiCall(
+        Service.HEXATHONS,
+        {
+          url: `/hexathons/${project.hexathon}`,
+          method: "GET",
+        },
+        req
+      );
       project.hexathon = hexathon;
     }
 
