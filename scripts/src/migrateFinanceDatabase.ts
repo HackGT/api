@@ -1,5 +1,5 @@
 /* eslint-disable no-await-in-loop */
-import "@api/config";
+import config from "@api/config";
 import admin from "firebase-admin";
 import postgres from "postgres";
 import { MongoClient } from "mongodb";
@@ -130,7 +130,7 @@ const migrateProjectToUser = async () => {
 };
 
 const migrateFiles = async () => {
-  const GOOGLE_STORAGE_BUCKET = "hexlabs-finance-files";
+  const GOOGLE_STORAGE_BUCKET = config.common.googleCloud.storageBuckets.finance;
   const filesCollection = mongoClient.db("files").collection<any>("files");
   const files =
     await sqlOld`SELECT "File".*, "User"."email" FROM "File" LEFT JOIN "Requisition" on "File"."requisitionId" = "Requisition"."id" LEFT JOIN "User" on "Requisition"."createdById" = "User"."id" ORDER BY "File"."id" ASC OFFSET 3`;

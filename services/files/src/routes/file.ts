@@ -42,14 +42,17 @@ fileRoutes.route("/upload").post(
       throw new BadRequestError("No file uploaded");
     }
 
-    const googleFileName = await uploadFile(req.file, config.common.googleCloud.storageBucket);
+    const googleFileName = await uploadFile(
+      req.file,
+      config.common.googleCloud.storageBuckets.default
+    );
 
     const file = await FileModel.create({
       name: req.file.originalname,
       mimeType: req.file.mimetype,
       userId: req.user?.uid,
       storageId: googleFileName,
-      storageBucket: config.common.googleCloud.storageBucket,
+      storageBucket: config.common.googleCloud.storageBuckets.default,
       type: req.body.type,
     });
 
@@ -82,14 +85,17 @@ fileRoutes.route("/upload-cdn").post(
       throw new BadRequestError("No file uploaded");
     }
 
-    const googleFileName = await uploadFile(req.file, "hexlabs-public-cdn");
+    const googleFileName = await uploadFile(
+      req.file,
+      config.common.googleCloud.storageBuckets.publicCDN
+    );
 
     const file = await FileModel.create({
       name: req.file.originalname,
       mimeType: req.file.mimetype,
       userId: req.user?.uid,
       storageId: googleFileName,
-      storageBucket: "hexlabs-public-cdn",
+      storageBucket: config.common.googleCloud.storageBuckets.publicCDN,
       type: req.body.type,
     });
 
@@ -110,8 +116,7 @@ fileRoutes.route("/upload-finance").post(
 
     const googleFileNames = await uploadFiles(
       req.files as Express.Multer.File[],
-      // TODO: Change upload bucket to finance bucket when migrated
-      config.common.googleCloud.storageBucket
+      config.common.googleCloud.storageBuckets.finance
     );
 
     if (googleFileNames.length !== req.files.length) {
@@ -123,7 +128,7 @@ fileRoutes.route("/upload-finance").post(
       mimeType: file.mimetype,
       userId: req.user?.uid,
       storageId: googleFileNames[index],
-      storageBucket: config.common.googleCloud.storageBucket,
+      storageBucket: config.common.googleCloud.storageBuckets.finance,
       type: "finance",
     }));
     const files = await FileModel.create(createFilesData);

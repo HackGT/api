@@ -11,7 +11,7 @@ import { JobHandler } from ".";
 const Packer = require("zip-stream"); // eslint-disable-line @typescript-eslint/no-var-requires
 
 const storage = new Storage();
-const bucket = storage.bucket(config.common.googleCloud.storageBucket || "");
+const bucket = storage.bucket(config.common.googleCloud.storageBuckets.default);
 
 const formatSize = (size: number, binary = true) => {
   const base = binary ? 1024 : 1000;

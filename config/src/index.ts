@@ -29,7 +29,11 @@ const COMMON: CommonConfig = {
     serviceAccount: "hexlabs-api@hexlabs-cloud.iam.gserviceaccount.com",
     oAuthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
     taskQueue: "api-task-queue",
-    storageBucket: "hexlabs-api-files",
+    storageBuckets: {
+      default: "hexlabs-api-files",
+      publicCDN: "hexlabs-public-cdn",
+      finance: "hexlabs-finance-files",
+    },
   },
   memberEmailDomains: ["hack.gt", "hexlabs.org"],
 };

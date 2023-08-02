@@ -14,7 +14,11 @@ export interface CommonConfig {
     serviceAccount: string;
     oAuthClientId?: string;
     taskQueue: string;
-    storageBucket: string;
+    storageBuckets: {
+      default: string;
+      publicCDN: string;
+      finance: string;
+    };
   };
   memberEmailDomains: string[];
 }

@@ -68,7 +68,9 @@ export const uploadFiles = async (files: Express.Multer.File[], bucketName: stri
 };
 
 export const getFileViewingUrl = async (file: File): Promise<string> => {
-  const bucket = storage.bucket(file.storageBucket || config.common.googleCloud.storageBucket);
+  const bucket = storage.bucket(
+    file.storageBucket || config.common.googleCloud.storageBuckets.default
+  );
   const options: GetSignedUrlConfig = {
     version: "v4",
     action: "read",
