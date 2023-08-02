@@ -154,6 +154,7 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     url: "/hardware",
     port: parseInt(process.env.PORT || "8080"),
     auth: false,
+    sentryDSN: "https://6c03c608487af4a104560778e4cd4e85@o429043.ingest.sentry.io/4505632880263168",
     proxy: {
       target: "https://hardware.api.hexlabs.org",
       changeOrigin: true,
@@ -184,34 +185,3 @@ export const SERVICES: Record<Service, ServiceConfig> = {
     },
   },
 };
-
-// const SERVICES = [
-//   {
-//     url: "/free",
-//     auth: false,
-//     creditCheck: false,
-//     rateLimit: {
-//       windowMs: 15 * 60 * 1000,
-//       max: 5,
-//     },
-//     proxy: {
-//       target: "https://www.google.com",
-//       changeOrigin: true,
-//       pathRewrite: {
-//         [`^/free`]: "",
-//       },
-//     },
-//   },
-//   {
-//     url: "/premium",
-//     auth: true,
-//     creditCheck: true,
-//     proxy: {
-//       target: "https://www.google.com",
-//       changeOrigin: true,
-//       pathRewrite: {
-//         [`^/premium`]: "",
-//       },
-//     },
-//   },
-// ];
