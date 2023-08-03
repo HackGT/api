@@ -1,5 +1,5 @@
 import express from "express";
-import { asyncHandler } from "@api/common";
+import { BadRequestError, asyncHandler } from "@api/common";
 
 import { prisma } from "../common";
 import { getConfig, isAdmin } from "../utils/utils";
@@ -66,6 +66,16 @@ tableGroupRoutes.route("/:id").patch(
 tableGroupRoutes.route("/:id").delete(
   isAdmin,
   asyncHandler(async (req, res) => {
+    const projects = await prisma.project.count({
+      where: {
+        tableGroupId: parseInt(req.params.id),
+      },
+    });
+
+    if (projects > 0) {
+      throw new BadRequestError("Cannot delete a table group with projects in it");
+    }
+
     await prisma.tableGroup.delete({
       where: {
         id: parseInt(req.params.id),
