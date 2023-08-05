@@ -22,10 +22,10 @@
   ],
   "license": "MIT",
   "scripts": {
-    "test": "echo \"Tests coming soon...\"",
     "lint": "eslint './**/src/**' --fix; prettier './**/src/**' --write",
     "start:all": "ts-node index.ts",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "setup": "yarn workspace @api/scripts execute src/setup.ts"
   },
   "engines": {
     "node": ">=16"
