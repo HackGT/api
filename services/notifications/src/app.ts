@@ -48,7 +48,7 @@ if (config.common.production) {
 mongoose.set("strictQuery", true);
 mongoose
   .connect(config.database.mongo.uri, {
-    dbName: config.services.NOTIFICATIONS.database?.name,
+    dbName: config.services.NOTIFICATIONS.database.name,
   })
   .catch(err => {
     throw err;
