@@ -48,6 +48,7 @@ model Item {
   categoryId Int
   locationId Int @default(1)
 
+  @@index([locationId])
   @@map("item")
 }
 
@@ -57,6 +58,7 @@ model Location {
   hidden Boolean @default(false)
   items  Item[]
 
+  @@index([hidden])
   @@map("location")
 }
 
@@ -72,6 +74,8 @@ model Request {
   itemId Int
   userId String
 
+  @@index([userId])
+  @@index([status])
   @@map("request")
 }
 
