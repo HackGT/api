@@ -1,3 +1,4 @@
+/* eslint-disable no-constant-condition */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable prefer-template */
 import { MongoClient } from "mongodb";
@@ -19,6 +20,7 @@ const logErrorAndExit = (errorMessage: string) => {
 };
 
 (async () => {
+  let answer;
   await input({
     message:
       "Welcome to the HexLabs API setup guide! This guide will help you get ready for local development and ensure everything is working properly. \n\n Press enter to continue...\n",
@@ -27,12 +29,14 @@ const logErrorAndExit = (errorMessage: string) => {
     message:
       "First off, please make sure you're read through the wiki on GitHub. https://github.com/HackGT/api/wiki \n\n Press enter to continue...\n",
   });
-  await confirm({ message: "I've read the wiki." });
+  answer = await confirm({ message: "I've read the wiki." });
+  if (!answer) logErrorAndExit("Please read the wiki before continuing.");
 
-  await confirm({
+  answer = await confirm({
     message:
       "I've copied the .env.example file to .env in the config folder and filled in the values.",
   });
+  if (!answer) logErrorAndExit("Please copy the .env.example file before continuing.");
   let dotEnvFile = "";
   try {
     dotEnvFile = fs.readFileSync(path.resolve(__dirname, "../../config/.env"), "utf8");
@@ -67,10 +71,12 @@ const logErrorAndExit = (errorMessage: string) => {
     );
   }
 
-  await confirm({
+  answer = await confirm({
     message:
       "I've gotten the secret google-cloud-credentials.json file from a teammate and placed it in the config folder.",
   });
+  if (!answer)
+    logErrorAndExit("Please get the google-cloud-credentials.json file before continuing.");
   let googleCloudCredentialsFile = "";
   try {
     googleCloudCredentialsFile = fs.readFileSync(
@@ -106,9 +112,13 @@ const logErrorAndExit = (errorMessage: string) => {
     __dirname,
     "../../config/google-cloud-credentials.json"
   );
-  await confirm({
+  answer = await confirm({
     message: `I've filled in the GOOGLE_APPLICATION_CREDENTIALS variable in .env with the path to my google-cloud-credentials.json file (${pathToGoogleCloudCredentials}).`,
   });
+  if (!answer)
+    logErrorAndExit(
+      "Please fill in the GOOGLE_APPLICATION_CREDENTIALS variable before continuing."
+    );
   if (
     path.resolve(__dirname, "../../config/google-cloud-credentials.json") !==
     process.env.GOOGLE_APPLICATION_CREDENTIALS
@@ -164,7 +174,7 @@ const logErrorAndExit = (errorMessage: string) => {
       ".\n\n Press enter to continue...\n",
   });
   for (const service of prismaServices) {
-    await confirm({
+    answer = await confirm({
       message:
         "I have run " +
         chalk.yellow("yarn migrate:dev") +
@@ -172,6 +182,7 @@ const logErrorAndExit = (errorMessage: string) => {
         chalk.gray(service) +
         " service.",
     });
+    if (!answer) logErrorAndExit("Please run the migration before continuing.");
     const res = await postgresClient.query(
       `select exists(SELECT datname FROM pg_catalog.pg_database WHERE lower(datname) = lower('${service}'))`
     );
@@ -201,10 +212,11 @@ const logErrorAndExit = (errorMessage: string) => {
       ".\n\n Press enter to continue...\n",
   });
   for (const service of prismaSeedServices) {
-    await confirm({
+    answer = await confirm({
       message:
         "I have run " + chalk.yellow("yarn seed") + " in the " + chalk.gray(service) + " service.",
     });
+    if (!answer) logErrorAndExit("Please run the seed script before continuing.");
   }
 
   console.log(chalk.green("\n✓ Database setup successful\n"));
@@ -215,9 +227,11 @@ const logErrorAndExit = (errorMessage: string) => {
       chalk.yellow("yarn start:all") +
       " to start all the services. If you have any issues, please message your teammates. \n\n Press enter to continue...\n",
   });
-  await confirm({
+  answer = await confirm({
     message: "My backend services are all running properly without any errors.",
   });
+  if (!answer)
+    logErrorAndExit("Please ensure your backend services are running properly before continuing.");
 
   console.log(chalk.green("\n✓ Server setup successful\n"));
 
@@ -227,11 +241,19 @@ const logErrorAndExit = (errorMessage: string) => {
       chalk.gray("uid") +
       " from https://login.hexlabs.org. \n\n Press enter to continue...\n",
   });
-  const userId = await input({
-    message: chalk.cyan("What is your ") + chalk.gray("uid") + chalk.cyan("?: "),
-  });
-  if (userId.length < 10) {
-    logErrorAndExit("Invalid uid. Please ensure you have copied the correct uid.");
+  let userId;
+  while (true) {
+    userId = await input({
+      message: chalk.cyan("What is your ") + chalk.gray("uid") + chalk.cyan("?: "),
+    });
+    if (userId.length < 10) {
+      console.log(
+        chalk.red("Error: ") +
+          "Invalid uid. Please ensure you have copied the correct uid. Please try again."
+      );
+    } else {
+      break;
+    }
   }
   const permissionsCollection = mongoClient.db("auth").collection<any>("permissions");
   try {
@@ -249,29 +271,36 @@ const logErrorAndExit = (errorMessage: string) => {
   } catch (error: any) {
     logErrorAndExit("Could not add user to permissions collection. " + error.message);
   }
-  await confirm({
+  answer = await confirm({
     message:
       "Your user has been added with the admin, exec, and member permissions. Please check your local MongoDB auth database and permissions collection to see the new document. This is important as you can update your permissions here as needed to test things work as expected for an external user.",
   });
+  if (!answer) logErrorAndExit("Please check your auth MongoDB database before continuing.");
 
   console.log();
   await input({
     message:
       "Additionally, will also need to setup your user profile into the users MongoDB database. This is normally done in production when you create an account, but you'll need to add it manually here. \n\n Press enter to continue...\n",
   });
-  const email = await input({
-    message: chalk.cyan("What is your email?"),
-  });
-  const firstName = await input({
-    message: chalk.cyan("What is your first name?"),
-  });
-  const lastName = await input({
-    message: chalk.cyan("What is your last name?"),
-  });
-  if (email.length < 2 || firstName.length < 2 || lastName.length < 2) {
-    logErrorAndExit(
-      "Invalid inputs. Please ensure you have entered a valid email, first name, and last name."
-    );
+  let email, firstName, lastName;
+  while (true) {
+    email = await input({
+      message: chalk.cyan("What is your email?"),
+    });
+    firstName = await input({
+      message: chalk.cyan("What is your first name?"),
+    });
+    lastName = await input({
+      message: chalk.cyan("What is your last name?"),
+    });
+    if (email.length < 2 || firstName.length < 2 || lastName.length < 2) {
+      console.log(
+        chalk.red("Error: ") +
+          "Invalid inputs. Please ensure you have entered a valid email, first name, and last name. Please try again."
+      );
+    } else {
+      break;
+    }
   }
   const profilesCollection = mongoClient.db("users").collection<any>("profiles");
   try {
@@ -289,10 +318,11 @@ const logErrorAndExit = (errorMessage: string) => {
   } catch (error: any) {
     logErrorAndExit("Could not add user info to profiles collection. " + error.message);
   }
-  await confirm({
+  answer = await confirm({
     message:
       "Your user info has been added to the MongoDB profiles collection. I can see my user info document in the database.",
   });
+  if (!answer) logErrorAndExit("Please check your users MongoDB database before continuing.");
 
   console.log(chalk.green("\n✓ API setup successful\n"));
   process.exit(0);
