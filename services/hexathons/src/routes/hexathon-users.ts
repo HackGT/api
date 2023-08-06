@@ -1,10 +1,16 @@
 import express from "express";
-import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/common";
+import {
+  apiCall,
+  asyncHandler,
+  BadRequestError,
+  checkAbility,
+  commonDefinitions,
+} from "@api/common";
 import _ from "lodash";
 import { Service } from "@api/config";
 import { FilterQuery, isValidObjectId, Types } from "mongoose";
 
-import { HexathonUser, HexathonUserModel } from "../models/hexathonUser";
+import { CommitmentType, HexathonUser, HexathonUserModel } from "../models/hexathonUser";
 import { getHexathonUserWithUpdatedPoints } from "../common/util";
 import { SwagItemModel } from "../models/swagItem";
 
@@ -81,6 +87,25 @@ hexathonUserRouter.route("/:hexathonId/users/:userId").patch(
 hexathonUserRouter.route("/:hexathonId/users/:userId/profile").patch(
   checkAbility("update", "HexathonUser"),
   asyncHandler(async (req, res) => {
+    if (req.body.skills) {
+      if (!Array.isArray(req.body.skills)) {
+        throw new BadRequestError("Skills is not an array of strings");
+      }
+      const skills = req.body.skills as string[];
+      // check if all provided skills are valid
+      const invalidSkills = skills.filter(skill => !commonDefinitions.skills.enum.includes(skill));
+      if (invalidSkills.length > 0) {
+        throw new BadRequestError(`Invalid skills provided: ${invalidSkills.join(", ")}`);
+      }
+    }
+
+    if (
+      req.body.commitmentLevel &&
+      !Object.values(CommitmentType).includes(req.body.commitmentLevel)
+    ) {
+      throw new BadRequestError("Invalid commitment level provided");
+    }
+
     const hexathonUser = await HexathonUserModel.findOneAndUpdate(
       { userId: req.params.userId, hexathon: req.params.hexathonId },
       {
