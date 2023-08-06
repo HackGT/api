@@ -23,6 +23,19 @@ hexathonUserRouter.route("/:hexathonId/users").get(
       hexathon: req.params.hexathonId,
     };
 
+    if (req.query.matched) {
+      filter["profile.matched"] = req.query.matched === "true";
+    }
+    if (req.query.skills?.length) {
+      filter["profile.skills"] = req.query.skills;
+    }
+    if (req.query.school?.length) {
+      filter["profile.school"] = req.query.school;
+    }
+    if (req.query.commitmentLevel?.length) {
+      filter["profile.commitmentLevel"] = req.query.commitmentLevel;
+    }
+
     if (req.query.search) {
       const searchLength = (req.query.search as string).length;
       const search =
@@ -34,6 +47,7 @@ hexathonUserRouter.route("/:hexathonId/users").get(
         { userId: { $regex: new RegExp(search, "i") } },
         { email: { $regex: new RegExp(search, "i") } },
         { name: { $regex: new RegExp(search, "i") } },
+        { "profile.description": { $regex: new RegExp(search, "i") } },
       ];
     }
 
