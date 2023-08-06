@@ -135,6 +135,7 @@ const logErrorAndExit = (errorMessage: string) => {
         error.message
     );
   }
+  console.log(chalk.green("✓ MongoDB connection successful"));
 
   console.log("Checking Postgres database setup...");
   const postgresClient = new Client({
@@ -148,6 +149,7 @@ const logErrorAndExit = (errorMessage: string) => {
         error.message
     );
   }
+  console.log(chalk.green("✓ Postgres connection successful"));
 
   const prismaServices = Object.values(config.services)
     .filter(serviceConfig => serviceConfig.database.type === "postgres")
