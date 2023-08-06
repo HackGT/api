@@ -31,20 +31,20 @@
     "node": ">=16"
   },
   "devDependencies": {
-    "@hex-labs/eslint-config": "^1.3.1",
-    "@hex-labs/prettier-config": "^1.3.1",
+    "@hex-labs/eslint-config": "^1.4.4",
+    "@hex-labs/prettier-config": "^1.4.4",
     "concurrently": "^7.0.0",
     "dotenv-cli": "^7.2.1",
-    "eslint": "^8.9.0",
-    "eslint-import-resolver-typescript": "^2.5.0",
+    "eslint": "^8.46.0",
+    "eslint-import-resolver-typescript": "^3.5.5",
     "husky": ">=6",
     "lint-staged": "^12.3.4",
-    "prettier": "^2.5.1",
-    "syncpack": "^9.8.6",
+    "prettier": "^3.0.1",
+    "syncpack": "^10.9.3",
     "ts-node": "^10.9.1"
   },
   "dependencies": {
-    "typescript": "^4.8.3"
+    "typescript": "^5.1.6"
   },
   "prettier": "@hex-labs/prettier-config",
   "lint-staged": {
