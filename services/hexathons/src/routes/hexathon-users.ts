@@ -27,7 +27,7 @@ hexathonUserRouter.route("/:hexathonId/users").get(
       filter["profile.matched"] = req.query.matched === "true";
     }
     if (req.query.skills?.length) {
-      filter["profile.skills"] = req.query.skills;
+      filter["profile.skills"] = { $in: req.query.skills };
     }
     if (req.query.school?.length) {
       filter["profile.school"] = req.query.school;
