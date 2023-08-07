@@ -89,6 +89,7 @@ projectRoutes.route("/").get(
           },
         },
         members: true,
+        tableGroup: true,
       },
       orderBy: {
         id: "asc",
