@@ -3,9 +3,9 @@ import { asyncHandler, BadRequestError } from "@api/common";
 
 import { prisma } from "../common";
 import { getConfig, isAdminOrIsJudging } from "../utils/utils";
-import { User, AssignmentStatus, Assignment } from "@api/prisma-expo/generated";
+import { User, AssignmentStatus, Assignment, Prisma } from "@api/prisma-expo/generated";
 
-const autoAssign = async (judge: number, isStarted: boolean): Promise<Assignment | null> => {
+const autoAssign = async (judgeId: number, isStarted: boolean): Promise<Assignment | null> => {
   // We are not selecting a random judge for auto-assign
   // Instead, auto-assign is called when a judge has no projects currently assigned
   /*
@@ -58,10 +58,18 @@ const autoAssign = async (judge: number, isStarted: boolean): Promise<Assignment
   // get config info
   const config = await getConfig();
 
+  if (!config.currentHexathon) {
+    throw new Error("Current hexathon is not setup yet.");
+  }
+
   // get judge info
-  const judgeToAssign = await prisma.user.findFirst({
+  const judgeToAssign = await prisma.user.findUnique({
+    where: {
+      id: judgeId,
+    },
     select: {
       id: true,
+      isJudging: true,
       categoryGroup: {
         select: {
           id: true,
@@ -69,18 +77,14 @@ const autoAssign = async (judge: number, isStarted: boolean): Promise<Assignment
         },
       },
     },
-    where: {
-      id: judge,
-      isJudging: true,
-    },
   });
 
-  // ensure judge exists
   if (judgeToAssign == null) {
     throw new Error("Judge does not exist");
   }
-
-  // ensure judge is aligned to a category group
+  if (!judgeToAssign.isJudging) {
+    throw new Error("User is not a judge");
+  }
   if (judgeToAssign.categoryGroup == null) {
     throw new Error("Judge is not aligned to a category group");
   }
@@ -89,10 +93,10 @@ const autoAssign = async (judge: number, isStarted: boolean): Promise<Assignment
   const judgeCategoryIds = judgeToAssign.categoryGroup.categories.map(category => category.id);
 
   // where clause for finding projects
-  const projectFilter: any = {
-    hexathon: config?.currentHexathon,
-    expo: config?.currentExpo,
-    round: config?.currentRound,
+  const projectFilter: Prisma.ProjectWhereInput = {
+    hexathon: config.currentHexathon,
+    expo: config.currentExpo,
+    round: config.currentRound,
     categories: {
       some: {
         id: { in: judgeCategoryIds },
@@ -218,6 +222,17 @@ assignmentRoutes.route("/current-project").get(
       where: {
         userId: req.user?.uid ?? "",
       },
+      include: {
+        categoryGroup: {
+          include: {
+            categories: {
+              include: {
+                criterias: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!user) {
@@ -226,17 +241,15 @@ assignmentRoutes.route("/current-project").get(
     if (!user.isJudging) {
       throw new BadRequestError("User is not a judge");
     }
-    if (!user.categoryGroupId) {
+    if (!user.categoryGroup) {
       throw new BadRequestError("Please assign a category group to this user first.");
     }
 
-    const filter: any = {};
-
-    filter.userId = user.id;
-    filter.status = { in: ["STARTED", "QUEUED"] };
-
     const assignments = await prisma.assignment.findMany({
-      where: filter,
+      where: {
+        userId: user.id,
+        status: { in: ["STARTED", "QUEUED"] },
+      },
       orderBy: {
         createdAt: "asc",
       },
@@ -286,28 +299,16 @@ assignmentRoutes.route("/current-project").get(
       return;
     }
 
-    const projectFilter: any = {};
-    if (assignment) {
-      projectFilter.id = assignment.projectId;
-    } else {
-      throw new BadRequestError("Project not found");
-    }
     const project = await prisma.project.findUnique({
-      where: projectFilter,
-      include: {
-        categories: { include: { criterias: true } },
+      where: {
+        id: assignment.projectId,
       },
-    });
-    const categoryGroupFilter: any = {};
-    categoryGroupFilter.id = user.categoryGroupId;
-    const categoryGroup = await prisma.categoryGroup.findUnique({
-      where: categoryGroupFilter,
       include: {
         categories: { include: { criterias: true } },
       },
     });
 
-    const filteredCategories = categoryGroup?.categories.filter(
+    const filteredCategories = user.categoryGroup.categories.filter(
       category => project?.categories.some(c => c.id === category.id) || category.isDefault
     );
 

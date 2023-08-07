@@ -1,10 +1,16 @@
 import express from "express";
-import { apiCall, asyncHandler, BadRequestError, checkAbility } from "@api/common";
+import {
+  apiCall,
+  asyncHandler,
+  BadRequestError,
+  checkAbility,
+  commonDefinitions,
+} from "@api/common";
 import _ from "lodash";
 import { Service } from "@api/config";
 import { FilterQuery, isValidObjectId, Types } from "mongoose";
 
-import { HexathonUser, HexathonUserModel } from "../models/hexathonUser";
+import { CommitmentType, HexathonUser, HexathonUserModel } from "../models/hexathonUser";
 import { getHexathonUserWithUpdatedPoints } from "../common/util";
 import { SwagItemModel } from "../models/swagItem";
 
@@ -17,6 +23,19 @@ hexathonUserRouter.route("/:hexathonId/users").get(
       hexathon: req.params.hexathonId,
     };
 
+    if (req.query.matched) {
+      filter["profile.matched"] = req.query.matched === "true";
+    }
+    if (req.query.skills?.length) {
+      filter["profile.skills"] = { $in: req.query.skills };
+    }
+    if (req.query.school?.length) {
+      filter["profile.school"] = req.query.school;
+    }
+    if (req.query.commitmentLevel?.length) {
+      filter["profile.commitmentLevel"] = req.query.commitmentLevel;
+    }
+
     if (req.query.search) {
       const searchLength = (req.query.search as string).length;
       const search =
@@ -28,6 +47,7 @@ hexathonUserRouter.route("/:hexathonId/users").get(
         { userId: { $regex: new RegExp(search, "i") } },
         { email: { $regex: new RegExp(search, "i") } },
         { name: { $regex: new RegExp(search, "i") } },
+        { "profile.description": { $regex: new RegExp(search, "i") } },
       ];
     }
 
@@ -81,6 +101,25 @@ hexathonUserRouter.route("/:hexathonId/users/:userId").patch(
 hexathonUserRouter.route("/:hexathonId/users/:userId/profile").patch(
   checkAbility("update", "HexathonUser"),
   asyncHandler(async (req, res) => {
+    if (req.body.skills) {
+      if (!Array.isArray(req.body.skills)) {
+        throw new BadRequestError("Skills is not an array of strings");
+      }
+      const skills = req.body.skills as string[];
+      // check if all provided skills are valid
+      const invalidSkills = skills.filter(skill => !commonDefinitions.skills.enum.includes(skill));
+      if (invalidSkills.length > 0) {
+        throw new BadRequestError(`Invalid skills provided: ${invalidSkills.join(", ")}`);
+      }
+    }
+
+    if (
+      req.body.commitmentLevel &&
+      !Object.values(CommitmentType).includes(req.body.commitmentLevel)
+    ) {
+      throw new BadRequestError("Invalid commitment level provided");
+    }
+
     const hexathonUser = await HexathonUserModel.findOneAndUpdate(
       { userId: req.params.userId, hexathon: req.params.hexathonId },
       {
