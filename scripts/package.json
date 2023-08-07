@@ -12,9 +12,10 @@
     "@api/config": "1.0.0",
     "@google-cloud/secret-manager": "^4.0.0",
     "@inquirer/prompts": "^3.0.1",
+    "@types/node": "^18.7.16",
     "@types/pg": "^8.10.2",
     "chalk": "^4.1.2",
-    "firebase-admin": "^10.0.2",
+    "firebase-admin": "^11.10.1",
     "mongodb": "^4.9.0",
     "pg": "^8.11.2",
     "postgres": "^3.3.5"
