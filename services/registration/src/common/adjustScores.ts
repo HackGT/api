@@ -88,6 +88,22 @@ const interpolateValuePairs = (points: [number, number][]) => {
     adjustedMap.set(i.toString(), val);
   }
 
+  // In case the line of best fit is downward sloping, we need to flip the mapping
+  if (
+    adjustedMap.get(MAX_GRADING_SCORE.toString())! < adjustedMap.get(MIN_GRADING_SCORE.toString())!
+  ) {
+    const flippedMap: Map<string, number> = new Map<string, number>();
+    let start = MIN_GRADING_SCORE;
+    let end = MAX_GRADING_SCORE;
+    while (start <= end) {
+      flippedMap.set(start.toString(), adjustedMap.get(end.toString())!);
+      flippedMap.set(end.toString(), adjustedMap.get(start.toString())!);
+      start++;
+      end--;
+    }
+    return flippedMap;
+  }
+
   return adjustedMap;
 };
 

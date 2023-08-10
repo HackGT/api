@@ -296,7 +296,7 @@ gradingRouter.route("/actions/submit-review").post(
       });
 
       const allEssayReviews = await ReviewModel.find({
-        applicationId: req.body.applicationId,
+        applicationId: { $eq: req.body.applicationId },
       });
 
       // If all essays have been graded, compute the final score and mark the application as graded
