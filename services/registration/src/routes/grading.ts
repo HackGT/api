@@ -5,14 +5,16 @@ import express from "express";
 import { Types } from "mongoose";
 import _ from "lodash";
 
-import { getScoreMapping } from "../common/mapScores";
 import { ApplicationModel, Essay, StatusType } from "../models/application";
 import { GraderModel } from "../models/grader";
 import { Review, ReviewModel } from "../models/review";
 import { BranchModel, BranchType, GradingGroupType } from "../models/branch";
 import { calibrationQuestionMapping, rubricMapping } from "../config";
+import { getCalibrationMapping } from "src/common/adjustScores";
 
 const MAX_REVIEWS_PER_ESSAY = 2;
+// NOTE: No. of essays for each application. As such, will need to be updated whenever we add/remove essays.
+const ESSAY_COUNT = 4;
 
 type AggregatedEssay = {
   applicationId: string;
@@ -46,6 +48,8 @@ gradingRouter.route("/actions/retrieve-question").post(
       throw new BadRequestError("Valid grading group is required in body");
     }
 
+    const gradingGroup = req.body.gradingGroup as GradingGroupType;
+
     let grader = await GraderModel.accessibleBy(req.ability).findOne({
       userId: req.user.uid,
       hexathon: req.body.hexathon,
@@ -57,37 +61,42 @@ gradingRouter.route("/actions/retrieve-question").post(
         userId: req.user.uid,
         hexathon: req.body.hexathon,
         email: req.user.email,
-        calibrationScores: [],
+        calibrationScores: [
+          {
+            group: gradingGroup,
+            criteriaScores: [],
+          },
+        ],
         calibrationMapping: null,
       });
     }
 
-    if (!calibrationQuestionMapping[req.body.gradingGroup]) {
+    if (!calibrationQuestionMapping[gradingGroup]) {
       throw new BadRequestError(
         "Config is not in correct format. Grader's group name does not exist"
       );
     }
 
-    const numCalibrationQuestionsForGroup = grader.calibrationScores.filter(
-      score => score.group === req.body.gradingGroup
-    ).length;
+    const criteriaScores = grader.calibrationScores.find(
+      calibrationScore => calibrationScore.group === gradingGroup
+    )?.criteriaScores;
+
+    const numCalibrationScoresForGroup = criteriaScores ? criteriaScores.length : 0;
 
     let isCalibrationQuestion = false;
     let calibrationQuestion: any | undefined;
     let applicationQuestion: AggregatedEssay | undefined;
-    if (
-      numCalibrationQuestionsForGroup < calibrationQuestionMapping[req.body.gradingGroup].length
-    ) {
+
+    if (numCalibrationScoresForGroup < calibrationQuestionMapping[gradingGroup].length) {
       isCalibrationQuestion = true;
-      calibrationQuestion =
-        calibrationQuestionMapping[req.body.gradingGroup][numCalibrationQuestionsForGroup];
+      calibrationQuestion = calibrationQuestionMapping[gradingGroup][numCalibrationScoresForGroup];
     } else {
       // Get the list of branches that match the grading group
       const databaseBranches = await BranchModel.find({
         hexathon: req.body.hexathon,
         grading: {
           enabled: true,
-          group: req.body.gradingGroup,
+          group: gradingGroup,
         },
         type: BranchType.APPLICATION,
       });
@@ -161,7 +170,7 @@ gradingRouter.route("/actions/retrieve-question").post(
       ? calibrationQuestion.criteria
       : applicationQuestion?.essay.criteria;
 
-    // Retrive rubric link and grading rubric from the rubric mapping config
+    // Retrieve rubric link and grading rubric from the rubric mapping config
     const { question, rubricLink, gradingRubric } = rubricMapping[criteria];
 
     let response;
@@ -215,14 +224,18 @@ gradingRouter.route("/actions/submit-review").post(
       throw new BadRequestError("One or more of the method body arguments is missing.");
     }
 
-    const numCalibrationScoresForGroup = grader.calibrationScores.filter(
-      val => val.group === req.body.gradingGroup
-    ).length;
+    const gradingGroup = req.body.gradingGroup as GradingGroupType;
+
+    let criteriaScores = grader.calibrationScores.find(
+      calibrationScore => calibrationScore.group === gradingGroup
+    )?.criteriaScores;
+
+    const numCalibrationScoresForGroup = criteriaScores ? criteriaScores.length : 0;
 
     // Checks to make sure the user has completed all the calibration questions and that this request
     // is for a calibration question
     if (
-      numCalibrationScoresForGroup < calibrationQuestionMapping[req.body.gradingGroup].length &&
+      numCalibrationScoresForGroup < calibrationQuestionMapping[gradingGroup].length &&
       (!req.body.isCalibrationQuestion || req.body.applicationId)
     ) {
       throw new BadRequestError(
@@ -230,20 +243,27 @@ gradingRouter.route("/actions/submit-review").post(
       );
     }
 
-    if (numCalibrationScoresForGroup < calibrationQuestionMapping[req.body.gradingGroup].length) {
-      grader.calibrationScores.push({
-        group: req.body.gradingGroup,
+    if (numCalibrationScoresForGroup < calibrationQuestionMapping[gradingGroup].length) {
+      if (!criteriaScores) {
+        criteriaScores = [];
+        grader.calibrationScores.push({
+          group: gradingGroup,
+          criteriaScores,
+        });
+      }
+      criteriaScores.push({
+        criteria: req.body.criteria,
         score: req.body.score,
       });
 
       // If this was the last calibration score submitted, compute this user's calibration
       // score mapping and save to database
-      // if (
-      //   numCalibrationScoresForGroup ===
-      //   calibrationQuestionMapping[currentGradingGroup].length - 1
-      // ) {
-      //   grader.calibrationMapping = await getScoreMapping(grader.calibrationScores);
-      // }
+      if (
+        numCalibrationScoresForGroup ===
+        calibrationQuestionMapping[req.body.gradingGroup].length - 1
+      ) {
+        grader.calibrationMapping = await getCalibrationMapping(criteriaScores, gradingGroup);
+      }
     } else {
       // Submit grading for an application
       const application = await ApplicationModel.findById(req.body.applicationId);
@@ -256,16 +276,14 @@ gradingRouter.route("/actions/submit-review").post(
         throw new BadRequestError("No essay found with provided essayId");
       }
 
-      // TODO: Calibration score mapping needs to be fixed
+      let adjustedScore = req.body.score;
+      const scoreMappings = grader.calibrationMapping.find(
+        mapping => mapping.criteria === essay.criteria
+      )?.scoreMappings;
 
-      // const scoreMappings = grader.calibrationMapping.find(
-      //   mapping => mapping.criteria === essay.criteria
-      // )?.scoreMappings;
-      // if (!scoreMappings) {
-      //   throw new BadRequestError("No calibration mapping found for this criteria.");
-      // }
-
-      // const adjustedScore = scoreMappings[parseInt(req.body.score)];
+      if (scoreMappings) {
+        adjustedScore = scoreMappings.get(req.body.score.toString());
+      }
 
       await ReviewModel.create({
         reviewerId: grader.userId,
@@ -274,19 +292,20 @@ gradingRouter.route("/actions/submit-review").post(
         essayId: req.body.essayId,
         score: req.body.score,
         timestamp: new Date(),
-        // adjustedScore,
+        adjustedScore,
       });
 
-      // TODO: Needs to be fixed up, as all the essays need to be scored first
-      // const allEssayReviews = await ReviewModel.find({
-      //   essayId: req.body.essayId,
-      // });
-      // if (allEssayReviews.length >= MAX_REVIEWS_PER_ESSAY) {
-      //   application.gradingComplete = true;
-      //   const sumScores = allEssayReviews.reduce((prev, review) => prev + review.adjustedScore, 0);
-      //   application.finalScore = sumScores / allEssayReviews.length;
-      //   await application.save();
-      // }
+      const allEssayReviews = await ReviewModel.find({
+        applicationId: req.body.applicationId,
+      });
+
+      // If all essays have been graded, compute the final score and mark the application as graded
+      if (allEssayReviews.length >= MAX_REVIEWS_PER_ESSAY * ESSAY_COUNT) {
+        application.gradingComplete = true;
+        const sumScores = allEssayReviews.reduce((prev, review) => prev + review.adjustedScore, 0);
+        application.finalScore = sumScores / allEssayReviews.length;
+        await application.save();
+      }
 
       grader.graded += 1;
     }

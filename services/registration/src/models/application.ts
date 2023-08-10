@@ -82,6 +82,7 @@ export interface Application extends mongoose.Document {
   gradingComplete: boolean;
   createdAt: Date;
   updatedAt: Date;
+  finalScore: number;
 }
 
 const applicationSchema = new Schema<Application>(
@@ -287,6 +288,9 @@ const applicationSchema = new Schema<Application>(
       required: true,
       default: false,
       index: true,
+    },
+    finalScore: {
+      type: Number,
     },
   },
   {
