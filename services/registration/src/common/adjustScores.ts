@@ -1,5 +1,6 @@
-import { calibrationQuestionMapping, rubricMapping } from "src/config";
-import { GradingGroupType } from "src/models/branch";
+import _ from "lodash";
+import { calibrationQuestionMapping, rubricMapping } from "../config";
+import { GradingGroupType } from "../models/branch";
 
 /**
  * BIAS ADJUSTMENT:
@@ -69,8 +70,6 @@ const computeLineOfBestFit = (points: [number, number][]): ((x: number) => numbe
 /**
  * Takes in an array of points, and uses a line of best fit to create a mapping
  * @param points the array of points
- * @param from minimum value of the mapping
- * @param to maximum value of the mapping
  * @returns interpolated mapping of points as an object
  */
 const interpolateValuePairs = (points: [number, number][]) => {
@@ -111,26 +110,24 @@ const interpolateValuePairs = (points: [number, number][]) => {
  * Given two arrays of criteria scores, computes the calibration mapping.
  *
  * @param graderCriteriaScores
- * @param groundTrustCriteriaScores
+ * @param groundTruthCriteriaScores
  * @returns calibration mapping
  */
 
 const computeCalibrationMapping = (
   graderCriteriaScores: CriteriaScores,
-  groundTrustCriteriaScores: CriteriaScores
+  groundTruthCriteriaScores: CriteriaScores,
+  gradingGroup: GradingGroupType
 ) => {
-  if (graderCriteriaScores.length !== groundTrustCriteriaScores.length) {
+  if (graderCriteriaScores.length !== groundTruthCriteriaScores.length) {
     throw new Error("Number of grader scores does not match number of ground truth scores.");
   }
 
-  const allCriterias = new Set<string>();
-  Object.keys(rubricMapping).forEach(criteria => allCriterias.add(criteria));
-
-  const calibrationMapping = Array.from(allCriterias).map(criteria => {
+  const calibrationMapping = Array.from(Object.keys(rubricMapping[gradingGroup])).map(criteria => {
     const graderScores = graderCriteriaScores
       .filter(score => score.criteria === criteria)
       .map(score => score.score);
-    const groundTruthScores = groundTrustCriteriaScores
+    const groundTruthScores = groundTruthCriteriaScores
       .filter(score => score.criteria === criteria)
       .map(score => score.score);
     if (!graderScores || !groundTruthScores) {
@@ -138,7 +135,7 @@ const computeCalibrationMapping = (
     }
 
     const scoreMappings = interpolateValuePairs(
-      groundTruthScores.map((score, index) => [graderScores[index], score])
+      _.zip(graderScores, groundTruthScores) as [number, number][]
     );
 
     return {
@@ -172,5 +169,9 @@ export const getCalibrationMapping = async (
     }
   }
 
-  return computeCalibrationMapping(graderCalibrationScores, groundTruthCalibrationScores);
+  return computeCalibrationMapping(
+    graderCalibrationScores,
+    groundTruthCalibrationScores,
+    gradingGroup
+  );
 };

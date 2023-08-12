@@ -79,7 +79,7 @@ applicationRouter.route("/").get(
       .find(filter)
       .skip(offset)
       .limit(limit)
-      .select(requireApplicationData ? "" : "-applicationData");
+      .select(requireApplicationData ? "-finalScore" : "-applicationData -finalScore");
 
     return res.status(200).json({
       offset,
@@ -93,7 +93,9 @@ applicationRouter.route("/").get(
 applicationRouter.route("/:id").get(
   checkAbility("read", "Application"),
   asyncHandler(async (req, res) => {
-    const application = await ApplicationModel.findById(req.params.id).accessibleBy(req.ability);
+    const application = await ApplicationModel.findById(req.params.id)
+      .accessibleBy(req.ability)
+      .select("-finalScore");
 
     if (!application) {
       throw new BadRequestError("Application not found or you do not have permission to access.");
@@ -177,29 +179,31 @@ applicationRouter.route("/actions/choose-application-branch").post(
         );
       }
 
-      const updatedApplication = await ApplicationModel.accessibleBy(req.ability).findOneAndUpdate(
-        {
-          userId: req.user?.uid,
-          hexathon: req.body.hexathon,
-        },
-        {
-          status: StatusType.DRAFT,
-          applicationBranch: req.body.applicationBranch,
-          applicationStartTime: new Date(),
-          applicationSubmitTime: undefined,
-          applicationExtendedDeadline: undefined,
-          applicationData: {},
-          confirmationBranch: undefined,
-          confirmationSubmitTime: undefined,
-          confirmationExtendedDeadline: undefined,
-          gradingComplete: false,
-          name: getFullName(userInfo.name),
-          email: userInfo.email,
-        },
-        {
-          new: true,
-        }
-      );
+      const updatedApplication = await ApplicationModel.accessibleBy(req.ability)
+        .findOneAndUpdate(
+          {
+            userId: req.user?.uid,
+            hexathon: req.body.hexathon,
+          },
+          {
+            status: StatusType.DRAFT,
+            applicationBranch: req.body.applicationBranch,
+            applicationStartTime: new Date(),
+            applicationSubmitTime: undefined,
+            applicationExtendedDeadline: undefined,
+            applicationData: {},
+            confirmationBranch: undefined,
+            confirmationSubmitTime: undefined,
+            confirmationExtendedDeadline: undefined,
+            gradingComplete: false,
+            name: getFullName(userInfo.name),
+            email: userInfo.email,
+          },
+          {
+            new: true,
+          }
+        )
+        .select("-finalScore");
 
       return res.send(updatedApplication);
     }
