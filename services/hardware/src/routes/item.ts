@@ -135,6 +135,11 @@ itemRouter.route("/").post(
     if (!req.body.location.trim().length) {
       throw new BadRequestError("The location for this item can't be blank.");
     }
+    req.body.category = parseInt(req.body.category);
+    req.body.location = parseInt(req.body.location);
+    req.body.price = parseFloat(req.body.price);
+    req.body.totalAvailable = parseFloat(req.body.totalAvailable);
+    req.body.maxRequestQty = parseFloat(req.body.maxRequestQty);
     if (req.body.totalAvailable < 0) {
       throw new BadRequestError(
         `The total quantity available (totalQtyAvailable) for a new item can't be less than 0.  Value provided: ${req.body.totalAvailable}`

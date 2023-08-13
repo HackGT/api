@@ -9,8 +9,7 @@ locationRouter.route("/").get(
   checkAbility("read", "Location"),
   asyncHandler(async (req, res) => {
     const locations = await prisma.location.findMany();
-
-    res.status(200).send([locations.map(location => location.name)]);
+    res.status(200).send(locations);
   })
 );
 
