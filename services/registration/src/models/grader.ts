@@ -10,13 +10,14 @@ export interface Grader extends mongoose.Document {
   skipped: number;
   calibrationScores: {
     group: GradingGroupType;
-    score: number;
+    criteriaScores: {
+      criteria: string;
+      score: number;
+    }[];
   }[];
   calibrationMapping: {
     criteria: string;
-    scoreMappings: {
-      [key: number]: number; // score -> mappedScore
-    };
+    scoreMappings: Map<string, number>;
   }[];
 }
 
@@ -41,20 +42,32 @@ const graderSchema = new Schema<Grader>({
     required: true,
     default: 0,
   },
-  calibrationScores: [
-    {
-      group: {
-        type: String,
-        enum: GradingGroupType,
+  calibrationScores: {
+    type: [
+      {
+        group: {
+          type: String,
+          enum: Object.values(GradingGroupType),
+        },
+        criteriaScores: [
+          {
+            criteria: {
+              type: String,
+            },
+            score: {
+              type: Number,
+            },
+          },
+        ],
       },
-      score: Number,
-    },
-  ],
+    ],
+  },
   calibrationMapping: [
     {
       criteria: String,
       scoreMappings: {
-        number: Number,
+        type: Map,
+        of: Number,
       },
     },
   ],
