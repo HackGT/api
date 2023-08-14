@@ -28,7 +28,7 @@ teamRoutes.route("/:id").get(
     const team = await TeamModel.findById(req.params.id).accessibleBy(req.ability);
 
     if (!team) {
-      throw new BadRequestError("Invalid team or you do not have permisison.");
+      throw new BadRequestError("Invalid team or you do not have permission.");
     }
 
     res.status(200).json(team);
@@ -114,7 +114,7 @@ teamRoutes.route("/:id/accept-user").post(
     const team = await TeamModel.findById(req.params.id);
 
     if (!team) {
-      throw new BadRequestError("Invalid team or you do not have permisison.");
+      throw new BadRequestError("Invalid team or you do not have permission.");
     }
 
     if (!req.user || !team.members.includes(req.user.uid)) {
