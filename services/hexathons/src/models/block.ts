@@ -8,6 +8,7 @@ export interface Block extends mongoose.Document {
   title: string;
   slug: string;
   content: string;
+  display: string;
 }
 
 const blockSchema = new Schema<Block>({
@@ -28,6 +29,9 @@ const blockSchema = new Schema<Block>({
   content: {
     type: String,
     required: true,
+  },
+  display: {
+    type: String,
   },
 });
 
