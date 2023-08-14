@@ -250,9 +250,14 @@ assignmentRoutes.route("/current-project").get(
         userId: user.id,
         status: { in: ["STARTED", "QUEUED"] },
       },
-      orderBy: {
-        createdAt: "asc",
-      },
+      orderBy: [
+        {
+          createdAt: "asc",
+        },
+        {
+          priority: "desc",
+        },
+      ],
     });
 
     const config = await getConfig();
@@ -271,14 +276,13 @@ assignmentRoutes.route("/current-project").get(
       } else if (assignments.length > 0) {
         // return the started assignment if it exists
         // otherwise, return the first queued assignment (after changing its status to started)
-        const startedAssignments = assignments.filter(
+        let startedAssignment;
+        startedAssignment = assignments.find(
           assignment => assignment.status === AssignmentStatus.STARTED
         );
 
-        if (startedAssignments.length > 0) {
-          resolve(startedAssignments[0]);
-        } else {
-          const startedAssignment = await prisma.assignment.update({
+        if (!startedAssignment) {
+          startedAssignment = await prisma.assignment.update({
             where: {
               id: assignments[0].id,
             },
@@ -286,8 +290,8 @@ assignmentRoutes.route("/current-project").get(
               status: AssignmentStatus.STARTED,
             },
           });
-          resolve(startedAssignment);
         }
+        resolve(startedAssignment);
       } else {
         resolve(null);
       }
@@ -308,6 +312,7 @@ assignmentRoutes.route("/current-project").get(
       },
     });
 
+    // filter categories to only include categories that the judge is assigned to
     const filteredCategories = user.categoryGroup.categories.filter(
       category => project?.categories.some(c => c.id === category.id) || category.isDefault
     );
