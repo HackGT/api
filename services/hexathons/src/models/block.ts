@@ -32,6 +32,7 @@ const blockSchema = new Schema<Block>({
   },
   display: {
     type: String,
+    default: "web",
   },
 });
 
