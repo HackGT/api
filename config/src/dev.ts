@@ -175,22 +175,6 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       name: "finance",
     },
   },
-  TEAMS: {
-    url: "/teams",
-    port: 8010,
-    auth: false,
-    proxy: {
-      target: "http://localhost:8010",
-      changeOrigin: false,
-      pathRewrite: {
-        [`^/teams`]: "",
-      },
-    },
-    database: {
-      type: "postgres",
-      name: "teams",
-    },
-  },
 };
 
 // const SERVICES = [
