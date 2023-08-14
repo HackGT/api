@@ -184,4 +184,21 @@ export const SERVICES: Record<Service, ServiceConfig> = {
       name: "finance",
     },
   },
+  TEAMS: {
+    url: "/teams",
+    port: parseInt(process.env.PORT || "8080"),
+    auth: false,
+    sentryDSN: "https://44614ec919ac58f8001d50d288dba1fb@o429043.ingest.sentry.io/4505684146651136",
+    proxy: {
+      target: "https://teams.api.hexlabs.org",
+      changeOrigin: true,
+      pathRewrite: {
+        [`^/teams`]: "",
+      },
+    },
+    database: {
+      type: "postgres",
+      name: "teams",
+    },
+  },
 };

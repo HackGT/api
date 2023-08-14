@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "references": [
+    {
+      "path": "../../common"
+    },
+    {
+      "path": "../../config"
+    }
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": "src",
+    "outDir": "dist",
+    "paths": {
+      "@api/common": ["../../common/src"],
+      "@api/config": ["../../config/src"],
+      "@api/prisma-teams/*": ["./prisma/*"]
+    }
+  }
+}

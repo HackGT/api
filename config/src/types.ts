@@ -53,6 +53,7 @@ export enum Service {
   EXPO = "EXPO",
   HARDWARE = "HARDWARE",
   FINANCE = "FINANCE",
+  TEAMS = "TEAMS",
 }
 
 export interface ServiceConfig {
