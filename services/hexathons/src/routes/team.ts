@@ -3,7 +3,7 @@ import { asyncHandler, BadRequestError, checkAbility, ForbiddenError } from "@ap
 import { FilterQuery } from "mongoose";
 
 import { Team, TeamModel } from "../models/team";
-import { ProfileModel } from "../models/profile";
+import { HexathonUserModel } from "../models/hexathonUser";
 
 export const teamRoutes = express.Router();
 
@@ -67,7 +67,7 @@ teamRoutes.route("/add").post(
   asyncHandler(async (req, res) => {
     const { hexathon, email } = req.body;
 
-    const userToAdd = await ProfileModel.findOne({
+    const userToAdd = await HexathonUserModel.findOne({
       email,
     });
     if (!userToAdd) {
@@ -154,7 +154,7 @@ teamRoutes.route("/user/:userId").get(
       return;
     }
 
-    const profiles = await ProfileModel.find({
+    const profiles = await HexathonUserModel.find({
       userId: {
         $in: team.members,
       },
