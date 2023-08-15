@@ -68,7 +68,7 @@ teamRoutes.route("/add").post(
     const { hexathon, email } = req.body;
 
     const userToAdd = await HexathonUserModel.findOne({
-      email,
+      email: { $eq: email },
     });
     if (!userToAdd) {
       throw new BadRequestError("User associated with email not found.");
