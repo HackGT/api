@@ -10,6 +10,7 @@ import { hexathonUserRouter } from "./hexathon-users";
 import { swagItemRouter } from "./swag-item";
 import { sponsorVisitRouter } from "./sponsor-visit";
 import { blockRoutes } from "./block";
+import { teamRoutes } from "./team";
 
 export const defaultRouter = express.Router();
 
@@ -23,3 +24,4 @@ defaultRouter.use("/hexathon-users", hexathonUserRouter);
 defaultRouter.use("/swag-items", swagItemRouter);
 defaultRouter.use("/sponsor-visit", sponsorVisitRouter);
 defaultRouter.use("/blocks", blockRoutes);
+defaultRouter.use("/teams", teamRoutes);
