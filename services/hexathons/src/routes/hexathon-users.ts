@@ -181,6 +181,15 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/check-valid-user").
       throw new BadRequestError("User is not registered for this hexathon.");
     }
 
+    // Check if user's email is not already registered for this hexathon
+    hexathonUser = await HexathonUserModel.findOne({
+      email: applications.applications[0].email,
+      hexathon: req.params.hexathonId,
+    });
+    if (hexathonUser) {
+      throw new BadRequestError("User's email is already registered for this hexathon.");
+    }
+
     await HexathonUserModel.create({
       userId: req.params.userId,
       hexathon: req.params.hexathonId,
