@@ -52,7 +52,6 @@ const hexathonUserSchema = new Schema<HexathonUser>({
   email: {
     type: String,
     required: true,
-    unique: true,
   },
   name: {
     type: String,
