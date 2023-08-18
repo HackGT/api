@@ -180,9 +180,6 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/check-valid-user").
     if (applications?.applications.length < 1) {
       throw new BadRequestError("User is not registered for this hexathon.");
     }
-    if (applications.applications[0].status !== "CONFIRMED") {
-      throw new BadRequestError("User is not confirmed for this hexathon.");
-    }
 
     await HexathonUserModel.create({
       userId: req.params.userId,
