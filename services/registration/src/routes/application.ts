@@ -485,18 +485,6 @@ applicationRouter.route("/:id/actions/update-status").post(
 
     await ApplicationModel.findByIdAndUpdate(req.params.id, updateBody, { new: true });
 
-    // If user has applied or a higher status change occurs due to admin actions, create a hexathon user for them
-    if ([StatusType.APPLIED, StatusType.ACCEPTED, StatusType.CONFIRMED].includes(newStatus)) {
-      await apiCall(
-        Service.HEXATHONS,
-        {
-          method: "POST",
-          url: `/hexathon-users/${existingApplication.hexathon}/users/${existingApplication.userId}/actions/check-valid-user`,
-        },
-        req
-      );
-    }
-
     return res.sendStatus(204);
   })
 );
@@ -558,18 +546,6 @@ applicationRouter.route("/:id/actions/update-application").post(
       },
       { new: true }
     );
-
-    // If user has applied or a higher status change occurs due to admin actions, create a hexathon user for them
-    if ([StatusType.APPLIED, StatusType.ACCEPTED, StatusType.CONFIRMED].includes(newStatus)) {
-      await apiCall(
-        Service.HEXATHONS,
-        {
-          method: "POST",
-          url: `/hexathon-users/${existingApplication.hexathon}/users/${existingApplication.userId}/actions/check-valid-user`,
-        },
-        req
-      );
-    }
 
     return res.sendStatus(204);
   })
