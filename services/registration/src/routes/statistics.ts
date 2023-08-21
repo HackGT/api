@@ -322,8 +322,7 @@ statisticsRouter.route("/").get(
     const eventInteractionStatistics: {
       [type: string]: {
         [date: string]: {
-          name: string;
-          interactions: number;
+          [name: string]: number;
         };
       };
     } = {};
@@ -341,13 +340,14 @@ statisticsRouter.route("/").get(
       }
 
       if (!(date in eventInteractionStatistics[type])) {
-        eventInteractionStatistics[type][date] = {
-          name: event.name,
-          interactions: 0,
-        };
+        eventInteractionStatistics[type][date] = {};
       }
 
-      eventInteractionStatistics[type][date].interactions += 1;
+      if (!(event.name in eventInteractionStatistics[type][date])) {
+        eventInteractionStatistics[type][date][event.name] = 0;
+      }
+
+      eventInteractionStatistics[type][date][event.name] += 1;
     }
 
     // CALCULATES APPLICATION DATA STATISTICS
