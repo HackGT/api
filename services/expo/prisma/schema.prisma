@@ -97,6 +97,7 @@ model Config {
   isProjectSubmissionOpen Boolean @default(true)
   isDevpostCheckingOn     Boolean @default(true)
   revealTableGroups       Boolean @default(false)
+  revealWinners           Boolean @default(false)
 
   @@map("config")
 }
