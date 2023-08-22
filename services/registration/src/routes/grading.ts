@@ -171,7 +171,7 @@ gradingRouter.route("/actions/retrieve-question").post(
       : applicationQuestion?.essay.criteria;
 
     // Retrieve rubric link and grading rubric from the rubric mapping config
-    const { question, rubricLink, gradingRubric } = rubricMapping[criteria];
+    const { question, rubricLink, gradingRubric } = rubricMapping[gradingGroup][criteria];
 
     let response;
     if (isCalibrationQuestion) {
