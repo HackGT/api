@@ -339,6 +339,7 @@ gradingRouter.route("/leaderboard").get(
   asyncHandler(async (req, res) => {
     const currentGrader = await GraderModel.accessibleBy(req.ability).findOne({
       userId: req.user?.uid,
+      hexathon: req.query.hexathon,
     });
 
     // Get top 10 graders (or 100 if exec) in descending order (top graders first)
