@@ -320,8 +320,8 @@ statisticsRouter.route("/").get(
     );
 
     const eventInteractionStatistics: {
-      [type: string]: {
-        [date: string]: {
+      [date: string]: {
+        [type: string]: {
           [name: string]: number;
         };
       };
@@ -335,19 +335,19 @@ statisticsRouter.route("/").get(
       const date = new Date(interaction.timestamp).toLocaleDateString();
       const type = event.type;
 
-      if (!(type in eventInteractionStatistics)) {
-        eventInteractionStatistics[type] = {};
+      if (!(date in eventInteractionStatistics)) {
+        eventInteractionStatistics[date] = {};
       }
 
-      if (!(date in eventInteractionStatistics[type])) {
-        eventInteractionStatistics[type][date] = {};
+      if (!(type in eventInteractionStatistics[date])) {
+        eventInteractionStatistics[date][type] = {};
       }
 
-      if (!(event.name in eventInteractionStatistics[type][date])) {
-        eventInteractionStatistics[type][date][event.name] = 0;
+      if (!(event.name in eventInteractionStatistics[date][type])) {
+        eventInteractionStatistics[date][type][event.name] = 0;
       }
 
-      eventInteractionStatistics[type][date][event.name] += 1;
+      eventInteractionStatistics[date][type][event.name] += 1;
     }
 
     // CALCULATES APPLICATION DATA STATISTICS
