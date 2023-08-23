@@ -8,7 +8,7 @@ import { DateTime } from "luxon";
 
 import { getBranch, validateApplicationData } from "../common/util";
 import { Application, ApplicationModel, Essay, StatusType } from "../models/application";
-import { BranchModel, BranchType } from "../models/branch";
+import { ApplicationGroupType, BranchModel, BranchType } from "../models/branch";
 
 export const applicationRouter = express.Router();
 
@@ -430,15 +430,17 @@ applicationRouter.route("/:id/actions/submit-application").post(
       );
     }
 
-    // Create a hexathon user upon application submission
-    await apiCall(
-      Service.HEXATHONS,
-      {
-        method: "POST",
-        url: `/hexathon-users/${existingApplication.hexathon}/users/${existingApplication.userId}/actions/check-valid-user`,
-      },
-      req
-    );
+    // Create a hexathon user upon application submission for participants
+    if (branch.applicationGroup === ApplicationGroupType.PARTICIPANT) {
+      await apiCall(
+        Service.HEXATHONS,
+        {
+          method: "POST",
+          url: `/hexathon-users/${existingApplication.hexathon}/users/${existingApplication.userId}/actions/check-valid-user`,
+        },
+        req
+      );
+    }
 
     return res.sendStatus(204);
   })
