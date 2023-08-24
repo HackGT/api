@@ -68,6 +68,7 @@ teamRoutes.route("/add").post(
     const { hexathon, email } = req.body;
 
     const userToAdd = await HexathonUserModel.findOne({
+      hexathon: { $eq: hexathon },
       email: { $eq: email },
     });
     if (!userToAdd) {
@@ -154,19 +155,20 @@ teamRoutes.route("/user/:userId").get(
       return;
     }
 
-    const profiles = await HexathonUserModel.find({
+    const hexathonUsers = await HexathonUserModel.find({
+      hexathon: req.query.hexathon,
       userId: {
         $in: team.members,
       },
     });
 
-    if (profiles.length !== team.members.length) {
+    if (hexathonUsers.length !== team.members.length) {
       throw new BadRequestError("Not all team members have profiles.");
     }
 
     res.status(200).json({
       ...team.toJSON(),
-      members: profiles,
+      members: hexathonUsers,
     });
   })
 );
