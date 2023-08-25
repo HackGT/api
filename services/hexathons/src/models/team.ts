@@ -1,5 +1,6 @@
 import { accessibleRecordsPlugin, AccessibleRecordModel } from "@casl/mongoose";
 import mongoose, { Schema, model, Types } from "mongoose";
+import { HexathonModel } from "./hexathon";
 
 export interface Team extends mongoose.Document {
   name: string;
@@ -23,6 +24,7 @@ const teamSchema = new Schema<Team>({
   hexathon: {
     type: Schema.Types.ObjectId,
     required: true,
+    ref: HexathonModel,
     index: true,
   },
   members: {
