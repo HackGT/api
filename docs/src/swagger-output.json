@@ -3278,6 +3278,355 @@
         }
       }
     },
+    "/teams": {
+      "get": {
+        "tags": ["hexathons"],
+        "summary": "Search for a team.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathon",
+            "in": "query",
+            "type": "string",
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "offset": {
+                  "type": "integer"
+                },
+                "total": {
+                  "type": "integer"
+                },
+                "count": {
+                  "type": "integer"
+                },
+                "profiles": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Team"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      },
+      "post": {
+        "tags": ["hexathons"],
+        "summary": "Create a team.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "hexathon": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "publicTeam": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Team"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/teams/{id}": {
+      "get": {
+        "tags": ["hexathons"],
+        "summary": "Finds and displays team by team ID.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "description": "Team ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Team"
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/teams/add": {
+      "post": {
+        "tags": ["hexathons"],
+        "summary": "",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "hexathon": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Team"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/teams/{id}/accept-user": {
+      "post": {
+        "tags": ["hexathons"],
+        "summary": "Accepts a new user to an existing team.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "description": "Team ID",
+            "required": true
+          },
+          {
+            "name": "userId",
+            "in": "body",
+            "description": "User ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Profile"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/teams/user/{userId}": {
+      "get": {
+        "tags": ["hexathons"],
+        "summary": "Gets the profile of a team member.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathon",
+            "in": "query",
+            "type": "integer",
+            "description": "User ID",
+            "required": true
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "type": "integer",
+            "description": "User ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Profile"
+                },
+                {
+                  "$ref": "#/definitions/Permission"
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/teams/join": {
+      "post": {
+        "tags": ["hexathons"],
+        "summary": "Submits a request to join a team.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "hexathon": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Join Request has been sent!",
+            "type": "string"
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/teams/leave": {
+      "post": {
+        "tags": ["hexathons"],
+        "summary": "Submits a request to leave a team.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "hexathon": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/teams/{id}/put": {
+      "put": {
+        "tags": ["hexathons"],
+        "summary": "",
+        "description": "Update an existing team by id.",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "params",
+            "in": "params",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "description": "Team ID"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Team"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
     "/companies": {
       "get": {
         "tags": ["users"],
@@ -3656,355 +4005,6 @@
         "responses": {
           "204": {
             "description": "Successfully deleted"
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/teams": {
-      "get": {
-        "tags": ["users"],
-        "summary": "Search for a team.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "hexathon",
-            "in": "query",
-            "type": "string",
-            "description": ""
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "offset": {
-                  "type": "integer"
-                },
-                "total": {
-                  "type": "integer"
-                },
-                "count": {
-                  "type": "integer"
-                },
-                "profiles": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/Team"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      },
-      "post": {
-        "tags": ["users"],
-        "summary": "Create a team.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "hexathon": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "publicTeam": {
-                  "type": "boolean"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Team"
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/teams/{id}": {
-      "get": {
-        "tags": ["users"],
-        "summary": "Finds and displays team by team ID.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "type": "integer",
-            "description": "Team ID",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "object",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/Team"
-                }
-              ]
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/teams/add": {
-      "post": {
-        "tags": ["users"],
-        "summary": "",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "hexathon": {
-                  "type": "string"
-                },
-                "email": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Team"
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/teams/{id}/accept-user": {
-      "post": {
-        "tags": ["users"],
-        "summary": "Accepts a new user to an existing team.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "type": "integer",
-            "description": "Team ID",
-            "required": true
-          },
-          {
-            "name": "userId",
-            "in": "body",
-            "description": "User ID"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Profile"
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/teams/user/{userId}": {
-      "get": {
-        "tags": ["users"],
-        "summary": "Gets the profile of a team member.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "hexathon",
-            "in": "query",
-            "type": "integer",
-            "description": "User ID",
-            "required": true
-          },
-          {
-            "name": "userId",
-            "in": "path",
-            "type": "integer",
-            "description": "User ID",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "object",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/Profile"
-                },
-                {
-                  "$ref": "#/definitions/Permission"
-                }
-              ]
-            }
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/teams/join": {
-      "post": {
-        "tags": ["users"],
-        "summary": "Submits a request to join a team.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "hexathon": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Join Request has been sent!",
-            "type": "string"
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/teams/leave": {
-      "post": {
-        "tags": ["users"],
-        "summary": "Submits a request to leave a team.",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Request body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "hexathon": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": ""
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/teams/{id}/put": {
-      "put": {
-        "tags": ["users"],
-        "summary": "",
-        "description": "",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "params",
-            "in": "params",
-            "description": "",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "integer",
-                  "description": "Team ID"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Team"
-            }
           },
           "400": {
             "description": "Invalid Status"
