@@ -156,7 +156,7 @@ teamRoutes.route("/user/:userId").get(
     }
 
     const hexathonUserFilter: FilterQuery<HexathonUser> = {
-      hexathon: req.query.hexathon,
+      hexathon: { $eq: req.query.hexathon },
       userId: {
         $in: team.members,
       },
