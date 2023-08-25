@@ -3,7 +3,7 @@ import { asyncHandler, BadRequestError, checkAbility, ForbiddenError } from "@ap
 import { FilterQuery } from "mongoose";
 
 import { Team, TeamModel } from "../models/team";
-import { ProfileModel } from "../models/profile";
+import { HexathonUser, HexathonUserModel } from "../models/hexathonUser";
 
 export const teamRoutes = express.Router();
 
@@ -67,8 +67,9 @@ teamRoutes.route("/add").post(
   asyncHandler(async (req, res) => {
     const { hexathon, email } = req.body;
 
-    const userToAdd = await ProfileModel.findOne({
-      email,
+    const userToAdd = await HexathonUserModel.findOne({
+      hexathon: { $eq: hexathon },
+      email: { $eq: email },
     });
     if (!userToAdd) {
       throw new BadRequestError("User associated with email not found.");
@@ -154,19 +155,22 @@ teamRoutes.route("/user/:userId").get(
       return;
     }
 
-    const profiles = await ProfileModel.find({
+    const hexathonUserFilter: FilterQuery<HexathonUser> = {
+      hexathon: { $eq: req.query.hexathon },
       userId: {
         $in: team.members,
       },
-    });
+    };
 
-    if (profiles.length !== team.members.length) {
+    const hexathonUsers = await HexathonUserModel.find(hexathonUserFilter);
+
+    if (hexathonUsers.length !== team.members.length) {
       throw new BadRequestError("Not all team members have profiles.");
     }
 
     res.status(200).json({
       ...team.toJSON(),
-      members: profiles,
+      members: hexathonUsers,
     });
   })
 );
