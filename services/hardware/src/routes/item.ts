@@ -135,6 +135,63 @@ itemRouter.route("/").post(
     if (!req.body.location.trim().length) {
       throw new BadRequestError("The location for this item can't be blank.");
     }
+    const category = parseInt(req.body.category);
+    const location = parseInt(req.body.location);
+    const price = parseFloat(req.body.price);
+    const totalAvailable = parseFloat(req.body.totalAvailable);
+    const maxRequestQty = parseFloat(req.body.maxRequestQty);
+    if (totalAvailable < 0) {
+      throw new BadRequestError(
+        `The total quantity available (totalQtyAvailable) for a new item can't be less than 0.  Value provided: ${req.body.totalAvailable}`
+      );
+    }
+    if (maxRequestQty < 1) {
+      throw new BadRequestError(
+        `The max request quantity (maxRequestQty) must be at least 1.  Value provided: ${req.body.maxRequestQty}`
+      );
+    }
+    if (maxRequestQty > totalAvailable) {
+      throw new BadRequestError(
+        `The max request quantity (maxRequestQty) can't be greater than the total quantity of this item (totalAvailable) that is available.  maxRequestQty: ${req.body.maxRequestQty}, totalAvailable: ${req.body.totalAvailable}`
+      );
+    }
+
+    const item = await prisma.item.create({
+      data: {
+        ...req.body,
+        price,
+        totalAvailable,
+        maxRequestQty,
+        category: {
+          connect: {
+            id: category,
+          },
+        },
+        location: {
+          connect: {
+            id: location,
+          },
+        },
+      },
+      include: {
+        category: true,
+        location: true,
+      },
+    });
+
+    const itemQuantities = await QuantityController.all([item.id]);
+    const populatedItem = populateItem(item, req.user?.roles, itemQuantities);
+
+    res.status(200).send(populatedItem);
+    /* if (!req.body.name.trim().length) {
+      throw new BadRequestError("The item name can't be empty.");
+    }
+    if (!req.body.category.trim().length) {
+      throw new BadRequestError("The category for this item can't be blank.");
+    }
+    if (!req.body.location.trim().length) {
+      throw new BadRequestError("The location for this item can't be blank.");
+    }
     req.body.category = parseInt(req.body.category);
     req.body.location = parseInt(req.body.location);
     req.body.price = parseFloat(req.body.price);
@@ -175,11 +232,12 @@ itemRouter.route("/").post(
         location: true,
       },
     });
+    console.log(item)
 
     const itemQuantities = await QuantityController.all([item.id]);
     const populatedItem = populateItem(item, req.user?.roles, itemQuantities);
 
-    res.status(200).send(populatedItem);
+    res.status(200).send(populatedItem); */
   })
 );
 
