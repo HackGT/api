@@ -16,9 +16,18 @@ teamRoutes.route("/").get(
       filter.hexathon = req.query.hexathon;
     }
 
-    const teams = await TeamModel.accessibleBy(req.ability).find(filter);
+    const teamsCount = await TeamModel.accessibleBy(req.ability).find(filter).count();
 
-    res.status(200).json(teams);
+    const limit = parseInt(req.query.limit as string) || 50;
+    const offset = parseInt(req.query.offset as string) || 0;
+    const teams = await TeamModel.accessibleBy(req.ability).find(filter).skip(offset).limit(limit);
+
+    res.status(200).json({
+      offset,
+      total: teamsCount,
+      count: teams.length,
+      teams,
+    });
   })
 );
 
