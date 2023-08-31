@@ -433,7 +433,7 @@ gradingRouter.route("/export").get(
             $first: "$status",
           },
           avgScore: {
-            $avg: "$reviews_data.score",
+            $avg: "$reviews_data.adjustedScore",
           },
           numReviews: {
             $sum: 1,
