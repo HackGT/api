@@ -608,15 +608,15 @@ gradingRouter.route("/grading-status").get(
     } = {};
 
     for (const gradingGroup of Object.values(GradingGroupType)) {
-      // Divide all reviews data by max number of reviews per essay * 3 essays per application
-      gradingStatus[gradingGroup] = Math.round(
-        Math.min(
-          1,
-          (reviewsData[gradingGroup]?.reviewCount ?? 0) /
-            (ESSAY_COUNT * MAX_REVIEWS_PER_ESSAY) /
-            (totalApplicationData[gradingGroup]?.applicationCount ?? 1)
-        ) * 100
-      );
+      // Divide all reviews data by max number of reviews per essay * essays per application
+      gradingStatus[gradingGroup] =
+        Math.round(
+          ((reviewsData[gradingGroup]?.reviewCount ?? 0) /
+            (MAX_REVIEWS_PER_ESSAY *
+              ESSAY_COUNT *
+              (totalApplicationData[gradingGroup]?.applicationCount ?? 0))) *
+            10000
+        ) / 100;
     }
 
     res.status(200).send(gradingStatus);
