@@ -497,7 +497,7 @@ gradingRouter.route("/export").get(
 
     // Create a comma separated string with all the data
     let combinedApplications =
-      "applicationId; userId; branchId; branchName; school; avgScore; numReviews; gender; ethnicity; travelReimbursementType; status\n";
+      "applicationId;userId;branchId;branchName;school;avgScore;numReviews;gender;ethnicity;travelReimbursementType;status;\n";
 
     gradedApplications.forEach(appl => {
       for (const field of Object.keys(appl)) {
