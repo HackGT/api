@@ -56,7 +56,7 @@ const weighEssayScores = async () => {
         { _id: application._id },
         {
           $set: {
-            finalScore: weightedFinalScore,
+            finalScore: Number(weightedFinalScore.toFixed(2)),
           },
         }
       );
