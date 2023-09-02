@@ -423,6 +423,9 @@ gradingRouter.route("/export").get(
           userId: {
             $first: "$userId",
           },
+          finalScore: {
+            $first: "$finalScore",
+          },
           applicationBranch: {
             $first: "$applicationBranch",
           },
@@ -431,9 +434,6 @@ gradingRouter.route("/export").get(
           },
           status: {
             $first: "$status",
-          },
-          avgScore: {
-            $avg: "$reviews_data.adjustedScore",
           },
           numReviews: {
             $sum: 1,
@@ -474,7 +474,7 @@ gradingRouter.route("/export").get(
             $first: "$applicationData.school",
           },
           avgScore: {
-            $first: "$avgScore",
+            $first: "$finalScore",
           },
           numReviews: {
             $first: "$numReviews",
