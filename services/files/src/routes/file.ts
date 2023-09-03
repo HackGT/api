@@ -7,7 +7,6 @@ import { ObjectId } from "mongodb";
 
 import { uploadFile, uploadFiles, getFileViewingUrl } from "../common/storage";
 import { File, FileModel } from "../models/file";
-import { validateResumeName } from "src/common/validationHelpers";
 
 const fileMimeTypesAllowlist = [
   "application/pdf",
@@ -41,10 +40,6 @@ fileRoutes.route("/upload").post(
   asyncHandler(async (req, res) => {
     if (!req.file) {
       throw new BadRequestError("No file uploaded");
-    }
-
-    if (req.body.type === "resume" && req.query.hexathonCode) {
-      await validateResumeName(req.file.originalname, req.query.hexathonCode as string);
     }
 
     const googleFileName = await uploadFile(
