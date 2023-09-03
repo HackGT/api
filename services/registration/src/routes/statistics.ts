@@ -242,6 +242,8 @@ statisticsRouter.route("/").get(
         (allUsersStatusCount.CONFIRMED || 0) +
         (allUsersStatusCount.NOT_ATTENDING || 0),
       confirmedUsers: allUsersStatusCount.CONFIRMED || 0,
+      waitlistedUsers: allUsersStatusCount.WAITLISTED || 0,
+      withdrawnUsers: allUsersStatusCount.NOT_ATTENDING || 0,
       checkedinUsers: checkinInteractions,
       deniedUsers: allUsersStatusCount.DENIED || 0,
     };
