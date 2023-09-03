@@ -42,6 +42,17 @@ fileRoutes.route("/upload").post(
       throw new BadRequestError("No file uploaded");
     }
 
+    // Check if resume name is in the format <firstName>_<lastName>_<hexathonCode>
+    if (req.body.type === "resume" && req.query.hexathonCode) {
+      // Check if resume name is in the format <firstName>_<lastName>_<hexathonCode>
+      const resumeNameRegex = new RegExp(
+        `^[a-zA-Z]+_[a-zA-Z]+_${(req.query.hexathonCode as string).toLowerCase()}.pdf$`
+      );
+      if (!resumeNameRegex.test(req.file.originalname)) {
+        throw new Error(`Resume not formatted correctly.`);
+      }
+    }
+
     const googleFileName = await uploadFile(
       req.file,
       config.common.googleCloud.storageBuckets.default
