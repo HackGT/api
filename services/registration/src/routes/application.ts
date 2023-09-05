@@ -532,8 +532,9 @@ applicationRouter.route("/:id/actions/update-application").post(
           `Applicant must have a confirmation branch with status ${newStatus}.`
         );
       }
-    } else if (newStatus === StatusType.NOT_ATTENDING && confirmationBranch) {
-      newConfirmationBranch = confirmationBranch;
+    } else if (newStatus === StatusType.NOT_ATTENDING) {
+      // Keep confirmation branch the same if provided
+      newConfirmationExtendedDeadline = null;
     } else {
       newConfirmationBranch = null;
       newConfirmationExtendedDeadline = null;
