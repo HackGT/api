@@ -47,7 +47,17 @@ teamRoutes.route("/:id").get(
 teamRoutes.route("/").post(
   checkAbility("create", "Team"),
   asyncHandler(async (req, res) => {
-    const { name, hexathon, description, publicTeam } = req.body;
+    const { name, hexathon, email, description, publicTeam } = req.body;
+
+    const hexathonUser = await HexathonUserModel.findOne({
+      hexathon: { $eq: hexathon },
+      email: { $eq: email },
+    });
+
+    // If the requesting user hasn't applied yet, do not create a team
+    if (!hexathonUser) {
+      throw new BadRequestError("User has not registered for this event!");
+    }
 
     const existingTeam = await TeamModel.findOne({ name, hexathon });
     if (existingTeam) {
