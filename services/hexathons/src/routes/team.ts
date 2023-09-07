@@ -16,6 +16,10 @@ teamRoutes.route("/").get(
       filter.hexathon = req.query.hexathon;
     }
 
+    if (req.query.userId) {
+      filter.members = req.query.userId;
+    }
+
     const teamsCount = await TeamModel.accessibleBy(req.ability).find(filter).count();
 
     const limit = parseInt(req.query.limit as string) || 50;
