@@ -17,7 +17,7 @@ import { SwagItemModel } from "../models/swagItem";
 export const hexathonUserRouter = express.Router();
 
 hexathonUserRouter.route("/:hexathonId/users").get(
-  checkAbility("manage", "HexathonUser"),
+  checkAbility("read", "HexathonUser"),
   asyncHandler(async (req, res) => {
     const filter: FilterQuery<HexathonUser> = {
       hexathon: req.params.hexathonId,
