@@ -39,6 +39,7 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
   can("read", "Tag");
   can("read", "Checkin", { userId: req.user.uid });
   can("read", "HexathonUser", { userId: req.user.uid });
+  can("read", "Team");
   can("manage", "Team", { members: req.user.uid });
   can("read", "SwagItem");
   can("read", "Visit");
