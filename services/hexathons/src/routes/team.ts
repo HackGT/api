@@ -81,6 +81,12 @@ teamRoutes.route("/").post(
       public: publicTeam,
     });
 
+    await HexathonUserModel.findByIdAndUpdate(hexathonUser.id, {
+      profile: {
+        matched: false,
+      },
+    });
+
     res.status(200).send(newTeam);
   })
 );
@@ -128,6 +134,12 @@ teamRoutes.route("/add").post(
       }
     );
 
+    await HexathonUserModel.findByIdAndUpdate(userToAdd.id, {
+      profile: {
+        matched: false,
+      },
+    });
+
     res.status(200).json(updatedTeam);
   })
 );
@@ -135,6 +147,15 @@ teamRoutes.route("/add").post(
 teamRoutes.route("/:id/accept-user").post(
   checkAbility("update", "Team"),
   asyncHandler(async (req, res) => {
+    const { hexathon } = req.body;
+    const userToAccept = await HexathonUserModel.findOne({
+      hexathon: { $eq: hexathon },
+      userId: req.user?.uid,
+    });
+    if (!userToAccept) {
+      throw new BadRequestError("User not found for this hexathon.");
+    }
+
     const team = await TeamModel.findById(req.params.id);
 
     if (!team) {
@@ -153,6 +174,12 @@ teamRoutes.route("/:id/accept-user").post(
       members: [...team.members, req.body.userId],
       $pull: {
         memberRequests: { userId: req.body.userId },
+      },
+    });
+
+    await HexathonUserModel.findByIdAndUpdate(userToAccept.id, {
+      profile: {
+        matched: false,
       },
     });
 
@@ -302,6 +329,15 @@ teamRoutes.route("/leave").post(
     if (team.members.length <= 1) {
       await TeamModel.findByIdAndDelete(team.id);
     }
+
+    await HexathonUserModel.updateOne(
+      { userId: req.user?.uid },
+      {
+        $set: {
+          matched: true,
+        },
+      }
+    );
 
     res.sendStatus(204);
   })
