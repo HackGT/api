@@ -160,6 +160,29 @@ teamRoutes.route("/:id/accept-user").post(
   })
 );
 
+teamRoutes.route("/:id/reject-user").post(
+  checkAbility("update", "Team"),
+  asyncHandler(async (req, res) => {
+    const team = await TeamModel.findById(req.params.id);
+
+    if (!team) {
+      throw new BadRequestError("Invalid team or you do not have permission.");
+    }
+
+    if (!req.user || !team.members.includes(req.user.uid)) {
+      throw new ForbiddenError("User must be member of the team to reject a user.");
+    }
+
+    const updatedTeam = await TeamModel.findByIdAndUpdate(team.id, {
+      $pull: {
+        memberRequests: { userId: req.body.userId },
+      },
+    });
+
+    res.status(200).send(updatedTeam);
+  })
+);
+
 teamRoutes.route("/user/:userId").get(
   checkAbility("read", "Team"),
   asyncHandler(async (req, res) => {
