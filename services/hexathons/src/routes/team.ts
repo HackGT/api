@@ -82,8 +82,8 @@ teamRoutes.route("/").post(
     });
 
     await HexathonUserModel.findByIdAndUpdate(hexathonUser.id, {
-      profile: {
-        matched: false,
+      $set: {
+        "profile.matched": false,
       },
     });
 
@@ -135,8 +135,8 @@ teamRoutes.route("/add").post(
     );
 
     await HexathonUserModel.findByIdAndUpdate(userToAdd.id, {
-      profile: {
-        matched: false,
+      $set: {
+        "profile.matched": false,
       },
     });
 
@@ -178,8 +178,8 @@ teamRoutes.route("/:id/accept-user").post(
     });
 
     await HexathonUserModel.findByIdAndUpdate(userToAccept.id, {
-      profile: {
-        matched: false,
+      $set: {
+        "profile.matched": false,
       },
     });
 
