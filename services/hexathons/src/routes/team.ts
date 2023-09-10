@@ -279,7 +279,7 @@ teamRoutes.route("/join").post(
     });
 
     if (teamPendingReq) {
-      if (team.id.equals(teamPendingReq.id)) {
+      if (team.id === teamPendingReq.id) {
         throw new BadRequestError("User has already requested to join this team!");
       }
       await teamPendingReq.updateOne({
