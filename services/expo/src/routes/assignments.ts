@@ -332,30 +332,70 @@ assignmentRoutes.route("/").post(
     const user: User = req.body.user as User;
     const projectId: number = parseInt(req.body.project.id);
     const duplicateFilter: any = {};
-    const multipleProjectFilter: any = {};
 
     duplicateFilter.projectId = projectId;
     duplicateFilter.userId = user.id;
-
-    multipleProjectFilter.userId = user.id;
-    multipleProjectFilter.status = AssignmentStatus.STARTED;
+    duplicateFilter.status = AssignmentStatus.STARTED;
 
     const checkAssignment = await prisma.assignment.findMany({
       where: {
-        OR: [duplicateFilter, multipleProjectFilter],
+        userId: duplicateFilter.userId,
+        projectId: duplicateFilter.projectId,
+      },
+    });
+    if (checkAssignment.length !== 0 && checkAssignment[0].status === "STARTED") {
+      throw new BadRequestError("Judge is already judging this project.");
+    } else if (checkAssignment.length !== 0 && checkAssignment[0].status === "COMPLETED") {
+      throw new BadRequestError("Judge has already judged this project.");
+    }
+
+    let createdAssignment;
+    if (checkAssignment.length === 0) {
+      createdAssignment = await prisma.assignment.create({
+        data: req.body.data,
+      });
+      res.status(201).json(createdAssignment);
+    }
+
+    const checkAnyAssignmentStarted = await prisma.assignment.findMany({
+      where: {
+        userId: duplicateFilter.userId,
+        status: AssignmentStatus.STARTED,
       },
     });
 
-    if (checkAssignment.length !== 0) {
-      throw new BadRequestError(
-        "Judge already has a project started or project assignment is a duplicate"
-      );
-    }
+    if (checkAnyAssignmentStarted.length !== 0) {
+      const updateOldAssignment = await prisma.assignment.update({
+        where: {
+          id: checkAnyAssignmentStarted[0].id,
+        },
+        data: {
+          status: AssignmentStatus.QUEUED,
+        },
+      });
+      if (checkAssignment.length !== 0) {
+        const updatedAssignment = await prisma.assignment.update({
+          where: {
+            id: checkAssignment[0].id,
+          },
+          data: {
+            status: AssignmentStatus.STARTED,
+          },
+        });
 
-    const createdAssignment = await prisma.assignment.create({
-      data: req.body.data,
-    });
-    res.status(201).json(createdAssignment);
+        res.status(201).json(updatedAssignment);
+      } else if (typeof createdAssignment !== "undefined") {
+        const updatedAssignment = await prisma.assignment.update({
+          where: {
+            id: createdAssignment.id,
+          },
+          data: {
+            status: AssignmentStatus.STARTED,
+          },
+        });
+        res.status(201).json(updatedAssignment);
+      }
+    }
   })
 );
 
