@@ -147,15 +147,6 @@ teamRoutes.route("/add").post(
 teamRoutes.route("/:id/accept-user").post(
   checkAbility("update", "Team"),
   asyncHandler(async (req, res) => {
-    const { hexathon } = req.body;
-    const userToAccept = await HexathonUserModel.findOne({
-      hexathon: { $eq: hexathon },
-      userId: req.user?.uid,
-    });
-    if (!userToAccept) {
-      throw new BadRequestError("User not found for this hexathon.");
-    }
-
     const team = await TeamModel.findById(req.params.id);
 
     if (!team) {
@@ -174,12 +165,6 @@ teamRoutes.route("/:id/accept-user").post(
       members: [...team.members, req.body.userId],
       $pull: {
         memberRequests: { userId: req.body.userId },
-      },
-    });
-
-    await HexathonUserModel.findByIdAndUpdate(userToAccept.id, {
-      $set: {
-        "profile.matched": false,
       },
     });
 
