@@ -8,10 +8,11 @@ export interface Team extends mongoose.Document {
   members: string[];
   description: string;
   public: boolean;
-  memberRequests: Types.DocumentArray<MemberRequest>;
+  memberRequests: Types.DocumentArray<Request>;
+  sentInvites: Types.DocumentArray<Request>;
 }
 
-export interface MemberRequest extends Types.Subdocument {
+export interface Request extends Types.Subdocument {
   userId: string;
   message: string;
 }
@@ -42,6 +43,21 @@ const teamSchema = new Schema<Team>({
     default: false,
   },
   memberRequests: {
+    type: [
+      {
+        userId: {
+          type: String,
+          required: true,
+        },
+        message: {
+          type: String,
+          required: false,
+        },
+      },
+    ],
+    default: [] as any,
+  },
+  sentInvites: {
     type: [
       {
         userId: {

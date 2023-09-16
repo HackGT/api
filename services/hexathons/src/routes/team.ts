@@ -286,6 +286,110 @@ teamRoutes.route("/join").post(
   })
 );
 
+teamRoutes.route("/send-invite").post(
+  checkAbility("update", "Team"),
+  asyncHandler(async (req, res) => {
+    const { hexathon, email, message } = req.body;
+
+    const userToInvite = await HexathonUserModel.findOne({
+      hexathon: { $eq: hexathon },
+      email: { $eq: email },
+    });
+    if (!userToInvite) {
+      throw new BadRequestError("User associated with email not found.");
+    }
+
+    const existingTeam = await TeamModel.findOne({ hexathon, members: userToInvite.userId });
+    if (existingTeam) {
+      throw new BadRequestError("User has already joined another team for this event.");
+    }
+
+    const teamToInvite = await TeamModel.findOne({
+      hexathon,
+      members: req.user?.uid,
+    });
+
+    if (!teamToInvite) {
+      throw new BadRequestError("Current user is not a part of a team!");
+    }
+    if (teamToInvite.members.length >= 4) {
+      throw new BadRequestError("Teams can only have up to 4 members.");
+    }
+    if (teamToInvite.members.includes(userToInvite.userId)) {
+      throw new BadRequestError("New user is already on this team.");
+    }
+
+    const updatedTeam = await TeamModel.findByIdAndUpdate(
+      teamToInvite.id,
+      {
+        sentInvites: [...teamToInvite.sentInvites, { userId: userToInvite.userId, message }],
+      },
+      {
+        new: true,
+      }
+    );
+
+    res.status(200).json(updatedTeam);
+  })
+);
+
+teamRoutes.route("/accept-invite").post(
+  checkAbility("read", "Team"),
+  asyncHandler(async (req, res) => {
+    const { hexathon, name } = req.body;
+
+    const acceptingUser = await HexathonUserModel.findOne({
+      hexathon: { $eq: hexathon },
+      userId: req.user?.uid,
+    });
+
+    if (!acceptingUser) {
+      throw new BadRequestError("User has not registered for this event!");
+    }
+
+    const teamToJoin = await TeamModel.findOne({
+      hexathon,
+      name,
+    });
+
+    if (!teamToJoin) {
+      throw new BadRequestError("Team does not exist!");
+    }
+
+    if (teamToJoin.members.length >= 4) {
+      throw new BadRequestError("Teams can only have up to 4 members.");
+    }
+
+    if (teamToJoin.members.includes(acceptingUser.userId)) {
+      throw new BadRequestError("User is already on this team.");
+    }
+
+    const updatedTeam = await TeamModel.findByIdAndUpdate(
+      teamToJoin.id,
+      {
+        members: [...teamToJoin.members, acceptingUser.userId],
+        $pull: {
+          sentInvites: { userId: acceptingUser.userId },
+        },
+      },
+      {
+        new: true,
+      }
+    );
+
+    await HexathonUserModel.updateOne(
+      { userId: req.user?.uid },
+      {
+        $set: {
+          matched: false,
+        },
+      }
+    );
+
+    res.status(200).json(updatedTeam);
+  })
+);
+
 teamRoutes.route("/leave").post(
   checkAbility("update", "Team"),
   asyncHandler(async (req, res) => {
