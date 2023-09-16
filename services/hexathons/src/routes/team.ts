@@ -390,6 +390,45 @@ teamRoutes.route("/accept-invite").post(
   })
 );
 
+teamRoutes.route("/reject-invite").post(
+  checkAbility("read", "Team"),
+  asyncHandler(async (req, res) => {
+    const { hexathon, name } = req.body;
+
+    const rejectingUser = await HexathonUserModel.findOne({
+      hexathon: { $eq: hexathon },
+      userId: req.user?.uid,
+    });
+
+    if (!rejectingUser) {
+      throw new BadRequestError("User has not registered for this event!");
+    }
+
+    const teamToReject = await TeamModel.findOne({
+      hexathon,
+      name,
+    });
+
+    if (!teamToReject) {
+      throw new BadRequestError("Team does not exist!");
+    }
+
+    const updatedTeam = await TeamModel.findByIdAndUpdate(
+      teamToReject.id,
+      {
+        $pull: {
+          sentInvites: { userId: rejectingUser.userId },
+        },
+      },
+      {
+        new: true,
+      }
+    );
+
+    res.status(200).json(updatedTeam);
+  })
+);
+
 teamRoutes.route("/leave").post(
   checkAbility("update", "Team"),
   asyncHandler(async (req, res) => {
