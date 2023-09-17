@@ -89,6 +89,17 @@ const autoAssign = async (judgeId: number, isStarted: boolean): Promise<Assignme
     throw new Error("Judge is not aligned to a category group");
   }
 
+  const checkAnyAssignmentStarted = await prisma.assignment.findMany({
+    where: {
+      userId: judgeToAssign.id,
+      status: AssignmentStatus.STARTED,
+    },
+  });
+
+  if (checkAnyAssignmentStarted.length !== 0) {
+    isStarted = false;
+  }
+
   // get categoryIds from the judge's category group
   const judgeCategoryIds = judgeToAssign.categoryGroup.categories.map(category => category.id);
 
@@ -167,6 +178,7 @@ const autoAssign = async (judgeId: number, isStarted: boolean): Promise<Assignme
   if (defaultCategories.length > 0) {
     categoriesToJudge = categoriesToJudge.concat(defaultCategories);
   }
+
   const createdAssignment = await prisma.assignment.create({
     data: {
       userId: judgeToAssign.id,
