@@ -1,6 +1,6 @@
 import express from "express";
 import { asyncHandler, BadRequestError, checkAbility, ForbiddenError } from "@api/common";
-import { FilterQuery } from "mongoose";
+import { FilterQuery, isValidObjectId, Types } from "mongoose";
 
 import { Team, TeamModel } from "../models/team";
 import { HexathonUser, HexathonUserModel } from "../models/hexathonUser";
@@ -18,6 +18,18 @@ teamRoutes.route("/").get(
 
     if (req.query.userId) {
       filter.members = req.query.userId;
+    }
+
+    if (req.query.search) {
+      const searchLength = (req.query.search as string).length;
+      const search =
+        searchLength > 75
+          ? (req.query.search as string).slice(0, 75)
+          : (req.query.search as string);
+      filter.$or = [
+        { _id: isValidObjectId(search) ? new Types.ObjectId(search) : undefined },
+        { name: { $regex: new RegExp(search, "i") } },
+      ];
     }
 
     const teamsCount = await TeamModel.accessibleBy(req.ability).find(filter).count();
