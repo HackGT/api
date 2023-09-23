@@ -29,6 +29,7 @@ teamRoutes.route("/").get(
       filter.$or = [
         { _id: isValidObjectId(search) ? new Types.ObjectId(search) : undefined },
         { name: { $regex: new RegExp(search, "i") } },
+        { members: req.user?.uid },
       ];
     }
 
