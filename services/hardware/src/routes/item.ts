@@ -135,17 +135,22 @@ itemRouter.route("/").post(
     if (!req.body.location.trim().length) {
       throw new BadRequestError("The location for this item can't be blank.");
     }
-    if (req.body.totalAvailable < 0) {
+    const category = parseInt(req.body.category);
+    const location = parseInt(req.body.location);
+    const price = parseFloat(req.body.price);
+    const totalAvailable = parseFloat(req.body.totalAvailable);
+    const maxRequestQty = parseFloat(req.body.maxRequestQty);
+    if (totalAvailable < 0) {
       throw new BadRequestError(
         `The total quantity available (totalQtyAvailable) for a new item can't be less than 0.  Value provided: ${req.body.totalAvailable}`
       );
     }
-    if (req.body.maxRequestQty < 1) {
+    if (maxRequestQty < 1) {
       throw new BadRequestError(
         `The max request quantity (maxRequestQty) must be at least 1.  Value provided: ${req.body.maxRequestQty}`
       );
     }
-    if (req.body.maxRequestQty > req.body.totalAvailable) {
+    if (maxRequestQty > totalAvailable) {
       throw new BadRequestError(
         `The max request quantity (maxRequestQty) can't be greater than the total quantity of this item (totalAvailable) that is available.  maxRequestQty: ${req.body.maxRequestQty}, totalAvailable: ${req.body.totalAvailable}`
       );
@@ -154,14 +159,17 @@ itemRouter.route("/").post(
     const item = await prisma.item.create({
       data: {
         ...req.body,
+        price,
+        totalAvailable,
+        maxRequestQty,
         category: {
           connect: {
-            id: req.body.category,
+            id: category,
           },
         },
         location: {
           connect: {
-            id: req.body.location,
+            id: location,
           },
         },
       },
