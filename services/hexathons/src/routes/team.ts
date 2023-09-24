@@ -16,11 +16,11 @@ teamRoutes.route("/").get(
       filter.hexathon = req.query.hexathon;
     }
 
-    const hexathonUser = await HexathonUserModel.findOne({
-      userId: req.query.userId,
-    });
-
     if (req.query.userId) {
+      const hexathonUser = await HexathonUserModel.findOne({
+        hexathon: req.query.hexathon,
+        userId: req.query.userId,
+      });
       if (!hexathonUser) {
         throw new BadRequestError("No hexathon user for the user id.");
       }
@@ -36,7 +36,6 @@ teamRoutes.route("/").get(
       filter.$or = [
         { _id: isValidObjectId(search) ? new Types.ObjectId(search) : undefined },
         { name: { $regex: new RegExp(search, "i") } },
-        { members: hexathonUser?.id },
       ];
     }
 
