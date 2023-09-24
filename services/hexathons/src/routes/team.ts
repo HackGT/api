@@ -3,7 +3,7 @@ import { asyncHandler, BadRequestError, checkAbility, ForbiddenError } from "@ap
 import { FilterQuery, isValidObjectId, Types } from "mongoose";
 
 import { Team, TeamModel } from "../models/team";
-import { HexathonUser, HexathonUserModel } from "../models/hexathonUser";
+import { HexathonUserModel } from "../models/hexathonUser";
 
 export const teamRoutes = express.Router();
 
@@ -16,8 +16,15 @@ teamRoutes.route("/").get(
       filter.hexathon = req.query.hexathon;
     }
 
+    const hexathonUser = await HexathonUserModel.findOne({
+      userId: req.query.userId,
+    });
+
     if (req.query.userId) {
-      filter.members = req.query.userId;
+      if (!hexathonUser) {
+        throw new BadRequestError("No hexathon user for the user id.");
+      }
+      filter.members = hexathonUser.id;
     }
 
     if (req.query.search) {
@@ -29,7 +36,7 @@ teamRoutes.route("/").get(
       filter.$or = [
         { _id: isValidObjectId(search) ? new Types.ObjectId(search) : undefined },
         { name: { $regex: new RegExp(search, "i") } },
-        { members: req.user?.uid },
+        { members: hexathonUser?.id },
       ];
     }
 
@@ -37,7 +44,11 @@ teamRoutes.route("/").get(
 
     const limit = parseInt(req.query.limit as string) || 50;
     const offset = parseInt(req.query.offset as string) || 0;
-    const teams = await TeamModel.accessibleBy(req.ability).find(filter).skip(offset).limit(limit);
+    const teams = await TeamModel.accessibleBy(req.ability)
+      .populate("members memberRequests.member sentInvites.member")
+      .find(filter)
+      .skip(offset)
+      .limit(limit);
 
     res.status(200).json({
       offset,
@@ -51,7 +62,9 @@ teamRoutes.route("/").get(
 teamRoutes.route("/:id").get(
   checkAbility("read", "Team"),
   asyncHandler(async (req, res) => {
-    const team = await TeamModel.findById(req.params.id).accessibleBy(req.ability);
+    const team = await TeamModel.findById(req.params.id)
+      .accessibleBy(req.ability)
+      .populate("members memberRequests.member sentInvites.member");
 
     if (!team) {
       throw new BadRequestError("Invalid team or you do not have permission.");
@@ -81,7 +94,7 @@ teamRoutes.route("/").post(
       throw new BadRequestError("Team with this name already exists!");
     }
 
-    const existingTeamWithUser = await TeamModel.findOne({ hexathon, members: req.user?.uid });
+    const existingTeamWithUser = await TeamModel.findOne({ hexathon, members: hexathonUser.id });
     if (existingTeamWithUser) {
       throw new BadRequestError("User is already in a team for this event!");
     }
@@ -89,7 +102,7 @@ teamRoutes.route("/").post(
     const newTeam = await TeamModel.create({
       name,
       hexathon,
-      members: [req.user?.uid],
+      members: [hexathonUser.id],
       description,
       public: publicTeam,
     });
@@ -117,14 +130,14 @@ teamRoutes.route("/add").post(
       throw new BadRequestError("User associated with email not found.");
     }
 
-    const existingTeam = await TeamModel.findOne({ hexathon, members: userToAdd.userId });
+    const existingTeam = await TeamModel.findOne({ hexathon, members: userToAdd.id });
     if (existingTeam) {
       throw new BadRequestError("User has already joined another team for this event.");
     }
 
     const teamToJoin = await TeamModel.findOne({
       hexathon,
-      members: req.user?.uid,
+      members: userToAdd.id,
     });
 
     if (!teamToJoin) {
@@ -133,14 +146,14 @@ teamRoutes.route("/add").post(
     if (teamToJoin.members.length >= 4) {
       throw new BadRequestError("Teams can only have up to 4 members.");
     }
-    if (teamToJoin.members.includes(userToAdd.userId)) {
+    if (teamToJoin.members.includes(userToAdd.id)) {
       throw new BadRequestError("New user is already on this team.");
     }
 
     const updatedTeam = await TeamModel.findByIdAndUpdate(
       teamToJoin.id,
       {
-        members: [...teamToJoin.members, userToAdd.userId],
+        members: [...teamToJoin.members, userToAdd.id],
       },
       {
         new: true,
@@ -160,13 +173,20 @@ teamRoutes.route("/add").post(
 teamRoutes.route("/:id/accept-user").post(
   checkAbility("update", "Team"),
   asyncHandler(async (req, res) => {
+    const { hexathon, email } = req.body;
     const team = await TeamModel.findById(req.params.id);
-
+    const userToAccept = await HexathonUserModel.findOne({
+      hexathon: { $eq: hexathon },
+      email: { $eq: email },
+    });
+    if (!userToAccept) {
+      throw new BadRequestError("User associated with email not found.");
+    }
     if (!team) {
       throw new BadRequestError("Invalid team or you do not have permission.");
     }
 
-    if (!req.user || !team.members.includes(req.user.uid)) {
+    if (!req.user || !team.members.includes(userToAccept.id)) {
       throw new ForbiddenError("User must be member of the team to accept a user.");
     }
 
@@ -175,9 +195,9 @@ teamRoutes.route("/:id/accept-user").post(
     }
 
     const updatedTeam = await TeamModel.findByIdAndUpdate(team.id, {
-      members: [...team.members, req.body.userId],
+      members: [...team.members, userToAccept.id],
       $pull: {
-        memberRequests: { userId: req.body.userId },
+        memberRequests: { member: userToAccept.id },
       },
     });
 
@@ -188,19 +208,26 @@ teamRoutes.route("/:id/accept-user").post(
 teamRoutes.route("/:id/reject-user").post(
   checkAbility("update", "Team"),
   asyncHandler(async (req, res) => {
+    const { hexathon, email } = req.body;
     const team = await TeamModel.findById(req.params.id);
-
+    const userToReject = await HexathonUserModel.findOne({
+      hexathon: { $eq: hexathon },
+      email: { $eq: email },
+    });
+    if (!userToReject) {
+      throw new BadRequestError("User associated with email not found.");
+    }
     if (!team) {
       throw new BadRequestError("Invalid team or you do not have permission.");
     }
 
-    if (!req.user || !team.members.includes(req.user.uid)) {
+    if (!req.user || !team.members.includes(userToReject.id)) {
       throw new ForbiddenError("User must be member of the team to reject a user.");
     }
 
     const updatedTeam = await TeamModel.findByIdAndUpdate(team.id, {
       $pull: {
-        memberRequests: { userId: req.body.userId },
+        memberRequests: { member: userToReject.id },
       },
     });
 
@@ -208,50 +235,20 @@ teamRoutes.route("/:id/reject-user").post(
   })
 );
 
-teamRoutes.route("/user/:userId").get(
-  checkAbility("read", "Team"),
-  asyncHandler(async (req, res) => {
-    if (!req.query.hexathon) {
-      throw new BadRequestError("Hexathon filter is required");
-    }
-
-    const filter: FilterQuery<Team> = {
-      hexathon: req.query.hexathon,
-      members: req.params.userId,
-    };
-
-    const team = await TeamModel.findOne(filter);
-    if (!team) {
-      res.status(200).json({});
-      return;
-    }
-
-    const hexathonUserFilter: FilterQuery<HexathonUser> = {
-      hexathon: { $eq: req.query.hexathon },
-      userId: {
-        $in: team.members,
-      },
-    };
-
-    const hexathonUsers = await HexathonUserModel.find(hexathonUserFilter);
-
-    if (hexathonUsers.length !== team.members.length) {
-      throw new BadRequestError("Not all team members have profiles.");
-    }
-
-    res.status(200).json({
-      ...team.toJSON(),
-      members: hexathonUsers,
-    });
-  })
-);
-
 teamRoutes.route("/join").post(
   checkAbility("update", "Team"),
   asyncHandler(async (req, res) => {
-    const { name, hexathon, message } = req.body;
+    const { name, hexathon, email, message } = req.body;
 
-    const existingTeam = await TeamModel.findOne({ hexathon, members: req.user?.uid });
+    const userToJoin = await HexathonUserModel.findOne({
+      hexathon: { $eq: hexathon },
+      email: { $eq: email },
+    });
+    if (!userToJoin) {
+      throw new BadRequestError("User associated with email not found.");
+    }
+
+    const existingTeam = await TeamModel.findOne({ hexathon, members: userToJoin.id });
     if (existingTeam) {
       throw new BadRequestError(
         "User cannot join a team for an event they are already in a team for!"
@@ -263,7 +260,7 @@ teamRoutes.route("/join").post(
       throw new BadRequestError("Team doesn't exist!");
     }
 
-    if (team.members.includes(req.user?.uid as string)) {
+    if (team.members.includes(userToJoin.id)) {
       throw new BadRequestError("User has already joined this team!");
     }
 
@@ -271,7 +268,7 @@ teamRoutes.route("/join").post(
       hexathon,
       memberRequests: {
         $elemMatch: {
-          userId: req.user?.uid,
+          member: userToJoin.id,
         },
       },
     });
@@ -282,7 +279,7 @@ teamRoutes.route("/join").post(
       }
       await teamPendingReq.updateOne({
         $pull: {
-          memberRequests: { userId: req.user?.uid },
+          memberRequests: { member: userToJoin.id },
         },
       });
     }
@@ -290,7 +287,7 @@ teamRoutes.route("/join").post(
     await TeamModel.findByIdAndUpdate(
       team.id,
       {
-        memberRequests: [...team.memberRequests, { userId: req.user?.uid, message }],
+        memberRequests: [...team.memberRequests, { member: userToJoin.id, message }],
       },
       { new: true }
     );
@@ -312,7 +309,7 @@ teamRoutes.route("/send-invite").post(
       throw new BadRequestError("User associated with email not found.");
     }
 
-    const existingTeam = await TeamModel.findOne({ hexathon, members: userToInvite.userId });
+    const existingTeam = await TeamModel.findOne({ hexathon, members: userToInvite.id });
     if (existingTeam) {
       throw new BadRequestError("User has already joined another team for this event.");
     }
@@ -328,14 +325,14 @@ teamRoutes.route("/send-invite").post(
     if (teamToInvite.members.length >= 4) {
       throw new BadRequestError("Teams can only have up to 4 members.");
     }
-    if (teamToInvite.members.includes(userToInvite.userId)) {
+    if (teamToInvite.members.includes(userToInvite.id)) {
       throw new BadRequestError("New user is already on this team.");
     }
 
     const updatedTeam = await TeamModel.findByIdAndUpdate(
       teamToInvite.id,
       {
-        sentInvites: [...teamToInvite.sentInvites, { userId: userToInvite.userId, message }],
+        sentInvites: [...teamToInvite.sentInvites, { member: userToInvite.id, message }],
       },
       {
         new: true,
@@ -373,11 +370,11 @@ teamRoutes.route("/accept-invite").post(
       throw new BadRequestError("Teams can only have up to 4 members.");
     }
 
-    if (teamToJoin.members.includes(acceptingUser.userId)) {
+    if (teamToJoin.members.includes(acceptingUser.id)) {
       throw new BadRequestError("User is already on this team.");
     }
 
-    const invite = teamToJoin.sentInvites.find(invite => invite.userId === acceptingUser.userId);
+    const invite = teamToJoin.sentInvites.find(invite => invite.member === acceptingUser.id);
     if (!invite) {
       throw new BadRequestError("User does not have an invite for this team!");
     }
@@ -385,9 +382,9 @@ teamRoutes.route("/accept-invite").post(
     const updatedTeam = await TeamModel.findByIdAndUpdate(
       teamToJoin.id,
       {
-        members: [...teamToJoin.members, acceptingUser.userId],
+        members: [...teamToJoin.members, acceptingUser.id],
         $pull: {
-          sentInvites: { userId: acceptingUser.userId },
+          sentInvites: { member: acceptingUser.id },
         },
       },
       {
@@ -431,7 +428,7 @@ teamRoutes.route("/reject-invite").post(
       throw new BadRequestError("Team does not exist!");
     }
 
-    const invite = teamToReject.sentInvites.find(invite => invite.userId === rejectingUser.userId);
+    const invite = teamToReject.sentInvites.find(invite => invite.member === rejectingUser.id);
     if (!invite) {
       throw new BadRequestError("User does not have an invite for this team!");
     }
@@ -440,7 +437,7 @@ teamRoutes.route("/reject-invite").post(
       teamToReject.id,
       {
         $pull: {
-          sentInvites: { userId: rejectingUser.userId },
+          sentInvites: { member: rejectingUser.id },
         },
       },
       {
@@ -459,11 +456,20 @@ teamRoutes.route("/leave").post(
 
     const team = await TeamModel.findOne({ name, hexathon });
 
+    const userToLeave = await HexathonUserModel.findOne({
+      hexathon: { $eq: hexathon },
+      userId: req.user?.uid,
+    });
+
+    if (!userToLeave) {
+      throw new BadRequestError("User has not registered for this event!");
+    }
+
     if (!team) {
       throw new BadRequestError("Team doesn't exist!");
     }
 
-    if (!team.members.includes(req.user?.uid ?? "")) {
+    if (!team.members.includes(userToLeave.id)) {
       throw new BadRequestError("User isn't a member of the team!");
     }
 
@@ -471,7 +477,7 @@ teamRoutes.route("/leave").post(
       team.id,
       {
         $pull: {
-          members: req.user?.uid,
+          members: userToLeave.id,
         },
       },
       { new: true }
@@ -498,15 +504,24 @@ teamRoutes.route("/:id").put(
   checkAbility("update", "Team"),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
+    const { hexathon } = req.body;
 
     const team = await TeamModel.findById(id);
-    const userId = req.user?.uid;
+
+    const requestingUser = await HexathonUserModel.findOne({
+      hexathon: { $eq: hexathon },
+      userId: req.user?.uid,
+    });
+
+    if (!requestingUser) {
+      throw new BadRequestError("User has not registered for this event!");
+    }
 
     if (!team) {
       throw new BadRequestError("Team doesn't exist!");
     }
 
-    if (!team.members.includes(userId as string)) {
+    if (!team.members.includes(requestingUser.id)) {
       throw new BadRequestError("User isn't a member of the team!");
     }
 

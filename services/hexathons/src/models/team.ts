@@ -1,11 +1,12 @@
 import { accessibleRecordsPlugin, AccessibleRecordModel } from "@casl/mongoose";
 import mongoose, { Schema, model, Types } from "mongoose";
 import { HexathonModel } from "./hexathon";
+import { HexathonUserModel } from "./hexathonUser";
 
 export interface Team extends mongoose.Document {
   name: string;
   hexathon: Types.ObjectId;
-  members: string[];
+  members: Types.ObjectId[];
   description: string;
   public: boolean;
   memberRequests: Types.DocumentArray<Request>;
@@ -13,7 +14,7 @@ export interface Team extends mongoose.Document {
 }
 
 export interface Request extends Types.Subdocument {
-  userId: string;
+  member: Types.ObjectId;
   message: string;
 }
 
@@ -28,11 +29,12 @@ const teamSchema = new Schema<Team>({
     ref: HexathonModel,
     index: true,
   },
-  members: {
-    type: [String],
-    required: true,
-    default: [],
-  },
+  members: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: HexathonUserModel,
+    },
+  ],
   description: {
     type: String,
     required: false,
@@ -45,8 +47,9 @@ const teamSchema = new Schema<Team>({
   memberRequests: {
     type: [
       {
-        userId: {
-          type: String,
+        member: {
+          type: Schema.Types.ObjectId,
+          ref: HexathonUserModel,
           required: true,
         },
         message: {
@@ -60,8 +63,9 @@ const teamSchema = new Schema<Team>({
   sentInvites: {
     type: [
       {
-        userId: {
-          type: String,
+        member: {
+          type: Schema.Types.ObjectId,
+          ref: HexathonUserModel,
           required: true,
         },
         message: {
