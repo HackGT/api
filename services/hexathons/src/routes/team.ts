@@ -388,7 +388,15 @@ teamRoutes.route("/accept-invite").post(
       throw new BadRequestError("User is already on this team.");
     }
 
-    const invite = teamToJoin.sentInvites.find(invite => invite.member === acceptingUser.id);
+    const invite = await TeamModel.findOne({
+      hexathon,
+      sentInvites: {
+        $elemMatch: {
+          member: acceptingUser.id,
+        },
+      },
+    });
+
     if (!invite) {
       throw new BadRequestError("User does not have an invite for this team!");
     }
@@ -442,7 +450,15 @@ teamRoutes.route("/reject-invite").post(
       throw new BadRequestError("Team does not exist!");
     }
 
-    const invite = teamToReject.sentInvites.find(invite => invite.member === rejectingUser.id);
+    const invite = await TeamModel.findOne({
+      hexathon,
+      sentInvites: {
+        $elemMatch: {
+          member: rejectingUser.id,
+        },
+      },
+    });
+
     if (!invite) {
       throw new BadRequestError("User does not have an invite for this team!");
     }
