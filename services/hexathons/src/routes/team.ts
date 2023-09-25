@@ -3,7 +3,7 @@ import { asyncHandler, BadRequestError, checkAbility, ForbiddenError } from "@ap
 import { FilterQuery, isValidObjectId, Types } from "mongoose";
 
 import { Team, TeamModel } from "../models/team";
-import { HexathonUserModel } from "../models/hexathonUser";
+import { HexathonUser, HexathonUserModel } from "../models/hexathonUser";
 import { validateEmail } from "../common/util";
 
 export const teamRoutes = express.Router();
@@ -217,6 +217,44 @@ teamRoutes.route("/:id/accept-user").post(
     });
 
     res.status(200).send(updatedTeam);
+  })
+);
+
+teamRoutes.route("/user/:userId").get(
+  checkAbility("read", "Team"),
+  asyncHandler(async (req, res) => {
+    if (!req.query.hexathon) {
+      throw new BadRequestError("Hexathon filter is required");
+    }
+
+    const filter: FilterQuery<Team> = {
+      hexathon: req.query.hexathon,
+      members: req.params.userId,
+    };
+
+    const team = await TeamModel.findOne(filter);
+    if (!team) {
+      res.status(200).json({});
+      return;
+    }
+
+    const hexathonUserFilter: FilterQuery<HexathonUser> = {
+      hexathon: { $eq: req.query.hexathon },
+      userId: {
+        $in: team.members,
+      },
+    };
+
+    const hexathonUsers = await HexathonUserModel.find(hexathonUserFilter);
+
+    if (hexathonUsers.length !== team.members.length) {
+      throw new BadRequestError("Not all team members have profiles.");
+    }
+
+    res.status(200).json({
+      ...team.toJSON(),
+      members: hexathonUsers,
+    });
   })
 );
 
