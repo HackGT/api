@@ -4,6 +4,7 @@ import { FilterQuery, isValidObjectId, Types } from "mongoose";
 
 import { Team, TeamModel } from "../models/team";
 import { HexathonUserModel } from "../models/hexathonUser";
+import { validateEmail } from "src/common/util";
 
 export const teamRoutes = express.Router();
 
@@ -120,6 +121,10 @@ teamRoutes.route("/add").post(
   checkAbility("update", "Team"),
   asyncHandler(async (req, res) => {
     const { hexathon, email } = req.body;
+
+    if (!validateEmail(email)) {
+      throw new BadRequestError("Invalid email provided.");
+    }
 
     const userToAdd = await HexathonUserModel.findOne({
       hexathon: { $eq: hexathon },
