@@ -4,7 +4,7 @@ import { FilterQuery, isValidObjectId, Types } from "mongoose";
 
 import { Team, TeamModel } from "../models/team";
 import { HexathonUserModel } from "../models/hexathonUser";
-import { validateEmail } from "src/common/util";
+import { validateEmail } from "../common/util";
 
 export const teamRoutes = express.Router();
 
