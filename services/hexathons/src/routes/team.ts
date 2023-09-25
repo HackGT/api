@@ -183,14 +183,25 @@ teamRoutes.route("/:id/accept-user").post(
       hexathon: { $eq: hexathon },
       email: { $eq: email },
     });
+
+    const acceptingUser = await HexathonUserModel.findOne({
+      hexathon: { $eq: hexathon },
+      userId: req.user?.uid,
+    });
+
     if (!userToAccept) {
       throw new BadRequestError("User associated with email not found.");
     }
+
+    if (!acceptingUser) {
+      throw new BadRequestError("User has not registered for this event!");
+    }
+
     if (!team) {
       throw new BadRequestError("Invalid team or you do not have permission.");
     }
 
-    if (!req.user || !team.members.includes(userToAccept.id)) {
+    if (!req.user || !team.members.includes(acceptingUser.id)) {
       throw new ForbiddenError("User must be member of the team to accept a user.");
     }
 
@@ -218,14 +229,25 @@ teamRoutes.route("/:id/reject-user").post(
       hexathon: { $eq: hexathon },
       email: { $eq: email },
     });
+
+    const rejectingUser = await HexathonUserModel.findOne({
+      hexathon: { $eq: hexathon },
+      userId: req.user?.uid,
+    });
+
     if (!userToReject) {
       throw new BadRequestError("User associated with email not found.");
     }
+
+    if (!rejectingUser) {
+      throw new BadRequestError("User has not registered for this event!");
+    }
+
     if (!team) {
       throw new BadRequestError("Invalid team or you do not have permission.");
     }
 
-    if (!req.user || !team.members.includes(userToReject.id)) {
+    if (!req.user || !team.members.includes(rejectingUser.id)) {
       throw new ForbiddenError("User must be member of the team to reject a user.");
     }
 
