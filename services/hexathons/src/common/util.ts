@@ -84,8 +84,7 @@ export const getHexathonUserWithUpdatedPoints = async (
   return updatedHexathonUser;
 };
 
-export const validateEmail = async (email: string) => {
-  // check whether email is in valid format
+export const validateEmail = (email: string) => {
   const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
   return emailRegex.test(email);
 };
