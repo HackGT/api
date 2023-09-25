@@ -30,7 +30,7 @@ export function populateItem(
 }
 
 export async function getItem(req: Express.Request, itemId: number) {
-  const item = await prisma.item.findUnique({
+  const item = await prisma.item.findFirst({
     where: {
       id: itemId,
     },
