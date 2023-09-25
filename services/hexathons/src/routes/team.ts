@@ -304,8 +304,18 @@ teamRoutes.route("/send-invite").post(
       hexathon: { $eq: hexathon },
       email: { $eq: email },
     });
+
+    const invitingUser = await HexathonUserModel.findOne({
+      hexathon: { $eq: hexathon },
+      userId: req.user?.uid,
+    });
+
     if (!userToInvite) {
       throw new BadRequestError("User associated with email not found.");
+    }
+
+    if (!invitingUser) {
+      throw new BadRequestError("User has not registered for this event!");
     }
 
     const existingTeam = await TeamModel.findOne({ hexathon, members: userToInvite.id });
@@ -315,7 +325,7 @@ teamRoutes.route("/send-invite").post(
 
     const teamToInvite = await TeamModel.findOne({
       hexathon,
-      members: req.user?.uid,
+      members: invitingUser.id,
     });
 
     if (!teamToInvite) {
