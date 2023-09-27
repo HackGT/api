@@ -25,7 +25,7 @@ export function populateItem(
     ...item,
     ...itemQuantities[item.id],
     ...(roles?.admin && { price: item.price }),
-    ...(roles?.admin && { owner: item.owner }),
+    // ...(roles?.admin && { owner: item.owner }),
   };
 }
 

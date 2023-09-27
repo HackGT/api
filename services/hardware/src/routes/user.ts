@@ -17,7 +17,7 @@ userRoutes.route("/check").get(
       },
     });
 
-    // If user doesn't exist, create it in the finance database
+    // If user doesn't exist, create it in the hardware database
     if (!user) {
       user = await prisma.user.create({
         data: {

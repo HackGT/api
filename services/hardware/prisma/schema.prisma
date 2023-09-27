@@ -32,21 +32,20 @@ enum RequestStatus {
 model Item {
   id               Int       @id @default(autoincrement())
   name             String
-  description      String
+  description      String?
   imageUrl         String?
   totalAvailable   Int
-  maxRequestQty    Int
+  maxRequestQty    Int       @default(1)
   price            Decimal   @default(0) @db.Decimal(6, 2)
   hidden           Boolean   @default(false)
   returnRequired   Boolean   @default(true)
   approvalRequired Boolean   @default(true)
-  owner            String
   category         Category  @relation(fields: [categoryId], references: [id])
   location         Location  @relation(fields: [locationId], references: [id])
   requests         Request[]
 
   categoryId Int
-  locationId Int @default(1)
+  locationId Int
 
   @@index([locationId])
   @@map("item")

@@ -1,4 +1,4 @@
-import { asyncHandler, BadRequestError, checkAbility } from "@api/common";
+import { asyncHandler, BadRequestError, checkAbility, ForbiddenError } from "@api/common";
 import express from "express";
 
 import { RequestStatus, User } from "@api/prisma-hardware/generated";
