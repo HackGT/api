@@ -137,9 +137,11 @@ itemRouter.route("/").post(
     }
     const category = parseInt(req.body.category);
     const location = parseInt(req.body.location);
+    const description = req.body.description.trim();
     const price = parseFloat(req.body.price);
-    const totalAvailable = parseFloat(req.body.totalAvailable);
-    const maxRequestQty = parseFloat(req.body.maxRequestQty);
+    const totalAvailable = parseInt(req.body.totalAvailable);
+    const maxRequestQty = parseInt(req.body.maxRequestQty);
+
     if (totalAvailable < 0) {
       throw new BadRequestError(
         `The total quantity available (totalQtyAvailable) for a new item can't be less than 0.  Value provided: ${req.body.totalAvailable}`
@@ -160,6 +162,7 @@ itemRouter.route("/").post(
       data: {
         ...req.body,
         price,
+        description,
         totalAvailable,
         maxRequestQty,
         category: {

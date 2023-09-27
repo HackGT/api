@@ -1,4 +1,4 @@
-import { asyncHandler, BadRequestError, checkAbility } from "@api/common";
+import { asyncHandler, BadRequestError, checkAbility, ForbiddenError } from "@api/common";
 import express from "express";
 
 import { RequestStatus, User } from "@api/prisma-hardware/generated";
@@ -102,14 +102,13 @@ hardwareRequestRouter.route("/").post(
       );
     }
 
-    const settings = await getSettings();
-    if (!settings.isHardwareRequestsAllowed) {
+    /* const settings = await getSettings();
+    if (!settings.i sHardwareRequestsAllowed) {
       throw new BadRequestError("Requests are disabled at this time");
-    }
+    } */
 
     // fetch the item
     const item = await getItem(req, req.body.itemId);
-
     if (!item) {
       throw new BadRequestError(
         `Can't create request for item that doesn't exist! Item ID provided: ${req.body.itemId}`
@@ -137,9 +136,25 @@ hardwareRequestRouter.route("/").post(
       data: {
         ...req.body,
         status: initialStatus,
+        item: {
+          connect: {
+            id: req.body.item,
+          },
+        },
+        user: {
+          connectOrCreate: {
+            create: {
+              userId: req.body.user,
+            },
+            where: {
+              userId: req.body.user,
+            },
+          },
+        },
       },
       include: {
         user: true,
+        item: true,
       },
     });
 

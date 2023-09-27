@@ -25,12 +25,12 @@ export function populateItem(
     ...item,
     ...itemQuantities[item.id],
     ...(roles?.admin && { price: item.price }),
-    ...(roles?.admin && { owner: item.owner }),
+    // ...(roles?.admin && { owner: item.owner }),
   };
 }
 
 export async function getItem(req: Express.Request, itemId: number) {
-  const item = await prisma.item.findUnique({
+  const item = await prisma.item.findFirst({
     where: {
       id: itemId,
     },
