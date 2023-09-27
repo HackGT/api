@@ -50,7 +50,7 @@
   },
   "prettier": "@hex-labs/prettier-config",
   "lint-staged": {
-    "*.{js,tsx}": "eslint --cache --fix",
+    "*.{js,ts,tsx}": "eslint --cache --fix",
     "*.{js,ts,tsx,json,yml,yaml,css,html,md}": "prettier --write"
   }
 }
