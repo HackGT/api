@@ -31,7 +31,7 @@
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "express": "^4.18.1",
-    "firebase-admin": "^10.0.2",
+    "firebase-admin": "^11.10.1",
     "fs": "^0.0.1-security",
     "helmet": "^6.0.0",
     "mongodb": "^4.9.0",
@@ -41,6 +41,6 @@
     "path": "^0.12.7",
     "re2": "^1.17.4",
     "tsconfig-paths": "^4.1.1",
-    "typescript": "^4.8.3"
+    "typescript": "^5.1.6"
   }
 }

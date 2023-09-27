@@ -406,7 +406,7 @@ export const commonDefinitions = {
     enum: [
       "Android",
       "Bash",
-      "C",
+      "C ",
       "C#",
       "C++",
       "Go",
@@ -421,7 +421,7 @@ export const commonDefinitions = {
       "Perl",
       "PHP",
       "Python",
-      "R",
+      "R ",
       "React",
       "Robotics",
       "Ruby",

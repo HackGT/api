@@ -49,7 +49,7 @@ if (config.common.production) {
 mongoose.set("strictQuery", true);
 mongoose
   .connect(config.database.mongo.uri, {
-    dbName: config.services.FILES.database?.name,
+    dbName: config.services.FILES.database.name,
   })
   .catch(err => {
     throw err;

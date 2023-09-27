@@ -8,7 +8,7 @@ import { DateTime } from "luxon";
 
 import { getBranch, validateApplicationData } from "../common/util";
 import { Application, ApplicationModel, Essay, StatusType } from "../models/application";
-import { BranchModel, BranchType } from "../models/branch";
+import { ApplicationGroupType, BranchModel, BranchType } from "../models/branch";
 
 export const applicationRouter = express.Router();
 
@@ -79,7 +79,7 @@ applicationRouter.route("/").get(
       .find(filter)
       .skip(offset)
       .limit(limit)
-      .select(requireApplicationData ? "" : "-applicationData");
+      .select(requireApplicationData ? "-finalScore" : "-applicationData -finalScore");
 
     return res.status(200).json({
       offset,
@@ -93,7 +93,9 @@ applicationRouter.route("/").get(
 applicationRouter.route("/:id").get(
   checkAbility("read", "Application"),
   asyncHandler(async (req, res) => {
-    const application = await ApplicationModel.findById(req.params.id).accessibleBy(req.ability);
+    const application = await ApplicationModel.findById(req.params.id)
+      .accessibleBy(req.ability)
+      .select("-finalScore");
 
     if (!application) {
       throw new BadRequestError("Application not found or you do not have permission to access.");
@@ -177,29 +179,31 @@ applicationRouter.route("/actions/choose-application-branch").post(
         );
       }
 
-      const updatedApplication = await ApplicationModel.accessibleBy(req.ability).findOneAndUpdate(
-        {
-          userId: req.user?.uid,
-          hexathon: req.body.hexathon,
-        },
-        {
-          status: StatusType.DRAFT,
-          applicationBranch: req.body.applicationBranch,
-          applicationStartTime: new Date(),
-          applicationSubmitTime: undefined,
-          applicationExtendedDeadline: undefined,
-          applicationData: {},
-          confirmationBranch: undefined,
-          confirmationSubmitTime: undefined,
-          confirmationExtendedDeadline: undefined,
-          gradingComplete: false,
-          name: getFullName(userInfo.name),
-          email: userInfo.email,
-        },
-        {
-          new: true,
-        }
-      );
+      const updatedApplication = await ApplicationModel.accessibleBy(req.ability)
+        .findOneAndUpdate(
+          {
+            userId: req.user?.uid,
+            hexathon: req.body.hexathon,
+          },
+          {
+            status: StatusType.DRAFT,
+            applicationBranch: req.body.applicationBranch,
+            applicationStartTime: new Date(),
+            applicationSubmitTime: undefined,
+            applicationExtendedDeadline: undefined,
+            applicationData: {},
+            confirmationBranch: undefined,
+            confirmationSubmitTime: undefined,
+            confirmationExtendedDeadline: undefined,
+            gradingComplete: false,
+            name: getFullName(userInfo.name),
+            email: userInfo.email,
+          },
+          {
+            new: true,
+          }
+        )
+        .select("-finalScore");
 
       return res.send(updatedApplication);
     }
@@ -426,6 +430,18 @@ applicationRouter.route("/:id/actions/submit-application").post(
       );
     }
 
+    // Create a hexathon user upon application submission for participants
+    if (branch.applicationGroup === ApplicationGroupType.PARTICIPANT) {
+      await apiCall(
+        Service.HEXATHONS,
+        {
+          method: "POST",
+          url: `/hexathon-users/${existingApplication.hexathon}/users/${existingApplication.userId}/actions/check-valid-user`,
+        },
+        req
+      );
+    }
+
     return res.sendStatus(204);
   })
 );
@@ -471,18 +487,6 @@ applicationRouter.route("/:id/actions/update-status").post(
 
     await ApplicationModel.findByIdAndUpdate(req.params.id, updateBody, { new: true });
 
-    // if user is confirmed, create a hexathon user for them
-    if (newStatus === StatusType.CONFIRMED) {
-      await apiCall(
-        Service.HEXATHONS,
-        {
-          method: "POST",
-          url: `/hexathon-users/${existingApplication.hexathon}/users/${existingApplication.userId}/actions/check-valid-user`,
-        },
-        req
-      );
-    }
-
     return res.sendStatus(204);
   })
 );
@@ -522,12 +526,15 @@ applicationRouter.route("/:id/actions/update-application").post(
     let newConfirmationExtendedDeadline = confirmationExtendedDeadline;
     const newStatus = StatusType[status as keyof typeof StatusType];
 
-    if ([StatusType.CONFIRMED, StatusType.ACCEPTED, StatusType.NOT_ATTENDING].includes(newStatus)) {
+    if ([StatusType.CONFIRMED, StatusType.ACCEPTED].includes(newStatus)) {
       if (!confirmationBranch) {
         throw new BadRequestError(
           `Applicant must have a confirmation branch with status ${newStatus}.`
         );
       }
+    } else if (newStatus === StatusType.NOT_ATTENDING) {
+      // Keep confirmation branch the same if provided
+      newConfirmationExtendedDeadline = null;
     } else {
       newConfirmationBranch = null;
       newConfirmationExtendedDeadline = null;
@@ -544,18 +551,6 @@ applicationRouter.route("/:id/actions/update-application").post(
       },
       { new: true }
     );
-
-    // if user is confirmed, create a hexathon user for them
-    if (newStatus === StatusType.CONFIRMED) {
-      await apiCall(
-        Service.HEXATHONS,
-        {
-          method: "POST",
-          url: `/hexathon-users/${existingApplication.hexathon}/users/${existingApplication.userId}/actions/check-valid-user`,
-        },
-        req
-      );
-    }
 
     return res.sendStatus(204);
   })

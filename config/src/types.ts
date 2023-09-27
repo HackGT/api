@@ -65,7 +65,7 @@ export interface ServiceConfig {
     changeOrigin: boolean;
     pathRewrite: Record<string, string>;
   };
-  database?: {
+  database: {
     type: string;
     name: string;
   };

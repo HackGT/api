@@ -3,9 +3,9 @@ import { asyncHandler, BadRequestError } from "@api/common";
 
 import { prisma } from "../common";
 import { getConfig, isAdminOrIsJudging } from "../utils/utils";
-import { User, AssignmentStatus, Assignment } from "@api/prisma-expo/generated";
+import { User, AssignmentStatus, Assignment, Prisma } from "@api/prisma-expo/generated";
 
-const autoAssign = async (judge: number, isStarted: boolean): Promise<Assignment | null> => {
+const autoAssign = async (judgeId: number, isStarted: boolean): Promise<Assignment | null> => {
   // We are not selecting a random judge for auto-assign
   // Instead, auto-assign is called when a judge has no projects currently assigned
   /*
@@ -58,10 +58,18 @@ const autoAssign = async (judge: number, isStarted: boolean): Promise<Assignment
   // get config info
   const config = await getConfig();
 
+  if (!config.currentHexathon) {
+    throw new Error("Current hexathon is not setup yet.");
+  }
+
   // get judge info
-  const judgeToAssign = await prisma.user.findFirst({
+  const judgeToAssign = await prisma.user.findUnique({
+    where: {
+      id: judgeId,
+    },
     select: {
       id: true,
+      isJudging: true,
       categoryGroup: {
         select: {
           id: true,
@@ -69,30 +77,37 @@ const autoAssign = async (judge: number, isStarted: boolean): Promise<Assignment
         },
       },
     },
-    where: {
-      id: judge,
-      isJudging: true,
-    },
   });
 
-  // ensure judge exists
   if (judgeToAssign == null) {
     throw new Error("Judge does not exist");
   }
-
-  // ensure judge is aligned to a category group
+  if (!judgeToAssign.isJudging) {
+    throw new Error("User is not a judge");
+  }
   if (judgeToAssign.categoryGroup == null) {
     throw new Error("Judge is not aligned to a category group");
+  }
+
+  const checkAnyAssignmentStarted = await prisma.assignment.findMany({
+    where: {
+      userId: judgeToAssign.id,
+      status: AssignmentStatus.STARTED,
+    },
+  });
+
+  if (checkAnyAssignmentStarted.length !== 0) {
+    isStarted = false;
   }
 
   // get categoryIds from the judge's category group
   const judgeCategoryIds = judgeToAssign.categoryGroup.categories.map(category => category.id);
 
   // where clause for finding projects
-  const projectFilter: any = {
-    hexathon: config?.currentHexathon,
-    expo: config?.currentExpo,
-    round: config?.currentRound,
+  const projectFilter: Prisma.ProjectWhereInput = {
+    hexathon: config.currentHexathon,
+    expo: config.currentExpo,
+    round: config.currentRound,
     categories: {
       some: {
         id: { in: judgeCategoryIds },
@@ -163,6 +178,7 @@ const autoAssign = async (judge: number, isStarted: boolean): Promise<Assignment
   if (defaultCategories.length > 0) {
     categoriesToJudge = categoriesToJudge.concat(defaultCategories);
   }
+
   const createdAssignment = await prisma.assignment.create({
     data: {
       userId: judgeToAssign.id,
@@ -218,6 +234,17 @@ assignmentRoutes.route("/current-project").get(
       where: {
         userId: req.user?.uid ?? "",
       },
+      include: {
+        categoryGroup: {
+          include: {
+            categories: {
+              include: {
+                criterias: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!user) {
@@ -226,20 +253,23 @@ assignmentRoutes.route("/current-project").get(
     if (!user.isJudging) {
       throw new BadRequestError("User is not a judge");
     }
-    if (!user.categoryGroupId) {
+    if (!user.categoryGroup) {
       throw new BadRequestError("Please assign a category group to this user first.");
     }
 
-    const filter: any = {};
-
-    filter.userId = user.id;
-    filter.status = { in: ["STARTED", "QUEUED"] };
-
     const assignments = await prisma.assignment.findMany({
-      where: filter,
-      orderBy: {
-        createdAt: "asc",
+      where: {
+        userId: user.id,
+        status: { in: ["STARTED", "QUEUED"] },
       },
+      orderBy: [
+        {
+          createdAt: "asc",
+        },
+        {
+          priority: "desc",
+        },
+      ],
     });
 
     const config = await getConfig();
@@ -258,14 +288,13 @@ assignmentRoutes.route("/current-project").get(
       } else if (assignments.length > 0) {
         // return the started assignment if it exists
         // otherwise, return the first queued assignment (after changing its status to started)
-        const startedAssignments = assignments.filter(
+        let startedAssignment;
+        startedAssignment = assignments.find(
           assignment => assignment.status === AssignmentStatus.STARTED
         );
 
-        if (startedAssignments.length > 0) {
-          resolve(startedAssignments[0]);
-        } else {
-          const startedAssignment = await prisma.assignment.update({
+        if (!startedAssignment) {
+          startedAssignment = await prisma.assignment.update({
             where: {
               id: assignments[0].id,
             },
@@ -273,8 +302,8 @@ assignmentRoutes.route("/current-project").get(
               status: AssignmentStatus.STARTED,
             },
           });
-          resolve(startedAssignment);
         }
+        resolve(startedAssignment);
       } else {
         resolve(null);
       }
@@ -286,28 +315,17 @@ assignmentRoutes.route("/current-project").get(
       return;
     }
 
-    const projectFilter: any = {};
-    if (assignment) {
-      projectFilter.id = assignment.projectId;
-    } else {
-      throw new BadRequestError("Project not found");
-    }
     const project = await prisma.project.findUnique({
-      where: projectFilter,
-      include: {
-        categories: { include: { criterias: true } },
+      where: {
+        id: assignment.projectId,
       },
-    });
-    const categoryGroupFilter: any = {};
-    categoryGroupFilter.id = user.categoryGroupId;
-    const categoryGroup = await prisma.categoryGroup.findUnique({
-      where: categoryGroupFilter,
       include: {
         categories: { include: { criterias: true } },
       },
     });
 
-    const filteredCategories = categoryGroup?.categories.filter(
+    // filter categories to only include categories that the judge is assigned to
+    const filteredCategories = user.categoryGroup.categories.filter(
       category => project?.categories.some(c => c.id === category.id) || category.isDefault
     );
 
@@ -326,30 +344,70 @@ assignmentRoutes.route("/").post(
     const user: User = req.body.user as User;
     const projectId: number = parseInt(req.body.project.id);
     const duplicateFilter: any = {};
-    const multipleProjectFilter: any = {};
 
     duplicateFilter.projectId = projectId;
     duplicateFilter.userId = user.id;
-
-    multipleProjectFilter.userId = user.id;
-    multipleProjectFilter.status = AssignmentStatus.STARTED;
+    duplicateFilter.status = AssignmentStatus.STARTED;
 
     const checkAssignment = await prisma.assignment.findMany({
       where: {
-        OR: [duplicateFilter, multipleProjectFilter],
+        userId: duplicateFilter.userId,
+        projectId: duplicateFilter.projectId,
+      },
+    });
+    if (checkAssignment.length !== 0 && checkAssignment[0].status === "STARTED") {
+      throw new BadRequestError("Judge is already judging this project.");
+    } else if (checkAssignment.length !== 0 && checkAssignment[0].status === "COMPLETED") {
+      throw new BadRequestError("Judge has already judged this project.");
+    }
+
+    let createdAssignment;
+    if (checkAssignment.length === 0) {
+      createdAssignment = await prisma.assignment.create({
+        data: req.body.data,
+      });
+      res.status(201).json(createdAssignment);
+    }
+
+    const checkAnyAssignmentStarted = await prisma.assignment.findMany({
+      where: {
+        userId: duplicateFilter.userId,
+        status: AssignmentStatus.STARTED,
       },
     });
 
-    if (checkAssignment.length !== 0) {
-      throw new BadRequestError(
-        "Judge already has a project started or project assignment is a duplicate"
-      );
-    }
+    if (checkAnyAssignmentStarted.length !== 0) {
+      const updateOldAssignment = await prisma.assignment.update({
+        where: {
+          id: checkAnyAssignmentStarted[0].id,
+        },
+        data: {
+          status: AssignmentStatus.QUEUED,
+        },
+      });
+      if (checkAssignment.length !== 0) {
+        const updatedAssignment = await prisma.assignment.update({
+          where: {
+            id: checkAssignment[0].id,
+          },
+          data: {
+            status: AssignmentStatus.STARTED,
+          },
+        });
 
-    const createdAssignment = await prisma.assignment.create({
-      data: req.body.data,
-    });
-    res.status(201).json(createdAssignment);
+        res.status(201).json(updatedAssignment);
+      } else if (typeof createdAssignment !== "undefined") {
+        const updatedAssignment = await prisma.assignment.update({
+          where: {
+            id: createdAssignment.id,
+          },
+          data: {
+            status: AssignmentStatus.STARTED,
+          },
+        });
+        res.status(201).json(updatedAssignment);
+      }
+    }
   })
 );
 

@@ -41,7 +41,7 @@ if (config.common.production) {
 mongoose.set("strictQuery", true);
 mongoose
   .connect(config.database.mongo.uri, {
-    dbName: config.services.AUTH.database?.name,
+    dbName: config.services.AUTH.database.name,
   })
   .catch(err => {
     throw err;

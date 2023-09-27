@@ -14,14 +14,14 @@ import { winnerRoutes } from "./winner";
 
 export const defaultRouter = express.Router();
 
-defaultRouter.use("/user", userRoutes);
+defaultRouter.use("/users", userRoutes);
 defaultRouter.use("/projects", projectRoutes);
 defaultRouter.use("/categories", categoryRoutes);
-defaultRouter.use("/categorygroups", categoryGroupRoutes);
-defaultRouter.use("/tablegroups", tableGroupRoutes);
+defaultRouter.use("/category-groups", categoryGroupRoutes);
+defaultRouter.use("/table-groups", tableGroupRoutes);
 defaultRouter.use("/config", configRoutes);
-defaultRouter.use("/criteria", criteriaRoutes);
+defaultRouter.use("/criterias", criteriaRoutes);
 defaultRouter.use("/ballots", ballotsRoutes);
 defaultRouter.use("/assignments", assignmentRoutes);
-defaultRouter.use("/rubric", rubricRoutes);
-defaultRouter.use("/winner", winnerRoutes);
+defaultRouter.use("/rubrics", rubricRoutes);
+defaultRouter.use("/winners", winnerRoutes);

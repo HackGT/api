@@ -34,6 +34,10 @@ blockRoutes.route("/").get(
       filter._id = String(req.query.id);
     }
 
+    if (req.query.display) {
+      filter.display = req.query.display;
+    }
+
     const blocks = await BlockModel.accessibleBy(req.ability).find(filter);
     return res.status(200).send(blocks);
   })
@@ -42,6 +46,16 @@ blockRoutes.route("/").get(
 blockRoutes.route("/").post(
   checkAbility("create", "Block"),
   asyncHandler(async (req, res) => {
+    if (!req.body.hexathon) {
+      throw new BadRequestError("Hexathon is required");
+    }
+    if (!req.body.title) {
+      throw new BadRequestError("Title is required");
+    }
+    if (!req.body.slug) {
+      throw new BadRequestError("Slug is required");
+    }
+
     const existingBlock = await BlockModel.findOne({
       hexathon: req.body.hexathon,
       title: req.body.title,
@@ -58,6 +72,7 @@ blockRoutes.route("/").post(
       title: req.body.title,
       slug: req.body.slug,
       content: req.body.content || " ",
+      display: req.body.display,
     });
 
     return res.status(200).json(block);

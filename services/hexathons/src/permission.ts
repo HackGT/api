@@ -10,10 +10,6 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
     return;
   }
 
-  if (req.user.roles.admin) {
-    can("manage", "Hexathon");
-  }
-
   if (req.user.roles.member) {
     can("manage", "Interaction");
     can("aggregate", "Interaction");
@@ -27,7 +23,12 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
   }
 
   if (req.user.roles.admin || req.user.roles.exec) {
+    can("manage", "Hexathon");
     can("manage", "SwagItem");
+  }
+
+  if (req.user.roles.admin || req.user.roles.member) {
+    can("manage", "Team");
   }
 
   can("read", "Hexathon");
@@ -37,7 +38,10 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
   can("read", "Location");
   can("read", "Tag");
   can("read", "Checkin", { userId: req.user.uid });
-  can("read", "HexathonUser", { userId: req.user.uid });
+  can("read", "HexathonUser");
+  can("manage", "HexathonUser", { userId: req.user.uid });
+  can("read", "Team");
+  can("manage", "Team", { members: req.user.uid });
   can("read", "SwagItem");
   can("read", "Visit");
   can("manage", "Visit");

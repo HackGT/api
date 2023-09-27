@@ -89,6 +89,7 @@ projectRoutes.route("/").get(
           },
         },
         members: true,
+        tableGroup: true,
       },
       orderBy: {
         id: "asc",
@@ -487,6 +488,7 @@ projectRoutes.route("/:id").get(
       include: {
         members: true,
         categories: true,
+        tableGroup: true,
       },
     });
 
@@ -519,6 +521,7 @@ projectRoutes.route("/special/dashboard").get(
       include: {
         members: true,
         assignment: true,
+        tableGroup: true,
       },
     });
 

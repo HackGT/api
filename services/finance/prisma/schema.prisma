@@ -45,6 +45,7 @@ model Budget {
   requisitions Requisition[]
   archived     Boolean       @default(false)
 
+  @@index([archived])
   @@map("budget")
 }
 
@@ -108,6 +109,7 @@ model File {
   requisitionId Int
   requisition   Requisition @relation(fields: [requisitionId], references: [id])
 
+  @@index([isActive])
   @@map("file")
 }
 
@@ -132,6 +134,7 @@ model PaymentMethod {
   payments                  Payment[]
   requisitions              Requisition[]
 
+  @@index([isActive])
   @@map("payment_method")
 }
 
@@ -145,6 +148,7 @@ model Project {
   leads           User[]
   requisitions    Requisition[]
 
+  @@index([archived])
   @@map("project")
 }
 
@@ -174,6 +178,8 @@ model Requisition {
   payments             Payment[]
   items                RequisitionItem[]
 
+  @@index([projectId])
+  @@index([createdById])
   @@map("requisition")
 }
 
@@ -201,6 +207,7 @@ model Vendor {
   isActive         Boolean           @default(true)
   requisitionItems RequisitionItem[]
 
+  @@index([isActive])
   @@map("vendor")
 }
 

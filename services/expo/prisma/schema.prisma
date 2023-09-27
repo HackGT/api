@@ -36,6 +36,7 @@ model Assignment {
   userId    Int
   projectId Int
 
+  @@index([userId, status])
   @@map("assignment")
 }
 
@@ -54,6 +55,8 @@ model Ballot {
   criteriaId Int
   userId     Int
 
+  @@index([deleted, criteriaId])
+  @@index([userId])
   @@map("ballot")
 }
 
@@ -68,6 +71,7 @@ model Category {
   winners        Winner[]
   hexathon       String
 
+  @@index([hexathon])
   @@map("category")
 }
 
@@ -78,6 +82,7 @@ model CategoryGroup {
   hexathon   String
   users      User[]
 
+  @@index([hexathon])
   @@map("category_group")
 }
 
@@ -92,6 +97,7 @@ model Config {
   isProjectSubmissionOpen Boolean @default(true)
   isDevpostCheckingOn     Boolean @default(true)
   revealTableGroups       Boolean @default(false)
+  revealWinners           Boolean @default(false)
 
   @@map("config")
 }
@@ -108,6 +114,7 @@ model Criteria {
 
   categoryId Int
 
+  @@index([categoryId])
   @@map("criteria")
 }
 
@@ -130,6 +137,11 @@ model Project {
   winners      Winner[]
   tableGroupId Int?
 
+  @@index([hexathon])
+  @@index([expo])
+  @@index([round])
+  @@index([table])
+  @@index([tableGroupId])
   @@map("project")
 }
 
@@ -153,6 +165,7 @@ model TableGroup {
   hexathon      String
   tableCapacity Int
 
+  @@index([hexathon])
   @@map("table_group")
 }
 
@@ -170,6 +183,8 @@ model User {
 
   categoryGroupId Int?
 
+  @@index([isJudging])
+  @@index([isSponsor])
   @@map("user")
 }
 
@@ -182,5 +197,7 @@ model Winner {
   categoryId Int
   projectId  Int
 
+  @@index([hexathon])
+  @@index([categoryId])
   @@map("winner")
 }

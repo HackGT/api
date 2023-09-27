@@ -34,7 +34,7 @@ emailRoutes.route("/render").post(
 );
 
 emailRoutes.route("/send").post(
-  checkAbility("manage", "Email"),
+  checkAbility("create", "Email"),
   asyncHandler(async (req, res) => {
     const { message, emails, subject, batchId } = req.body;
 

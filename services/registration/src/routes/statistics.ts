@@ -30,20 +30,22 @@ statisticsRouter.route("/").get(
       hexathon: new mongoose.Types.ObjectId(hexathon as string),
     });
 
-    const checkins = await apiCall(
+    const interactions = await apiCall(
       Service.HEXATHONS,
       {
         url: `/interactions`,
         method: "GET",
         params: {
           hexathon,
-          type: "check-in",
         },
       },
       req
     );
 
-    const checkinCount = checkins.length;
+    const checkinInteractions = interactions.reduce(
+      (count: number, interaction: any) => (interaction.type === "check-in" ? count + 1 : count),
+      0
+    );
 
     const aggregatedApplications = await ApplicationModel.aggregate([
       {
@@ -240,7 +242,9 @@ statisticsRouter.route("/").get(
         (allUsersStatusCount.CONFIRMED || 0) +
         (allUsersStatusCount.NOT_ATTENDING || 0),
       confirmedUsers: allUsersStatusCount.CONFIRMED || 0,
-      checkedinUsers: checkinCount,
+      waitlistedUsers: allUsersStatusCount.WAITLISTED || 0,
+      withdrawnUsers: allUsersStatusCount.NOT_ATTENDING || 0,
+      checkedinUsers: checkinInteractions,
       deniedUsers: allUsersStatusCount.DENIED || 0,
     };
 
@@ -313,6 +317,41 @@ statisticsRouter.route("/").get(
       }
     }
 
+    const eventInteractions = interactions.filter(
+      (interaction: any) => interaction.type === "event"
+    );
+
+    const eventInteractionStatistics: {
+      [date: string]: {
+        [type: string]: {
+          [name: string]: number;
+        };
+      };
+    } = {};
+
+    for (const interaction of eventInteractions) {
+      if (!interaction.event) {
+        continue;
+      }
+      const event = interaction.event;
+      const date = new Date(interaction.timestamp).toLocaleDateString();
+      const type = event.type;
+
+      if (!(date in eventInteractionStatistics)) {
+        eventInteractionStatistics[date] = {};
+      }
+
+      if (!(type in eventInteractionStatistics[date])) {
+        eventInteractionStatistics[date][type] = {};
+      }
+
+      if (!(event.name in eventInteractionStatistics[date][type])) {
+        eventInteractionStatistics[date][type][event.name] = 0;
+      }
+
+      eventInteractionStatistics[date][type][event.name] += 1;
+    }
+
     // CALCULATES APPLICATION DATA STATISTICS
 
     const applicationDataStatistics = {
@@ -333,6 +372,7 @@ statisticsRouter.route("/").get(
       applicationStatistics: applicationBranchStatistics,
       confirmationStatistics: confirmationBranchStatistics,
       applicationDataStatistics,
+      eventInteractionStatistics,
     });
   })
 );

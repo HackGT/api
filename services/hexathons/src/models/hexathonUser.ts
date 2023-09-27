@@ -6,9 +6,9 @@ import { HexathonModel } from "./hexathon";
 import { SwagItemModel } from "./swagItem";
 
 export enum CommitmentType {
-  HIGH = "high",
-  MEDIUM = "medium",
-  LOW = "low",
+  HIGH = "High",
+  MEDIUM = "Medium",
+  LOW = "Low",
 }
 
 export interface HexathonUser extends mongoose.Document {
@@ -52,7 +52,6 @@ const hexathonUserSchema = new Schema<HexathonUser>({
   email: {
     type: String,
     required: true,
-    unique: true,
   },
   name: {
     type: String,

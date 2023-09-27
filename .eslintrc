@@ -3,11 +3,7 @@
   "settings": {
     "import/resolver": {
       "typescript": {
-        "project": [
-          "common/tsconfig.json",
-          "config/tsconfig.json",
-          "services/*/tsconfig.json"
-        ]
+        "project": ["common/tsconfig.json", "config/tsconfig.json", "services/*/tsconfig.json"]
       }
     }
   }

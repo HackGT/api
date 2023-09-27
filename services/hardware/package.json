@@ -37,7 +37,7 @@
     "morgan": "^1.10.0",
     "prisma": "^5.0.0",
     "tsconfig-paths": "^4.1.1",
-    "typescript": "^4.8.3"
+    "typescript": "^5.1.6"
   },
   "devDependencies": {
     "nodemon": "^2.0.19",
