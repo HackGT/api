@@ -201,7 +201,7 @@ assignmentRoutes.route("/").get(
     }
 
     if (hexathon !== undefined) {
-      filter.project.categories = { every: { hexathon } };
+      filter.project.hexathon = hexathon;
     }
 
     if (expo !== undefined) {
