@@ -2,7 +2,7 @@ import express from "express";
 import { asyncHandler, BadRequestError } from "@api/common";
 
 import { prisma } from "../common";
-import { getConfig, isAdminOrIsJudging } from "../utils/utils";
+import { getConfig, getCurrentHexathon, isAdminOrIsJudging } from "../utils/utils";
 import { User, AssignmentStatus, Assignment, Prisma } from "@api/prisma-expo/generated";
 
 const autoAssign = async (judgeId: number, isStarted: boolean): Promise<Assignment | null> => {
@@ -261,6 +261,9 @@ assignmentRoutes.route("/current-project").get(
       where: {
         userId: user.id,
         status: { in: ["STARTED", "QUEUED"] },
+        project: {
+          hexathon: (await getCurrentHexathon(req)).id,
+        },
       },
       orderBy: [
         {
