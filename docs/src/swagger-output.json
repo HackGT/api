@@ -2357,8 +2357,11 @@
             "schema": {
               "type": "object",
               "properties": {
-                "confirmationBranch": {
-                  "type": "string"
+                "confirmationBranches": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 },
                 "confirmedEmails": {
                   "type": "array",

@@ -639,9 +639,8 @@ applicationRouter.route("/slack/confirmed-users").get(
     filter.hexathon = req.query.hexathon;
     filter.status = StatusType.CONFIRMED;
 
-    // for a specific slack channel
-    if (req.query.confirmationBranch?.length) {
-      filter.confirmationBranch = req.query.confirmationBranch;
+    if (req.body.confirmationBranches?.length) {
+      filter.confirmationBranch = { $in: req.body.confirmationBranches };
     }
 
     const applications = await ApplicationModel.accessibleBy(req.ability)
@@ -654,7 +653,7 @@ applicationRouter.route("/slack/confirmed-users").get(
     }
 
     return res.status(200).json({
-      confirmationBranch: req.query.confirmationBranch || "All",
+      confirmationBranches: req.body.confirmationBranches || "All",
       confirmedEmails,
     });
   })
