@@ -430,6 +430,7 @@ export const commonDefinitions = {
       "SQL",
       "Swift",
       "TypeScript",
+      "UI/UX Design",
     ],
   },
   country: {
