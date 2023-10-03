@@ -145,6 +145,7 @@ hardwareRequestRouter.route("/").post(
           connectOrCreate: {
             create: {
               userId: req.body.user,
+              name: req.body.name,
             },
             where: {
               userId: req.body.user,

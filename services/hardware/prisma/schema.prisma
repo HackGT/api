@@ -88,6 +88,7 @@ model Setting {
 model User {
   userId   String    @id
   haveID   Boolean   @default(false)
+  name     String    @default("")
   requests Request[]
 
   @@map("user")
