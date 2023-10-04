@@ -141,7 +141,7 @@ teamRoutes.route("/add").post(
 
     const teamToJoin = await TeamModel.findOne({
       hexathon,
-      members: userToAdd.id,
+      members: req.user?.uid,
     });
 
     if (!teamToJoin) {
