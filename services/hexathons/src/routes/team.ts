@@ -139,9 +139,18 @@ teamRoutes.route("/add").post(
       throw new BadRequestError("User has already joined another team for this event.");
     }
 
+    const acceptingUser = await HexathonUserModel.findOne({
+      hexathon: { $eq: hexathon },
+      userId: req.user?.uid,
+    });
+
+    if (!acceptingUser) {
+      throw new BadRequestError("User has not registered for this event!");
+    }
+
     const teamToJoin = await TeamModel.findOne({
       hexathon,
-      members: req.user?.uid,
+      members: acceptingUser.id,
     });
 
     if (!teamToJoin) {
