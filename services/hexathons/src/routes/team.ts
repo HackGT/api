@@ -134,14 +134,18 @@ teamRoutes.route("/add").post(
       throw new BadRequestError("User associated with email not found.");
     }
 
-    const existingTeam = await TeamModel.findOne({ hexathon, members: userToAdd.id });
-    if (existingTeam) {
-      throw new BadRequestError("User has already joined another team for this event.");
+    const addingUser = await HexathonUserModel.findOne({
+      hexathon: { $eq: hexathon },
+      userId: req.user?.uid,
+    });
+
+    if (!addingUser) {
+      throw new BadRequestError("Current user is not registered.");
     }
 
     const teamToJoin = await TeamModel.findOne({
       hexathon,
-      members: req.user?.uid,
+      members: addingUser.id,
     });
 
     if (!teamToJoin) {
@@ -152,6 +156,11 @@ teamRoutes.route("/add").post(
     }
     if (teamToJoin.members.includes(userToAdd.id)) {
       throw new BadRequestError("New user is already on this team.");
+    }
+
+    const existingTeam = await TeamModel.findOne({ hexathon, members: userToAdd.id });
+    if (existingTeam) {
+      throw new BadRequestError("User has already joined another team for this event.");
     }
 
     const updatedTeam = await TeamModel.findByIdAndUpdate(
