@@ -99,7 +99,7 @@ hexathonUserRouter.route("/:hexathonId/users/:userId").patch(
 );
 
 hexathonUserRouter.route("/:hexathonId/users/:userId/profile").patch(
-  checkAbility("update", "HexathonUser"),
+  checkAbility("manage", "HexathonUser"),
   asyncHandler(async (req, res) => {
     if (req.body.skills) {
       if (!Array.isArray(req.body.skills)) {
@@ -268,6 +268,10 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/update-points").pos
   checkAbility("manage", "HexathonUser"),
   asyncHandler(async (req, res) => {
     const { numSpent, numAdditional } = req.body;
+
+    if (!req.user?.roles?.member) {
+      throw new BadRequestError("You do not have permission to update points.");
+    }
 
     const hexathonUser = await HexathonUserModel.findOneAndUpdate(
       { userId: req.params.userId, hexathon: req.params.hexathonId },
