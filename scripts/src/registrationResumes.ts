@@ -1,4 +1,4 @@
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 import fs from "fs";
 import path from "path";
 
@@ -15,8 +15,12 @@ const client = new MongoClient("mongodb://localhost:7777");
   const db = client.db("registration");
   const collection = db.collection("applications");
 
+  // Change this depending on the hexathon you want to export resumes from
+  const currentHexathon = new ObjectId("647fee51768e521dc8ef88e0");
+
   const res = await collection
     .find({
+      hexathon: currentHexathon,
       status: "CONFIRMED",
     })
     .toArray();
