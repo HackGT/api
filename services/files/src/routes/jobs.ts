@@ -9,7 +9,7 @@ import { Storage } from "@google-cloud/storage";
 import config from "@api/config";
 
 import { agenda } from "../jobs";
-import { FileModel } from "src/models/file";
+import { FileModel } from "../models/file";
 
 const ZipStream = require("zip-stream"); // eslint-disable-line @typescript-eslint/no-var-requires
 const Agendash = require("agendash"); // eslint-disable-line @typescript-eslint/no-var-requires
