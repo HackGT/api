@@ -430,18 +430,6 @@ applicationRouter.route("/:id/actions/submit-application").post(
       );
     }
 
-    // Create a hexathon user upon application submission for participants
-    if (branch.applicationGroup === ApplicationGroupType.PARTICIPANT) {
-      await apiCall(
-        Service.HEXATHONS,
-        {
-          method: "POST",
-          url: `/hexathon-users/${existingApplication.hexathon}/users/${existingApplication.userId}/actions/check-valid-user`,
-        },
-        req
-      );
-    }
-
     return res.sendStatus(204);
   })
 );
@@ -458,6 +446,8 @@ applicationRouter.route("/:id/actions/update-status").post(
         "No application exists with this id or you do not have permission."
       );
     }
+
+    const [branch, branchType] = getBranch(existingApplication, req);
 
     const newStatus = StatusType[req.body.status as keyof typeof StatusType];
     const updateBody: UpdateQuery<Application> = {
@@ -487,6 +477,20 @@ applicationRouter.route("/:id/actions/update-status").post(
 
     await ApplicationModel.findByIdAndUpdate(req.params.id, updateBody, { new: true });
 
+    if (
+      branch.applicationGroup === ApplicationGroupType.PARTICIPANT &&
+      newStatus === StatusType.CONFIRMED
+    ) {
+      await apiCall(
+        Service.HEXATHONS,
+        {
+          method: "POST",
+          url: `/hexathon-users/${existingApplication.hexathon}/users/${existingApplication.userId}/actions/check-valid-user`,
+        },
+        req
+      );
+    }
+
     return res.sendStatus(204);
   })
 );
@@ -509,6 +513,8 @@ applicationRouter.route("/:id/actions/update-application").post(
         "No application exists with this id or you do not have permission."
       );
     }
+
+    const [branch, branchType] = getBranch(existingApplication, req);
 
     const {
       applicationBranch,
@@ -551,6 +557,20 @@ applicationRouter.route("/:id/actions/update-application").post(
       },
       { new: true }
     );
+
+    if (
+      branch.applicationGroup === ApplicationGroupType.PARTICIPANT &&
+      newStatus === StatusType.CONFIRMED
+    ) {
+      await apiCall(
+        Service.HEXATHONS,
+        {
+          method: "POST",
+          url: `/hexathon-users/${existingApplication.hexathon}/users/${existingApplication.userId}/actions/check-valid-user`,
+        },
+        req
+      );
+    }
 
     return res.sendStatus(204);
   })
