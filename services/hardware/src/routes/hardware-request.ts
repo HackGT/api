@@ -132,9 +132,26 @@ hardwareRequestRouter.route("/").post(
     const initialStatus: RequestStatus =
       !item.approvalRequired && item.qtyUnreserved >= req.body.quantity ? "APPROVED" : "SUBMITTED";
 
+    const user = await prisma.user.upsert({
+      where: {
+        userId: req.body.user,
+      },
+      update: {
+        name: req.body.name,
+      },
+      create: {
+        userId: req.body.user,
+        name: req.body.name,
+      },
+    });
+
+    if (!user) {
+      throw new BadRequestError("Unable to find/create user");
+    }
+
     const newRequest = await prisma.request.create({
       data: {
-        ...req.body,
+        quantity: req.body.quantity,
         status: initialStatus,
         item: {
           connect: {
@@ -142,14 +159,8 @@ hardwareRequestRouter.route("/").post(
           },
         },
         user: {
-          connectOrCreate: {
-            create: {
-              userId: req.body.user,
-              name: req.body.name,
-            },
-            where: {
-              userId: req.body.user,
-            },
+          connect: {
+            userId: user.userId,
           },
         },
       },
