@@ -447,8 +447,6 @@ applicationRouter.route("/:id/actions/update-status").post(
       );
     }
 
-    const [branch, branchType] = getBranch(existingApplication, req);
-
     const newStatus = StatusType[req.body.status as keyof typeof StatusType];
     const updateBody: UpdateQuery<Application> = {
       status: newStatus,
@@ -478,7 +476,7 @@ applicationRouter.route("/:id/actions/update-status").post(
     await ApplicationModel.findByIdAndUpdate(req.params.id, updateBody, { new: true });
 
     if (
-      branch.applicationGroup === ApplicationGroupType.PARTICIPANT &&
+      existingApplication.applicationBranch.applicationGroup === ApplicationGroupType.PARTICIPANT &&
       newStatus === StatusType.CONFIRMED
     ) {
       await apiCall(
@@ -513,8 +511,6 @@ applicationRouter.route("/:id/actions/update-application").post(
         "No application exists with this id or you do not have permission."
       );
     }
-
-    const [branch, branchType] = getBranch(existingApplication, req);
 
     const {
       applicationBranch,
@@ -559,7 +555,7 @@ applicationRouter.route("/:id/actions/update-application").post(
     );
 
     if (
-      branch.applicationGroup === ApplicationGroupType.PARTICIPANT &&
+      existingApplication.applicationBranch.applicationGroup === ApplicationGroupType.PARTICIPANT &&
       newStatus === StatusType.CONFIRMED
     ) {
       await apiCall(
