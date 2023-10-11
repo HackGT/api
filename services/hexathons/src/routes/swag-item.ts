@@ -41,13 +41,9 @@ swagItemRouter.route("/").post(
 swagItemRouter.route("/:swagItemId").put(
   checkAbility("update", "SwagItem"),
   asyncHandler(async (req, res) => {
-    const swagItem = await SwagItemModel.accessibleBy(req.ability).findByIdAndUpdate(
-      req.params.swagItemId,
-      req.body,
-      {
-        new: true,
-      }
-    );
+    const swagItem = await SwagItemModel.findByIdAndUpdate(req.params.swagItemId, req.body, {
+      new: true,
+    });
     return res.send(swagItem);
   })
 );
@@ -55,7 +51,7 @@ swagItemRouter.route("/:swagItemId").put(
 swagItemRouter.route("/:swagItemId").delete(
   checkAbility("delete", "SwagItem"),
   asyncHandler(async (req, res) => {
-    await SwagItemModel.accessibleBy(req.ability).findByIdAndDelete(req.params.swagItemId);
+    await SwagItemModel.findByIdAndDelete(req.params.swagItemId);
     return res.sendStatus(204);
   })
 );
