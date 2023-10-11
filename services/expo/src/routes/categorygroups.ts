@@ -1,5 +1,5 @@
 import express from "express";
-import { asyncHandler } from "@api/common";
+import { BadRequestError, asyncHandler } from "@api/common";
 
 import { prisma } from "../common";
 import { getCurrentHexathon, isAdmin } from "../utils/utils";
@@ -24,7 +24,28 @@ categoryGroupRoutes.route("/").get(
       where: filter,
       include: {
         categories: true,
-        users: true,
+        users: {
+          include: {
+            assignments: {
+              include: {
+                project: {
+                  include: {
+                    categories: true,
+                    ballots: {
+                      include: {
+                        criteria: true,
+                        user: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        id: "asc",
       },
     });
 
@@ -52,6 +73,31 @@ categoryGroupRoutes.route("/").post(
   asyncHandler(async (req, res) => {
     const currentHexathon = await getCurrentHexathon(req);
 
+    // Throw error if users already have a category group for this hexathon
+    if (req.body.users) {
+      const users = await prisma.user.findMany({
+        where: {
+          id: {
+            in: req.body.users,
+          },
+        },
+        include: {
+          categoryGroups: true,
+        },
+      });
+
+      const usersWithCategoryGroup = users.filter(user =>
+        user.categoryGroups.some(categoryGroup => categoryGroup.hexathon === currentHexathon.id)
+      );
+      if (usersWithCategoryGroup.length > 0) {
+        throw new BadRequestError(
+          `User(s) ${usersWithCategoryGroup
+            .map(user => user.name)
+            .join(", ")} already have a category group for this hexathon`
+        );
+      }
+    }
+
     const createdCategoryGroup = await prisma.categoryGroup.create({
       data: {
         ...req.body,
@@ -67,6 +113,37 @@ categoryGroupRoutes.route("/").post(
 categoryGroupRoutes.route("/:id").patch(
   isAdmin,
   asyncHandler(async (req, res) => {
+    const currentHexathon = await getCurrentHexathon(req);
+
+    // Throw error if users already have a category group for this hexathon
+    if (req.body.users) {
+      const users = await prisma.user.findMany({
+        where: {
+          id: {
+            in: req.body.users,
+          },
+        },
+        include: {
+          categoryGroups: true,
+        },
+      });
+
+      const usersWithCategoryGroup = users.filter(user =>
+        user.categoryGroups.some(
+          categoryGroup =>
+            categoryGroup.hexathon === currentHexathon.id &&
+            categoryGroup.id !== parseInt(req.params.id)
+        )
+      );
+      if (usersWithCategoryGroup.length > 0) {
+        throw new BadRequestError(
+          `User(s) ${usersWithCategoryGroup
+            .map(user => user.name)
+            .join(", ")} already have a category group for this hexathon`
+        );
+      }
+    }
+
     const updatedCategoryGroup = await prisma.categoryGroup.update({
       where: {
         id: parseInt(req.params.id),
