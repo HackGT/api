@@ -34,20 +34,47 @@ const client = new MongoClient("mongodb://localhost:7777");
   const participants: any[] = [];
   for (const doc of res) {
     const participantInfo = [];
-    participantInfo.push(doc.name || "N/A");
+
+    const names = doc.name.split(" ");
+    const firstName = names[0];
+    const lastName = names[names.length - 1];
+
+    const dateOfBirth = doc.applicationData?.dateOfBirth;
+    const dob = new Date(dateOfBirth);
+    const currentDate = new Date();
+    let age = currentDate.getFullYear() - dob.getFullYear();
+    if (
+      currentDate.getMonth() < dob.getMonth() ||
+      (currentDate.getMonth() === dob.getMonth() && currentDate.getDate() < dob.getDate())
+    ) {
+      age--;
+    }
+
+    // participantInfo.push(doc.name || "N/A");
+    participantInfo.push(firstName || "N/A");
+    participantInfo.push(lastName || "N/A");
+    participantInfo.push(age || "N/A");
     participantInfo.push(doc.email || "N/A");
     participantInfo.push(doc.applicationData?.school.replace(",", "") || "N/A");
+    participantInfo.push(doc.applicationData?.phoneNumber || "N/A");
+    participantInfo.push(doc.applicationData?.address?.country || "United States");
+    participantInfo.push(
+      doc.applicationData?.levelOfStudy.replaceAll(",", " |") || "Undergraduate"
+    );
     participantInfo.push(doc.applicationData?.schoolYear || "N/A");
+
     participants.push(participantInfo.join(","));
   }
 
-  participants.unshift("Name,Email,School,Year");
+  participants.unshift(
+    "First Name,Last Name,Date of Birth,Email,School,Phone Number,Country,Level Of Study,Year"
+  );
 
   fs.mkdir(path.resolve(__dirname, "../output"), { recursive: true }, err => {
     if (err) throw err;
 
     fs.writeFileSync(
-      path.resolve(__dirname, "../output/participants.csv"),
+      path.resolve(__dirname, "../output/participant_data_mlh.csv"),
       participants.join("\n")
     );
   });
