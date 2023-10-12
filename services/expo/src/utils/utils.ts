@@ -40,12 +40,24 @@ export const isAdminOrIsJudging = async (
   response: express.Response,
   next: express.NextFunction
 ) => {
-  const user = await prisma.user.findUnique({
-    where: {
-      userId: request.user?.uid,
-    },
-  });
-  if (!user || !(request.user?.roles.admin || user.isJudging)) {
+  const [user, config] = await Promise.all([
+    prisma.user.findUnique({
+      where: {
+        userId: request.user?.uid,
+      },
+      include: {
+        categoryGroups: true,
+      },
+    }),
+    getConfig(),
+  ]);
+
+  // Find assigned category groups for current hexathon if exists
+  const hasCurrentCategoryGroup =
+    user?.categoryGroups.some(categoryGroup => categoryGroup.hexathon === config.currentHexathon) ??
+    false;
+
+  if (!user || !(request.user?.roles.admin || hasCurrentCategoryGroup)) {
     throw new ForbiddenError("Sorry, you don't have access to this endpoint.");
   }
   next();

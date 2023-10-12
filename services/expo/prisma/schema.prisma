@@ -10,7 +10,6 @@ datasource db {
 
 enum AssignmentStatus {
   QUEUED
-  STARTED
   COMPLETED
   SKIPPED
 }
@@ -27,7 +26,7 @@ model Assignment {
   id          Int              @id @default(autoincrement())
   user        User             @relation(fields: [userId], references: [id])
   project     Project          @relation(fields: [projectId], references: [id])
-  status      AssignmentStatus
+  status      AssignmentStatus @default(QUEUED)
   priority    Int?
   categoryIds Int[]
   createdAt   DateTime         @default(now())
@@ -81,6 +80,7 @@ model CategoryGroup {
   categories Category[]
   hexathon   String
   users      User[]
+  isSponsor  Boolean    @default(false)
 
   @@index([hexathon])
   @@map("category_group")
@@ -174,17 +174,11 @@ model User {
   name          String
   email         String         @unique
   userId        String         @unique
-  isJudging     Boolean        @default(false)
-  isSponsor     Boolean        @default(false)
-  categoryGroup CategoryGroup? @relation(fields: [categoryGroupId], references: [id])
+  categoryGroups CategoryGroup[]
   ballots       Ballot[]
   projects      Project[]
   assignments   Assignment[]
 
-  categoryGroupId Int?
-
-  @@index([isJudging])
-  @@index([isSponsor])
   @@map("user")
 }
 

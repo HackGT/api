@@ -3,7 +3,7 @@ import { Service } from "@api/config";
 import { BadRequestError, apiCall, asyncHandler } from "@api/common";
 
 import { prisma } from "../common";
-import { isAdmin } from "../utils/utils";
+import { getConfig, isAdminOrIsJudging } from "../utils/utils";
 
 export const userRoutes = express.Router();
 
@@ -13,9 +13,14 @@ userRoutes.route("/check").get(
       throw new BadRequestError("Invalid user");
     }
 
+    const config = await getConfig();
+
     let user = await prisma.user.findUnique({
       where: {
         email: req.user.email,
+      },
+      include: {
+        categoryGroups: true,
       },
     });
 
@@ -34,37 +39,32 @@ userRoutes.route("/check").get(
           name: `${response.name.first} ${response.name.last}`,
           userId: req.user.uid,
           email: req.user.email,
-          isJudging: false,
+        },
+        include: {
+          categoryGroups: true,
         },
       });
     }
 
+    // Determines current category group based on current hexathon
+    const currentCategoryGroup = user.categoryGroups.find(
+      categoryGroup => categoryGroup.hexathon === config.currentHexathon
+    );
+
     res.send({
       ...user,
       roles: req.user.roles,
+      isJudging: !!currentCategoryGroup,
+      isSponsor: currentCategoryGroup?.isSponsor ?? false,
     });
   })
 );
 
 // Filter using query string in url with parameters role and category
 userRoutes.route("/").get(
+  isAdminOrIsJudging,
   asyncHandler(async (req, res) => {
-    const categoryFilter = (req.query.category as string) || null;
-    let roleFilter = (req.query.role as string) || null;
-    const filter: any = {};
-
-    if (categoryFilter !== null) {
-      const categoryId = parseInt(categoryFilter);
-      filter.categoryGroupId = categoryId;
-    }
-
-    if (roleFilter !== null) {
-      roleFilter = roleFilter.toUpperCase();
-      filter.role = roleFilter;
-    }
-
     const users = await prisma.user.findMany({
-      where: filter,
       include: {
         assignments: {
           include: {
@@ -82,7 +82,7 @@ userRoutes.route("/").get(
             },
           },
         },
-        categoryGroup: true,
+        categoryGroups: true,
         projects: {
           include: {
             categories: true,
@@ -92,27 +92,5 @@ userRoutes.route("/").get(
     });
 
     res.status(200).json(users);
-  })
-);
-
-// Update user
-userRoutes.route("/:id").patch(
-  isAdmin,
-  asyncHandler(async (req, res) => {
-    const data: any = {};
-    Object.keys(req.body).forEach(key => {
-      if (["name", "categoryGroupId", "isJudging"].includes(key)) {
-        data[key] = req.body[key];
-      }
-    });
-
-    const updatedUser = await prisma.user.update({
-      where: {
-        id: parseInt(req.params.id),
-      },
-      data,
-    });
-
-    res.status(200).json(updatedUser);
   })
 );
