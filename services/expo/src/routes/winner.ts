@@ -8,7 +8,6 @@ export const winnerRoutes = express.Router();
 
 // Get all winners
 winnerRoutes.route("/").get(
-  isAdmin,
   asyncHandler(async (req, res) => {
     const winners = await prisma.winner.findMany({
       where: {
