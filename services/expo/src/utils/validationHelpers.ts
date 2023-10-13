@@ -398,11 +398,26 @@ export const validatePrizes = async (prizes: any[], req: express.Request) => {
     case "HackGT X": {
       if (
         prizeNames.filter(prize => prizeConfig.hexathons["HackGT X"].generalPrizes.includes(prize))
+          .length > 1 ||
+        prizeNames.filter(prize => prizeConfig.hexathons["HackGT X"].emergingPrizes.includes(prize))
           .length > 1
       ) {
         return {
           error: true,
           message: "You are only eligible to submit for one track.",
+        };
+      }
+
+      // if prizenames has a general and emerging prize, return error
+      if (
+        prizeNames.filter(prize => prizeConfig.hexathons["HackGT X"].generalPrizes.includes(prize))
+          .length > 0 &&
+        prizeNames.filter(prize => prizeConfig.hexathons["HackGT X"].emergingPrizes.includes(prize))
+          .length > 0
+      ) {
+        return {
+          error: true,
+          message: "You are only eligible to submit for either an emerging or general track.",
         };
       }
 
