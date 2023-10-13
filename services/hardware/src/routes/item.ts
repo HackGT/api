@@ -200,10 +200,10 @@ itemRouter.route("/:id").put(
     if (!req.body.name.trim().length) {
       throw new BadRequestError("The item name can't be empty.");
     }
-    if (!req.body.category.trim().length) {
+    if (!req.body.category.name.trim().length) {
       throw new BadRequestError("The category for this item can't be blank.");
     }
-    if (!req.body.location.trim().length) {
+    if (!req.body.location.name.trim().length) {
       throw new BadRequestError("The location for this item can't be blank.");
     }
     if (req.body.totalAvailable < 0) {
@@ -230,12 +230,12 @@ itemRouter.route("/:id").put(
         ...req.body,
         category: {
           connect: {
-            id: req.body.category,
+            id: req.body.category.id,
           },
         },
         location: {
           connect: {
-            id: req.body.location,
+            id: req.body.location.id,
           },
         },
       },
