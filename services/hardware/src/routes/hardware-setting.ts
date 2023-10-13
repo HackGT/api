@@ -1,4 +1,4 @@
-import { asyncHandler, checkAbility } from "@api/common";
+import { BadRequestError, asyncHandler, checkAbility } from "@api/common";
 import express from "express";
 
 import { prisma } from "../common";
@@ -32,6 +32,10 @@ hardwareSettingRoutes.route("/").get(
 hardwareSettingRoutes.route("/").post(
   checkAbility("update", "HardwareSetting"),
   asyncHandler(async (req, res) => {
+    if (!req.user?.roles.admin) {
+      throw new BadRequestError("You must be an admin to update the hardware settings");
+    }
+
     const updated = await prisma.setting.upsert({
       where: {
         id: 1,
