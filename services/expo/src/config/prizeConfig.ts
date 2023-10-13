@@ -96,5 +96,31 @@ export const prizeConfig = {
         "Carelon - Best Overall",
       ],
     },
+    "HackGT X": {
+      generalPrizes: [
+        "General - Digital Art 4510",
+        "General - Innovate 3251",
+        "General - Sustain 2110",
+        "General - Edu 3510",
+        "General - Health 1001",
+      ],
+      emergingPrizes: [
+        "Emerging - Digital Art 4510",
+        "Emerging - Innovate 3251",
+        "Emerging - Sustain 2110",
+        "Emerging - Edu 3510",
+        "Emerging - Health 1001",
+      ],
+      sponsorPrizes: [
+        "Capital One - Best Financial Hack",
+        "Github - Most Creative Use of Github",
+        "MongoDB - Best Use of MongoDB Atlas",
+        "Soroban - Best Use of Soroban",
+        "MATLAB - Best Use of MATLAB",
+        "MLH - Best .Tech Domain Name",
+        "Google Cloud - Best Use of Google Cloud",
+        "Fidelity - Best Accessibility Hack",
+      ],
+    },
   },
 };

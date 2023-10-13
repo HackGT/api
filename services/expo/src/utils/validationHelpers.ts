@@ -168,6 +168,19 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
       });
       return generalDBPrizes;
     }
+    case "HackGT X": {
+      const { generalPrizes, emergingPrizes, sponsorPrizes } = prizeConfig.hexathons["HackGT X"];
+      const allPrizes = generalPrizes.concat(emergingPrizes).concat(sponsorPrizes);
+
+      const dbPrizes = await prisma.category.findMany({
+        where: {
+          name: {
+            in: allPrizes,
+          },
+        },
+      });
+      return dbPrizes;
+    }
 
     default: {
       return [];
@@ -380,6 +393,30 @@ export const validatePrizes = async (prizes: any[], req: express.Request) => {
       return { error: false };
     }
     default: {
+      return { error: false };
+    }
+    case "HackGT X": {
+      if (
+        prizeNames.filter(prize => prizeConfig.hexathons["HackGT X"].generalPrizes.includes(prize))
+          .length > 1
+      ) {
+        return {
+          error: true,
+          message: "You are only eligible to submit for one track.",
+        };
+      }
+
+      if (
+        prizeNames.filter(prize => prizeConfig.hexathons["HackGT X"].generalPrizes.includes(prize))
+          .length === 0 &&
+        prizeNames.filter(prize => prizeConfig.hexathons["HackGT X"].emergingPrizes.includes(prize))
+          .length === 0
+      ) {
+        return {
+          error: true,
+          message: "You must submit to at least one track.",
+        };
+      }
       return { error: false };
     }
   }
