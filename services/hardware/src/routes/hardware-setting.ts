@@ -32,11 +32,17 @@ hardwareSettingRoutes.route("/").get(
 hardwareSettingRoutes.route("/").post(
   checkAbility("update", "HardwareSetting"),
   asyncHandler(async (req, res) => {
-    const updated = await prisma.setting.update({
+    const updated = await prisma.setting.upsert({
       where: {
         id: 1,
       },
-      data: req.body,
+      update: {
+        isHardwareRequestsAllowed: req.body.isHardwareRequestsAllowed,
+      },
+      create: {
+        id: 1,
+        isHardwareRequestsAllowed: false,
+      },
     });
 
     res.status(200).json(updated);
