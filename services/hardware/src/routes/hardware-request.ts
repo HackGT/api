@@ -102,10 +102,10 @@ hardwareRequestRouter.route("/").post(
       );
     }
 
-    /* const settings = await getSettings();
-    if (!settings.i sHardwareRequestsAllowed) {
+    const settings = await getSettings();
+    if (!settings.isHardwareRequestsAllowed) {
       throw new BadRequestError("Requests are disabled at this time");
-    } */
+    }
 
     // fetch the item
     const item = await getItem(req, req.body.itemId);
