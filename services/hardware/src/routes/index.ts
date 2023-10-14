@@ -1,6 +1,5 @@
 import express from "express";
 
-// import { cartRouter } from "./cart";
 import { categoryRouter } from "./category";
 import { itemRouter } from "./item";
 import { locationRouter } from "./location";
