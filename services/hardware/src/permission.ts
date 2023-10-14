@@ -17,6 +17,7 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
 
   if (req.user.roles.member) {
     can("manage", "Item");
+    can("read", "Location");
     can("manage", "HardwareRequest");
     can("manage", "HardwareSetting");
   }
