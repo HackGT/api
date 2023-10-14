@@ -24,6 +24,7 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
   can("read", "Item");
   can("read", "Category");
   can(["read", "create"], "HardwareRequest");
+  can("delete", "HardwareRequest", { userId: req.user.uid });
   can("read", "HardwareSetting");
 
   req.ability = build();
