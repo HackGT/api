@@ -96,7 +96,7 @@ hardwareRequestRouter.route("/").post(
   checkAbility("create", "HardwareRequest"),
   asyncHandler(async (req, res) => {
     // if non-admin, user on request must be user signed in
-    if (!req.user?.roles.admin && req.user?.uid !== req.body.userId) {
+    if (!req.user?.roles.admin && req.user?.uid !== req.body.user) {
       throw new BadRequestError(
         "Unable to create request because you are not an admin and your UUID does not match the UUID of the user this request is for"
       );
