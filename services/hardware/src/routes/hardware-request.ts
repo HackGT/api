@@ -129,8 +129,7 @@ hardwareRequestRouter.route("/").post(
       req.body.quantity = 1;
     }
 
-    const initialStatus: RequestStatus =
-      !item.approvalRequired && item.qtyUnreserved >= req.body.quantity ? "APPROVED" : "SUBMITTED";
+    const initialStatus: RequestStatus = "SUBMITTED";
 
     const user = await prisma.user.upsert({
       where: {
@@ -155,12 +154,12 @@ hardwareRequestRouter.route("/").post(
         status: initialStatus,
         item: {
           connect: {
-            id: req.body.item,
+            id: req.body.itemId,
           },
         },
         user: {
           connect: {
-            userId: user.userId,
+            userId: req.body.user,
           },
         },
       },
