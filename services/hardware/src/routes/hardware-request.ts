@@ -232,7 +232,7 @@ hardwareRequestRouter.route("/:id").put(
 
       const updatedRequest = await prisma.request.update({
         where: {
-          id: req.body.id,
+          id: parseInt(req.params.id),
         },
         data: updateObj,
       });
