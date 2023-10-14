@@ -31,6 +31,7 @@ const swagItemSchema = new Schema<SwagItem>({
   },
   purchased: {
     type: Number,
+    default: 0,
   },
   capacity: {
     type: Number,

@@ -257,7 +257,7 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/purchase-swag-item"
     );
 
     await SwagItemModel.findByIdAndUpdate(swagItem.id, {
-      purchased: swagItem.purchased + quantity,
+      purchased: (swagItem.purchased || 0) + quantity,
     });
 
     return res.sendStatus(204);
