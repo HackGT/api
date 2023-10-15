@@ -184,32 +184,17 @@ projectRoutes.route("/").post(
       return;
     }
 
-    // const bestOverall: any = await prisma.category.findFirst({
-    //   where: {
-    //     name: { in: ["HackGT - Best Overall"] },
-    //   },
-    // });
-
-    // const openSource: any = await prisma.category.findFirst({
-    //   where: {
-    //     name: { in: ["HackGT - Best Open Source Hack"] },
-    //   },
-    // });
-
-    // if (openSource && data.prizes.includes(openSource.id) && data.prizes.length > 1) {
-    //   res.status(400).send({
-    //     error: true,
-    //     message: "If you submit to open source you can only submit to that category",
-    //   });
-    // } else if (openSource && !data.prizes.includes(openSource.id)) {
-    //   data.prizes.push(bestOverall.id);
-    // }
-
     const projectExpo = Math.floor(Math.random() * config.numberOfExpo + 1);
 
-    const tableGroups = await prisma.tableGroup.findMany();
+    const tableGroups = await prisma.tableGroup.findMany({
+      where: {
+        hexathon: currentHexathon.id,
+      },
+    });
+
     const projectsInCurrentExpo = await prisma.project.findMany({
       where: {
+        hexathon: currentHexathon.id,
         expo: projectExpo,
       },
     });
@@ -245,6 +230,7 @@ projectRoutes.route("/").post(
     for (const project of projectsInCurrentExpoAndTableGroup) {
       tableNumberSet.add(project.table);
     }
+
     for (let i = 1; i <= minCapacityTableGroup.tableCapacity; i++) {
       if (!tableNumberSet.has(i)) {
         tableNumber = i;
@@ -266,7 +252,7 @@ projectRoutes.route("/").post(
           name: data.name,
           description: data.description,
           devpostUrl: data.devpostUrl,
-          githubUrl: "",
+          githubUrl: data.githubUrl || "",
           expo: projectExpo,
           roomUrl: "",
           table: tableNumber,
@@ -543,13 +529,13 @@ projectRoutes.route("/special/dashboard").get(
 
     // check for hexathon id filter
     if (req.query?.hexathon) {
-      const filtered_projects = [];
+      const filteredProjects = [];
       for (const project in projects) {
         if (projects[project].hexathon === hexathons.id) {
-          filtered_projects.push(projects[project]);
+          filteredProjects.push(projects[project]);
         }
       }
-      projects = filtered_projects;
+      projects = filteredProjects;
     }
     for (const project in projects) {
       for (const hexathon in hexathons) {
@@ -649,14 +635,15 @@ projectRoutes.route("/special/calculate-normalized-scores").get(
     const judgeStats: Record<number, any> = {}; // judge id -> [mean, std dev]
 
     for (const categoryGroup of categoryGroups) {
-      const users = categoryGroup.users;
+      const { users } = categoryGroup;
       for (const user of users) {
-        const ballots = user.ballots;
-        let scores = [];
+        const { ballots } = user;
+        const scores = [];
         for (const ballot of ballots) {
           scores.push(ballot.score);
         }
         if (scores.length === 0) {
+          // eslint-disable-next-line no-continue
           continue;
         }
         const { mean, standardDeviation } = calculateMeanAndStandardDeviation(...scores);
@@ -665,12 +652,13 @@ projectRoutes.route("/special/calculate-normalized-scores").get(
     }
 
     for (const project of projects) {
-      const ballots = project.ballots;
+      const { ballots } = project;
       if (ballots.length === 0) {
         projectScores[Number(project.id)] = 0;
+        // eslint-disable-next-line no-continue
         continue;
       }
-      let scores = [];
+      const scores = [];
       let normalizedScore;
       for (const ballot of ballots) {
         let mean, standardDeviation;
@@ -680,7 +668,7 @@ projectRoutes.route("/special/calculate-normalized-scores").get(
         } else {
           normalizedScore = 0;
         }
-        normalizedScore = normalizedScore * standardDeviation;
+        normalizedScore *= standardDeviation;
         scores.push(normalizedScore);
       }
       const { mean: meanOfNormScores } = calculateMeanAndStandardDeviation(...scores);
