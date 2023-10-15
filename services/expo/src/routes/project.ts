@@ -671,14 +671,15 @@ projectRoutes.route("/special/calculate-normalized-scores").get(
         continue;
       }
       let scores = [];
+      let normalizedScore;
       for (const ballot of ballots) {
         let mean, standardDeviation;
         if (Number(ballot.user.id) in judgeStats) {
           [mean, standardDeviation] = judgeStats[Number(ballot.user.id)];
+          normalizedScore = (ballot.score - mean) / standardDeviation;
         } else {
-          [mean, standardDeviation] = [0, 1];
+          normalizedScore = 0;
         }
-        let normalizedScore = (ballot.score - mean) / standardDeviation;
         normalizedScore = normalizedScore * standardDeviation;
         scores.push(normalizedScore);
       }
