@@ -63,6 +63,22 @@ export const isAdminOrIsJudging = async (
   next();
 };
 
+export const calculateMeanAndStandardDeviation = (
+  ...numbers: number[]
+): { mean: number; standardDeviation: number } => {
+  // Calculate the mean
+  const mean: number = numbers.reduce((sum, value) => sum + value, 0) / numbers.length;
+
+  const squaredDifferences: number[] = numbers.map(number => Math.pow(number - mean, 2));
+
+  const averageSquaredDifference: number =
+    squaredDifferences.reduce((sum, value) => sum + value, 0) / squaredDifferences.length;
+
+  const standardDeviation: number = Math.sqrt(averageSquaredDifference);
+
+  return { mean, standardDeviation };
+};
+
 export const isAdmin = async (
   request: express.Request,
   response: express.Response,

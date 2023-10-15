@@ -4,7 +4,12 @@ import { BadRequestError, apiCall, asyncHandler } from "@api/common";
 import { Service } from "@api/config";
 
 import { prisma } from "../common";
-import { getConfig, getCurrentHexathon, isAdmin } from "../utils/utils";
+import {
+  calculateMeanAndStandardDeviation,
+  getConfig,
+  getCurrentHexathon,
+  isAdmin,
+} from "../utils/utils";
 import {
   validateTeam,
   validateDevpost,
@@ -600,5 +605,79 @@ projectRoutes.route("/special/category-group/:id").get(
     });
 
     res.status(200).json(projects);
+  })
+);
+
+projectRoutes.route("/calculate-normalized-scores").get(
+  asyncHandler(async (req, res) => {
+    // get all cateogry groups with the current hexathon
+
+    const currentHexathon = await getCurrentHexathon(req);
+
+    const categoryGroups = await prisma.categoryGroup.findMany({
+      where: {
+        hexathon: currentHexathon.id,
+      },
+      include: {
+        users: {
+          select: {
+            id: true,
+            ballots: {
+              select: {
+                score: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const projects = await prisma.project.findMany({
+      where: {
+        hexathon: currentHexathon.id,
+      },
+      select: {
+        id: true,
+        ballots: {
+          select: {
+            score: true,
+            user: true,
+          },
+        },
+      },
+    });
+
+    const projectScores: Map<number, number> = new Map();
+    const judgeStats: Map<number, any> = new Map(); // judge id -> [mean, std dev]
+
+    // iterate through category groups and calculate the mapping between project (within a ballot) and its normalized score (score within the ballot)
+
+    for (const categoryGroup of categoryGroups) {
+      const users = categoryGroup.users;
+      for (const user of users) {
+        const ballots = user.ballots;
+        // normalize the scores for the ballots of each user without considering criteria
+        let scores = [];
+        for (const ballot of ballots) {
+          scores.push(ballot.score);
+        }
+        const { mean, standardDeviation } = calculateMeanAndStandardDeviation(...scores);
+        judgeStats.set(Number(user.id), [mean, standardDeviation]);
+      }
+    }
+
+    for (const project of projects) {
+      const ballots = project.ballots;
+      let scores = [];
+      for (const ballot of ballots) {
+        const [mean, standardDeviation] = judgeStats.get(Number(ballot.user));
+        const normalizedScore = (ballot.score - mean) / standardDeviation;
+        scores.push(normalizedScore);
+      }
+      const { mean: meanOfNormScores } = calculateMeanAndStandardDeviation(...scores);
+      projectScores.set(Number(project.id), meanOfNormScores);
+    }
+
+    return projectScores;
   })
 );
