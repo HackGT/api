@@ -645,8 +645,8 @@ projectRoutes.route("/special/calculate-normalized-scores").get(
       },
     });
 
-    const projectScores: Map<number, number> = new Map();
-    const judgeStats: Map<number, any> = new Map(); // judge id -> [mean, std dev]
+    const projectScores: Record<number, number> = {};
+    const judgeStats: Record<number, any> = {}; // judge id -> [mean, std dev]
 
     for (const categoryGroup of categoryGroups) {
       const users = categoryGroup.users;
@@ -660,21 +660,21 @@ projectRoutes.route("/special/calculate-normalized-scores").get(
           continue;
         }
         const { mean, standardDeviation } = calculateMeanAndStandardDeviation(...scores);
-        judgeStats.set(Number(user.id), [mean, standardDeviation]);
+        judgeStats[Number(user.id)] = [mean, standardDeviation];
       }
     }
 
     for (const project of projects) {
       const ballots = project.ballots;
       if (ballots.length === 0) {
-        projectScores.set(Number(project.id), 0);
+        projectScores[Number(project.id)] = 0;
         continue;
       }
       let scores = [];
       for (const ballot of ballots) {
         let mean, standardDeviation;
         if (Number(ballot.user.id) in judgeStats) {
-          [mean, standardDeviation] = judgeStats.get(Number(ballot.user.id));
+          [mean, standardDeviation] = judgeStats[Number(ballot.user.id)];
         } else {
           [mean, standardDeviation] = [0, 1];
         }
@@ -682,9 +682,8 @@ projectRoutes.route("/special/calculate-normalized-scores").get(
         scores.push(normalizedScore);
       }
       const { mean: meanOfNormScores } = calculateMeanAndStandardDeviation(...scores);
-      projectScores.set(Number(project.id), meanOfNormScores);
+      projectScores[Number(project.id)] = meanOfNormScores;
     }
-
-    return projectScores;
+    res.status(200).json(projectScores);
   })
 );
