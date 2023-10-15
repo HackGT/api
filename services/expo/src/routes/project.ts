@@ -608,10 +608,8 @@ projectRoutes.route("/special/category-group/:id").get(
   })
 );
 
-projectRoutes.route("/calculate-normalized-scores").get(
+projectRoutes.route("/special/calculate-normalized-scores").get(
   asyncHandler(async (req, res) => {
-    // get all cateogry groups with the current hexathon
-
     const currentHexathon = await getCurrentHexathon(req);
 
     const categoryGroups = await prisma.categoryGroup.findMany({
@@ -661,6 +659,9 @@ projectRoutes.route("/calculate-normalized-scores").get(
         for (const ballot of ballots) {
           scores.push(ballot.score);
         }
+        if (scores.length === 0) {
+          continue;
+        }
         const { mean, standardDeviation } = calculateMeanAndStandardDeviation(...scores);
         judgeStats.set(Number(user.id), [mean, standardDeviation]);
       }
@@ -668,9 +669,18 @@ projectRoutes.route("/calculate-normalized-scores").get(
 
     for (const project of projects) {
       const ballots = project.ballots;
+      if (ballots.length === 0) {
+        projectScores.set(Number(project.id), 0);
+        continue;
+      }
       let scores = [];
       for (const ballot of ballots) {
-        const [mean, standardDeviation] = judgeStats.get(Number(ballot.user));
+        let mean, standardDeviation;
+        if (Number(ballot.user.id) in judgeStats) {
+          [mean, standardDeviation] = judgeStats.get(Number(ballot.user.id));
+        } else {
+          [mean, standardDeviation] = [0, 1];
+        }
         const normalizedScore = (ballot.score - mean) / standardDeviation;
         scores.push(normalizedScore);
       }
