@@ -648,13 +648,10 @@ projectRoutes.route("/special/calculate-normalized-scores").get(
     const projectScores: Map<number, number> = new Map();
     const judgeStats: Map<number, any> = new Map(); // judge id -> [mean, std dev]
 
-    // iterate through category groups and calculate the mapping between project (within a ballot) and its normalized score (score within the ballot)
-
     for (const categoryGroup of categoryGroups) {
       const users = categoryGroup.users;
       for (const user of users) {
         const ballots = user.ballots;
-        // normalize the scores for the ballots of each user without considering criteria
         let scores = [];
         for (const ballot of ballots) {
           scores.push(ballot.score);
