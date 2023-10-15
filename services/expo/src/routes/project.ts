@@ -678,7 +678,8 @@ projectRoutes.route("/special/calculate-normalized-scores").get(
         } else {
           [mean, standardDeviation] = [0, 1];
         }
-        const normalizedScore = (ballot.score - mean) / standardDeviation;
+        let normalizedScore = (ballot.score - mean) / standardDeviation;
+        normalizedScore = normalizedScore * standardDeviation;
         scores.push(normalizedScore);
       }
       const { mean: meanOfNormScores } = calculateMeanAndStandardDeviation(...scores);
