@@ -112,6 +112,17 @@ userRoutes.route("/").get(
   })
 );
 
+// Public Endpoint for HexLabs tech-onboarding project
+userRoutes.route("/hexlabs").get(
+  asyncHandler(async (req, res) => {
+    const profiles = await ProfileModel.find({
+      email: { $regex: /@hexlabs.org/i },
+    });
+
+    return res.status(200).json(profiles);
+  })
+);
+
 userRoutes.route("/:userId").get(
   checkAbility("read", "Profile"),
   asyncHandler(async (req, res) => {
