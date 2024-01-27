@@ -30,6 +30,9 @@ winnerRoutes.route("/export").get(
   isAdmin,
   asyncHandler(async (req, res) => {
     const winners = await prisma.winner.findMany({
+      where: {
+        hexathon: String(req.query.hexathon),
+      },
       select: {
         rank: true,
         project: {
