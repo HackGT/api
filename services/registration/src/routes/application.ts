@@ -165,9 +165,10 @@ applicationRouter.route("/generate-csv").get(
     const columns = ["name", "email", "applicationBranch", "status"];
 
     let combinedApplications = `${columns.join(";")}\n`;
+    console.log(combinedApplications);
 
     applications.forEach(appl => {
-      combinedApplications += `${appl.name};${appl.email};${appl.applicationBranch.name};${appl.status};`;
+      combinedApplications += `${appl.name};${appl.email};${appl.applicationBranch.name};${appl.status}`;
       combinedApplications += "\n";
     });
     res.header("Content-Type", "text/csv");
