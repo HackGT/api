@@ -14,8 +14,8 @@ export const uploadFile = async (
 ) => {
   const { originalname, buffer } = file;
   let folderName = "";
-  if (folder !== "") {
-    folderName = `${folder  }/`;
+  if (folder !== undefined) {
+    folderName = `${folder}/`;
   }
   const googleFileName = `${folderName}${path.parse(originalname).name}_${Date.now()}`;
   const blob = storage.bucket(bucketName).file(googleFileName);

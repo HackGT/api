@@ -34,7 +34,7 @@ const multerMid = multer({
 
 export const fileRoutes = express.Router();
 
-fileRoutes.route("/upload/:folder").post(
+fileRoutes.route("/upload/:folder?").post(
   checkAbility("create", "File"),
   multerMid.single("file"),
   asyncHandler(async (req, res) => {
