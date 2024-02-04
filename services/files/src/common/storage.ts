@@ -7,9 +7,18 @@ import { File } from "../models/file";
 
 const storage = new Storage();
 
-export const uploadFile = async (file: Express.Multer.File, bucketName: string) => {
+export const uploadFile = async (
+  file: Express.Multer.File,
+  bucketName: string,
+  folder?: string
+) => {
   const { originalname, buffer } = file;
-  const googleFileName = `${path.parse(originalname).name}_${Date.now()}`;
+  if (folder) {
+    folder += "/";
+  } else {
+    folder = "";
+  }
+  const googleFileName = `${folder}${path.parse(originalname).name}_${Date.now()}`;
   const blob = storage.bucket(bucketName).file(googleFileName);
 
   const blobStream = blob.createWriteStream({
