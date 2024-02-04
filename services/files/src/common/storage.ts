@@ -13,12 +13,11 @@ export const uploadFile = async (
   folder?: string
 ) => {
   const { originalname, buffer } = file;
-  if (folder) {
-    folder += "/";
-  } else {
-    folder = "";
+  let folderName = "";
+  if (folder !== "") {
+    folderName = `${folder  }/`;
   }
-  const googleFileName = `${folder}${path.parse(originalname).name}_${Date.now()}`;
+  const googleFileName = `${folderName}${path.parse(originalname).name}_${Date.now()}`;
   const blob = storage.bucket(bucketName).file(googleFileName);
 
   const blobStream = blob.createWriteStream({
