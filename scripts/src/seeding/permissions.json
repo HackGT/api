@@ -1,0 +1,84 @@
+{
+  "permissions": [
+    {
+      "userId": "akgfVPBJrROWbExEjFanKmXC3V62",
+      "roles": {
+        "admin": true,
+        "exec": false,
+        "member": false
+      }
+    },
+    {
+      "userId": "c7LmODpAtnMqJUDSUR3rUgTIvHU2",
+      "roles": {
+        "admin": false,
+        "exec": true,
+        "member": false
+      }
+    },
+    {
+      "userId": "5SPQUVkzw3dZX7tKLL36pZnYlSP2",
+      "roles": {
+        "admin": false,
+        "exec": false,
+        "member": true
+      }
+    },
+    {
+      "userId": "ciLXVTJ7b8OwPxmKr6QFRPB6YP92",
+      "roles": {
+        "admin": true,
+        "exec": false,
+        "member": false
+      }
+    },
+    {
+      "userId": "YEcK52MzmOMC9XSTTyeYAQPsQcm1",
+      "roles": {
+        "admin": false,
+        "exec": true,
+        "member": false
+      }
+    },
+    {
+      "userId": "AZ8O6SleKcMt7qjXjvKAWEIssiz2",
+      "roles": {
+        "admin": false,
+        "exec": false,
+        "member": true
+      }
+    },
+    {
+      "userId": "FL5Y9QskNEhgIomRpTxSSRW4rvz2",
+      "roles": {
+        "admin": true,
+        "exec": false,
+        "member": false
+      }
+    },
+    {
+      "userId": "tGwLW3lV68aKcYl70SG2gcJSyIy1",
+      "roles": {
+        "admin": false,
+        "exec": true,
+        "member": false
+      }
+    },
+    {
+      "userId": "Xn500FbIf5QNC6xGLbivwTEmap03",
+      "roles": {
+        "admin": false,
+        "exec": false,
+        "member": true
+      }
+    },
+    {
+      "userId": "G8mgLe2zZGWgwK5giMBoi6o3xfp1",
+      "roles": {
+        "admin": true,
+        "exec": false,
+        "member": false
+      }
+    }
+  ]
+}

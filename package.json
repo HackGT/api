@@ -25,7 +25,8 @@
     "lint": "eslint './**/src/**/*.ts' --fix; prettier . --write",
     "start:all": "ts-node index.ts",
     "prepare": "husky install",
-    "setup": "yarn workspace @api/scripts execute src/setup.ts"
+    "setup": "yarn workspace @api/scripts execute src/setup.ts",
+    "seed": "yarn workspace @api/scripts execute src/seeding/seed.ts"
   },
   "engines": {
     "node": ">=16"

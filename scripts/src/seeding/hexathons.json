@@ -1,0 +1,50 @@
+[
+  {
+    "name": "[DEV] Hexathon 1",
+    "shortCode": "DEV1",
+    "isActive": false,
+    "startDate": {
+      "$date": {
+        "$numberLong": "1655449200000"
+      }
+    },
+    "endDate": {
+      "$date": {
+        "$numberLong": "1655708400000"
+      }
+    },
+    "isTeamBased": true
+  },
+  {
+    "name": "[DEV] Hexathon 2",
+    "shortCode": "DEV2",
+    "isActive": false,
+    "startDate": {
+      "$date": {
+        "$numberLong": "1655449200000"
+      }
+    },
+    "endDate": {
+      "$date": {
+        "$numberLong": "1655708400000"
+      }
+    },
+    "isTeamBased": true
+  },
+  {
+    "name": "[DEV] Hexathon 3",
+    "shortCode": "DEV3",
+    "isActive": true,
+    "startDate": {
+      "$date": {
+        "$numberLong": "1655449200000"
+      }
+    },
+    "endDate": {
+      "$date": {
+        "$numberLong": "1687244400000"
+      }
+    },
+    "isTeamBased": true
+  }
+]

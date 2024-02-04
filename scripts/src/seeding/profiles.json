@@ -1,0 +1,112 @@
+[
+  {
+    "userId": "akgfVPBJrROWbExEjFanKmXC3V62",
+    "email": "john.doe@example.com",
+    "name": {
+      "first": "John",
+      "middle": "",
+      "last": "Doe"
+    },
+    "phoneNumber": "7704843929",
+    "gender": "Male"
+  },
+  {
+    "userId": "c7LmODpAtnMqJUDSUR3rUgTIvHU2",
+    "email": "jane.smith@example.com",
+    "name": {
+      "first": "Jane",
+      "middle": "",
+      "last": "Smith"
+    },
+    "phoneNumber": "7701231234",
+    "gender": "Female"
+  },
+  {
+    "userId": "5SPQUVkzw3dZX7tKLL36pZnYlSP2",
+    "email": "michael.johnson@example.com",
+    "name": {
+      "first": "Michael",
+      "middle": "",
+      "last": "Johnson"
+    },
+    "phoneNumber": "7709876543",
+    "gender": "Male"
+  },
+  {
+    "userId": "ciLXVTJ7b8OwPxmKr6QFRPB6YP92",
+    "email": "emily.wilson@example.com",
+    "name": {
+      "first": "Emily",
+      "middle": "",
+      "last": "Wilson"
+    },
+    "phoneNumber": "7705678901",
+    "gender": "Female"
+  },
+  {
+    "userId": "YEcK52MzmOMC9XSTTyeYAQPsQcm1",
+    "email": "alexander.wang@example.com",
+    "name": {
+      "first": "Alexander",
+      "middle": "",
+      "last": "Wang"
+    },
+    "phoneNumber": "7702468135",
+    "gender": "Male"
+  },
+  {
+    "userId": "AZ8O6SleKcMt7qjXjvKAWEIssiz2",
+    "email": "sarah.jones@example.com",
+    "name": {
+      "first": "Sarah",
+      "middle": "",
+      "last": "Jones"
+    },
+    "phoneNumber": "7705551234",
+    "gender": "Female"
+  },
+  {
+    "userId": "FL5Y9QskNEhgIomRpTxSSRW4rvz2",
+    "email": "matthew.brown@example.com",
+    "name": {
+      "first": "Matthew",
+      "middle": "",
+      "last": "Brown"
+    },
+    "phoneNumber": "7709876543",
+    "gender": "Male"
+  },
+  {
+    "userId": "tGwLW3lV68aKcYl70SG2gcJSyIy1",
+    "email": "olivia.davis@example.com",
+    "name": {
+      "first": "Olivia",
+      "middle": "",
+      "last": "Davis"
+    },
+    "phoneNumber": "7701234567",
+    "gender": "Female"
+  },
+  {
+    "userId": "Xn500FbIf5QNC6xGLbivwTEmap03",
+    "email": "william.johnson@example.com",
+    "name": {
+      "first": "William",
+      "middle": "",
+      "last": "Johnson"
+    },
+    "phoneNumber": "7709876543",
+    "gender": "Male"
+  },
+  {
+    "userId": "G8mgLe2zZGWgwK5giMBoi6o3xfp1",
+    "email": "emma.wilson@example.com",
+    "name": {
+      "first": "Emma",
+      "middle": "",
+      "last": "Wilson"
+    },
+    "phoneNumber": "7701234567",
+    "gender": "Female"
+  }
+]
