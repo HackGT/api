@@ -140,11 +140,13 @@ applicationRouter.route("/generate-csv").get(
       const searchLength = String(req.query.search).length;
       const search =
         searchLength > 75 ? String(req.query.search).slice(0, 75) : String(req.query.search);
+
+      const sanitizedSearch = _.escapeRegExp(search);
       filter.$or = [
         { _id: isValidObjectId(search) ? new Types.ObjectId(search) : undefined },
-        { userId: { $regex: new RegExp(search, "i") } },
-        { email: { $regex: new RegExp(search, "i") } },
-        { name: { $regex: new RegExp(search, "i") } },
+        { userId: { $regex: new RegExp(sanitizedSearch, "i") } },
+        { email: { $regex: new RegExp(sanitizedSearch, "i") } },
+        { name: { $regex: new RegExp(sanitizedSearch, "i") } },
       ];
     }
 
