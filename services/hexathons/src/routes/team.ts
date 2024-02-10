@@ -60,8 +60,9 @@ teamRoutes.route("/").get(
 );
 
 teamRoutes.route("/get-invites").get(async (req, res) => {
+  const { hexathon } = req.query;
   const invitedUser = await HexathonUserModel.findOne({
-    hexathon: req.query.hexathon,
+    hexathon: { $eq: hexathon },
     userId: req.user?.uid,
   });
 
@@ -70,7 +71,7 @@ teamRoutes.route("/get-invites").get(async (req, res) => {
   }
 
   const teams = await TeamModel.find({
-    hexathon: req.query.hexathon,
+    hexathon: { $eq: hexathon },
     sentInvites: {
       $elemMatch: {
         member: invitedUser.id,
