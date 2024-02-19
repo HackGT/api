@@ -34,7 +34,7 @@ const multerMid = multer({
 
 export const fileRoutes = express.Router();
 
-fileRoutes.route("/upload").post(
+fileRoutes.route("/upload/:folder?").post(
   checkAbility("create", "File"),
   multerMid.single("file"),
   asyncHandler(async (req, res) => {
@@ -44,7 +44,8 @@ fileRoutes.route("/upload").post(
 
     const googleFileName = await uploadFile(
       req.file,
-      config.common.googleCloud.storageBuckets.default
+      config.common.googleCloud.storageBuckets.default,
+      req.params.folder
     );
 
     const file = await FileModel.create({
