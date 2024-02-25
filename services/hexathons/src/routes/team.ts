@@ -77,7 +77,7 @@ teamRoutes.route("/get-invites").get(async (req, res) => {
         member: invitedUser.id,
       },
     },
-  });
+  }).populate("members memberRequests.member sentInvites.member");
 
   res.status(200).json(teams);
 });
