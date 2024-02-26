@@ -89,6 +89,7 @@ userRoutes.route("/").get(
           },
         },
       },
+      take: 100, // TODO: REMOVE THIS BREAKING CHANGE -> Limits response to 100 users
     });
 
     res.status(200).json(users);
