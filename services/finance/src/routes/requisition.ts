@@ -380,6 +380,34 @@ requisitionRoutes.route("/:id").patch(
       },
     }));
 
+    // get current requisition object
+    const currRequisition = await prisma.requisition.findUnique({
+      where: {
+        id: parseInt(req.params.id),
+      },
+      include: REQUISITION_INCLUDE,
+    });
+
+    // get current req project
+    const currProject = currRequisition?.project;
+
+    let projectRequisitionId;
+
+    if (currProject != null && currProject.id === req.body.project) {
+      projectRequisitionId = currRequisition?.projectRequisitionId;
+    } else {
+      const aggregate = await prisma.requisition.aggregate({
+        _max: {
+          projectRequisitionId: true,
+        },
+        where: {
+          projectId: req.body.project,
+        },
+      });
+
+      projectRequisitionId = (aggregate._max.projectRequisitionId ?? 0) + 1; // eslint-disable-line no-underscore-dangle
+    }
+
     const requisition = await prisma.requisition.update({
       where: {
         id: parseInt(req.params.id),
@@ -390,6 +418,7 @@ requisitionRoutes.route("/:id").patch(
         fundingSource: connectOrUndefined(req.body.fundingSource),
         budget: connectOrUndefined(req.body.budget),
         project: connectOrUndefined(req.body.project),
+        projectRequisitionId,
         items: itemIds.length === 0 ? undefined : { set: itemIds.map(id => ({ id })) },
         files: { connectOrCreate: connectOrCreateFiles },
       },

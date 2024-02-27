@@ -59,6 +59,29 @@ teamRoutes.route("/").get(
   })
 );
 
+teamRoutes.route("/get-invites").get(async (req, res) => {
+  const { hexathon } = req.query;
+  const invitedUser = await HexathonUserModel.findOne({
+    hexathon: { $eq: hexathon },
+    userId: req.user?.uid,
+  });
+
+  if (!invitedUser) {
+    throw new BadRequestError("User has not registered for this event!");
+  }
+
+  const teams = await TeamModel.find({
+    hexathon: { $eq: hexathon },
+    sentInvites: {
+      $elemMatch: {
+        member: invitedUser.id,
+      },
+    },
+  }).populate("members memberRequests.member sentInvites.member");
+
+  res.status(200).json(teams);
+});
+
 teamRoutes.route("/:id").get(
   checkAbility("read", "Team"),
   asyncHandler(async (req, res) => {

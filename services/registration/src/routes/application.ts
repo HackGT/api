@@ -57,17 +57,17 @@ applicationRouter.route("/").get(
       filter.userId = req.user?.uid;
     }
 
-    if (req.query.search) {
-      const searchLength = (req.query.search as string).length;
+    if (req.query.search && typeof req.query.search === "string") {
+      const searchLength = String(req.query.search).length;
       const search =
-        searchLength > 75
-          ? (req.query.search as string).slice(0, 75)
-          : (req.query.search as string);
+        searchLength > 75 ? String(req.query.search).slice(0, 75) : String(req.query.search);
+
+      const sanitizedSearch = _.escapeRegExp(search);
       filter.$or = [
         { _id: isValidObjectId(search) ? new Types.ObjectId(search) : undefined },
-        { userId: { $regex: new RegExp(search, "i") } },
-        { email: { $regex: new RegExp(search, "i") } },
-        { name: { $regex: new RegExp(search, "i") } },
+        { userId: { $regex: new RegExp(sanitizedSearch, "i") } },
+        { email: { $regex: new RegExp(sanitizedSearch, "i") } },
+        { name: { $regex: new RegExp(sanitizedSearch, "i") } },
       ];
     }
 
@@ -87,6 +87,91 @@ applicationRouter.route("/").get(
       count: applications.length,
       applications,
     });
+  })
+);
+
+applicationRouter.route("/generate-csv").get(
+  checkAbility("read", "Application"),
+  asyncHandler(async (req, res) => {
+    if (!req.query.hexathon) {
+      throw new BadRequestError("Hexathon filter is required");
+    }
+
+    const filter: FilterQuery<Application> = {};
+    const requireApplicationData = req.query.requireApplicationData || false;
+    filter.hexathon = req.query.hexathon;
+    if (req.query.status?.length) {
+      filter.status = req.query.status;
+    }
+    if (req.query.applicationBranch?.length) {
+      filter.applicationBranch = req.query.applicationBranch;
+    }
+    if (req.query.confirmationBranch?.length) {
+      filter.confirmationBranch = req.query.confirmationBranch;
+    }
+
+    let company;
+    try {
+      company = await apiCall(
+        Service.USERS,
+        {
+          method: "GET",
+          url: `/companies/employees/${req.user?.uid}`,
+          params: {
+            hexathon: req.query.hexathon,
+          },
+        },
+        req
+      );
+    } catch (err) {
+      company = null;
+    }
+
+    if (req.query.userId) {
+      filter.userId = req.query.userId;
+    }
+
+    // If user is not a member and has no associated company, set filter to access only their own applications
+    if (!req.user?.roles.member && !company) {
+      filter.userId = req.user?.uid;
+    }
+
+    if (req.query.search && typeof req.query.search === "string") {
+      const searchLength = String(req.query.search).length;
+      const search =
+        searchLength > 75 ? String(req.query.search).slice(0, 75) : String(req.query.search);
+
+      const sanitizedSearch = _.escapeRegExp(search);
+      filter.$or = [
+        { _id: isValidObjectId(search) ? new Types.ObjectId(search) : undefined },
+        { userId: { $regex: new RegExp(sanitizedSearch, "i") } },
+        { email: { $regex: new RegExp(sanitizedSearch, "i") } },
+        { name: { $regex: new RegExp(sanitizedSearch, "i") } },
+      ];
+    }
+
+    const limit = parseInt(req.query.limit as string) || 50;
+    const offset = parseInt(req.query.offset as string) || 0;
+    const applications = await ApplicationModel.accessibleBy(req.ability)
+      .find(filter)
+      .skip(offset)
+      .limit(limit)
+      .select(requireApplicationData ? "-finalScore" : "-applicationData -finalScore");
+
+    res.header("Content-Type", "text/csv");
+
+    // Create a comma separated string with all the data
+    const columns = ["name", "email", "applicationBranch", "status"];
+
+    let combinedApplications = `${columns.join(";")}\n`;
+    console.log(combinedApplications);
+
+    applications.forEach(appl => {
+      combinedApplications += `${appl.name};${appl.email};${appl.applicationBranch.name};${appl.status}`;
+      combinedApplications += "\n";
+    });
+    res.header("Content-Type", "text/csv");
+    return res.status(200).send(combinedApplications);
   })
 );
 
