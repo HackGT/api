@@ -1,0 +1,18 @@
+[
+  {
+    "name": "HexLabs",
+    "description": "",
+    "hexathon": {
+      "$oid": "647fee51768e521dc8ef88e0"
+    },
+    "defaultEmailDomains": [],
+    "hasResumeAccess": true,
+    "employees": [
+      "akgfVPBJrROWbExEjFanKmXC3V62",
+      "c7LmODpAtnMqJUDSUR3rUgTIvHU2",
+      "5SPQUVkzw3dZX7tKLL36pZnYlSP2"
+    ],
+    "pendingEmployees": [],
+    "__v": 0
+  }
+]

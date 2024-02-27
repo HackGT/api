@@ -32,7 +32,7 @@ const logErrorAndExit = (errorMessage: string) => {
 
   await input({
     message:
-      "Then, make sure you've run the setup script (run via yarn seed) to ensure that your local environment is setup correctly for seeding. \n\n Press enter to continue...\n",
+      "Then, make sure you've run the setup script (run via yarn setup) to ensure that your local environment is setup correctly for seeding. \n\n Press enter to continue...\n",
   });
 
   answer = await confirm({ message: "I've read the wiki and run yarn setup." });
@@ -59,6 +59,8 @@ const logErrorAndExit = (errorMessage: string) => {
     message:
       "Great! The MongoDB database is running. The next step is to seed the databases. \n\n Press enter to continue...\n",
   });
+
+  // Seed users
   const usersDB = mongoClient.db("users");
 
   // Seed profiles
@@ -68,6 +70,14 @@ const logErrorAndExit = (errorMessage: string) => {
   // await profilesCollection.deleteMany({});
   await profilesCollection.insertMany(profilesData);
 
+  const companies = usersDB.collection("companies");
+  const companiesData = JSON.parse(
+    fs.readFileSync(path.join(__dirname, "companies.json"), "utf-8")
+  );
+
+  // await companies.deleteMany({});
+  await companies.insertMany(companiesData);
+
   // Seed auth
   const authDB = mongoClient.db("auth");
   const permissionsCollection = authDB.collection("permissions");
@@ -75,6 +85,16 @@ const logErrorAndExit = (errorMessage: string) => {
 
   // await permissionsCollection.deleteMany({});
   await permissionsCollection.insertMany(authData);
+
+  // Seed hexathons
+  const hexathonsDB = mongoClient.db("hexathons");
+  const hexathonsCollection = hexathonsDB.collection("hexathons");
+  const hexathonsData = JSON.parse(
+    fs.readFileSync(path.join(__dirname, "hexathons.json"), "utf-8")
+  );
+
+  // await hexathonsCollection.deleteMany({});
+  await hexathonsCollection.insertMany(hexathonsData);
 
   console.log("Checking Postgres database setup...");
   const postgresClient = new Client({
