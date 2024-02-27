@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable prefer-template */
@@ -19,7 +20,6 @@ const logErrorAndExit = (errorMessage: string) => {
 };
 
 (async () => {
-  let answer;
   await input({
     message:
       "Welcome to the HexLabs API database seed guide! This guide will help seed your local database so that you have some data to test new features locally. \n\n Press enter to continue...\n",
@@ -35,7 +35,7 @@ const logErrorAndExit = (errorMessage: string) => {
       "Then, make sure you've run the setup script (run via yarn setup) to ensure that your local environment is setup correctly for seeding. \n\n Press enter to continue...\n",
   });
 
-  answer = await confirm({ message: "I've read the wiki and run yarn setup." });
+  const answer = await confirm({ message: "I've read the wiki and run yarn setup." });
   if (!answer) logErrorAndExit("Please read the wiki and run yarn setup before continuing.");
 
   await input({
@@ -100,6 +100,7 @@ const logErrorAndExit = (errorMessage: string) => {
   const postgresClient = new Client({
     connectionString: config.database.postgres.uri,
   });
+
   try {
     await postgresClient.connect();
   } catch (error: any) {
@@ -108,5 +109,82 @@ const logErrorAndExit = (errorMessage: string) => {
         error.message
     );
   }
+  await postgresClient.end();
   console.log(chalk.green("✓ Postgres connection successful"));
+
+  await input({
+    message:
+      "Great! The Postgres database is running. The next step is to seed the databases. \n\n Press enter to continue...\n",
+  });
+
+  const expoClient = new Client({
+    connectionString: config.database.postgres.uri + "/expo",
+  });
+
+  await expoClient.connect();
+
+  // Seed expo config
+  const rawConfig = fs.readFileSync(path.join(__dirname, "expo-config.csv"), "utf-8");
+  const expoConfig = rawConfig.split("\n").map((row: string) => row.split(","));
+
+  const [
+    currentRound,
+    currentExpo,
+    isJudgingOn,
+    isProjectsPublished,
+    isProjectSubmissionOpen,
+    isDevpostCheckingOn,
+    revealTableGroups,
+    numberOfExpo,
+    currentHexathon,
+    revealWinners,
+  ] = expoConfig[0];
+  const query = `INSERT INTO "config" ("currentRound", "currentExpo", "isJudgingOn", "isProjectsPublished", "isProjectSubmissionOpen", "isDevpostCheckingOn", "revealTableGroups", "numberOfExpo", "currentHexathon", "revealWinners") VALUES (${parseInt(
+    currentRound
+  )}, ${parseInt(currentExpo)}, ${isJudgingOn === "true"}, ${isProjectsPublished === "true"}, ${
+    isProjectSubmissionOpen === "true"
+  }, ${isDevpostCheckingOn === "true"}, ${revealTableGroups === "true"}, ${parseInt(
+    numberOfExpo
+  )}, '${currentHexathon}', ${revealWinners === "true"});`;
+  await expoClient.query(query);
+
+  // Seed Expo users
+  const rawUsers = fs.readFileSync(path.join(__dirname, "expo-users.csv"), "utf-8");
+  const expoUsers = rawUsers.split("\n").map((row: string) => row.split(","));
+
+  expoUsers.forEach(async (user: string[]) => {
+    const [name, email, userId] = user;
+    const query = `INSERT INTO "user" ("name", "email", "userId") VALUES ('${name}', '${email}', '${userId}');`;
+    await expoClient.query(query);
+  });
+
+  // Seed Expo table groups
+  const rawTableGroups = fs.readFileSync(path.join(__dirname, "expo-tablegroups.csv"), "utf-8");
+  const expoTableGroups = rawTableGroups.split("\n").map((row: string) => row.split(","));
+
+  expoTableGroups.forEach(async (tableGroup: string[]) => {
+    const [name, shortCode, color, tableCapacity, hexathon] = tableGroup;
+    const query = `INSERT INTO table_group ("name", "shortCode", "color", "tableCapacity", "hexathon") VALUES ('${name}', '${shortCode}', '${color}', '${tableCapacity}', '${hexathon}');`;
+    await expoClient.query(query);
+  });
+
+  // Seed Expo projects
+  const rawProjects = fs.readFileSync(path.join(__dirname, "expo-projects.csv"), "utf-8");
+  const expoProjects = rawProjects.split("\n").map((row: string) => row.split(","));
+
+  let counter = 1;
+  for (const project of expoProjects) {
+    const [name, description, devpostUrl, githubUrl, expo, round, table, tableGroupId, hexathon] =
+      project;
+    const query = `INSERT INTO "project" ("id", "name", "description", "devpostUrl", "githubUrl", "expo", "round", "table", "tableGroupId", "hexathon") VALUES (${counter}, '${name}', '${description}', '${devpostUrl}', '${githubUrl}', ${parseInt(
+      expo
+    )}, ${parseInt(round)}, ${parseInt(table)}, ${parseInt(tableGroupId)}, '${hexathon}');`;
+    await expoClient.query(query);
+
+    counter += 1;
+  }
+
+  await expoClient.end();
+  console.log(chalk.green("✓ Database seeding successful"));
+  process.exit(0);
 })();
