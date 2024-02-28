@@ -66,30 +66,8 @@ userRoutes.route("/").get(
   asyncHandler(async (req, res) => {
     const users = await prisma.user.findMany({
       include: {
-        assignments: {
-          include: {
-            project: {
-              include: {
-                ballots: {
-                  select: {
-                    score: true,
-                    user: true,
-                    criteria: true,
-                  },
-                },
-                categories: true,
-              },
-            },
-          },
-        },
         categoryGroups: true,
-        projects: {
-          include: {
-            categories: true,
-          },
-        },
       },
-      take: 100, // TODO: REMOVE THIS BREAKING CHANGE -> Limits response to 100 users
     });
 
     res.status(200).json(users);
