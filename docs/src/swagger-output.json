@@ -650,6 +650,12 @@
             "in": "formData",
             "type": "file",
             "description": "The file to upload"
+          },
+          {
+            "name": "folder",
+            "in": "path",
+            "type": "string",
+            "description": "Folder within default bucket to store the file in"
           }
         ],
         "responses": {
