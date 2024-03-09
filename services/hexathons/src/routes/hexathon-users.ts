@@ -82,6 +82,15 @@ hexathonUserRouter.route("/:hexathonId/users/:userId").get(
   })
 );
 
+hexathonUserRouter.route("/:hexathonId/match-users/:userId").get(
+  checkAbility("read", "HexathonUser"),
+  asyncHandler(async (req, res) => {
+    const { userId, hexathonId } = req.params;
+    const hexathonUser = await HexathonUserModel.findOne({ userId, hexathon: hexathonId });
+    return res.send(hexathonUser);
+  })
+);
+
 hexathonUserRouter.route("/:hexathonId/users/:userId").patch(
   checkAbility("update", "HexathonUser"),
   asyncHandler(async (req, res) => {
