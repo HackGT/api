@@ -123,5 +123,9 @@ export const prizeConfig = {
         "MLH - Best Accessibility Hack",
       ],
     },
+    "Horizons 2024": {
+      tracks: ["Digital Track", "Physical Track"],
+      challenges: ["Education Challenge", "Music Tech Challenge", "Mixed Reality Challenge"],
+    },
   },
 };
