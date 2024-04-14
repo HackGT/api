@@ -214,12 +214,12 @@ projectRoutes.route("/").post(
       }
 
       // check for first free table group to assign table number to
-      let isFreeTableGroup = projectsInCurrentExpoAndTableGroup.length < tableGroup.tableCapacity; 
+      const isFreeTableGroup = projectsInCurrentExpoAndTableGroup.length < tableGroup.tableCapacity; 
       if (isFreeTableGroup && firstFreeTableGroup === undefined) {
         firstFreeTableGroup = tableGroup;
       }
 
-      totalCapacity += tableGroup.capacity;
+      totalCapacity += tableGroup.tableCapacity;
     }
 
     // no free table could be found; all table groups' capacities are full
