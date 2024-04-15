@@ -9,7 +9,14 @@ import axios from "axios";
 import { Subject } from "@casl/ability";
 import { OAuth2Client } from "google-auth-library";
 
-import { ApiCallError, BadRequestError, ConfigError, ForbiddenError, ServerError } from "./errors";
+import {
+  ApiCallError,
+  BadRequestError,
+  ConfigError,
+  ForbiddenError,
+  ServerError,
+  UnauthorizedError,
+} from "./errors";
 import { AbilityAction, DEFAULT_USER_ROLES, User, UserRoles } from "./types";
 import { apiCall } from "./apiCall";
 
@@ -131,7 +138,7 @@ export const isAuthenticated: RequestHandler = asyncHandler(async (req, res, nex
     throw req.userError;
   }
 
-  next(new ForbiddenError("User is not authenticated. Please authenticate and try again."));
+  next(new UnauthorizedError("User is not authenticated. Please authenticate and try again."));
 });
 
 /**
@@ -214,6 +221,13 @@ export const handleError: ErrorRequestHandler = (err, req, res, next) => {
   } else if (err instanceof ForbiddenError) {
     res.status(StatusCodes.FORBIDDEN).json({
       status: StatusCodes.FORBIDDEN,
+      type: "user_error",
+      message: err.message,
+      stack: err.stack,
+    });
+  } else if (err instanceof UnauthorizedError) {
+    res.status(StatusCodes.UNAUTHORIZED).json({
+      status: StatusCodes.UNAUTHORIZED,
       type: "user_error",
       message: err.message,
       stack: err.stack,
