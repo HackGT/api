@@ -878,6 +878,9 @@
                 },
                 "emailHeaderImage": {
                   "type": "string"
+                },
+                "isDev": {
+                  "type": "boolean"
                 }
               }
             }
@@ -970,6 +973,9 @@
                 },
                 "emailHeaderImage": {
                   "type": "string"
+                },
+                "isDev": {
+                  "type": "boolean"
                 }
               }
             }

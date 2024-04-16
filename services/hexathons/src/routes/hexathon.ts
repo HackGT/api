@@ -12,6 +12,7 @@ hexathonRouter.route("/").get(
     const filter: FilterQuery<Hexathon> = {};
     if (!req.user?.roles.member) {
       filter.isActive = true;
+      filter.isDev = false;
     }
 
     const hexathons = await HexathonModel.find(filter).accessibleBy(req.ability);
@@ -37,6 +38,7 @@ hexathonRouter.route("/:id").get(
     };
     if (!req.user?.roles.member) {
       filter.isActive = true;
+      filter.isDev = false;
     }
 
     const hexathon = await HexathonModel.findOne(filter).accessibleBy(req.ability);

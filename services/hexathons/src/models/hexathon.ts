@@ -10,6 +10,7 @@ export interface Hexathon extends mongoose.Document {
   endDate: Date;
   emailHeaderImage?: string;
   coverImage?: string;
+  isDev?: boolean;
 }
 
 const hexathonSchema = new Schema<Hexathon>({
@@ -46,6 +47,10 @@ const hexathonSchema = new Schema<Hexathon>({
   },
   coverImage: {
     type: String,
+  },
+  isDev: {
+    type: Boolean,
+    required: true,
   },
 });
 
