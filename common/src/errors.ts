@@ -16,6 +16,11 @@ export class BadRequestError extends Error {}
 export class ForbiddenError extends Error {}
 
 /**
+ * This error is thrown when no user is logged in.
+ */
+export class UnauthorizedError extends Error {}
+
+/**
  * This error is thrown when the server's config is not setup properly. This
  * shows that the server config needs to be updated.
  */
@@ -66,6 +71,7 @@ export const shouldHandleError = (err: any): boolean => {
   if (
     err instanceof BadRequestError ||
     err instanceof ForbiddenError ||
+    err instanceof UnauthorizedError ||
     err instanceof mongoose.Error.CastError ||
     err instanceof mongoose.Error.ValidationError ||
     err instanceof mongoose.Error.ValidatorError ||
