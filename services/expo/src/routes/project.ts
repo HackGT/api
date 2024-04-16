@@ -199,39 +199,39 @@ projectRoutes.route("/").post(
       },
     });
 
-    let minCapacityTableGroup: undefined | TableGroup;
-    let minCapacityValue = 1;
+    let firstFreeTableGroup: undefined | TableGroup;
+    let totalCapacity = 0;
+    const tableNumberSet = new Set();
 
+    // select first non-empty tableGroup
     for (const tableGroup of tableGroups) {
       const projectsInCurrentExpoAndTableGroup = projectsInCurrentExpo.filter(
         project => project.tableGroupId === tableGroup.id
       );
-      if (
-        projectsInCurrentExpoAndTableGroup.length < tableGroup.tableCapacity &&
-        projectsInCurrentExpoAndTableGroup.length / tableGroup.tableCapacity < minCapacityValue
-      ) {
-        minCapacityTableGroup = tableGroup;
-        minCapacityValue = projectsInCurrentExpoAndTableGroup.length / tableGroup.tableCapacity;
+
+      for (const project of projectsInCurrentExpoAndTableGroup) {
+        tableNumberSet.add(project.table);
       }
+
+      // check for first free table group to assign table number to
+      const isFreeTableGroup = projectsInCurrentExpoAndTableGroup.length < tableGroup.tableCapacity; 
+      if (isFreeTableGroup && firstFreeTableGroup === undefined) {
+        firstFreeTableGroup = tableGroup;
+      }
+
+      totalCapacity += tableGroup.tableCapacity;
     }
 
-    if (!minCapacityTableGroup) {
+    // no free table could be found; all table groups' capacities are full
+    if (!firstFreeTableGroup) {
       throw new BadRequestError(
         "Submission could not be saved due to issue with table groups - please contact help desk"
       );
     }
 
-    const projectsInCurrentExpoAndTableGroup = projectsInCurrentExpo.filter(
-      project => project.tableGroupId === minCapacityTableGroup?.id
-    );
-
+    // assigns table to first unused number 
     let tableNumber;
-    const tableNumberSet = new Set();
-    for (const project of projectsInCurrentExpoAndTableGroup) {
-      tableNumberSet.add(project.table);
-    }
-
-    for (let i = 1; i <= minCapacityTableGroup.tableCapacity; i++) {
+    for (let i = 1; i <= totalCapacity; i++) {
       if (!tableNumberSet.has(i)) {
         tableNumber = i;
         break;
@@ -273,7 +273,7 @@ projectRoutes.route("/").post(
             connect: data.prizes.map((prizeId: any) => ({ id: prizeId })),
           },
           tableGroup: {
-            connect: { id: minCapacityTableGroup.id },
+            connect: { id: firstFreeTableGroup.id },
           },
         },
       });
