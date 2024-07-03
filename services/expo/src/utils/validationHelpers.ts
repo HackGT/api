@@ -7,7 +7,6 @@ import express from "express";
 import { Service } from "@api/config";
 
 import { prisma } from "../common";
-import { prizeConfig } from "../config/prizeConfig";
 import { getConfig, getCurrentHexathon } from "./utils";
 
 /*
@@ -16,6 +15,32 @@ import { getConfig, getCurrentHexathon } from "./utils";
 */
 export const getEligiblePrizes = async (users: any[], req: express.Request) => {
   const currentHexathon = await getCurrentHexathon(req);
+  let eligibleAll = false;
+
+  const getAllPrizes = async () => await prisma.category.findMany({
+      where: {
+        hexathon: {
+          equals: currentHexathon.id,
+        },
+      },
+    });
+
+  const getGeneralPrizes = async () => {
+    console.log("buy");
+    return await prisma.category.findMany({
+      where: {
+        hexathon: {
+          equals: currentHexathon.id,
+        },
+        name: {
+          not: {
+            contains: "Emerging",
+          },
+        },
+      },
+    });
+  };
+
   switch (currentHexathon.name) {
     case "HackGT 7": {
       let numEmerging = 0;
@@ -35,12 +60,9 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
 
       // A team must be greater than 50% emerging to be eligible for emerging prizes
       if (numEmerging / users.length > 0.5) {
-        return prizeConfig.hexathons["HackGT 7"].emergingPrizes.concat(
-          prizeConfig.hexathons["HackGT 7"].sponsorPrizes
-        );
+        eligibleAll = true;
       }
-
-      return prizeConfig.hexathons["HackGT 7"].sponsorPrizes;
+      break;
     }
     case "HackGT 8": {
       let numEmerging = 0;
@@ -63,55 +85,9 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
 
       // A team must be greater than 50% emerging to be eligible for emerging prizes
       if (numEmerging / users.length > 0.5) {
-        const emergingPrizes = prizeConfig.hexathons["HackGT 8"].emergingPrizes
-          .concat(prizeConfig.hexathons["HackGT 8"].sponsorPrizes)
-          .concat(prizeConfig.hexathons["HackGT 8"].generalPrizes)
-          .concat(prizeConfig.hexathons["HackGT 8"].openSourcePrizes);
-        const emergingDBPrizes = await prisma.category.findMany({
-          where: {
-            name: {
-              in: emergingPrizes,
-            },
-          },
-        });
-        return emergingDBPrizes;
+        eligibleAll = true;
       }
-      const generalPrizes = prizeConfig.hexathons["HackGT 8"].sponsorPrizes
-        .concat(prizeConfig.hexathons["HackGT 8"].generalPrizes)
-        .concat(prizeConfig.hexathons["HackGT 8"].openSourcePrizes);
-      const generalDBPrizes = await prisma.category.findMany({
-        where: {
-          name: {
-            in: generalPrizes,
-          },
-        },
-      });
-      return generalDBPrizes;
-    }
-    case "Horizons 2022": {
-      const { tracks, challenges } = prizeConfig.hexathons["Horizons 2022"];
-
-      const generalDBPrizes = await prisma.category.findMany({
-        where: {
-          name: {
-            in: tracks.concat(challenges),
-          },
-        },
-      });
-      return generalDBPrizes;
-    }
-    case "Prototypical 2022": {
-      const { tracks } = prizeConfig.hexathons["Prototypical 2022"];
-
-      const generalDBPrizes = await prisma.category.findMany({
-        where: {
-          name: {
-            in: tracks,
-          },
-        },
-      });
-
-      return generalDBPrizes;
+      break;
     }
     case "HackGT 9": {
       let numEmerging = 0;
@@ -131,73 +107,19 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
 
       // A team must be 100% emerging to be eligible for emerging prizes
       if (numEmerging === users.length) {
-        const emergingPrizes = prizeConfig.hexathons["HackGT 9"].emergingPrizes
-          .concat(prizeConfig.hexathons["HackGT 9"].sponsorPrizes)
-          .concat(prizeConfig.hexathons["HackGT 9"].generalPrizes);
-        const emergingDBPrizes = await prisma.category.findMany({
-          where: {
-            name: {
-              in: emergingPrizes,
-            },
-          },
-        });
-        return emergingDBPrizes;
+        eligibleAll = true;
       }
-
-      const generalPrizes = prizeConfig.hexathons["HackGT 9"].sponsorPrizes.concat(
-        prizeConfig.hexathons["HackGT 9"].generalPrizes
-      );
-      const generalDBPrizes = await prisma.category.findMany({
-        where: {
-          name: {
-            in: generalPrizes,
-          },
-        },
-      });
-      return generalDBPrizes;
+      break;
     }
-    case "Horizons 2023": {
-      const { tracks, challenges } = prizeConfig.hexathons["Horizons 2023"];
-
-      const generalDBPrizes = await prisma.category.findMany({
-        where: {
-          name: {
-            in: tracks.concat(challenges),
-          },
-        },
-      });
-      return generalDBPrizes;
-    }
-    case "HackGT X": {
-      const { generalPrizes, emergingPrizes, sponsorPrizes } = prizeConfig.hexathons["HackGT X"];
-      const allPrizes = generalPrizes.concat(emergingPrizes).concat(sponsorPrizes);
-
-      const dbPrizes = await prisma.category.findMany({
-        where: {
-          name: {
-            in: allPrizes,
-          },
-        },
-      });
-      return dbPrizes;
-    }
-    case "Horizons 2024": {
-      const { tracks, challenges } = prizeConfig.hexathons["Horizons 2024"];
-
-      const generalDBPrizes = await prisma.category.findMany({
-        where: {
-          name: {
-            in: tracks.concat(challenges),
-          },
-        },
-      });
-      return generalDBPrizes;
-    }
-
     default: {
-      return [];
+      eligibleAll = true;
     }
   }
+
+  if (eligibleAll) {
+    return await getAllPrizes();
+  }
+  return await getGeneralPrizes();
 };
 
 /*
@@ -306,6 +228,7 @@ export const validateTeam = async (members: any[], req: express.Request) => {
   }
 
   const eligiblePrizes = await getEligiblePrizes(registrationUsers, req);
+  console.log(eligiblePrizes);
   return { error: false, eligiblePrizes, registrationUsers };
 };
 
@@ -314,6 +237,7 @@ export const validateTeam = async (members: any[], req: express.Request) => {
 */
 export const validatePrizes = async (prizes: any[], req: express.Request) => {
   const currentHexathon = await getCurrentHexathon(req);
+  console.log(prizes);
   const prizeObjects = await prisma.category.findMany({
     where: {
       id: {
@@ -322,6 +246,8 @@ export const validatePrizes = async (prizes: any[], req: express.Request) => {
     },
   });
   const prizeNames = prizeObjects.map(prize => prize.name);
+  console.log("pn");
+  console.log(prizeNames);
 
   switch (currentHexathon.name) {
     case "HackGT 8": {
@@ -334,21 +260,19 @@ export const validatePrizes = async (prizes: any[], req: express.Request) => {
 
       return { error: false };
     }
-    case "Horizons 2022": {
-      if (
-        prizeNames.filter(prize => prizeConfig.hexathons["Horizons 2022"].tracks.includes(prize))
-          .length > 1
-      ) {
+    case "Horizons 2022":
+    case "Horizons 2023":
+    case "Horizons 2024": {
+      const numOfTracks = prizeNames.filter(prizeName => prizeName.includes("Track")).length;
+
+      if (numOfTracks > 1) {
         return {
           error: true,
-          message: "You are only eligible to submit for one track.",
+          message: "You can only submit to at most one track.",
         };
       }
 
-      if (
-        prizeNames.filter(prize => prizeConfig.hexathons["Horizons 2022"].tracks.includes(prize))
-          .length === 0
-      ) {
+      if (numOfTracks === 0) {
         return {
           error: true,
           message: "You must submit to at least one track.",
@@ -358,22 +282,17 @@ export const validatePrizes = async (prizes: any[], req: express.Request) => {
       return { error: false };
     }
     case "HackGT 9": {
-      if (
-        prizeNames.filter(prize => prizeConfig.hexathons["HackGT 9"].generalPrizes.includes(prize))
-          .length > 1
-      ) {
+      const numOfEmerging = prizeNames.filter(prizeName => prizeName.includes("Emerging")).length;
+      const numOfGeneral = prizeNames.filter(prizeName => prizeName.includes("HackGT")).length;
+
+      if (numOfGeneral > 1) {
         return {
           error: true,
           message: "You are only eligible to submit for one track.",
         };
       }
 
-      if (
-        prizeNames.filter(prize => prizeConfig.hexathons["HackGT 9"].generalPrizes.includes(prize))
-          .length === 0 &&
-        prizeNames.filter(prize => prizeConfig.hexathons["HackGT 9"].emergingPrizes.includes(prize))
-          .length === 0
-      ) {
+      if (numOfGeneral === 0 && numOfEmerging === 0) {
         return {
           error: true,
           message: "You must submit to at least one track.",
@@ -381,37 +300,11 @@ export const validatePrizes = async (prizes: any[], req: express.Request) => {
       }
       return { error: false };
     }
-    case "Horizons 2023": {
-      if (
-        prizeNames.filter(prize => prizeConfig.hexathons["Horizons 2023"].tracks.includes(prize))
-          .length === 0
-      ) {
-        return {
-          error: true,
-          message: "You must submit to at least one track.",
-        };
-      }
-
-      if (
-        prizeNames.filter(prize => prizeConfig.hexathons["Horizons 2023"].tracks.includes(prize))
-          .length > 1
-      ) {
-        return {
-          error: true,
-          message: "You can only submit to at most one track.",
-        };
-      }
-
-      return { error: false };
-    }
-
     case "HackGT X": {
-      if (
-        prizeNames.filter(prize => prizeConfig.hexathons["HackGT X"].generalPrizes.includes(prize))
-          .length > 1 ||
-        prizeNames.filter(prize => prizeConfig.hexathons["HackGT X"].emergingPrizes.includes(prize))
-          .length > 1
-      ) {
+      const numOfEmerging = prizeNames.filter(prizeName => prizeName.includes("Emerging")).length;
+      const numOfGeneral = prizeNames.filter(prizeName => prizeName.includes("General")).length;
+
+      if (numOfGeneral > 1 || numOfEmerging > 1) {
         return {
           error: true,
           message: "You are only eligible to submit for one track.",
@@ -419,24 +312,14 @@ export const validatePrizes = async (prizes: any[], req: express.Request) => {
       }
 
       // if prizenames has a general and emerging prize, return error
-      if (
-        prizeNames.filter(prize => prizeConfig.hexathons["HackGT X"].generalPrizes.includes(prize))
-          .length > 0 &&
-        prizeNames.filter(prize => prizeConfig.hexathons["HackGT X"].emergingPrizes.includes(prize))
-          .length > 0
-      ) {
+      if (numOfGeneral > 0 && numOfEmerging > 0) {
         return {
           error: true,
           message: "You are only eligible to submit for either an emerging or general track.",
         };
       }
 
-      if (
-        prizeNames.filter(prize => prizeConfig.hexathons["HackGT X"].generalPrizes.includes(prize))
-          .length === 0 &&
-        prizeNames.filter(prize => prizeConfig.hexathons["HackGT X"].emergingPrizes.includes(prize))
-          .length === 0
-      ) {
+      if (numOfGeneral === 0 && numOfEmerging === 0) {
         return {
           error: true,
           message: "You must submit to at least one track.",
@@ -444,30 +327,6 @@ export const validatePrizes = async (prizes: any[], req: express.Request) => {
       }
       return { error: false };
     }
-
-    case "Horizons 2024": {
-      if (
-        prizeNames.filter(prize => prizeConfig.hexathons["Horizons 2024"].tracks.includes(prize))
-          .length === 0
-      ) {
-        return {
-          error: true,
-          message: "You must submit to at least one track.",
-        };
-      }
-
-      if (
-        prizeNames.filter(prize => prizeConfig.hexathons["Horizons 2024"].tracks.includes(prize))
-          .length > 1
-      ) {
-        return {
-          error: true,
-          message: "You can only submit to at most one track.",
-        };
-      }
-      return { error: false };
-    }
-
     default: {
       return { error: false };
     }
