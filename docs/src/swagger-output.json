@@ -3072,6 +3072,37 @@
         }
       }
     },
+    "/grading/grading-status": {
+      "get": {
+        "tags": ["registration"],
+        "summary": "Gets the percentage of applications graded by branch for a hexathon",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "hexathon",
+            "in": "query",
+            "description": "Hexathon id.",
+            "type": "string",
+            "collectionFormat": "multi",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "branchName": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/email": {
       "get": {
         "tags": ["registration"],
