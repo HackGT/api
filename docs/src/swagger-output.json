@@ -4670,6 +4670,9 @@
         "dateOfBirth": {
           "type": "string"
         },
+        "age": {
+          "type": "number"
+        },
         "jobTitle": {
           "type": "string"
         },
