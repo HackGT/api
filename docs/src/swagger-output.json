@@ -4543,6 +4543,9 @@
           "items": {
             "type": "string"
           }
+        },
+        "checkIns": {
+          "type": "number"
         }
       },
       "xml": {

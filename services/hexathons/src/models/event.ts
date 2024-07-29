@@ -27,6 +27,7 @@ export interface Event extends mongoose.Document {
   endDate: Date;
   location: AutoPopulatedDoc<Location>[];
   tags: AutoPopulatedDoc<Tag>[];
+  checkIns: number;
 }
 
 const eventSchema = new Schema<Event>({
@@ -81,6 +82,11 @@ const eventSchema = new Schema<Event>({
       },
     ],
     default: [],
+  },
+  checkIns: {
+    type: Number,
+    required: false,
+    default: 0,
   },
 });
 

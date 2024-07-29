@@ -65,6 +65,7 @@ eventRoutes.route("/").post(
       endDate: req.body.endDate,
       location: req.body.location,
       tags: req.body.tags,
+      checkIns: req.body.checkIns || 0,
     });
 
     return res.send(event);
