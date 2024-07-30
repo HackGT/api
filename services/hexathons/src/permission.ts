@@ -20,6 +20,7 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
     can("aggregate", "SwagItem");
     can("manage", "HexathonUser");
     can("manage", "Block");
+    can("manage", "FoodBatch");
   }
 
   if (req.user.roles.admin || req.user.roles.exec) {
@@ -47,6 +48,7 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
   can("manage", "Visit");
   can("read", "SponsorVisit");
   can("read", "Block");
+  can("read", "Batch");
 
   req.ability = build();
   next();
