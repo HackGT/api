@@ -108,6 +108,14 @@ eventRoutes.route("/:id").patch(
   })
 );
 
+eventRoutes.route("/:id").delete(
+  checkAbility("delete", "Event"),
+  asyncHandler(async (req, res) => {
+    await EventModel.findByIdAndDelete(req.params.id);
+    return res.sendStatus(204);
+  })
+);
+
 eventRoutes.route("/add-check-in/:id").patch(
   checkAbility("update", "Event"),
   asyncHandler(async (req, res) => {
@@ -134,13 +142,5 @@ eventRoutes.route("/add-check-in/:id").patch(
     );
 
     res.send(event);
-  })
-);
-
-eventRoutes.route("/:id").delete(
-  checkAbility("delete", "Event"),
-  asyncHandler(async (req, res) => {
-    await EventModel.findByIdAndDelete(req.params.id);
-    return res.sendStatus(204);
   })
 );
