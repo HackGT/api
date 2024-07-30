@@ -3410,12 +3410,46 @@
             "description": "Invalid Status"
           }
         }
+      },
+      "put": {
+        "tags": ["hexathons"],
+        "summary": "Update an existing team by id.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "params",
+            "in": "params",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "description": "Team ID"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Team"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
       }
     },
     "/teams/add": {
       "post": {
         "tags": ["hexathons"],
-        "summary": "",
+        "summary": "Adds a user to an existing team.",
         "description": "",
         "produces": ["application/json"],
         "parameters": [
@@ -3599,42 +3633,6 @@
         "responses": {
           "204": {
             "description": ""
-          },
-          "400": {
-            "description": "Invalid Status"
-          }
-        }
-      }
-    },
-    "/teams/{id}/put": {
-      "put": {
-        "tags": ["hexathons"],
-        "summary": "",
-        "description": "Update an existing team by id.",
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "name": "params",
-            "in": "params",
-            "description": "",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "integer",
-                  "description": "Team ID"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Team"
-            }
           },
           "400": {
             "description": "Invalid Status"
