@@ -120,16 +120,6 @@ eventRoutes.route("/add-check-in/:id").patch(
   checkAbility("update", "Event"),
   asyncHandler(async (req, res) => {
     const currentEvent = await EventModel.findById(req.params.id);
-    const existingEvent = await EventModel.findOne({
-      hexathon: currentEvent?.hexathon,
-      name: req.body.name,
-    });
-
-    if (existingEvent && existingEvent.id !== req.params.id) {
-      throw new BadRequestError(
-        `Event with name ${req.body.name} already exists for this hexathon`
-      );
-    }
 
     const event = await EventModel.findByIdAndUpdate(
       req.params.id,
