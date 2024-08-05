@@ -61,10 +61,21 @@ userRoutes.route("/check").get(
 );
 
 // Filter using query string in url with parameters role and category
+// Offset pagination with skip (how many front items to skip) and take (how many items to return) params
+// Supports filtering by id, name, email, userId
 userRoutes.route("/").get(
   isAdminOrIsJudging,
   asyncHandler(async (req, res) => {
+    const { skip, take, id, name, email, userId } = req.query;
     const users = await prisma.user.findMany({
+      skip: skip ? parseInt(skip as string) : 0,
+      take: take ? parseInt(take as string) : undefined,
+      where: {
+        id: id ? parseInt(id as string) : undefined,
+        name: name ? (name as string) : undefined,
+        email: email ? (email as string) : undefined,
+        userId: userId ? (userId as string) : undefined,
+      },
       include: {
         categoryGroups: true,
       },
