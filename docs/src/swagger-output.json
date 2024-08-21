@@ -3410,12 +3410,46 @@
             "description": "Invalid Status"
           }
         }
+      },
+      "put": {
+        "tags": ["hexathons"],
+        "summary": "Update an existing team by id.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "params",
+            "in": "params",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "description": "Team ID"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Team"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
       }
     },
     "/teams/add": {
       "post": {
         "tags": ["hexathons"],
-        "summary": "",
+        "summary": "Adds a user to an existing team.",
         "description": "",
         "produces": ["application/json"],
         "parameters": [
@@ -3481,6 +3515,51 @@
               "items": {
                 "$ref": "#/definitions/Profile"
               }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/teams/{id}/reject-user": {
+      "post": {
+        "tags": ["hexathons"],
+        "summary": "Rejects a user from joining an existing team.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "description": "Team ID",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "hexathon": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Team"
             }
           },
           "400": {
@@ -3606,24 +3685,136 @@
         }
       }
     },
-    "/teams/{id}/put": {
-      "put": {
+    "/teams/get-invites": {
+      "get": {
         "tags": ["hexathons"],
-        "summary": "",
-        "description": "Update an existing team by id.",
+        "summary": "Gets all team invitations for a specific user.",
+        "description": "",
         "produces": ["application/json"],
         "parameters": [
           {
-            "name": "params",
-            "in": "params",
-            "description": "",
+            "name": "hexathon",
+            "in": "query",
+            "type": "integer",
+            "description": "hexathon",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Team"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/teams/send-invite": {
+      "post": {
+        "tags": ["hexathons"],
+        "summary": "Sends an invite to join an existing team.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
             "required": true,
             "schema": {
               "type": "object",
               "properties": {
-                "id": {
-                  "type": "integer",
-                  "description": "Team ID"
+                "hexathon": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Team"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/teams/accept-invite": {
+      "post": {
+        "tags": ["hexathons"],
+        "summary": "Accepts an invite to join an existing team.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "hexathon": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Team"
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
+          }
+        }
+      }
+    },
+    "/teams/reject-invite": {
+      "post": {
+        "tags": ["hexathons"],
+        "summary": "Rejects an invite to join an existing team.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "hexathon": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
                 }
               }
             }
