@@ -1,4 +1,5 @@
 import _ from "lodash";
+
 import { calibrationQuestionMapping, rubricMapping } from "../config";
 import { GradingGroupType } from "../models/branch";
 
@@ -130,8 +131,18 @@ const computeCalibrationMapping = (
     const groundTruthScores = groundTruthCriteriaScores
       .filter(score => score.criteria === criteria)
       .map(score => score.score);
+
+    console.log(`graderCriteriaScores: ${  graderCriteriaScores}`);
+
+    console.log(`graderScores after filter & mapping: ${  graderScores}`);
+
     if (!graderScores || !groundTruthScores) {
       throw new Error(`Could not find scores for criteria ${criteria}`);
+    }
+
+    const zippedScores = _.zip(graderScores, groundTruthScores);
+    if (zippedScores.some(pair => pair.includes(undefined) || pair.includes(NaN))) {
+      throw new Error(`Invalid zipped score`);
     }
 
     const scoreMappings = interpolateValuePairs(
