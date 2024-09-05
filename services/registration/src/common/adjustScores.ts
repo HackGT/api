@@ -132,9 +132,9 @@ const computeCalibrationMapping = (
       .filter(score => score.criteria === criteria)
       .map(score => score.score);
 
-    console.log(`graderCriteriaScores: ${  graderCriteriaScores}`);
+    // console.log(`graderCriteriaScores: ${  graderCriteriaScores}`);
 
-    console.log(`graderScores after filter & mapping: ${  graderScores}`);
+    // console.log(`graderScores after filter & mapping: ${  graderScores}`);
 
     if (!graderScores || !groundTruthScores) {
       throw new Error(`Could not find scores for criteria ${criteria}`);

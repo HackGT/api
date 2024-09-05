@@ -262,6 +262,7 @@ gradingRouter.route("/actions/submit-review").post(
         numCalibrationScoresForGroup ===
         calibrationQuestionMapping[req.body.gradingGroup].length - 1
       ) {
+        console.log(criteriaScores);
         grader.calibrationMapping = await getCalibrationMapping(criteriaScores, gradingGroup);
       }
     } else {
