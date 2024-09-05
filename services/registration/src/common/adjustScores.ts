@@ -140,10 +140,12 @@ const computeCalibrationMapping = (
       throw new Error(`Could not find scores for criteria ${criteria}`);
     }
 
-    const zippedScores = _.zip(graderScores, groundTruthScores);
-    if (zippedScores.some(pair => pair.includes(undefined) || pair.includes(NaN))) {
-      throw new Error(`Invalid zipped score`);
-    }
+    graderScores.forEach((score, index) => {
+      if (Number.isNaN(score)) {
+        console.log(`Found NaN at criteria ${criteria}:`, score);
+        throw new Error(`Invalid score ${score} found in graderScores for criteria ${criteria}`);
+      }
+    });
 
     const scoreMappings = interpolateValuePairs(
       _.zip(graderScores, groundTruthScores) as [number, number][]
