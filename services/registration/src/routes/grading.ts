@@ -625,3 +625,14 @@ gradingRouter.route("/grading-status").get(
     res.status(200).send(gradingStatus);
   })
 );
+
+gradingRouter.route("/graders").get(
+  checkAbility("read", "Grader"),
+  asyncHandler(async (req, res) => {
+    const graders = await GraderModel.accessibleBy(req.ability).find({
+      hexathon: req.query.hexathon,
+    });
+
+    return res.status(200).json(graders);
+  })
+);
