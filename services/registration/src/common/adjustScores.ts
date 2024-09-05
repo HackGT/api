@@ -142,8 +142,17 @@ const computeCalibrationMapping = (
 
     graderScores.forEach((score, index) => {
       if (Number.isNaN(score)) {
-        console.log(`Found NaN at criteria ${criteria}:`, score);
+        console.log(`Found NaN in graderScores at criteria ${criteria}:`, score);
         throw new Error(`Invalid score ${score} found in graderScores for criteria ${criteria}`);
+      }
+    });
+
+    groundTruthScores.forEach((score, index) => {
+      if (Number.isNaN(score)) {
+        console.log(`Found NaN in groundTruthScores at criteria ${criteria}:`, score);
+        throw new Error(
+          `Invalid score ${score} found in groundTruthScores for criteria ${criteria}`
+        );
       }
     });
 
