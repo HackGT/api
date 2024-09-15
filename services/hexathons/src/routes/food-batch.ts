@@ -43,7 +43,7 @@ foodBatchRouter.route("/").post(
   })
 );
 
-foodBatchRouter.route("/:id").get(
+foodBatchRouter.route("/batch/:id").get(
   checkAbility("read", "FoodBatch"),
   asyncHandler(async (req, res) => {
     const batch = await FoodBatchModel.findById(req.params.id);
@@ -56,7 +56,7 @@ foodBatchRouter.route("/:id").get(
   })
 );
 
-foodBatchRouter.route("/:id").put(
+foodBatchRouter.route("/batch/:id").put(
   checkAbility("update", "FoodBatch"),
   asyncHandler(async (req, res) => {
     const updatedBatch = await FoodBatchModel.findByIdAndUpdate(req.params.id, req.body, {
@@ -67,11 +67,42 @@ foodBatchRouter.route("/:id").put(
   })
 );
 
-foodBatchRouter.route("/:id").delete(
+foodBatchRouter.route("/batch/:id").delete(
   checkAbility("delete", "FoodBatch"),
   asyncHandler(async (req, res) => {
     await FoodBatchModel.findByIdAndDelete(req.params.id);
     return res.sendStatus(204);
+  })
+);
+
+foodBatchRouter.route("/my-batch").get(
+  checkAbility("read", "FoodBatch"),
+  asyncHandler(async (req, res) => {
+    const team = await TeamModel.findById(req.body.teamId);
+
+    if (!team) {
+      throw new BadRequestError("Team not found.");
+    }
+
+    if (!team.batch) {
+      return res.json({});
+    }
+
+    const requestingUser = await HexathonUserModel.findOne({
+      userId: req.user?.uid,
+    });
+
+    if (!requestingUser) {
+      throw new BadRequestError("User not found (not authenticated?)");
+    }
+
+    if (!req.user || !team.members.includes(requestingUser.id)) {
+      throw new ForbiddenError("User is not a member of the team.");
+    }
+
+    const assignedBatch = await FoodBatchModel.findById(team.batch);
+
+    return res.json(assignedBatch || {});
   })
 );
 
