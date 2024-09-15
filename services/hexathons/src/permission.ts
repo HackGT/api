@@ -48,7 +48,7 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
   can("manage", "Visit");
   can("read", "SponsorVisit");
   can("read", "Block");
-  can("read", "Batch");
+  can("read", "FoodBatch");
 
   req.ability = build();
   next();

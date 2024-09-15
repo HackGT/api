@@ -1,10 +1,22 @@
-import { asyncHandler, BadRequestError, checkAbility } from "@api/common";
+import { asyncHandler, BadRequestError, checkAbility, ServerError } from "@api/common";
 import express from "express";
-import { FilterQuery } from "mongoose";
+import { Types } from "mongoose";
 
-import { FoodBatch, FoodBatchModel } from "../models/foodBatch";
+import { FoodBatchModel } from "../models/foodBatch";
+import { TeamModel } from "../models/team";
 
 export const foodBatchRouter = express.Router();
+
+const batchCounts: { [key: string]: number } = {};
+
+foodBatchRouter.route("/").get(
+  checkAbility("read", "FoodBatch"),
+  asyncHandler(async (req, res) => {
+    const batches = await FoodBatchModel.find({});
+
+    return res.status(200).json(batches);
+  })
+);
 
 foodBatchRouter.route("/").get(
   checkAbility("read", "FoodBatch"),
@@ -55,3 +67,77 @@ foodBatchRouter.route("/:id").delete(
     return res.sendStatus(204);
   })
 );
+
+foodBatchRouter.route("/join").post(
+  checkAbility("update", "FoodBatch"),
+  asyncHandler(async (req, res) => {
+    const team = await TeamModel.findById(req.body.teamId);
+
+    if (!team) {
+      throw new BadRequestError("Team not found.");
+    }
+
+    if (team.batch) {
+      throw new BadRequestError("Team already in a batch.");
+    }
+
+    let batchToJoin = null;
+
+    if (Object.keys(batchCounts).length === 0) {
+      // we may not not synced batchCounts yet, so let's just add this team to the first batch we find
+      const batch = await FoodBatchModel.findOne();
+
+      if (!batch) {
+        throw new ServerError("There are no batches to join yet.");
+      }
+
+      batchToJoin = batch.id;
+    } else {
+      // find the least populous batch to join
+      let lowestCount = Infinity;
+
+      for (const [batchId, count] of Object.entries(batchCounts)) {
+        console.log(batchId, count);
+        if (count < lowestCount) {
+          batchToJoin = batchId;
+          lowestCount = count;
+        }
+      }
+    }
+
+    await TeamModel.findByIdAndUpdate(req.body.teamId, { batch: new Types.ObjectId(batchToJoin) });
+
+    batchCounts[batchToJoin] += 1;
+
+    return res.sendStatus(204);
+  })
+);
+
+const countBatchMembers = async (foodBatchId: Types.ObjectId) => {
+  const members = await TeamModel.find({ batch: foodBatchId });
+
+  return members.length;
+};
+
+const updateLocalBatchCounts = async () => {
+  const batches = await FoodBatchModel.find();
+
+  const promises = batches.map(async batch => {
+    batchCounts[batch.id.toString()] = await countBatchMembers(batch.id);
+  });
+
+  await Promise.all(promises);
+};
+
+updateLocalBatchCounts();
+
+setInterval(
+  async () => {
+    try {
+      await updateLocalBatchCounts();
+    } catch (error) {
+      console.error("Error updating local batch counts:", error);
+    }
+  },
+  10 * 60 * 1000
+); // 10 minutes in milliseconds
