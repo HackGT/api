@@ -1,9 +1,16 @@
-import { asyncHandler, BadRequestError, checkAbility, ServerError } from "@api/common";
+import {
+  asyncHandler,
+  BadRequestError,
+  checkAbility,
+  ServerError,
+  ForbiddenError,
+} from "@api/common";
 import express from "express";
 import { Types } from "mongoose";
 
 import { FoodBatchModel } from "../models/foodBatch";
 import { TeamModel } from "../models/team";
+import { HexathonUserModel } from "../models/hexathonUser";
 
 export const foodBatchRouter = express.Router();
 
@@ -79,6 +86,20 @@ foodBatchRouter.route("/join").post(
 
     if (team.batch) {
       throw new BadRequestError("Team already in a batch.");
+    }
+
+    const requestingUser = await HexathonUserModel.findOne({
+      userId: req.user?.uid,
+    });
+
+    if (!requestingUser) {
+      throw new BadRequestError("User not found (not authenticated?)");
+    }
+
+    if (!req.user || !team.members.includes(requestingUser.id)) {
+      throw new ForbiddenError(
+        "User must be member of the team to join a batch on behalf of the team."
+      );
     }
 
     let batchToJoin = null;
