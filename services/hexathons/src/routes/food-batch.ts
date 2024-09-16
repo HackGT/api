@@ -15,6 +15,7 @@ import { HexathonUserModel } from "../models/hexathonUser";
 export const foodBatchRouter = express.Router();
 
 const batchCounts: { [key: string]: number } = {};
+const batchStarts: { [key: string]: Date } = {};
 
 foodBatchRouter.route("/").get(
   checkAbility("read", "FoodBatch"),
@@ -149,12 +150,15 @@ foodBatchRouter.route("/join").post(
       let lowestCount = Infinity;
 
       for (const [batchId, count] of Object.entries(batchCounts)) {
-        console.log(batchId, count);
-        if (count < lowestCount) {
+        if (count < lowestCount && batchStarts[batchId] > new Date()) {
           batchToJoin = batchId;
           lowestCount = count;
         }
       }
+    }
+
+    if (!batchToJoin) {
+      throw new ServerError("Failed to find suitable batch to join.");
     }
 
     await TeamModel.findByIdAndUpdate(req.body.teamId, { batch: new Types.ObjectId(batchToJoin) });
@@ -176,6 +180,7 @@ const updateLocalBatchCounts = async () => {
 
   const promises = batches.map(async batch => {
     batchCounts[batch.id.toString()] = await countBatchMembers(batch.id);
+    batchStarts[batch.id.toString()] = batch.start;
   });
 
   await Promise.all(promises);
