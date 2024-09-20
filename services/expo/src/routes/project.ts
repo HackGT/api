@@ -309,8 +309,6 @@ projectRoutes.route("/").post(
 projectRoutes.route("/:id").patch(
   isAdmin,
   asyncHandler(async (req, res) => {
-    console.log("BODY");
-    console.log(req.body);
     let members: any[] = [];
     let categories: any[] = [];
     let tableGroup;
