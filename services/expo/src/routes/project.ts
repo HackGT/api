@@ -309,9 +309,12 @@ projectRoutes.route("/").post(
 projectRoutes.route("/:id").patch(
   isAdmin,
   asyncHandler(async (req, res) => {
+    console.log("BODY");
+    console.log(req.body);
     let members: any[] = [];
     let categories: any[] = [];
     let tableGroup;
+    let newTableNumber = -1;
 
     const config = await getConfig();
     const currentProject = await prisma.project.findUnique({
@@ -339,36 +342,7 @@ projectRoutes.route("/:id").patch(
       }
     }
 
-    if (req.body.table) {
-      const tableNumber = parseInt(req.body.table);
-      const projectsInSameGroup = await prisma.project.findMany({
-        where: { tableGroupId: tableGroup, expo },
-      });
-
-      const tableGroups = await prisma.tableGroup.findMany();
-
-      const maxTableCap = Math.max(...tableGroups.map((group: TableGroup) => group.tableCapacity));
-      console.log("Max table cap", maxTableCap);
-      if (tableNumber > maxTableCap) {
-        res.status(200).send({
-          error: true,
-          message: "Error: Table Number Too Large.",
-        });
-        return;
-      }
-
-      const isDuplicate = projectsInSameGroup.some(
-        project => project.id !== parseInt(req.params.id) && project.table === tableNumber
-      );
-
-      if (isDuplicate) {
-        res.status(200).send({
-          error: true,
-          message: "Error: Duplicate Table Number.",
-        });
-        return;
-      }
-    } else if (req.body.tableGroupId || req.body.expo) {
+    const reassignTable = async () => {
       const currentHexathon = await getCurrentHexathon(req);
 
       const tableGroups = await prisma.tableGroup.findMany({
@@ -416,6 +390,47 @@ projectRoutes.route("/:id").patch(
       }
 
       tableGroup = firstFreeTableGroup.id;
+      for (let i = 1; i <= totalCapacity; i++) {
+        if (!tableNumberSet.has(i)) {
+          newTableNumber = i;
+          break;
+        }
+      }
+      console.log("table reassigned to:", firstFreeTableGroup.name, newTableNumber);
+    };
+
+    if (req.body.table) {
+      const tableNumber = parseInt(req.body.table);
+      const projectsInSameGroup = await prisma.project.findMany({
+        where: { tableGroupId: tableGroup, expo },
+      });
+
+      const tableGroups = await prisma.tableGroup.findMany();
+
+      const maxTableCap = Math.max(...tableGroups.map((group: TableGroup) => group.tableCapacity));
+      console.log("Max table cap", maxTableCap);
+      if (tableNumber > maxTableCap) {
+        res.status(200).send({
+          error: true,
+          message: "Error: Table Number Too Large.",
+        });
+        return;
+      }
+
+      const isDuplicate = projectsInSameGroup.some(
+        project => project.id !== parseInt(req.params.id) && project.table === tableNumber
+      );
+
+      if (isDuplicate) {
+        await reassignTable();
+        // res.status(200).send({
+        //   error: true,
+        //   message: "Error: Duplicate Table Number.",
+        // });
+        // return;
+      }
+    } else if (req.body.tableGroupId || req.body.expo) {
+      await reassignTable();
     }
 
     const dbCategories = await prisma.category.findMany({
@@ -464,6 +479,7 @@ projectRoutes.route("/:id").patch(
       where: { id: parseInt(req.params.id) },
       data: {
         ...req.body,
+        table: newTableNumber >= 0 ? newTableNumber : req.body.table,
         members: {
           connectOrCreate: applications.map((application: any) => ({
             where: {
