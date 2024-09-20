@@ -423,11 +423,6 @@ projectRoutes.route("/:id").patch(
 
       if (isDuplicate) {
         await reassignTable();
-        // res.status(200).send({
-        //   error: true,
-        //   message: "Error: Duplicate Table Number.",
-        // });
-        // return;
       }
     } else if (req.body.tableGroupId || req.body.expo) {
       await reassignTable();
