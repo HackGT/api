@@ -127,5 +127,18 @@ export const prizeConfig = {
       tracks: ["Digital Track", "Physical Track"],
       challenges: ["Education Challenge", "Music Tech Challenge", "Mixed Reality Challenge"],
     },
+    "HackGT 11": {
+      generalPrizes: [
+        "General - Scooter",
+        "General - Beats",
+        "General - Fitbit",
+        "Analytics Arcade - Nintendo Switch",
+        "AI Funhouse - Photo Printer",
+        "Magical Midway - JBL Speaker",
+        "Carnival for a Cause - Kindle",
+      ],
+      emergingPrizes: ["Emerging - Monitor", "Emerging - Lego Set", "Emerging - Blender"],
+      sponsorPrizes: ["Sponsor - Skateboard"],
+    },
   },
 };
