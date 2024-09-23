@@ -60,13 +60,18 @@ foodBatchRouter.route("/batch/:id").get(
 foodBatchRouter.route("/batch/:id").put(
   checkAbility("update", "FoodBatch"),
   asyncHandler(async (req, res) => {
+    const hexathon = new Types.ObjectId(req.body.hexathon);
+    const name = req.body.name.toString();
+    const start = new Date(req.body.start);
+    const end = new Date(req.body.end);
+
     const updatedBatch = await FoodBatchModel.findByIdAndUpdate(
       req.params.id,
       {
-        hexathon: req.body.hexathon,
-        name: req.body.name,
-        start: req.body.start,
-        end: req.body.end,
+        hexathon,
+        name,
+        start,
+        end,
       },
       {
         new: true,
