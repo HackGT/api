@@ -1,7 +1,9 @@
 import { accessibleRecordsPlugin, AccessibleRecordModel } from "@casl/mongoose";
 import mongoose, { Schema, model, Types } from "mongoose";
+
 import { HexathonModel } from "./hexathon";
 import { HexathonUserModel } from "./hexathonUser";
+import { FoodBatchModel } from "./foodBatch";
 
 export interface Team extends mongoose.Document {
   name: string;
@@ -11,6 +13,7 @@ export interface Team extends mongoose.Document {
   public: boolean;
   memberRequests: Types.DocumentArray<Request>;
   sentInvites: Types.DocumentArray<Request>;
+  batch: Types.ObjectId;
 }
 
 export interface Request extends Types.Subdocument {
@@ -75,6 +78,12 @@ const teamSchema = new Schema<Team>({
       },
     ],
     default: [] as any,
+  },
+  batch: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: FoodBatchModel,
+    default: null,
   },
 });
 
