@@ -60,9 +60,18 @@ foodBatchRouter.route("/batch/:id").get(
 foodBatchRouter.route("/batch/:id").put(
   checkAbility("update", "FoodBatch"),
   asyncHandler(async (req, res) => {
-    const updatedBatch = await FoodBatchModel.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
+    const updatedBatch = await FoodBatchModel.findByIdAndUpdate(
+      req.params.id,
+      {
+        hexathon: req.body.hexathon,
+        name: req.body.name,
+        start: req.body.start,
+        end: req.body.end,
+      },
+      {
+        new: true,
+      }
+    );
 
     res.status(200).json(updatedBatch);
   })
@@ -79,7 +88,8 @@ foodBatchRouter.route("/batch/:id").delete(
 foodBatchRouter.route("/my-batch").get(
   checkAbility("read", "FoodBatch"),
   asyncHandler(async (req, res) => {
-    const team = await TeamModel.findById(req.body.teamId);
+    const teamId = new Types.ObjectId(req.body.teamId);
+    const team = await TeamModel.findById(teamId);
 
     if (!team) {
       throw new BadRequestError("Team not found.");
@@ -110,7 +120,8 @@ foodBatchRouter.route("/my-batch").get(
 foodBatchRouter.route("/join").post(
   checkAbility("update", "FoodBatch"),
   asyncHandler(async (req, res) => {
-    const team = await TeamModel.findById(req.body.teamId);
+    const teamId = new Types.ObjectId(req.body.teamId);
+    const team = await TeamModel.findById(teamId);
 
     if (!team) {
       throw new BadRequestError("Team not found.");
@@ -161,7 +172,7 @@ foodBatchRouter.route("/join").post(
       throw new ServerError("Failed to find suitable batch to join.");
     }
 
-    await TeamModel.findByIdAndUpdate(req.body.teamId, { batch: new Types.ObjectId(batchToJoin) });
+    await TeamModel.findByIdAndUpdate(teamId, { batch: new Types.ObjectId(batchToJoin) });
 
     batchCounts[batchToJoin] += 1;
 
