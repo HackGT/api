@@ -101,7 +101,7 @@ jobsRoutes.route("/resumes").post(
             archive.entry(
               fileStream,
               {
-                name: file.name,
+                name: `${file._id.toString()  }_${  file.name}`,
               },
               () => {
                 // Ignore errors that are thrown by invalid files and continue execution
