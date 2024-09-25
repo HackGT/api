@@ -130,15 +130,15 @@ export const prizeConfig = {
     "HackGT 11": {
       generalPrizes: [
         "General - Scooter",
-        "General - Beats",
-        "General - Fitbit",
-        "Analytics Arcade - Nintendo Switch",
-        "AI Funhouse - Photo Printer",
+        "General - Nintendo Switch",
+        "General - Kindle",
+        "Analytics Arcade - Fitbit",
+        "AI Funhouse - Beats",
         "Magical Midway - JBL Speaker",
-        "Carnival for a Cause - Kindle",
+        "Carnival for a Cause - Photo Printer",
       ],
       emergingPrizes: ["Emerging - Monitor", "Emerging - Lego Set", "Emerging - Blender"],
-      sponsorPrizes: ["Sponsor - Skateboard"],
+      sponsorPrizes: ["Sponsor - Electric Skateboard"],
     },
   },
 };
