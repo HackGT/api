@@ -181,6 +181,49 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
       });
       return dbPrizes;
     }
+    case "HackGT 11": {
+      let numEmerging = 0;
+
+      for (const user of users) {
+        if (!user || !user.applicationBranch) {
+          return {
+            error: true,
+            message: `User: ${user.email} does not have a confirmation branch`,
+          };
+        }
+
+        if (user.applicationBranch.name.includes("Emerging")) {
+          numEmerging += 1;
+        }
+      }
+
+      // A team must be 100% emerging to be eligible for emerging prizes
+      if (numEmerging === users.length) {
+        const emergingPrizes = prizeConfig.hexathons["HackGT 11"].emergingPrizes
+          .concat(prizeConfig.hexathons["HackGT 11"].sponsorPrizes)
+          .concat(prizeConfig.hexathons["HackGT 11"].generalPrizes);
+        const emergingDBPrizes = await prisma.category.findMany({
+          where: {
+            name: {
+              in: emergingPrizes,
+            },
+          },
+        });
+        return emergingDBPrizes;
+      }
+
+      const generalPrizes = prizeConfig.hexathons["HackGT 11"].sponsorPrizes.concat(
+        prizeConfig.hexathons["HackGT 11"].generalPrizes
+      );
+      const generalDBPrizes = await prisma.category.findMany({
+        where: {
+          name: {
+            in: generalPrizes,
+          },
+        },
+      });
+      return generalDBPrizes;
+    }
 
     default: {
       return [];
@@ -392,9 +435,6 @@ export const validatePrizes = async (prizes: any[], req: express.Request) => {
 
       return { error: false };
     }
-    default: {
-      return { error: false };
-    }
     case "HackGT X": {
       if (
         prizeNames.filter(prize => prizeConfig.hexathons["HackGT X"].generalPrizes.includes(prize))
@@ -432,6 +472,39 @@ export const validatePrizes = async (prizes: any[], req: express.Request) => {
           message: "You must submit to at least one track.",
         };
       }
+      return { error: false };
+    }
+    case "HackGT 11": {
+      if (prizeNames.filter(prize => prize.includes("Overall")).length > 1) {
+        return {
+          error: true,
+          message: "You are only eligible to submit for one track.",
+        };
+      }
+
+      // if prizenames has a general and emerging prize, return error
+      if (
+        prizeNames.filter(prize => prize.includes("General")).length > 0 &&
+        prizeNames.filter(prize => prize.includes("Emerging")).length > 0
+      ) {
+        return {
+          error: true,
+          message: "You are only eligible to submit for either an emerging or general track.",
+        };
+      }
+
+      if (
+        prizeNames.filter(prize => prize.includes("General")).length === 0 &&
+        prizeNames.filter(prize => prize.includes("Emerging")).length === 0
+      ) {
+        return {
+          error: true,
+          message: "You must submit to at least one general or emerging track.",
+        };
+      }
+      return { error: false };
+    }
+    default: {
       return { error: false };
     }
   }
