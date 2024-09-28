@@ -138,7 +138,12 @@ export const prizeConfig = {
         "Carnival for a Cause - Best Overall",
       ],
       emergingPrizes: ["Emerging - 1st place", "Emerging - 2nd place", "Emerging - 3rd place"],
-      sponsorPrizes: ["PRHI - Electric Skateboard"],
+      sponsorPrizes: [
+        "PRHI - Electric Skateboard",
+        "Snap AR - 1st place",
+        "Snap AR - 2nd place",
+        "Snap AR - 3rd place",
+      ],
     },
   },
 };
