@@ -719,7 +719,7 @@ applicationRouter.route("/actions/expo-user").get(
     const application = await ApplicationModel.findOne({
       hexathon: req.query.hexathon,
       email: req.query.email,
-    }).select("id userId name email applicationBranch confirmationBranch status");
+    }).select("id userId name email applicationData applicationBranch confirmationBranch status");
 
     if (!application) {
       throw new BadRequestError("No valid application found");
