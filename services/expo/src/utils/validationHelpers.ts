@@ -192,7 +192,7 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
           };
         }
 
-        if (user.applicationBranch.name.includes("Emerging")) {
+        if (user.applicationData.customData.track === "Emerging") {
           numEmerging += 1;
         }
       }
