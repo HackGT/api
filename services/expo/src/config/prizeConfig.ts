@@ -129,14 +129,23 @@ export const prizeConfig = {
     },
     "HackGT 11": {
       generalPrizes: [
-        "General Track - 1st, 2nd, 3rd place",
+        "General - 1st, 2nd, 3rd place",
         "Analytics Arcade - Best Overall",
         "AI Funhouse - Best Overall",
         "Magical Midway - Best Overall",
         "Carnival for a Cause - Best Overall",
       ],
-      emergingPrizes: ["Emerging Track - 1st, 2nd, 3rd place"],
-      sponsorPrizes: ["PRHI - Electric Skateboard", "Snap AR - 1st, 2nd, 3rd place"],
+      emergingPrizes: ["Emerging - 1st, 2nd, 3rd place"],
+      sponsorPrizes: [
+        "PHRI Challenge",
+        "Snap AR - 1st, 2nd, 3rd place",
+        "MLH - Best Use of MATLAB",
+        "MLH - Best DEI Hack",
+        "MLH - Best Use of Midnight",
+        "MLH - Best Use of Terraform",
+        "MLH - Best Use of MongoDB Atlas",
+        "MLH - Best Domain Name From GoDaddy Registry",
+      ],
     },
   },
 };
