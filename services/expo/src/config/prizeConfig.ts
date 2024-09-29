@@ -129,21 +129,14 @@ export const prizeConfig = {
     },
     "HackGT 11": {
       generalPrizes: [
-        "General - 1st place",
-        "General - 2nd place",
-        "General - 3rd place",
+        "General Track - 1st, 2nd, 3rd place",
         "Analytics Arcade - Best Overall",
         "AI Funhouse - Best Overall",
         "Magical Midway - Best Overall",
         "Carnival for a Cause - Best Overall",
       ],
-      emergingPrizes: ["Emerging - 1st place", "Emerging - 2nd place", "Emerging - 3rd place"],
-      sponsorPrizes: [
-        "PRHI - Electric Skateboard",
-        "Snap AR - 1st place",
-        "Snap AR - 2nd place",
-        "Snap AR - 3rd place",
-      ],
+      emergingPrizes: ["Emerging Track - 1st, 2nd, 3rd place"],
+      sponsorPrizes: ["PRHI - Electric Skateboard", "Snap AR - 1st, 2nd, 3rd place"],
     },
   },
 };
