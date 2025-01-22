@@ -4515,10 +4515,74 @@
         }
       }
     },
-    "/project/special/dashboard": {
-      "post": {
+    "/projects": {
+      "get": {
         "tags": ["expo"],
         "summary": "Gets all submitted projects for hexathon(s)",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "expo",
+            "in": "query",
+            "type": "integer",
+            "description": "Expo number used to filter projects"
+          },
+          {
+            "name": "round",
+            "in": "query",
+            "type": "integer",
+            "description": "Round number used to filter projects"
+          },
+          {
+            "name": "table",
+            "in": "query",
+            "type": "integer",
+            "description": "Table number used to filter projects"
+          },
+          {
+            "name": "hexathon",
+            "in": "query",
+            "type": "string",
+            "description": "Hexathon id used to filter projects"
+          },
+          {
+            "name": "categories",
+            "in": "query",
+            "type": "string",
+            "description": "Comma-separated category IDs used to filter projects by associated categories"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "type": "string",
+            "description": "Case-insensitive search term to filter projects by name, description, or member details"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  {
+                    "$ref": "#/definitions/Project"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Hexathon not found or you do not have permission."
+          }
+        }
+      }
+    },
+    "/project/special/dashboard": {
+      "get": {
+        "tags": ["expo"],
+        "summary": "Gets all submitted hexathon projects specific to the user",
         "description": "",
         "produces": ["application/json"],
         "parameters": [
@@ -4545,6 +4609,33 @@
           },
           "400": {
             "description": "Hexathon not found or you do not have permission."
+          }
+        }
+      }
+    },
+    "/project/{id}": {
+      "get": {
+        "tags": ["expo"],
+        "summary": "Gets a project by its id",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "type": "string",
+            "description": "Id of the project"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Project"
+            }
+          },
+          "400": {
+            "description": "Invalid id."
           }
         }
       }
