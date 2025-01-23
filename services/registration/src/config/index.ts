@@ -7,6 +7,7 @@ import path from "path";
 export let calibrationQuestionMapping: any = {};
 export let rubricMapping: any = {};
 
+// in Google Cloud Secrets
 if (config.common.production) {
   calibrationQuestionMapping = JSON.parse(
     fs.readFileSync("/tmp/calibration_question_mapping/latest", "utf8")
