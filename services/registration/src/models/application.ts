@@ -37,6 +37,7 @@ export interface Application extends mongoose.Document {
     school?: string;
     schoolEmail?: string;
     schoolYear?: string;
+    computerInfo?: string;
     graduationYear?: number;
     levelOfStudy?: string;
     countryOfResidence?: string;
@@ -134,6 +135,9 @@ const applicationSchema = new Schema<Application>(
         type: String,
       },
       schoolYear: {
+        type: String,
+      },
+      computerInfo: {
         type: String,
       },
       graduationYear: {
