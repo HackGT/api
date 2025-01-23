@@ -14,7 +14,7 @@ import { getCalibrationMapping } from "../common/adjustScores";
 
 const MAX_REVIEWS_PER_ESSAY = 2;
 // NOTE: No. of essays for each application. As such, will need to be updated whenever we add/remove essays.
-const ESSAY_COUNT = 4;
+const ESSAY_COUNT = 3;
 
 type AggregatedEssay = {
   applicationId: string;
