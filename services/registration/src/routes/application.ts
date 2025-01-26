@@ -258,9 +258,14 @@ applicationRouter.route("/actions/choose-application-branch").post(
     }
 
     if (existingApplication) {
-      if ([StatusType.ACCEPTED, StatusType.CONFIRMED].includes(existingApplication.status)) {
+      const forbiddenStatuses = [
+        StatusType.APPLIED,
+        StatusType.ACCEPTED,
+        StatusType.CONFIRMED
+      ];
+      if (forbiddenStatuses.includes(existingApplication.status)) {
         throw new BadRequestError(
-          "Cannot select an application branch. You have already submitted an application."
+          "You already have an active/pending application. Withdraw it first to submit a new one."
         );
       }
 
