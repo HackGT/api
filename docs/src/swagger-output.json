@@ -4582,7 +4582,7 @@
     "/project/special/dashboard": {
       "get": {
         "tags": ["expo"],
-        "summary": "Gets all submitted hexathon projects specific to the user",
+        "summary": "Gets all submitted hexathon projects specific to the user.",
         "description": "",
         "produces": ["application/json"],
         "parameters": [
@@ -4616,7 +4616,7 @@
     "/project/{id}": {
       "get": {
         "tags": ["expo"],
-        "summary": "Gets a project by its id",
+        "summary": "Gets a project by its id.",
         "description": "",
         "produces": ["application/json"],
         "parameters": [
@@ -4636,6 +4636,43 @@
           },
           "400": {
             "description": "Invalid id."
+          }
+        }
+      }
+    },
+    "/project/submission/team-validation": {
+      "post": {
+        "tags": ["expo"],
+        "summary": "Validates team members during project submission.",
+        "description": "",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Request body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "members": {
+                  "type": "array",
+                  "description": "List of team member emails",
+                  "items": {
+                    "type": "string",
+                    "format": "email"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Reasons include: Team does not have enough memory, team has too many members, invalid email, user not confirmed for hexathon, or user already has a submission for the hexathon."
           }
         }
       }
