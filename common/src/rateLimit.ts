@@ -29,6 +29,15 @@ export const rateLimiter = () => {
         type: "rate_limit_error",
         message: "Too many requests sent. Please try again later.",
       },
+      keyGenerator: req => {
+        if (req.user && req.user.uid) {
+          return req.user.uid; // Key generator based on user ID
+        }
+        if (req.cookies && req.cookies.session) {
+          return req.cookies.session; // Key generator based on session cookie
+        }
+        return `${req.ip}-${req.header("User-Agent")}`; // Default key generator based on IP and User-Agent
+      },
       store: new RedisStore({
         // @ts-expect-error - Known issue: the `call` function is not present in @types/ioredis
         sendCommand: (...args: string[]) => client.call(...args),
