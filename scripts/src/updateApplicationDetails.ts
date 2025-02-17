@@ -7,7 +7,7 @@ process.on("unhandledRejection", err => {
 
 const client = new MongoClient("mongodb://localhost:7777");
 
-const updateApplicationDetails = async (applicationIds: string[]) => {
+const updateApplicationDetails = async () => {
   await client.connect();
   const db = client.db("registration");
   const collection = db.collection<any>("applications");
@@ -15,24 +15,20 @@ const updateApplicationDetails = async (applicationIds: string[]) => {
   // Update accepted general applications
   const updatedApplications = await collection.updateMany(
     {
-      _id: { $in: applicationIds.map(applicationId => new ObjectId(applicationId)) },
-      applicationBranch: new ObjectId("62d9f03418d8d494b683c316"),
+      applicationBranch: new ObjectId("678bdc6831e8165eb0c2686c"), // HackGTeeny Early Bird ID
       status: "DRAFT",
     },
     {
       $set: {
-        "applicationBranch": new ObjectId("630540a63d16456628e36b8a"),
-        "applicationData.travelReimbursement": null,
+        applicationBranch: new ObjectId("67ae6fdc78c635f458d504a3"), // HackGTeeny Regular ID
       },
     }
   );
   console.log(`${updatedApplications.modifiedCount} application(s) updated`);
 };
 
-const APPLICATION_IDS: string[] = [];
-
 (async () => {
-  await updateApplicationDetails(APPLICATION_IDS);
+  await updateApplicationDetails();
 
   console.info("\nDone.");
 })();
