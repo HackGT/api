@@ -279,40 +279,43 @@ applicationRouter.route("/actions/choose-application-branch").post(
     }
 
     if (existingApplication) {
-      const forbiddenStatuses = [StatusType.APPLIED, StatusType.ACCEPTED, StatusType.CONFIRMED];
-      if (forbiddenStatuses.includes(existingApplication.status)) {
-        throw new BadRequestError(
-          "You already have an active/pending application. Withdraw it first to submit a new one."
-        );
-      }
+      throw new BadRequestError(
+        "You already have an active/pending application. Delete it first to submit a new one."
+      );
+      // const forbiddenStatuses = [StatusType.APPLIED, StatusType.ACCEPTED, StatusType.CONFIRMED];
+      // if (forbiddenStatuses.includes(existingApplication.status)) {
+      //   throw new BadRequestError(
+      //     "You already have an active/pending application. Delete it first to submit a new one."
+      //   );
+      // }
 
-      const updatedApplication = await ApplicationModel.accessibleBy(req.ability)
-        .findOneAndUpdate(
-          {
-            userId: req.user?.uid,
-            hexathon: req.body.hexathon,
-          },
-          {
-            status: StatusType.DRAFT,
-            applicationBranch: req.body.applicationBranch,
-            applicationStartTime: new Date(),
-            applicationSubmitTime: undefined,
-            applicationExtendedDeadline: undefined,
-            applicationData: {},
-            confirmationBranch: undefined,
-            confirmationSubmitTime: undefined,
-            confirmationExtendedDeadline: undefined,
-            gradingComplete: false,
-            name: getFullName(userInfo.name),
-            email: userInfo.email,
-          },
-          {
-            new: true,
-          }
-        )
-        .select("-finalScore");
+      // const updatedApplication = await ApplicationModel.accessibleBy(req.ability)
+      //   .findOneAndUpdate(
+      //     {
+      //       userId: req.user?.uid,
+      //       hexathon: req.body.hexathon,
+      //     },
+      //     {
+      //       status: StatusType.DRAFT,
+      //       applicationBranch: req.body.applicationBranch,
+      //       applicationStartTime: new Date(),
+      //       applicationSubmitTime: undefined,
+      //       applicationExtendedDeadline: undefined,
+      //       applicationData: {},
+      //       confirmationBranch: undefined,
+      //       confirmationSubmitTime: undefined,
+      //       confirmationExtendedDeadline: undefined,
+      //       gradingComplete: false,
+      //       name: getFullName(userInfo.name),
+      //       email: userInfo.email,
+      //     },
+      //     {
+      //       new: true,
+      //     }
+      //   )
+      //   .select("-finalScore");
 
-      return res.send(updatedApplication);
+      // return res.send(updatedApplication);
     }
 
     const newApplication = await ApplicationModel.create({
