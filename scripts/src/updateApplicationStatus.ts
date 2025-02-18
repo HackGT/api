@@ -11,13 +11,13 @@ const client = new MongoClient("mongodb://localhost:7777");
 
 const updateApplication = async (
   acceptedApplicationsGeneral: string[], // List of Application Ids
-  acceptedApplicationsEmerging: string[], // List of Application Ids
-  waitlistedApplications: string[], // List of Application Ids
-  confirmationBranchGeneralId: string,
-  confirmationBranchEmergingId: string,
-  travelType: string,
-  travelReimbursementAmount: number,
-  travelReimbursementInfoLink: string
+  // acceptedApplicationsEmerging: string[], // List of Application Ids
+  // waitlistedApplications: string[], // List of Application Ids
+  confirmationBranchGeneralId: string
+  // confirmationBranchEmergingId: string,
+  // travelType: string,
+  // travelReimbursementAmount: number,
+  // travelReimbursementInfoLink: string
 ) => {
   await client.connect();
   const db = client.db("registration");
@@ -27,12 +27,13 @@ const updateApplication = async (
   const acceptedGeneralIds = acceptedApplicationsGeneral.map(
     applicationId => new ObjectId(applicationId)
   );
-  const acceptedEmergingIds = acceptedApplicationsEmerging.map(
-    applicationId => new ObjectId(applicationId)
-  );
-  const waitlistedApplicationsIds = waitlistedApplications.map(
-    applicationId => new ObjectId(applicationId)
-  );
+
+  // const acceptedEmergingIds = acceptedApplicationsEmerging.map(
+  //   applicationId => new ObjectId(applicationId)
+  // );
+  // const waitlistedApplicationsIds = waitlistedApplications.map(
+  //   applicationId => new ObjectId(applicationId)
+  // );
 
   // Update accepted general applications
   const acceptedGeneralRes = await collection.updateMany(
@@ -43,56 +44,56 @@ const updateApplication = async (
     {
       $set: {
         status: "ACCEPTED",
-        decisionData: {
-          travelReimbursement: travelType,
-          travelReimbursementAmount,
-          travelReimbursementInfoLink,
-        },
+        // decisionData: {
+        //   // travelReimbursement: travelType,
+        //   // travelReimbursementAmount,
+        //   // travelReimbursementInfoLink,
+        // },
         confirmationBranch: new ObjectId(confirmationBranchGeneralId),
       },
     }
   );
 
-  // Update accepted emerging applications
-  const acceptedEmergingRes = await collection.updateMany(
-    {
-      _id: { $in: acceptedEmergingIds },
-      status: "APPLIED",
-    },
-    {
-      $set: {
-        status: "ACCEPTED",
-        decisionData: {
-          travelReimbursement: travelType,
-          travelReimbursementAmount,
-          travelReimbursementInfoLink,
-        },
-        confirmationBranch: new ObjectId(confirmationBranchEmergingId),
-      },
-    }
-  );
+  // // Update accepted emerging applications
+  // const acceptedEmergingRes = await collection.updateMany(
+  //   {
+  //     _id: { $in: acceptedEmergingIds },
+  //     status: "APPLIED",
+  //   },
+  //   {
+  //     $set: {
+  //       status: "ACCEPTED",
+  //       decisionData: {
+  //         travelReimbursement: travelType,
+  //         travelReimbursementAmount,
+  //         travelReimbursementInfoLink,
+  //       },
+  //       confirmationBranch: new ObjectId(confirmationBranchEmergingId),
+  //     },
+  //   }
+  // );
 
-  // Waitlist the other applications
-  const waitlistedRes = await collection.updateMany(
-    {
-      _id: { $in: waitlistedApplicationsIds },
-      status: "APPLIED",
-    },
-    {
-      $set: {
-        status: "WAITLISTED",
-      },
-    }
-  );
+  // // Waitlist the other applications
+  // const waitlistedRes = await collection.updateMany(
+  //   {
+  //     _id: { $in: waitlistedApplicationsIds },
+  //     status: "APPLIED",
+  //   },
+  //   {
+  //     $set: {
+  //       status: "WAITLISTED",
+  //     },
+  //   }
+  // );
 
   console.log(`${acceptedGeneralRes.modifiedCount} general application(s) accepted`);
-  console.log(`${acceptedEmergingRes.modifiedCount} emerging application(s) accepted`);
-  console.log(`${waitlistedRes.modifiedCount} application(s) waitlisted`);
+  // console.log(`${acceptedEmergingRes.modifiedCount} emerging application(s) accepted`);
+  // console.log(`${waitlistedRes.modifiedCount} application(s) waitlisted`);
   console.log(
     `${
-      acceptedGeneralRes.modifiedCount +
-      acceptedEmergingRes.modifiedCount +
-      waitlistedRes.modifiedCount
+      acceptedGeneralRes.modifiedCount
+      // acceptedEmergingRes.modifiedCount +
+      // waitlistedRes.modifiedCount
     } total application(s) updated`
   );
 };
@@ -110,9 +111,10 @@ const updateApplication = async (
  }
 */
 const APPLICATION_RESULTS = [
-  "../input/flight_applications.json",
-  "../input/bus_applications.json",
-  "../input/gas_applications.json",
+  // "../input/flight_applications.json",
+  // "../input/bus_applications.json",
+  // "../input/gas_applications.json",
+  "../input/hackgteeny_acceptances.json",
 ];
 
 (async () => {
@@ -120,15 +122,23 @@ const APPLICATION_RESULTS = [
     APPLICATION_RESULTS.map(fileName => {
       const file = JSON.parse(fs.readFileSync(path.resolve(__dirname, fileName), "utf8"));
 
+      console.log(file);
+
+      // console.log("TO ACCEPT", file.general_regular_accepted);
+      // console.log("CONF BRANCH", file.general_regular_confirmation_branch);
+
       return updateApplication(
-        file.acceptedApplicationsGeneral,
-        file.acceptedApplicationsEmerging,
-        file.waitlistedApplications,
-        file.confirmationBranchGeneralId,
-        file.confirmationBranchEmergingId,
-        file.travelType,
-        file.travelReimbursementAmount,
-        file.travelReimbursementInfoLink
+        file.general_regular_accepted,
+        file.general_regular_confirmation_branch
+
+        //   file.acceptedApplicationsGeneral,
+        //   file.acceptedApplicationsEmerging,
+        //   file.waitlistedApplications,
+        //   file.confirmationBranchGeneralId,
+        //   file.confirmationBranchEmergingId,
+        //   file.travelType,
+        //   file.travelReimbursementAmount,
+        //   file.travelReimbursementInfoLink
       );
     })
   );

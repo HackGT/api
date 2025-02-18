@@ -35,6 +35,6 @@ const deleteApplication = async (applicationId: string) => {
 
 // Example usage
 (async () => {
-  const applicationId = "67b286c0246f68f77f429919"; // Replace with actual application ID
+  const applicationId = "67aa9bf2e3eb3b6cc2003b33"; // Replace with actual application ID
   await deleteApplication(applicationId);
 })();

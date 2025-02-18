@@ -175,6 +175,27 @@ applicationRouter.route("/generate-csv").get(
   })
 );
 
+// delete an application
+applicationRouter.route("/:id").delete(
+  checkAbility("delete", "Application"),
+  asyncHandler(async (req, res) => {
+    const application = await ApplicationModel.findById(req.params.id).accessibleBy(req.ability);
+
+    if (!application) {
+      throw new BadRequestError("Application not found or you do not have permission to delete.");
+    }
+
+    // Ensure only the owner or an authorized admin can delete
+    if (application.userId !== req.user?.uid && !req.user?.roles.member) {
+      throw new BadRequestError("You do not have permission to delete this application.");
+    }
+
+    await ApplicationModel.findByIdAndDelete(req.params.id);
+
+    return res.json({ message: "Application deleted successfully." });
+  })
+);
+
 applicationRouter.route("/:id").get(
   checkAbility("read", "Application"),
   asyncHandler(async (req, res) => {
@@ -258,11 +279,7 @@ applicationRouter.route("/actions/choose-application-branch").post(
     }
 
     if (existingApplication) {
-      const forbiddenStatuses = [
-        StatusType.APPLIED,
-        StatusType.ACCEPTED,
-        StatusType.CONFIRMED
-      ];
+      const forbiddenStatuses = [StatusType.APPLIED, StatusType.ACCEPTED, StatusType.CONFIRMED];
       if (forbiddenStatuses.includes(existingApplication.status)) {
         throw new BadRequestError(
           "You already have an active/pending application. Withdraw it first to submit a new one."
