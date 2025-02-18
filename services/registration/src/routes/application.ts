@@ -176,7 +176,6 @@ applicationRouter.route("/generate-csv").get(
 );
 
 applicationRouter.route("/:id").delete(
-  checkAbility("delete", "Application"),
   asyncHandler(async (req, res) => {
     const application = await ApplicationModel.findById(req.params.id).accessibleBy(req.ability);
 
