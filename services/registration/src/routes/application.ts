@@ -183,11 +183,14 @@ applicationRouter.route("/:id").delete(
       throw new BadRequestError("Application not found or you do not have permission to delete.");
     }
 
-    console.log("application userId", application.userId);
-    console.log("req user uid", req.user?.uid);
+    const allowedStatus = [StatusType.DRAFT, StatusType.APPLIED];
     // Ensure only the owner or an authorized admin can delete
     if (application.userId !== req.user?.uid && !req.user?.roles.member) {
       throw new BadRequestError("You do not have permission to delete this application.");
+    } else if (!allowedStatus.includes(application.status)) {
+      throw new BadRequestError(
+        "You can only delete an application if the status is a draft or applied."
+      );
     }
 
     await ApplicationModel.findByIdAndDelete(req.params.id);
