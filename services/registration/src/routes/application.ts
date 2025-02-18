@@ -175,7 +175,6 @@ applicationRouter.route("/generate-csv").get(
   })
 );
 
-// delete an application
 applicationRouter.route("/:id").delete(
   checkAbility("delete", "Application"),
   asyncHandler(async (req, res) => {
@@ -185,6 +184,8 @@ applicationRouter.route("/:id").delete(
       throw new BadRequestError("Application not found or you do not have permission to delete.");
     }
 
+    console.log("application userId", application.userId);
+    console.log("req user uid", req.user?.uid);
     // Ensure only the owner or an authorized admin can delete
     if (application.userId !== req.user?.uid && !req.user?.roles.member) {
       throw new BadRequestError("You do not have permission to delete this application.");
