@@ -575,7 +575,7 @@ applicationRouter.route("/:id/actions/update-status").post(
       ) {
         updateBody.confirmationSubmitTime = new Date();
       } else if (
-        existingApplication.status === StatusType.ACCEPTED &&
+        (existingApplication.status === StatusType.ACCEPTED || existingApplication.status === StatusType.CONFIRMED) &&
         newStatus === StatusType.NOT_ATTENDING
       ) {
         // pass
