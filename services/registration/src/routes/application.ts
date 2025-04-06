@@ -282,9 +282,15 @@ applicationRouter.route("/actions/choose-application-branch").post(
     }
 
     if (existingApplication) {
-      throw new BadRequestError(
-        "You already have an active/pending application. Delete it first to submit a new one."
-      );
+      const isRejectedParticipant =
+        existingApplication.applicationBranch.applicationGroup ===
+          ApplicationGroupType.PARTICIPANT && existingApplication.status === StatusType.DENIED;
+      // Allows rejected applicants to apply as volunteer even though they already have an active application
+      if (!isRejectedParticipant || req.body.applicationBranch !== ApplicationGroupType.VOLUNTEER) {
+        throw new BadRequestError(
+          "You already have an active/pending application. Delete it first to submit a new one."
+        );
+      }
       // const forbiddenStatuses = [StatusType.APPLIED, StatusType.ACCEPTED, StatusType.CONFIRMED];
       // if (forbiddenStatuses.includes(existingApplication.status)) {
       //   throw new BadRequestError(
@@ -575,7 +581,8 @@ applicationRouter.route("/:id/actions/update-status").post(
       ) {
         updateBody.confirmationSubmitTime = new Date();
       } else if (
-        (existingApplication.status === StatusType.ACCEPTED || existingApplication.status === StatusType.CONFIRMED) &&
+        (existingApplication.status === StatusType.ACCEPTED ||
+          existingApplication.status === StatusType.CONFIRMED) &&
         newStatus === StatusType.NOT_ATTENDING
       ) {
         // pass
