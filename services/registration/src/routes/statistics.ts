@@ -58,7 +58,7 @@ statisticsRouter.route("/").get(
 
     const branchFilter: Record<string, any> = {};
     if (branchId) {
-      branchFilter["applicationBranch._id"] = new mongoose.Types.ObjectId(branchId);
+      branchFilter.confirmationBranch = new mongoose.Types.ObjectId(branchId);
     }
 
     const allApps = await ApplicationModel.find(baseMatch);
