@@ -61,12 +61,6 @@ statisticsRouter.route("/").get(
       branchFilter.confirmationBranch = new mongoose.Types.ObjectId(branchId);
     }
 
-    const allApps = await ApplicationModel.find(baseMatch);
-    console.log("Apps matching hexathon:", allApps.length);
-
-    const filteredApps = await ApplicationModel.find({ ...baseMatch, ...branchFilter });
-    console.log("Apps with branch filter:", filteredApps.length);
-
     const aggregatedApplications = await ApplicationModel.aggregate([
       {
         $match: baseMatch,
@@ -248,8 +242,6 @@ statisticsRouter.route("/").get(
         },
       },
     ]);
-
-    console.log("result", aggregatedApplications);
 
     const aggregatedUsers: any[] = aggregatedApplications[0].users;
     const aggregatedApplicationBranches: any[] = aggregatedApplications[0].applicationBranches;
