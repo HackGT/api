@@ -60,6 +60,11 @@ statisticsRouter.route("/").get(
       matchStage.applicationBranch = new mongoose.Types.ObjectId(branchId);
     }
 
+    console.log("Running aggregation with matchStage:", matchStage);
+
+    const found = await ApplicationModel.find(matchStage).limit(3);
+    console.log("Matched applications:", found.length);
+
     const aggregatedApplications = await ApplicationModel.aggregate([
       {
         $match: matchStage,
@@ -230,6 +235,8 @@ statisticsRouter.route("/").get(
         },
       },
     ]);
+
+    console.log("result", aggregatedApplications);
 
     const aggregatedUsers: any[] = aggregatedApplications[0].users;
     const aggregatedApplicationBranches: any[] = aggregatedApplications[0].applicationBranches;
