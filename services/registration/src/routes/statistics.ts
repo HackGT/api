@@ -25,6 +25,11 @@ statisticsRouter.route("/").get(
   checkAbility("aggregate", "Application"),
   asyncHandler(async (req, res) => {
     const { hexathon } = req.query;
+    let branchId = req.query.branch as string | undefined;
+
+    if (branchId === "") {
+      branchId = undefined; // treat as undefined
+    }
 
     const branches = await BranchModel.find({
       hexathon: new mongoose.Types.ObjectId(hexathon as string),
@@ -47,11 +52,17 @@ statisticsRouter.route("/").get(
       0
     );
 
+    const matchStage: any = {
+      hexathon: new mongoose.Types.ObjectId(hexathon as string),
+    };
+
+    if (branchId) {
+      matchStage.applicationBranch = new mongoose.Types.ObjectId(branchId);
+    }
+
     const aggregatedApplications = await ApplicationModel.aggregate([
       {
-        $match: {
-          hexathon: new mongoose.Types.ObjectId(hexathon as string),
-        },
+        $match: matchStage,
       },
       {
         $facet: {
@@ -331,6 +342,7 @@ statisticsRouter.route("/").get(
 
     for (const interaction of eventInteractions) {
       if (!interaction.event) {
+        // eslint-disable-next-line no-continue
         continue;
       }
       const event = interaction.event;
