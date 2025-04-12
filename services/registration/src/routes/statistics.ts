@@ -52,27 +52,29 @@ statisticsRouter.route("/").get(
       0
     );
 
-    const matchStage: any = {
+    const baseMatch = {
       hexathon: new mongoose.Types.ObjectId(hexathon as string),
     };
 
+    const branchFilter: Record<string, any> = {};
     if (branchId) {
-      matchStage.applicationBranch = new mongoose.Types.ObjectId(branchId);
+      branchFilter.applicationBranch = new mongoose.Types.ObjectId(branchId);
     }
 
-    console.log("Running aggregation with matchStage:", matchStage);
-
-    const found = await ApplicationModel.find(matchStage).limit(3);
-    console.log("Matched applications:", found.length);
+    console.log("branchId", branchId);
+    console.log("branchFilter", branchFilter);
 
     const aggregatedApplications = await ApplicationModel.aggregate([
       {
-        $match: matchStage,
+        $match: baseMatch,
       },
       {
         $facet: {
           // users grouped by application status with frequency
           users: [
+            {
+              $match: branchFilter,
+            },
             {
               $group: {
                 _id: "$status",
@@ -84,6 +86,7 @@ statisticsRouter.route("/").get(
           genderData: [
             {
               $match: {
+                ...branchFilter,
                 "status": { $ne: StatusType.DRAFT },
                 "applicationData.gender": { $ne: null },
               },
@@ -99,6 +102,7 @@ statisticsRouter.route("/").get(
           schoolYearData: [
             {
               $match: {
+                ...branchFilter,
                 "status": { $ne: StatusType.DRAFT },
                 "applicationData.schoolYear": { $ne: null },
               },
@@ -114,6 +118,7 @@ statisticsRouter.route("/").get(
           majorData: [
             {
               $match: {
+                ...branchFilter,
                 "status": { $ne: StatusType.DRAFT },
                 "applicationData.major": { $ne: null },
               },
@@ -129,6 +134,7 @@ statisticsRouter.route("/").get(
           schoolData: [
             {
               $match: {
+                ...branchFilter,
                 "status": { $ne: StatusType.DRAFT },
                 "applicationData.school": { $ne: null },
               },
@@ -144,6 +150,7 @@ statisticsRouter.route("/").get(
           marketingData: [
             {
               $match: {
+                ...branchFilter,
                 "status": { $ne: StatusType.DRAFT },
                 "applicationData.marketing": { $ne: null },
               },
@@ -159,6 +166,7 @@ statisticsRouter.route("/").get(
           shirtSizeData: [
             {
               $match: {
+                ...branchFilter,
                 "status": { $ne: StatusType.DRAFT },
                 "applicationData.shirtSize": { $ne: null },
               },
@@ -174,6 +182,7 @@ statisticsRouter.route("/").get(
           dietaryRestrictionsData: [
             {
               $match: {
+                ...branchFilter,
                 "status": { $ne: StatusType.DRAFT },
                 "applicationData.dietaryRestrictions": { $ne: null },
               },
@@ -192,6 +201,7 @@ statisticsRouter.route("/").get(
           trackPreferenceData: [
             {
               $match: {
+                ...branchFilter,
                 "status": { $ne: StatusType.DRAFT },
                 "applicationData.customData.track": { $ne: null },
               },
