@@ -25,10 +25,19 @@ statisticsRouter.route("/").get(
   checkAbility("aggregate", "Application"),
   asyncHandler(async (req, res) => {
     const { hexathon } = req.query;
-    let branchId = req.query.branch as string | undefined;
+    let applicationBranchId = req.query.applicationBranch as string | undefined;
+    let confirmationBranchId = req.query.confirmationBranch as string | undefined;
 
-    if (branchId === "") {
-      branchId = undefined; // treat as undefined
+    if (applicationBranchId === "") {
+      applicationBranchId = undefined;
+    }
+    if (confirmationBranchId === "") {
+      confirmationBranchId = undefined;
+    }
+    if (applicationBranchId && confirmationBranchId) {
+      return res.status(400).send({
+        message: "Cannot filter by both application and confirmation branch",
+      });
     }
 
     const branches = await BranchModel.find({
@@ -57,8 +66,11 @@ statisticsRouter.route("/").get(
     };
 
     const branchFilter: Record<string, any> = {};
-    if (branchId) {
-      branchFilter.confirmationBranch = new mongoose.Types.ObjectId(branchId);
+    if (applicationBranchId) {
+      branchFilter.applicationBranch = new mongoose.Types.ObjectId(applicationBranchId);
+    } else if (confirmationBranchId) {
+      // can't have both application and confirmation branch
+      branchFilter.confirmationBranch = new mongoose.Types.ObjectId(confirmationBranchId);
     }
 
     const aggregatedApplications = await ApplicationModel.aggregate([
