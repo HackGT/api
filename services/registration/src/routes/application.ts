@@ -586,6 +586,11 @@ applicationRouter.route("/:id/actions/update-status").post(
         newStatus === StatusType.NOT_ATTENDING
       ) {
         // pass
+      } else if (
+        existingApplication.status === StatusType.CONFIRMED &&
+        newStatus === StatusType.CHECKED_IN
+      ) {
+        // Allow confirmed users to check themselves in
       } else {
         throw new BadRequestError(
           "You do not have permission to change this application to the new status provided."
