@@ -145,7 +145,8 @@ interactionRoutes.route("/").post(
         }
       } catch (error) {
         console.error(
-          `Failed to update application status for user ${req.body.userId} check-in:`,
+          "Failed to update application status for user %s check-in:",
+          req.body.userId,
           error
         );
       }
