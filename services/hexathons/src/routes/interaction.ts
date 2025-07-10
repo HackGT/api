@@ -1,4 +1,5 @@
-import { asyncHandler, BadRequestError, checkAbility, ConfigError } from "@api/common";
+import { asyncHandler, BadRequestError, checkAbility, ConfigError, apiCall } from "@api/common";
+import { Service } from "@api/config";
 import express from "express";
 import { FilterQuery } from "mongoose";
 
@@ -103,6 +104,51 @@ interactionRoutes.route("/").post(
         timestamp: new Date(),
         hexathon: req.body.hexathon,
       });
+    }
+
+    // If this is a check-in interaction, update the application status to CHECKED_IN
+    if (req.body.type === InteractionType.CHECK_IN) {
+      try {
+        // Find the user's application for this hexathon
+        const applicationsResponse = await apiCall(
+          Service.REGISTRATION,
+          {
+            method: "GET",
+            url: "/applications",
+            params: {
+              hexathon: req.body.hexathon,
+              userId: req.body.userId,
+            },
+          },
+          req
+        );
+
+        if (applicationsResponse.applications && applicationsResponse.applications.length > 0) {
+          const application = applicationsResponse.applications[0];
+
+          // Update the application status to CHECKED_IN
+          await apiCall(
+            Service.REGISTRATION,
+            {
+              method: "POST",
+              url: `/applications/${application._id}/actions/update-status`,
+              data: {
+                status: "CHECKED_IN",
+              },
+            },
+            req
+          );
+        } else {
+          console.warn(
+            `User ${req.body.userId} checked in but no application found for hexathon ${req.body.hexathon}`
+          );
+        }
+      } catch (error) {
+        console.error(
+          `Failed to update application status for user ${req.body.userId} check-in:`,
+          error
+        );
+      }
     }
 
     return res.send(interaction);
