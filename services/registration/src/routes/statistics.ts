@@ -283,7 +283,7 @@ statisticsRouter.route("/").get(
         (allUsersStatusCount.CONFIRMED || 0) +
         (allUsersStatusCount.CHECKED_IN || 0) +
         (allUsersStatusCount.NOT_ATTENDING || 0),
-      confirmedUsers: (allUsersStatusCount.CONFIRMED || 0) + (allUsersStatusCount.CHECKED_IN || 0),
+      confirmedUsers: allUsersStatusCount.CONFIRMED || 0,
       waitlistedUsers: allUsersStatusCount.WAITLISTED || 0,
       withdrawnUsers: allUsersStatusCount.NOT_ATTENDING || 0,
       checkedinUsers: checkinInteractions, // Physical check-in interactions
@@ -353,8 +353,7 @@ statisticsRouter.route("/").get(
         const numTotal = branchAggregates.reduce((acc, aggregate) => acc + aggregate.count, 0);
 
         confirmationBranchStatistics[branch.name] = {
-          confirmed:
-            (statusCount[StatusType.CONFIRMED] || 0) + (statusCount[StatusType.CHECKED_IN] || 0),
+          confirmed: statusCount[StatusType.CONFIRMED] || 0,
           notAttending: statusCount[StatusType.NOT_ATTENDING] || 0,
           total: numTotal,
         };
