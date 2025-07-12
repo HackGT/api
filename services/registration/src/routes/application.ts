@@ -794,3 +794,20 @@ applicationRouter.route("/slack/confirmed-users").get(
     });
   })
 );
+
+applicationRouter.route("/:id/check-in-status").get(
+  checkAbility("read", "Application"),
+  asyncHandler(async (req, res) => {
+    const application = await ApplicationModel.findById(req.params.id).accessibleBy(req.ability);
+
+    if (!application) {
+      throw new BadRequestError("Application not found or you do not have permission to access.");
+    }
+
+    const isCheckedInByStatus = application.status === StatusType.CHECKED_IN;
+
+    return res.status(200).json({
+      isCheckedIn: isCheckedInByStatus,
+    });
+  })
+);
