@@ -45,6 +45,10 @@ interactionRoutes.route("/").post(
       throw new BadRequestError("Only members can create event interactions");
     }
 
+    if (!req.user?.roles.member && req.body.type === InteractionType.CHECK_IN) {
+      throw new BadRequestError("Only members can create check-in interactions");
+    }
+
     // For event or scavenger hunt interactions, the identifier is required and must be unique
     if ([InteractionType.EVENT, InteractionType.SCAVENGER_HUNT].includes(req.body.type)) {
       const existingInteraction = await InteractionModel.findOne({
