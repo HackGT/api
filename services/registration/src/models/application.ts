@@ -13,6 +13,7 @@ export enum StatusType {
   CONFIRMED = "CONFIRMED",
   DENIED = "DENIED",
   NOT_ATTENDING = "NOT_ATTENDING",
+  CHECKED_IN = "CHECKED_IN",
 }
 
 export interface Essay extends Types.Subdocument {

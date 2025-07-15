@@ -281,11 +281,13 @@ statisticsRouter.route("/").get(
       acceptedUsers:
         (allUsersStatusCount.ACCEPTED || 0) +
         (allUsersStatusCount.CONFIRMED || 0) +
+        (allUsersStatusCount.CHECKED_IN || 0) +
         (allUsersStatusCount.NOT_ATTENDING || 0),
       confirmedUsers: allUsersStatusCount.CONFIRMED || 0,
       waitlistedUsers: allUsersStatusCount.WAITLISTED || 0,
       withdrawnUsers: allUsersStatusCount.NOT_ATTENDING || 0,
-      checkedinUsers: checkinInteractions,
+      checkedinUsers: checkinInteractions, // Physical check-in interactions
+      checkedInStatusUsers: allUsersStatusCount.CHECKED_IN || 0, // Application status count
       deniedUsers: allUsersStatusCount.DENIED || 0,
     };
 
