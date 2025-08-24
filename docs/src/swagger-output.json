@@ -1783,7 +1783,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/Interaction"
+                "$ref": "#/definitions/Event"
               }
             }
           },
@@ -1796,7 +1796,7 @@
     "/events/{id}": {
       "patch": {
         "tags": ["hexathons"],
-        "summary": "Update an existing interaction by id.",
+        "summary": "Update an existing event by id.",
         "description": "",
         "consumes": ["application/json"],
         "produces": ["application/json"],
@@ -1865,7 +1865,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/Interaction"
+                "$ref": "#/definitions/Event"
               }
             }
           },
@@ -1894,6 +1894,38 @@
           },
           "400": {
             "description": "Invalid status"
+          }
+        }
+      }
+    },
+    "/events/add-check-in/{id}": {
+      "patch": {
+        "tags": ["hexathons"],
+        "summary": "Increments check-in counter for an event by id.",
+        "description": "",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Event id that needs to be considered for filter.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Event"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status"
           }
         }
       }
@@ -4825,6 +4857,9 @@
           "items": {
             "type": "string"
           }
+        },
+        "checkIns": {
+          "type": "number"
         }
       },
       "xml": {
