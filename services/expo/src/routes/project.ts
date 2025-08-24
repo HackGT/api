@@ -214,7 +214,7 @@ projectRoutes.route("/").post(
       }
 
       // check for first free table group to assign table number to
-      const isFreeTableGroup = projectsInCurrentExpoAndTableGroup.length < tableGroup.tableCapacity; 
+      const isFreeTableGroup = projectsInCurrentExpoAndTableGroup.length < tableGroup.tableCapacity;
       if (isFreeTableGroup && firstFreeTableGroup === undefined) {
         firstFreeTableGroup = tableGroup;
       }
@@ -229,7 +229,7 @@ projectRoutes.route("/").post(
       );
     }
 
-    // assigns table to first unused number 
+    // assigns table to first unused number
     let tableNumber;
     for (let i = 1; i <= totalCapacity; i++) {
       if (!tableNumberSet.has(i)) {
@@ -312,6 +312,7 @@ projectRoutes.route("/:id").patch(
     let members: any[] = [];
     let categories: any[] = [];
     let tableGroup;
+    let newTableNumber = -1;
 
     const config = await getConfig();
     const currentProject = await prisma.project.findUnique({
@@ -339,6 +340,63 @@ projectRoutes.route("/:id").patch(
       }
     }
 
+    const reassignTable = async () => {
+      const currentHexathon = await getCurrentHexathon(req);
+
+      const tableGroups = await prisma.tableGroup.findMany({
+        where: {
+          hexathon: currentHexathon.id,
+        },
+      });
+
+      const projectsInCurrentExpo = await prisma.project.findMany({
+        where: {
+          hexathon: currentHexathon.id,
+          expo,
+        },
+      });
+
+      let firstFreeTableGroup: undefined | TableGroup;
+      let totalCapacity = 0;
+      const tableNumberSet = new Set();
+
+      // select first non-empty tableGroup
+      for (const tableGroup of tableGroups) {
+        const projectsInCurrentExpoAndTableGroup = projectsInCurrentExpo.filter(
+          project => project.tableGroupId === tableGroup.id
+        );
+
+        for (const project of projectsInCurrentExpoAndTableGroup) {
+          tableNumberSet.add(project.table);
+        }
+
+        // check for first free table group to assign table number to
+        const isFreeTableGroup =
+          projectsInCurrentExpoAndTableGroup.length < tableGroup.tableCapacity;
+        if (isFreeTableGroup && firstFreeTableGroup === undefined) {
+          firstFreeTableGroup = tableGroup;
+        }
+
+        totalCapacity += tableGroup.tableCapacity;
+      }
+
+      // no free table could be found; all table groups' capacities are full
+      if (!firstFreeTableGroup) {
+        throw new BadRequestError(
+          "Submission could not be saved due to issue with table groups - please contact help desk"
+        );
+      }
+
+      tableGroup = firstFreeTableGroup.id;
+      for (let i = 1; i <= totalCapacity; i++) {
+        if (!tableNumberSet.has(i)) {
+          newTableNumber = i;
+          break;
+        }
+      }
+      console.log("table reassigned to:", firstFreeTableGroup.name, newTableNumber);
+    };
+
     if (req.body.table) {
       const tableNumber = parseInt(req.body.table);
       const projectsInSameGroup = await prisma.project.findMany({
@@ -362,12 +420,10 @@ projectRoutes.route("/:id").patch(
       );
 
       if (isDuplicate) {
-        res.status(200).send({
-          error: true,
-          message: "Error: Duplicate Table Number.",
-        });
-        return;
+        await reassignTable();
       }
+    } else if (req.body.tableGroupId || req.body.expo) {
+      await reassignTable();
     }
 
     const dbCategories = await prisma.category.findMany({
@@ -416,6 +472,7 @@ projectRoutes.route("/:id").patch(
       where: { id: parseInt(req.params.id) },
       data: {
         ...req.body,
+        table: newTableNumber >= 0 ? newTableNumber : req.body.table,
         members: {
           connectOrCreate: applications.map((application: any) => ({
             where: {
