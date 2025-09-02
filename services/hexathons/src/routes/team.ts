@@ -123,7 +123,9 @@ teamRoutes.route("/").post(
       throw new BadRequestError("User is already in a team for this event!");
     }
 
-    const foodBatch = await FoodBatchModel.findOne({}); // TODO: change this one food-batches are actually implemented.
+    const foodBatch = await FoodBatchModel.findOne({
+      hexathon: { $eq: hexathon },
+    }); // TODO: change this one food-batches are actually implemented.
 
     const newTeam = await TeamModel.create({
       name,
