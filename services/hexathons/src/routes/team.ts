@@ -5,6 +5,7 @@ import { FilterQuery, isValidObjectId, Types } from "mongoose";
 import { Team, TeamModel } from "../models/team";
 import { HexathonUser, HexathonUserModel } from "../models/hexathonUser";
 import { validateEmail } from "../common/util";
+import { FoodBatchModel } from "src/models/foodBatch";
 
 export const teamRoutes = express.Router();
 
@@ -100,7 +101,7 @@ teamRoutes.route("/:id").get(
 teamRoutes.route("/").post(
   checkAbility("create", "Team"),
   asyncHandler(async (req, res) => {
-    const { name, hexathon, email, description, publicTeam, batch } = req.body;
+    const { name, hexathon, email, description, publicTeam } = req.body;
 
     const hexathonUser = await HexathonUserModel.findOne({
       hexathon: { $eq: hexathon },
@@ -122,13 +123,15 @@ teamRoutes.route("/").post(
       throw new BadRequestError("User is already in a team for this event!");
     }
 
+    const foodBatch = await FoodBatchModel.findOne({}); // TODO: change this one food-batches are actually implemented.
+
     const newTeam = await TeamModel.create({
       name,
       hexathon,
       members: [hexathonUser.id],
       description,
       public: publicTeam,
-      batch,
+      batch: foodBatch ? foodBatch.id : undefined,
     });
 
     await HexathonUserModel.findByIdAndUpdate(hexathonUser.id, {
