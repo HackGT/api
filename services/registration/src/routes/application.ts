@@ -528,6 +528,20 @@ applicationRouter.route("/:id/actions/submit-application").post(
           },
           { new: true }
         );
+        if (
+          existingApplication.applicationBranch.applicationGroup ===
+          ApplicationGroupType.PARTICIPANT
+        ) {
+          await apiCall(
+            Service.HEXATHONS,
+            {
+              method: "POST",
+              url: `/hexathon-users/${existingApplication.hexathon}/users/${existingApplication.userId}/actions/check-valid-user`,
+            },
+            req
+          );
+        }
+
         break;
       // no default
     }
