@@ -100,7 +100,7 @@ teamRoutes.route("/:id").get(
 teamRoutes.route("/").post(
   checkAbility("create", "Team"),
   asyncHandler(async (req, res) => {
-    const { name, hexathon, email, description, publicTeam } = req.body;
+    const { name, hexathon, email, description, publicTeam, batch } = req.body;
 
     const hexathonUser = await HexathonUserModel.findOne({
       hexathon: { $eq: hexathon },
@@ -128,6 +128,7 @@ teamRoutes.route("/").post(
       members: [hexathonUser.id],
       description,
       public: publicTeam,
+      batch,
     });
 
     await HexathonUserModel.findByIdAndUpdate(hexathonUser.id, {
