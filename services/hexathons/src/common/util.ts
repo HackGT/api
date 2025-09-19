@@ -5,7 +5,7 @@ import { EventType } from "../models/event";
 import { HexathonUserModel } from "../models/hexathonUser";
 import { InteractionModel, InteractionType } from "../models/interaction";
 
-const EVENT_TYPE_POINTS: { [key in EventType]: number } = {
+export const EVENT_TYPE_POINTS: { [key in EventType]: number } = {
   "food": 0,
   "workshop": 30,
   "ceremony": 50,
