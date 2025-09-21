@@ -199,9 +199,9 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
 
       // A team must be 100% emerging to be eligible for emerging prizes
       if (numEmerging === users.length) {
-        const emergingPrizes = prizeConfig.hexathons["HackGT 11"].emergingPrizes
-          .concat(prizeConfig.hexathons["HackGT 11"].sponsorPrizes)
-          .concat(prizeConfig.hexathons["HackGT 11"].generalPrizes);
+        const emergingPrizes = prizeConfig.hexathons["HackGT 11"].emergingPrizes.concat(
+          prizeConfig.hexathons["HackGT 11"].sponsorPrizes
+        );
         const emergingDBPrizes = await prisma.category.findMany({
           where: {
             name: {
