@@ -162,6 +162,7 @@ export const prizeConfig = {
         "Capital One - Best Financial Hack",
         "CedarOS - Best Use of CedarOS",
         "Impiricus - 1st, 2nd, 3rd place",
+        "Ergo - Best Use of Mastra Agent Framework for Productivity",
       ],
     },
   },
