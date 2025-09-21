@@ -147,5 +147,22 @@ export const prizeConfig = {
         "MLH - Best Domain Name From GoDaddy Registry",
       ],
     },
+    "HackGT 12": {
+      generalPrizes: [
+        "General - Hall of Illusions - 1st, 2nd place",
+        "General - The Curator's Cause - 1st, 2nd place",
+        "General - Crypt of Data - 1st, 2nd place",
+        "General - The Gadget Gallery - 1st, 2nd place",
+      ],
+      emergingPrizes: ["Emerging - 1st, 2nd place"],
+      sponsorPrizes: [
+        "Warp - Best Developer Tool",
+        "PrizePicks - React Native",
+        "PrizePicks - Sports Intelligence & Insight Systems",
+        "Capital One - Best Financial Hack",
+        "CedarOS - Best Use of CedarOS",
+        "Impiricus - 1st, 2nd, 3rd place",
+      ],
+    },
   },
 };
