@@ -8,12 +8,12 @@ import { InteractionModel, InteractionType } from "../models/interaction";
 export const EVENT_TYPE_POINTS: { [key in EventType]: number } = {
   "food": 0,
   "workshop": 30,
-  "ceremony": 50,
+  "ceremony": 0,
   "tech-talk": 40,
   "mini-event": 10,
   "important": 0,
   "speaker": 40,
-  "mini-challenge": 30, // sponsor events at HackGT 12
+  "mini-challenge": 40, // sponsor events at HackGT 12
   "important-workshop": 50,
   "main-event": 50, // Museum event at HackGT 12
   "performance": 15,
@@ -60,7 +60,7 @@ export const getHexathonUserWithUpdatedPoints = async (
       return prev + 20;
     }
     if (interaction.type === InteractionType.EXPO_SUBMISSION) {
-      return prev + 200;
+      return prev + 250;
     }
     return prev;
   }, 0);
