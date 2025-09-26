@@ -5,15 +5,18 @@ import { EventType } from "../models/event";
 import { HexathonUserModel } from "../models/hexathonUser";
 import { InteractionModel, InteractionType } from "../models/interaction";
 
-const EVENT_TYPE_POINTS: { [key in EventType]: number } = {
+export const EVENT_TYPE_POINTS: { [key in EventType]: number } = {
   "food": 0,
   "workshop": 30,
-  "ceremony": 50,
+  "ceremony": 0,
   "tech-talk": 40,
-  "mini-event": 5,
+  "mini-event": 10,
   "important": 0,
   "speaker": 40,
-  "mini-challenge": 0,
+  "mini-challenge": 40, // sponsor events at HackGT 12
+  "important-workshop": 50,
+  "main-event": 50, // Museum event at HackGT 12
+  "performance": 15,
 };
 
 /** For each 'event' a user attends, if the user is `inperson`, they get full points. If `virtual`, it scales so that if
@@ -54,10 +57,10 @@ export const getHexathonUserWithUpdatedPoints = async (
     }
     if (interaction.type === InteractionType.SCAVENGER_HUNT) {
       // Future consideration: event types unique to order of scavenger hunt
-      return prev + 10;
+      return prev + 20;
     }
     if (interaction.type === InteractionType.EXPO_SUBMISSION) {
-      return prev + 100;
+      return prev + 250;
     }
     return prev;
   }, 0);

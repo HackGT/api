@@ -5,6 +5,7 @@ import { FilterQuery } from "mongoose";
 
 import { EventModel } from "../models/event";
 import { InteractionModel, Interaction, InteractionType } from "../models/interaction";
+import { EVENT_TYPE_POINTS } from "../common/util";
 
 export const interactionRoutes = express.Router();
 
@@ -135,7 +136,7 @@ interactionRoutes.route("/").post(
             Service.REGISTRATION,
             {
               method: "POST",
-              url: `/applications/${application._id}/actions/update-status`,
+              url: `/applications/${application.id}/actions/update-status`,
               data: {
                 status: "CHECKED_IN",
               },
@@ -218,3 +219,7 @@ interactionRoutes.route("/statistics").get(
     return res.send(interactionsSummary);
   })
 );
+
+interactionRoutes
+  .route("/event-type-points")
+  .get(asyncHandler(async (req, res) => res.send(EVENT_TYPE_POINTS)));
