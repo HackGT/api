@@ -279,10 +279,10 @@ export const validateTeam = async (members: any[], req: express.Request) => {
       }
 
       // Checks the user's applications and if they are confirmed for the current hexathon
-      if (userApplication.status !== "CONFIRMED") {
+      if (userApplication.status !== "CHECKED_IN") {
         registrationError = {
           error: true,
-          message: `User: ${email} not confirmed for current ${currentHexathon.name}`,
+          message: `User: ${email} not checked in for current ${currentHexathon.name}`,
         };
         return "";
       }
