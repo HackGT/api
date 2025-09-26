@@ -136,7 +136,7 @@ interactionRoutes.route("/").post(
             Service.REGISTRATION,
             {
               method: "POST",
-              url: `/applications/${application._id}/actions/update-status`,
+              url: `/applications/${application.id}/actions/update-status`,
               data: {
                 status: "CHECKED_IN",
               },

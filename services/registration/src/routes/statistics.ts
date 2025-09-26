@@ -283,7 +283,7 @@ statisticsRouter.route("/").get(
         (allUsersStatusCount.CONFIRMED || 0) +
         (allUsersStatusCount.CHECKED_IN || 0) +
         (allUsersStatusCount.NOT_ATTENDING || 0),
-      confirmedUsers: allUsersStatusCount.CONFIRMED || 0,
+      confirmedUsers: allUsersStatusCount.CONFIRMED || 0 + (allUsersStatusCount.CHECKED_IN || 0),
       waitlistedUsers: allUsersStatusCount.WAITLISTED || 0,
       withdrawnUsers: allUsersStatusCount.NOT_ATTENDING || 0,
       checkedinUsers: checkinInteractions, // Physical check-in interactions
