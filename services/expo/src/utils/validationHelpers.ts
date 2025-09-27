@@ -240,7 +240,7 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
         }
       }
 
-      // A team must be 100% emerging to be eligible for emerging prizes
+      // A team must be 100% emerging to be eligible for emerging prizes (all emerging teams can submit to both emerging and general)
       if (numEmerging === users.length) {
         const emergingPrizes = prizeConfig.hexathons["HackGT 12"].emergingPrizes
           .concat(prizeConfig.hexathons["HackGT 12"].sponsorPrizes)
