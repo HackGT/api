@@ -82,6 +82,25 @@ hexathonUserRouter.route("/:hexathonId/users/:userId").get(
   })
 );
 
+hexathonUserRouter.route("/:hexathonId/refresh-users-points").get(
+  checkAbility("update", "HexathonUser"),
+  asyncHandler(async (req, res) => {
+    const hexathonUsers = await HexathonUserModel.find({
+      hexathon: req.params.hexathonId,
+    });
+
+    const updatedUsers = await Promise.all(
+      hexathonUsers.map(user =>
+        getHexathonUserWithUpdatedPoints(req, user.userId, req.params.hexathonId)
+      )
+    );
+
+    return res.send({
+      updatedCount: updatedUsers.length,
+    });
+  })
+);
+
 hexathonUserRouter.route("/:hexathonId/users/:userId").patch(
   checkAbility("update", "HexathonUser"),
   asyncHandler(async (req, res) => {
