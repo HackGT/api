@@ -90,9 +90,15 @@ hexathonUserRouter.route("/:hexathonId/refresh-users-points").get(
     });
 
     const updatedUsers = await Promise.all(
-      hexathonUsers.map(user =>
-        getHexathonUserWithUpdatedPoints(req, user.userId, req.params.hexathonId)
-      )
+      hexathonUsers.map(user => {
+        console.log(
+          "Updating points for userId:",
+          user.userId,
+          "for hexathon:",
+          req.params.hexathonId
+        );
+        return getHexathonUserWithUpdatedPoints(req, user.userId, req.params.hexathonId);
+      })
     );
 
     return res.send({
