@@ -93,7 +93,7 @@ hexathonUserRouter.route("/:hexathonId/refresh-users-points").get(
       hexathonUsers
         .filter(user => user.points != null && user.points.numCollected != null)
         .map(user => {
-          console.log(
+          console.warn(
             "Updating points for userId:",
             user.userId,
             "for hexathon:",
