@@ -184,7 +184,7 @@ projectRoutes.route("/").post(
       return;
     }
 
-    const projectExpo = Math.floor(Math.random() * config.numberOfExpo + 1);
+    const projectExpo = Math.floor(Math.random() * config.numberOfExpo) + 1;
 
     const tableGroups = await prisma.tableGroup.findMany({
       where: {
@@ -200,8 +200,6 @@ projectRoutes.route("/").post(
     });
 
     let firstFreeTableGroup: undefined | TableGroup;
-    let totalCapacity = 0;
-    const tableNumberSet = new Set();
 
     // select first non-empty tableGroup
     for (const tableGroup of tableGroups) {
@@ -209,17 +207,12 @@ projectRoutes.route("/").post(
         project => project.tableGroupId === tableGroup.id
       );
 
-      for (const project of projectsInCurrentExpoAndTableGroup) {
-        tableNumberSet.add(project.table);
-      }
-
       // check for first free table group to assign table number to
-      const isFreeTableGroup = projectsInCurrentExpoAndTableGroup.length < tableGroup.tableCapacity; 
-      if (isFreeTableGroup && firstFreeTableGroup === undefined) {
+      const isFreeTableGroup = projectsInCurrentExpoAndTableGroup.length < tableGroup.tableCapacity;
+      if (isFreeTableGroup) {
         firstFreeTableGroup = tableGroup;
+        break; // found free table group
       }
-
-      totalCapacity += tableGroup.tableCapacity;
     }
 
     // no free table could be found; all table groups' capacities are full
@@ -229,9 +222,16 @@ projectRoutes.route("/").post(
       );
     }
 
-    // assigns table to first unused number 
+    const tableNumberSet = new Set<number>();
+    for (const project of projectsInCurrentExpo) {
+      if (project.tableGroupId === firstFreeTableGroup.id && project.table) {
+        tableNumberSet.add(project.table);
+      }
+    }
+
+    // assigns table to first unused number
     let tableNumber;
-    for (let i = 1; i <= totalCapacity; i++) {
+    for (let i = 1; i <= firstFreeTableGroup.tableCapacity; i++) {
       if (!tableNumberSet.has(i)) {
         tableNumber = i;
         break;
@@ -376,7 +376,10 @@ projectRoutes.route("/:id").patch(
 
     categories = dbCategories.map((category: any) => ({ id: category.id }));
 
-    if (tableGroup !== undefined) {
+    if (tableGroup === undefined) {
+      // see if the current table group (already assigned)
+      // ADD CODE HERE
+    } else {
       const dbTableGroup = await prisma.tableGroup.findUnique({
         where: { id: tableGroup },
       });
