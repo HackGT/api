@@ -89,30 +89,23 @@ hexathonUserRouter.route("/:hexathonId/refresh-users-points").get(
       hexathon: req.params.hexathonId,
     });
 
-    const updatePromises = hexathonUsers.map(user => {
-      console.warn(
-        `Queueing update for userId: ${user.userId} for hexathon: ${req.params.hexathonId}`
-      );
-      return getHexathonUserWithUpdatedPoints(req, user.userId, req.params.hexathonId);
-    });
-
-    const results = await Promise.allSettled(updatePromises);
-
-    let successfulUpdates = 0;
-    results.forEach((result, index) => {
-      if (result.status === "fulfilled") {
-        successfulUpdates++;
-      } else {
-        const failedUserId = hexathonUsers[index].userId;
-        console.error(`Failed to update points for userId: ${failedUserId}`, result.reason);
+    let count = 0;
+    hexathonUsers.forEach(async user => {
+      console.warn("Found userId:", user.userId, "for hexathon:", req.params.hexathonId);
+      try {
+        await getHexathonUserWithUpdatedPoints(req, user.userId, req.params.hexathonId);
+        count++;
+      } catch (e) {
+        console.warn("Failed to update points for userId:", user.userId, e);
       }
     });
 
     return res.send({
-      updatedCount: successfulUpdates,
+      updatedCount: count,
     });
   })
 );
+
 hexathonUserRouter.route("/:hexathonId/users/:userId").patch(
   checkAbility("update", "HexathonUser"),
   asyncHandler(async (req, res) => {
