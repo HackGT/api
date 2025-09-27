@@ -85,7 +85,7 @@ hexathonUserRouter.route("/:hexathonId/users/:userId").get(
 hexathonUserRouter.route("/:hexathonId/refresh-users-points").get(
   checkAbility("update", "HexathonUser"),
   asyncHandler(async (req, res) => {
-    const hexathonUsers = await HexathonUserModel.find({
+    const hexathonUsers = await HexathonUserModel.accessibleBy(req.ability).find({
       hexathon: req.params.hexathonId,
     });
 
