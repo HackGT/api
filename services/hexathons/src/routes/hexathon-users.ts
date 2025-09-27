@@ -89,19 +89,20 @@ hexathonUserRouter.route("/:hexathonId/refresh-users-points").get(
       hexathon: req.params.hexathonId,
     });
 
-    let count = 0;
-    hexathonUsers.forEach(async user => {
-      console.warn("Found userId:", user.userId, "for hexathon:", req.params.hexathonId);
-      try {
-        await getHexathonUserWithUpdatedPoints(req, user.userId, req.params.hexathonId);
-        count++;
-      } catch (e) {
+    // 1. Create an array of promises using .map()
+    const updatePromises = hexathonUsers.map(user => getHexathonUserWithUpdatedPoints(req, user.userId, req.params.hexathonId).catch(e => {
         console.warn("Failed to update points for userId:", user.userId, e);
-      }
-    });
+        return { error: true, userId: user.userId };
+      }));
+
+    const results = await Promise.allSettled(updatePromises);
+
+    const successfulUpdates = results.filter(result => result.status === "fulfilled");
+    const updatedCount = successfulUpdates.length;
 
     return res.send({
-      updatedCount: count,
+      updatedCount,
+      totalUsers: hexathonUsers.length,
     });
   })
 );
