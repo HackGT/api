@@ -32,6 +32,9 @@ categoryRoutes.route("/").get(
         },
         projects: true,
       },
+      orderBy: {
+        name: "asc",
+      },
     });
     res.status(200).json(categories);
   })
