@@ -662,7 +662,7 @@ applicationRouter.route("/:id/actions/update-application").post(
     let newConfirmationExtendedDeadline = confirmationExtendedDeadline;
     const newStatus = StatusType[status as keyof typeof StatusType];
 
-    if ([StatusType.CONFIRMED, StatusType.ACCEPTED].includes(newStatus)) {
+    if ([StatusType.CHECKED_IN, StatusType.CONFIRMED, StatusType.ACCEPTED].includes(newStatus)) {
       if (!confirmationBranch) {
         throw new BadRequestError(
           `Applicant must have a confirmation branch with status ${newStatus}.`
