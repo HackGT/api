@@ -138,6 +138,9 @@ const autoAssign = async (judgeId: number): Promise<Assignment | null> => {
           categoryIds: true,
         },
         where: {
+          status: {
+            in: ["QUEUED", "COMPLETED"],
+          },
           categoryIds: {
             hasSome: judgeCategories.map(category => category.id),
           },
