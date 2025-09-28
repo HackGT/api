@@ -375,13 +375,13 @@ projectRoutes.route("/:id").patch(
         project => project.id !== parseInt(req.params.id) && project.table === tableNumber
       );
 
-      if (isDuplicate) {
-        res.status(200).send({
-          error: true,
-          message: "Error: Duplicate Table Number.",
-        });
-        return;
-      }
+      // if (isDuplicate) {
+      //   res.status(200).send({
+      //     error: true,
+      //     message: "Error: Duplicate Table Number.",
+      //   });
+      //   return;
+      // }
     }
 
     const dbCategories = await prisma.category.findMany({
