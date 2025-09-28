@@ -551,7 +551,7 @@ export const validatePrizes = async (prizes: any[], req: express.Request) => {
       if (prizeNames.filter(prize => prize.includes("General")).length > 1) {
         return {
           error: true,
-          message: "You are only eligible to submit for one track.",
+          message: "You cannot submit to multiple general tracks.",
         };
       }
 
@@ -562,7 +562,7 @@ export const validatePrizes = async (prizes: any[], req: express.Request) => {
       ) {
         return {
           error: true,
-          message: "You are only eligible to submit for either an emerging or general track.",
+          message: "You cannot submit to both general and emerging.",
         };
       }
 
@@ -572,7 +572,7 @@ export const validatePrizes = async (prizes: any[], req: express.Request) => {
       ) {
         return {
           error: true,
-          message: "You must submit to at least one general or emerging track.",
+          message: "You must submit to either a general or emerging track.",
         };
       }
       return { error: false };
