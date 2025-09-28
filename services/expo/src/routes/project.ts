@@ -177,6 +177,11 @@ projectRoutes.route("/").post(
       res.status(400).send(teamValidation);
       return;
     }
+    if (!teamValidation.registrationUsers) {
+      throw new BadRequestError(
+        "There was an error contacting registration. Please contact help desk."
+      );
+    }
 
     const devpostValidation = await validateDevpost(data.devpostUrl, data.name);
     if (devpostValidation.error) {
@@ -184,125 +189,134 @@ projectRoutes.route("/").post(
       return;
     }
 
-    const projectExpo = Math.floor(Math.random() * config.numberOfExpo) + 1;
-
     const tableGroups = await prisma.tableGroup.findMany({
       where: {
         hexathon: currentHexathon.id,
       },
-    });
-
-    const projectsInCurrentExpo = await prisma.project.findMany({
-      where: {
-        hexathon: currentHexathon.id,
-        expo: projectExpo,
+      orderBy: {
+        id: "asc",
       },
     });
 
-    let firstFreeTableGroup: undefined | TableGroup;
+    const expoOrder = Array.from({ length: config.numberOfExpo }, (_, i) => i + 1).sort(
+      () => Math.random() - 0.5
+    );
 
-    // select first non-empty tableGroup
-    for (const tableGroup of tableGroups) {
-      const projectsInCurrentExpoAndTableGroup = projectsInCurrentExpo.filter(
-        project => project.tableGroupId === tableGroup.id
-      );
-
-      // check for first free table group to assign table number to
-      const isFreeTableGroup = projectsInCurrentExpoAndTableGroup.length < tableGroup.tableCapacity;
-      if (isFreeTableGroup) {
-        firstFreeTableGroup = tableGroup;
-        break; // found free table group
-      }
-    }
-
-    // no free table could be found; all table groups' capacities are full
-    if (!firstFreeTableGroup) {
-      throw new BadRequestError(
-        "Submission could not be saved due to issue with table groups - please contact help desk"
-      );
-    }
-
-    const tableNumberSet = new Set<number>();
-    for (const project of projectsInCurrentExpo) {
-      if (project.tableGroupId === firstFreeTableGroup.id && project.table) {
-        tableNumberSet.add(project.table);
-      }
-    }
-
-    // assigns table to first unused number
-    let tableNumber;
-    for (let i = 1; i <= firstFreeTableGroup.tableCapacity; i++) {
-      if (!tableNumberSet.has(i)) {
-        tableNumber = i;
-        break;
-      }
-    }
-
-    if (!teamValidation.registrationUsers) {
-      throw new BadRequestError(
-        "There was an error contacting registration. Please contact help desk."
-      );
-    }
-
-    // in loop call all projects with table group id
-    // find first available table
-    try {
-      await prisma.project.create({
-        data: {
-          name: data.name,
-          description: data.description,
-          devpostUrl: data.devpostUrl,
-          githubUrl: data.githubUrl || "",
-          expo: projectExpo,
-          roomUrl: "",
-          table: tableNumber,
+    for (const currentExpo of expoOrder) {
+      // eslint-disable-next-line no-await-in-loop
+      const projectsInCurrentExpo = await prisma.project.findMany({
+        where: {
           hexathon: currentHexathon.id,
-          members: {
-            connectOrCreate: teamValidation.registrationUsers.map((application: any) => ({
-              where: {
-                email: application.email,
-              },
-              create: {
-                userId: application.userId,
-                name: application.name === undefined ? "" : application.name,
-                email: application.email,
-              },
-            })),
-          },
-          categories: {
-            connect: data.prizes.map((prizeId: any) => ({ id: prizeId })),
-          },
-          tableGroup: {
-            connect: { id: firstFreeTableGroup.id },
-          },
+          expo: currentExpo,
         },
       });
 
-      const interactionPromises = teamValidation.registrationUsers.map((member: any) =>
-        apiCall(
-          Service.HEXATHONS,
-          {
-            method: "POST",
-            url: `/interactions`,
-            data: {
-              hexathon: currentHexathon.id,
-              userId: member.userId,
-              type: "expo-submission",
+      let firstFreeTableGroup: undefined | TableGroup;
+
+      // we need to go through the tableNumberSet and figure out the table group from there
+      const usedTableNumbers = new Set<number>();
+      for (const project of projectsInCurrentExpo) {
+        if (project.table) {
+          usedTableNumbers.add(project.table);
+        }
+      }
+
+      let maxTableNumber = 0;
+      for (const tableGroup of tableGroups) {
+        maxTableNumber += tableGroup.tableCapacity;
+      }
+
+      let tableNumber;
+      for (let i = 1; i <= maxTableNumber; i++) {
+        if (!usedTableNumbers.has(i)) {
+          tableNumber = i;
+          break;
+        }
+      }
+
+      if (!tableNumber) {
+        // eslint-disable-next-line no-continue
+        continue; // all tables are full, check next expo number
+      }
+
+      // now, we need to map the table number to a table group
+      let cumulativeCapacity = 0;
+      for (const tableGroup of tableGroups) {
+        cumulativeCapacity += tableGroup.tableCapacity;
+        if (tableNumber <= cumulativeCapacity) {
+          firstFreeTableGroup = tableGroup;
+          break;
+        }
+      }
+
+      if (!firstFreeTableGroup) {
+        // eslint-disable-next-line no-continue
+        continue; // should never happen
+      }
+
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        await prisma.project.create({
+          data: {
+            name: data.name,
+            description: data.description,
+            devpostUrl: data.devpostUrl,
+            githubUrl: data.githubUrl || "",
+            expo: currentExpo,
+            roomUrl: "",
+            table: tableNumber,
+            hexathon: currentHexathon.id,
+            members: {
+              connectOrCreate: teamValidation.registrationUsers.map((application: any) => ({
+                where: {
+                  email: application.email,
+                },
+                create: {
+                  userId: application.userId,
+                  name: application.name === undefined ? "" : application.name,
+                  email: application.email,
+                },
+              })),
+            },
+            categories: {
+              connect: data.prizes.map((prizeId: any) => ({ id: prizeId })),
+            },
+            tableGroup: {
+              connect: { id: firstFreeTableGroup.id },
             },
           },
-          req
-        )
-      );
+        });
 
-      const response = await Promise.all(interactionPromises);
-
-      console.log(response);
-    } catch (err) {
-      console.error(err);
-      throw new BadRequestError("Submission could not be saved - please contact help desk");
+        const interactionPromises = teamValidation.registrationUsers.map((member: any) =>
+          apiCall(
+            Service.HEXATHONS,
+            {
+              method: "POST",
+              url: `/interactions`,
+              data: {
+                hexathon: currentHexathon.id,
+                userId: member.userId,
+                type: "expo-submission",
+              },
+            },
+            req
+          )
+        );
+        // eslint-disable-next-line no-await-in-loop
+        await Promise.all(interactionPromises);
+        res.status(200).send({ error: false });
+        return;
+      } catch (err) {
+        console.error(err);
+        throw new BadRequestError(
+          "Submission could not be saved (error code D) - please contact help desk"
+        );
+      }
     }
 
-    res.status(200).send({ error: false });
+    throw new BadRequestError(
+      "Submission could not be saved (error code F) - please contact help desk"
+    );
   })
 );
 
