@@ -31,6 +31,8 @@ export interface Application extends mongoose.Document {
   applicationSubmitTime?: Date;
   applicationExtendedDeadline?: Date;
   applicationData: {
+    firstName?: string;
+    lastName?: string;
     adult?: boolean;
     dateOfBirth?: string;
     jobTitle?: string;
@@ -67,6 +69,7 @@ export interface Application extends mongoose.Document {
     travelReimbursement?: string;
     extraInfo?: string;
     confirmChecks?: Schema.Types.Mixed;
+    mlhConfirmations?: Schema.Types.Mixed;
     customData?: Schema.Types.Mixed;
     essays?: Types.DocumentArray<Essay>;
     resume?: Types.ObjectId;
