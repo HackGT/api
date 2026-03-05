@@ -120,6 +120,12 @@ const applicationSchema = new Schema<Application>(
       index: true,
     },
     applicationData: {
+      firstName: {
+        type: Boolean,
+      },
+      lastName: {
+        type: Boolean,
+      },
       adult: {
         type: Boolean,
       },
@@ -227,6 +233,9 @@ const applicationSchema = new Schema<Application>(
       },
       confirmChecks: {
         type: Schema.Types.Mixed,
+      },
+      mlhConfirmations: {
+        type: Schema.Types.Mixed
       },
       customData: {
         type: Schema.Types.Mixed,
