@@ -121,10 +121,10 @@ const applicationSchema = new Schema<Application>(
     },
     applicationData: {
       firstName: {
-        type: Boolean,
+        type: String,
       },
       lastName: {
-        type: Boolean,
+        type: String,
       },
       adult: {
         type: Boolean,
