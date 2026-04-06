@@ -14,9 +14,22 @@ const moveBranch = async () => {
 
   const isRealRun = true;
 
+	// custom for SproutGt 2026
   const criteria = {
-    hexathon: new ObjectId("683f9a9ab75ad31cd0f2ec67"),
+    hexathon: new ObjectId("69a5b9df7ecbfa57f8c6f07b"),
     applicationBranch: new ObjectId("683f9ca4d58f3f52fa01c51d"),
+    applicationData: {
+			adult: true,
+			confirmChecks: {
+        'Hexlabs-Photo-Release-Waiver': true,
+        'HexLabs-Privacy-Policy': true
+      },
+      mlhConfirmations: {
+        'MLH-Email-Communication': true,
+        'MLH-Privacy-and-Terms': true,
+        'MLH-Code-of-Conduct': true
+      },
+    },
     status: "APPLIED",
   };
 
@@ -30,8 +43,8 @@ const moveBranch = async () => {
 
     console.log(`${updatedApplications.modifiedCount} application(s) updated`);
   } else {
-    const applications = await collection.count(criteria);
-    console.log(`${applications} application(s) would be updated`);
+    const applications = await collection.find(criteria).toArray();
+    console.log(`${applications.length} application(s) would be updated`);
   }
 };
 
