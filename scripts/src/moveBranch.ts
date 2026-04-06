@@ -17,7 +17,7 @@ const moveBranch = async () => {
 	// custom for SproutGt 2026
   const criteria = {
     hexathon: new ObjectId("69a5b9df7ecbfa57f8c6f07b"),
-    applicationBranch: new ObjectId("683f9ca4d58f3f52fa01c51d"),
+    applicationBranch: new ObjectId("69a668b7939388a818c23b0b"),
     applicationData: {
 			adult: true,
 			confirmChecks: {
