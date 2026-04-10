@@ -13,7 +13,7 @@ export interface Team extends mongoose.Document {
   public: boolean;
   memberRequests: Types.DocumentArray<Request>;
   sentInvites: Types.DocumentArray<Request>;
-  batch: Types.ObjectId;
+  batch: Types.ObjectId | null;
 }
 
 export interface Request extends Types.Subdocument {
@@ -81,7 +81,7 @@ const teamSchema = new Schema<Team>({
   },
   batch: {
     type: Schema.Types.ObjectId,
-    required: true,
+    required: false,
     ref: FoodBatchModel,
     default: null,
   },
