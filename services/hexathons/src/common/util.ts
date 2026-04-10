@@ -5,18 +5,19 @@ import { EventType } from "../models/event";
 import { HexathonUserModel } from "../models/hexathonUser";
 import { InteractionModel, InteractionType } from "../models/interaction";
 
+// last updated: 10 apr 2026 - SproutGT 2026
 export const EVENT_TYPE_POINTS: { [key in EventType]: number } = {
   "food": 0,
-  "workshop": 30,
+  "workshop": 0,
   "ceremony": 0,
-  "tech-talk": 40,
-  "mini-event": 10,
+  "tech-talk": 0,
+  "mini-event": 0,
   "important": 0,
-  "speaker": 40,
-  "mini-challenge": 40, // sponsor events at HackGT 12
-  "important-workshop": 50,
-  "main-event": 50, // Museum event at HackGT 12
-  "performance": 15,
+  "speaker": 0,
+  "mini-challenge": 0,
+  "important-workshop": 0,
+  "main-event": 0,
+  "performance": 0,
 };
 
 /** For each 'event' a user attends, if the user is `inperson`, they get full points. If `virtual`, it scales so that if
