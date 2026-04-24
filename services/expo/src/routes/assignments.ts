@@ -104,88 +104,73 @@ const autoAssign = async (judgeId: number): Promise<Assignment | null> => {
   //   isStarted = false;
   // }
 
-  // Where clause for finding projects
-  const projectFilter: Prisma.ProjectWhereInput = {
-    hexathon: config.currentHexathon,
-    expo: config.currentExpo,
-    round: config.currentRound,
-    assignment: {
-      none: {
-        userId: judgeToAssign.id,
-      },
-    },
-  };
-
-  // If the judge's category group doesn't have a default category, we need to add
-  // in the project filter. Otherwise, the judge can judge any project.
   const defaultCategories = judgeCategories.filter(category => category.isDefault);
-  if (defaultCategories.length === 0) {
-    projectFilter.categories = {
-      some: {
-        id: { in: judgeCategories.map(category => category.id) },
-      },
+
+  return await prisma.$transaction(async tx => {
+    // Global advisory lock: serializes all auto-assign calls so COUNT reads
+    // and inserts are always atomic with no stale data across all groups
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(1)`;
+
+    const projectFilter: Prisma.ProjectWhereInput = {
+      hexathon: config.currentHexathon!,
+      expo: config.currentExpo,
+      round: config.currentRound,
+      assignment: { none: { userId: judgeToAssign.id } },
     };
-  }
 
-  // Get projects from the appropriate expo/round, where at least some of the project's categories match
-  // the judge's categories and where the project has not been assigned to the judge before
-  const projectsWithMatchingCategories = await prisma.project.findMany({
-    where: projectFilter,
-    select: {
-      id: true,
-      assignment: {
-        select: {
-          categoryIds: true,
-        },
-        where: {
-          status: {
-            in: ["QUEUED", "COMPLETED"],
-          },
-          categoryIds: {
-            hasSome: judgeCategories.map(category => category.id),
+    if (defaultCategories.length === 0) {
+      projectFilter.categories = {
+        some: { id: { in: judgeCategories.map(c => c.id) } },
+      };
+    }
+
+    const projects = await tx.project.findMany({
+      where: projectFilter,
+      select: {
+        id: true,
+        categories: true,
+        assignment: {
+          select: { categoryIds: true, status: true },
+          where: {
+            status: { in: ["QUEUED", "COMPLETED"] },
+            categoryIds: { hasSome: judgeCategories.map(c => c.id) },
           },
         },
       },
-      categories: true,
-    },
+    });
+
+    const eligible = projects.filter(p => p.assignment.length < 3);
+    if (eligible.length === 0) return null;
+
+    eligible.sort((a, b) => a.assignment.length - b.assignment.length);
+
+    const lowest = eligible[0].assignment.length;
+    const candidates = eligible.filter(p => p.assignment.length === lowest);
+    const selected = candidates[Math.floor(Math.random() * candidates.length)];
+
+    const alreadyQueued = selected.assignment.filter(a => a.status === "QUEUED").length;
+    if (alreadyQueued > 0) {
+      console.warn(
+        `----- [CONCURRENT] Project ${selected.id} assigned to judge ${judgeId} while already QUEUED by ${alreadyQueued} other judge(s)`
+      );
+    }
+
+    let categoriesToJudge = selected.categories.filter(c =>
+      judgeCategories.map(jc => jc.id).includes(c.id)
+    );
+    if (defaultCategories.length > 0) {
+      categoriesToJudge = categoriesToJudge.concat(defaultCategories);
+    }
+
+    return await tx.assignment.create({
+      data: {
+        userId: judgeToAssign.id,
+        projectId: selected.id,
+        status: AssignmentStatus.QUEUED,
+        categoryIds: categoriesToJudge.map(c => c.id),
+      },
+    });
   });
-
-  if (projectsWithMatchingCategories.length === 0) {
-    return null;
-  }
-
-  // Sort projects by number of assignments that match the judge's categories
-  projectsWithMatchingCategories.sort((p1, p2) => p1.assignment.length - p2.assignment.length);
-
-  // Find the project(s) with the lowest number of assignments that match the judge's categories
-  // Then, pick a random project from the projects with the lowest number of assignments
-  const lowestAssignmentCount = projectsWithMatchingCategories[0].assignment.length;
-  const projectsWithLowestAssignmentCount = projectsWithMatchingCategories.filter(
-    proj => proj.assignment.length === lowestAssignmentCount
-  );
-  const selectedProject =
-    projectsWithLowestAssignmentCount[
-      Math.floor(Math.random() * projectsWithLowestAssignmentCount.length)
-    ];
-
-  // Filter categories to only include categories that the judge is assigned to.
-  // If judge's category group judges a default category, add it to the categories to judge
-  let categoriesToJudge = selectedProject.categories.filter(category =>
-    judgeCategories.map(judgeCategory => judgeCategory.id).includes(category.id)
-  );
-  if (defaultCategories.length > 0) {
-    categoriesToJudge = categoriesToJudge.concat(defaultCategories);
-  }
-
-  const createdAssignment = await prisma.assignment.create({
-    data: {
-      userId: judgeToAssign.id,
-      projectId: selectedProject.id,
-      status: AssignmentStatus.QUEUED,
-      categoryIds: categoriesToJudge.map(category => category.id),
-    },
-  });
-  return createdAssignment;
 };
 
 export const assignmentRoutes = express.Router();
