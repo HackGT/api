@@ -139,13 +139,21 @@ const autoAssign = async (judgeId: number): Promise<Assignment | null> => {
       },
     });
 
-    const eligible = projects.filter(p => p.assignment.length < 3);
+    // Only eligible if no judge is currently assigned (QUEUED) and completed count under cap
+    const eligible = projects.filter(p => {
+      const queued = p.assignment.filter(a => a.status === "QUEUED").length;
+      const completed = p.assignment.filter(a => a.status === "COMPLETED").length;
+      return queued === 0 && completed < 3;
+    });
     if (eligible.length === 0) return null;
 
-    eligible.sort((a, b) => a.assignment.length - b.assignment.length);
+    const completedCount = (p: (typeof eligible)[number]) =>
+      p.assignment.filter(a => a.status === "COMPLETED").length;
 
-    const lowest = eligible[0].assignment.length;
-    const candidates = eligible.filter(p => p.assignment.length === lowest);
+    eligible.sort((a, b) => completedCount(a) - completedCount(b));
+
+    const lowest = completedCount(eligible[0]);
+    const candidates = eligible.filter(p => completedCount(p) === lowest);
     const selected = candidates[Math.floor(Math.random() * candidates.length)];
 
     const alreadyQueued = selected.assignment.filter(a => a.status === "QUEUED").length;
