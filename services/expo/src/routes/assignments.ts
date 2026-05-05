@@ -139,11 +139,10 @@ const autoAssign = async (judgeId: number): Promise<Assignment | null> => {
       },
     });
 
-    // Only eligible if no judge is currently assigned (QUEUED) and completed count under cap
+    // Only eligible if no judge is currently assigned (QUEUED)
     const eligible = projects.filter(p => {
       const queued = p.assignment.filter(a => a.status === "QUEUED").length;
-      const completed = p.assignment.filter(a => a.status === "COMPLETED").length;
-      return queued === 0 && completed < 3;
+      return queued === 0;
     });
     if (eligible.length === 0) return null;
 
