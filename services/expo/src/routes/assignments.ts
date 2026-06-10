@@ -1,5 +1,5 @@
 import express from "express";
-import { asyncHandler, BadRequestError, ConfigError } from "@api/common";
+import { asyncHandler, BadRequestError, ConfigError, getAllSmallest } from "@api/common";
 
 import { prisma } from "../common";
 import { getConfig, isAdminOrIsJudging } from "../utils/utils";
@@ -146,13 +146,10 @@ const autoAssign = async (judgeId: number): Promise<Assignment | null> => {
     });
     if (eligible.length === 0) return null;
 
+    // select a random project among the ones that have the least completed assignments
     const completedCount = (p: (typeof eligible)[number]) =>
       p.assignment.filter(a => a.status === "COMPLETED").length;
-
-    eligible.sort((a, b) => completedCount(a) - completedCount(b));
-
-    const lowest = completedCount(eligible[0]);
-    const candidates = eligible.filter(p => completedCount(p) === lowest);
+    const candidates = getAllSmallest(eligible, completedCount);
     const selected = candidates[Math.floor(Math.random() * candidates.length)];
 
     const alreadyQueued = selected.assignment.filter(a => a.status === "QUEUED").length;
