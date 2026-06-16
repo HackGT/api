@@ -1,4 +1,5 @@
 import express from "express";
+import { createHash } from "crypto";
 import { asyncHandler, BadRequestError, ConfigError, getAllSmallest } from "@api/common";
 
 import { prisma } from "../common";
@@ -107,9 +108,14 @@ const autoAssign = async (judgeId: number): Promise<Assignment | null> => {
   const defaultCategories = judgeCategories.filter(category => category.isDefault);
 
   return await prisma.$transaction(async tx => {
-    // Global advisory lock: serializes all auto-assign calls so COUNT reads
-    // and inserts are always atomic with no stale data across all groups
-    await tx.$executeRaw`SELECT pg_advisory_xact_lock(1)`;
+    // Scoped advisory lock: serializes auto-assign calls for the same
+    // hexathon/expo/round so unrelated contexts don't contend on the same lock
+    // have to use a goofy hash because no strings
+    const lockKey = createHash("sha256")
+      .update(`${config.currentHexathon}:${config.currentExpo}:${config.currentRound}`)
+      .digest()
+      .readBigInt64BE(0);
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(${lockKey})`;
 
     const projectFilter: Prisma.ProjectWhereInput = {
       hexathon: config.currentHexathon!,
@@ -124,6 +130,9 @@ const autoAssign = async (judgeId: number): Promise<Assignment | null> => {
       };
     }
 
+    // Fetch *all* assignments for each candidate project,
+    // we'll compute category-overlap counts manually so we dont miss queued
+    // assignments from other judges for non-overlapping categories (thx copilot)
     const projects = await tx.project.findMany({
       where: projectFilter,
       select: {
@@ -131,10 +140,6 @@ const autoAssign = async (judgeId: number): Promise<Assignment | null> => {
         categories: true,
         assignment: {
           select: { categoryIds: true, status: true },
-          where: {
-            status: { in: ["QUEUED", "COMPLETED"] },
-            categoryIds: { hasSome: judgeCategories.map(c => c.id) },
-          },
         },
       },
     });
@@ -146,9 +151,18 @@ const autoAssign = async (judgeId: number): Promise<Assignment | null> => {
     });
     if (eligible.length === 0) return null;
 
-    // select a random project among the ones that have the least completed assignments
-    const completedCount = (p: (typeof eligible)[number]) =>
-      p.assignment.filter(a => a.status === "COMPLETED").length;
+    const judgeCategoryIds = judgeCategories.map(c => c.id);
+
+    // select a random project among the ones that have the least "relevant" assignments
+    // Count only completed assignments that ALSO overlap the judge's categories.
+    // If an assignment is completed but none of the categories overlap, we can still
+    // be comfortable judging this project (so that asmt won't count toward this total)
+    // tldr: higher completedCount = less chance of being judged
+    const completedCount = (proj: (typeof eligible)[number]) =>
+      proj.assignment.filter(
+        asmt =>
+          asmt.status === "COMPLETED" && asmt.categoryIds.some(id => judgeCategoryIds.includes(id))
+      ).length;
     const candidates = getAllSmallest(eligible, completedCount);
     const selected = candidates[Math.floor(Math.random() * candidates.length)];
 
@@ -159,9 +173,7 @@ const autoAssign = async (judgeId: number): Promise<Assignment | null> => {
       );
     }
 
-    let categoriesToJudge = selected.categories.filter(c =>
-      judgeCategories.map(jc => jc.id).includes(c.id)
-    );
+    let categoriesToJudge = selected.categories.filter(c => judgeCategoryIds.includes(c.id));
     if (defaultCategories.length > 0) {
       categoriesToJudge = categoriesToJudge.concat(defaultCategories);
     }
