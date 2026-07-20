@@ -15,6 +15,7 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
     can("manage", "Branch");
     can("manage", "Grader");
     can("manage", "Review");
+    can("manage", "Referral");
   }
 
   if (req.user.roles.member) {
@@ -23,6 +24,9 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
     can("read", "Review");
     can("manage", "Review", { reviewerId: req.user.uid });
     can("manage", "Email");
+    can("read", "Referral");
+    can("create", "Referral");
+    can("update", "Referral", { referrerId: req.user.uid });
   }
 
   if (req.user.roles.admin || req.user.roles.member) {

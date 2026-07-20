@@ -40,6 +40,73 @@ export const validateApplicationData = async (data: any, branchId: any, branchFo
   throw new BadRequestError(JSON.stringify(validate.errors, null, 4));
 };
 
+const referralJsonSchema = {
+  type: "object",
+  required: [
+    "firstName",
+    "lastName",
+    "email",
+    "school",
+    "referForReimbursement",
+    "referForEarlyApplication",
+    "resume",
+    "essay",
+  ],
+  properties: {
+    firstName: {
+      type: "string",
+      minLength: 1,
+    },
+    lastName: {
+      type: "string",
+      minLength: 1,
+    },
+    email: {
+      type: "string",
+      format: "email",
+    },
+    phoneNumber: {
+      type: "string",
+    },
+    school: {
+      type: "string",
+      minLength: 1,
+    },
+    schoolYear: {
+      type: "string",
+    },
+    referForReimbursement: {
+      type: "boolean",
+    },
+    referForEarlyApplication: {
+      type: "boolean",
+    },
+    resume: {
+      type: "object",
+      required: ["name"],
+      properties: {
+        name: {
+          type: "string",
+          minLength: 1,
+        },
+      },
+    },
+    essay: {
+      type: "string",
+      minLength: 10,
+    },
+  },
+};
+
+export const validateReferralData = async (data: any) => {
+  const validate = ajv.compile(referralJsonSchema);
+  const valid = validate(data);
+  if (valid || validate.errors?.length === 0) {
+    return;
+  }
+  throw new BadRequestError(JSON.stringify(validate.errors, null, 4));
+};
+
 /**
  * Gets the correct branch (application or confirmation) based on the request body
  * @param existingApplication the existing application
