@@ -282,24 +282,11 @@ applicationRouter.route("/actions/choose-application-branch").post(
     }
 
     if (existingApplication) {
-      // temp for hackgt13: allow interest form duplicate
-      // TODO - make this no stupid later.
-      // hackgt13 interest form branch oid is 6a3618785a84453e529ad9b8
-      let TEMP_ALLOW_DUPLICATE = false;
-      if (existingApplication.applicationBranch?._id?.toString() === "6a3618785a84453e529ad9b8") {
-        // Allow duplicate interest forms for hackgt13
-        TEMP_ALLOW_DUPLICATE = true;
-      }
-
       const isRejectedParticipant =
         existingApplication.applicationBranch.applicationGroup ===
           ApplicationGroupType.PARTICIPANT && existingApplication.status === StatusType.DENIED;
-
       // Allows rejected applicants to apply as volunteer even though they already have an active application
-      if (
-        !TEMP_ALLOW_DUPLICATE &&
-        (!isRejectedParticipant || req.body.applicationBranch !== ApplicationGroupType.VOLUNTEER)
-      ) {
+      if (!isRejectedParticipant || req.body.applicationBranch !== ApplicationGroupType.VOLUNTEER) {
         throw new BadRequestError(
           "You already have an active/pending application. Delete it first to submit a new one."
         );
