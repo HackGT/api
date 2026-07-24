@@ -89,4 +89,11 @@ export type AutoPopulatedDoc<PopulatedType> = PopulatedType & { _id: mongoose.Re
  * All the types of actions that can be performed on the system. Used for @casl/ability
  * for managing permissions.
  */
-export type AbilityAction = "read" | "create" | "update" | "delete" | "manage" | "aggregate";
+export type AbilityAction =
+  | "read"
+  | "create"
+  | "update"
+  | "delete"
+  | "manage"
+  | "aggregate"
+  | "refer";

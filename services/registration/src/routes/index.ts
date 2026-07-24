@@ -4,6 +4,7 @@ import { applicationRouter } from "./application";
 import { branchRouter } from "./branch";
 import { emailRouter } from "./email";
 import { gradingRouter } from "./grading";
+import { referralRouter } from "./referrals";
 import { statisticsRouter } from "./statistics";
 
 export const defaultRouter = express.Router();
@@ -13,3 +14,4 @@ defaultRouter.use("/applications", applicationRouter);
 defaultRouter.use("/statistics", statisticsRouter);
 defaultRouter.use("/grading", gradingRouter);
 defaultRouter.use("/email", emailRouter);
+defaultRouter.use("/referrals", referralRouter);
