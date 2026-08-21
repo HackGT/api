@@ -11,12 +11,11 @@ import { GraderModel } from "../models/grader";
 import { Review, ReviewModel } from "../models/review";
 import { BranchModel, BranchType, GradingGroupType } from "../models/branch";
 import { calibrationQuestionMapping, rubricMapping } from "../config";
-import { getCalibrationMapping } from "../common/adjustScores";
+import { getCalibrationMapping, REFERRAL_BONUS } from "../common/adjustScores";
 
 const MAX_REVIEWS_PER_ESSAY = 2;
 // NOTE: No. of essays for each application. As such, will need to be updated whenever we add/remove essays.
 const ESSAY_COUNT = 4;
-const REFERRAL_BONUS = 2;
 
 async function checkForReferralBonus(email?: string, hexathon?: Types.ObjectId) {
   if (!email || !hexathon) {
@@ -321,7 +320,7 @@ gradingRouter.route("/actions/submit-review").post(
         application.gradingComplete = true;
         const sumScores = allEssayReviews.reduce((prev, review) => prev + review.adjustedScore, 0);
         const baseScore = sumScores / allEssayReviews.length;
-        const referralBonus = await checkForReferralBonus(application);
+        const referralBonus = await checkForReferralBonus(application.email, application.hexathon);
         application.finalScore = baseScore + referralBonus;
         await application.save();
       }

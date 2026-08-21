@@ -26,6 +26,8 @@ type CriteriaScores = {
   score: number;
 }[];
 
+export const REFERRAL_BONUS = 2;
+
 /** The minimum grading score an essay can get. */
 const MIN_GRADING_SCORE = 1;
 /** The maximum grading score an essay can get. */
