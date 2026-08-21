@@ -6,30 +6,15 @@ import { Types } from "mongoose";
 import _ from "lodash";
 
 import { ApplicationModel, Essay, StatusType } from "../models/application";
-import { ReferralModel, ReferralStatusType } from "../models/referral";
 import { GraderModel } from "../models/grader";
 import { Review, ReviewModel } from "../models/review";
 import { BranchModel, BranchType, GradingGroupType } from "../models/branch";
 import { calibrationQuestionMapping, rubricMapping } from "../config";
-import { getCalibrationMapping, REFERRAL_BONUS } from "../common/adjustScores";
+import { getCalibrationMapping } from "../common/adjustScores";
 
 const MAX_REVIEWS_PER_ESSAY = 2;
 // NOTE: No. of essays for each application. As such, will need to be updated whenever we add/remove essays.
 const ESSAY_COUNT = 4;
-
-async function checkForReferralBonus(email?: string, hexathon?: Types.ObjectId) {
-  if (!email || !hexathon) {
-    return 0;
-  }
-
-  const referral = await ReferralModel.exists({
-    hexathon,
-    "status": ReferralStatusType.SUBMITTED,
-    "referralData.email": new RegExp(`^${_.escapeRegExp(email.trim())}$`, "i"),
-  });
-
-  return referral ? REFERRAL_BONUS : 0;
-}
 
 type AggregatedEssay = {
   applicationId: string;
@@ -319,9 +304,7 @@ gradingRouter.route("/actions/submit-review").post(
       if (allEssayReviews.length >= MAX_REVIEWS_PER_ESSAY * ESSAY_COUNT) {
         application.gradingComplete = true;
         const sumScores = allEssayReviews.reduce((prev, review) => prev + review.adjustedScore, 0);
-        const baseScore = sumScores / allEssayReviews.length;
-        const referralBonus = await checkForReferralBonus(application.email, application.hexathon);
-        application.finalScore = baseScore + referralBonus;
+        application.finalScore = sumScores / allEssayReviews.length;
         await application.save();
       }
 
@@ -443,6 +426,9 @@ gradingRouter.route("/export").get(
           },
           finalScore: {
             $first: "$finalScore",
+          },
+          referralBonusScore: {
+            $first: "$referralBonusScore",
           },
           applicationBranch: {
             $first: "$applicationBranch",

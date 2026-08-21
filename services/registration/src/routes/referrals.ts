@@ -11,43 +11,20 @@ import { REFERRAL_BONUS } from "../common/adjustScores";
 
 export const referralRouter = express.Router();
 
-/*
-  The referral bonus gets applied after the last grader's review is submitted,
-  this handles the cases where someone is referred after their application is graded
-*/
-async function applyReferralBonus(
-  email?: string,
-  hexathon?: Types.ObjectId,
-  referralId?: Types.ObjectId
-) {
-  if (!email || !hexathon || !referralId) {
+async function applyReferralBonus(email?: string, hexathon?: Types.ObjectId) {
+  if (!email || !hexathon) {
     return;
   }
 
   const emailRegex = new RegExp(`^${_.escapeRegExp(email.trim())}$`, "i");
 
-  const application = await ApplicationModel.findOne({
-    hexathon,
-    email: emailRegex,
-    status: { $ne: StatusType.DRAFT },
-  });
-
-  if (!application || !application.gradingComplete) {
-    return;
-  }
-
-  const alreadyHasBonus = await ReferralModel.exists({
-    hexathon,
-    "referralData.email": emailRegex,
-    "status": ReferralStatusType.SUBMITTED,
-    "_id": { $ne: referralId },
-  });
-  if (alreadyHasBonus) {
-    return;
-  }
-
-  application.finalScore += REFERRAL_BONUS;
-  await application.save();
+  await ApplicationModel.updateOne(
+    {
+      hexathon,
+      email: emailRegex,
+    },
+    { $set: { referralBonusScore: REFERRAL_BONUS } }
+  );
 }
 
 referralRouter.route("/actions/create-referral").post(
@@ -326,11 +303,7 @@ referralRouter.route("/:id/actions/submit-referral").post(
       { new: true, runValidators: true }
     );
 
-    await applyReferralBonus(
-      existingReferral.referralData.email,
-      existingReferral.hexathon,
-      existingReferral._id
-    );
+    await applyReferralBonus(existingReferral.referralData.email, existingReferral.hexathon);
 
     return res.sendStatus(204);
   })

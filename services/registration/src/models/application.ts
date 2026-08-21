@@ -88,6 +88,7 @@ export interface Application extends mongoose.Document {
   createdAt: Date;
   updatedAt: Date;
   finalScore: number;
+  referralBonusScore: number;
 }
 
 const applicationSchema = new Schema<Application>(
@@ -308,6 +309,11 @@ const applicationSchema = new Schema<Application>(
     },
     finalScore: {
       type: Number,
+    },
+    referralBonusScore: {
+      type: Number,
+      required: true,
+      default: 0,
     },
   },
   {

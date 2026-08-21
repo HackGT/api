@@ -79,7 +79,11 @@ applicationRouter.route("/").get(
       .find(filter)
       .skip(offset)
       .limit(limit)
-      .select(requireApplicationData ? "-finalScore" : "-applicationData -finalScore");
+      .select(
+        requireApplicationData
+          ? "-finalScore -referralBonusScore"
+          : "-applicationData -finalScore -referralBonusScore"
+      );
 
     return res.status(200).json({
       offset,
@@ -156,7 +160,11 @@ applicationRouter.route("/generate-csv").get(
       .find(filter)
       .skip(offset)
       .limit(limit)
-      .select(requireApplicationData ? "-finalScore" : "-applicationData -finalScore");
+      .select(
+        requireApplicationData
+          ? "-finalScore -referralBonusScore"
+          : "-applicationData -finalScore -referralBonusScore"
+      );
 
     res.header("Content-Type", "text/csv");
 
