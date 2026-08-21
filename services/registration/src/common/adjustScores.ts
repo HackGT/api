@@ -26,7 +26,10 @@ type CriteriaScores = {
   score: number;
 }[];
 
-export const REFERRAL_BONUS = 2;
+// distinguishable referral bonus (points should never be this high for any other reason)
+// can we make a separate field for this? yes, however that requires handling a bunch of
+// edge cases so surely its okay to be lazy for now
+export const REFERRAL_BONUS = 100;
 
 /** The minimum grading score an essay can get. */
 const MIN_GRADING_SCORE = 1;
