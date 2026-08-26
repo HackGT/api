@@ -825,3 +825,41 @@ applicationRouter.route("/:id/check-in-status").get(
     });
   })
 );
+
+/**
+ * decide multiple applications, given a list of Ids.
+ * Returns how many applications were updated.
+ *
+ * This only allows updating to ACCEPTED, WAITLISTED, or DENIED.
+ */
+applicationRouter.route("/bulk/decide-applications").post(
+  checkAbility("manage", "Application"),
+  asyncHandler(async (req, res) => {
+    const { ids, newStatus } = req.body as { ids?: string[]; newStatus?: string };
+
+    if (!Array.isArray(ids) || typeof newStatus !== "string") {
+      throw new BadRequestError("ids: string[] and newStatus: StatusType (string) are required.");
+    }
+    if (ids.some(id => !isValidObjectId(id))) {
+      throw new BadRequestError("ids must contain only valid application IDs.");
+    }
+
+    const validIds = ids.map(id => new Types.ObjectId(id));
+
+    // only allow this route to accept,wl,or deny
+    const ALLOWED_NEWSTATUSES = [StatusType.ACCEPTED, StatusType.WAITLISTED, StatusType.DENIED];
+    if (!ALLOWED_NEWSTATUSES.includes(newStatus as StatusType)) {
+      throw new BadRequestError(
+        `This endpoint can only be used to set application statuses to ${ALLOWED_NEWSTATUSES.join(", ")}.`
+      );
+    }
+
+    const result = await ApplicationModel.accessibleBy(req.ability).updateMany(
+      { _id: { $in: validIds } },
+      { $set: { status: newStatus } },
+      { runValidators: true }
+    );
+
+    return res.status(200).json({ updatedCount: result.modifiedCount });
+  })
+);
