@@ -835,13 +835,23 @@ applicationRouter.route("/:id/check-in-status").get(
 applicationRouter.route("/bulk/decide-applications").post(
   checkAbility("manage", "Application"),
   asyncHandler(async (req, res) => {
-    const { ids, newStatus } = req.body as { ids?: string[]; newStatus?: string };
+    const {
+      ids,
+      newStatus,
+      confirmationBranchId, // optional, for acceptance only. ignored for not accepting.
+    } = req.body ?? {};
 
     if (!Array.isArray(ids) || typeof newStatus !== "string") {
       throw new BadRequestError("ids: string[] and newStatus: StatusType (string) are required.");
     }
     if (ids.some(id => !isValidObjectId(id))) {
       throw new BadRequestError("ids must contain only valid application IDs.");
+    }
+    // require and only allow confirmation branch if ACCEPTING
+    if (newStatus === StatusType.ACCEPTED && !confirmationBranchId) {
+      throw new BadRequestError(
+        "confirmationBranchId is required when updating status to ACCEPTED."
+      );
     }
 
     const validIds = ids.map(id => new Types.ObjectId(id));
@@ -854,9 +864,15 @@ applicationRouter.route("/bulk/decide-applications").post(
       );
     }
 
+    const updater = {
+      $set: {
+        status: newStatus,
+        confirmationBranch: newStatus === StatusType.ACCEPTED ? confirmationBranchId : undefined,
+      },
+    };
     const result = await ApplicationModel.accessibleBy(req.ability).updateMany(
       { _id: { $in: validIds } },
-      { $set: { status: newStatus } },
+      updater,
       { runValidators: true }
     );
 
