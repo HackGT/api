@@ -863,3 +863,29 @@ applicationRouter.route("/bulk/decide-applications").post(
     return res.status(200).json({ updatedCount: result.modifiedCount });
   })
 );
+
+/**
+ * bulk-fetch a list of application IDs given a list of emails.
+ * just ignores emails which have no matching application for
+ * the current hexathon and branch.
+ *
+ * currently used for the manual include/exclude list on the
+ * registration decisions page for applications (bulk status updates)
+ */
+applicationRouter.route("/bulk/emails-to-applications").post(
+  checkAbility("manage", "Application"),
+  asyncHandler(async (req, res) => {
+    const emails = req.body?.emails;
+
+    if (!Array.isArray(emails)) {
+      throw new BadRequestError("List of emails required");
+    }
+
+    const result = await ApplicationModel.accessibleBy(req.ability).find(
+      { email: { $in: emails } },
+      { projection: { _id: 1, name: 1, finalScore: 1, applicationBranch: 1 } }
+    );
+
+    return res.status(200).json(result);
+  })
+);
