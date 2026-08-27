@@ -88,7 +88,6 @@ export interface Application extends mongoose.Document {
   createdAt: Date;
   updatedAt: Date;
   finalScore: number;
-  finalAiScore?: number;
 }
 
 const applicationSchema = new Schema<Application>(
@@ -308,11 +307,6 @@ const applicationSchema = new Schema<Application>(
       index: true,
     },
     finalScore: {
-      type: Number,
-    },
-    // Average of the graders' AI likelihood ratings across this application's reviews.
-    // Recorded for data collection only; nothing currently acts on it.
-    finalAiScore: {
       type: Number,
     },
   },

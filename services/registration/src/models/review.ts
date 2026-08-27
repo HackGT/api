@@ -8,7 +8,6 @@ export interface Review extends mongoose.Document {
   essayId: Types.ObjectId;
   score: number;
   adjustedScore: number;
-  aiScore?: number;
   timestamp: Date;
 }
 
@@ -40,13 +39,6 @@ const reviewSchema = new Schema<Review>({
   adjustedScore: {
     type: Number,
     required: true,
-  },
-  // Grader's rating of how likely the essay was written by AI. Optional so that reviews
-  // submitted before this field existed (and any client not yet sending it) remain valid.
-  aiScore: {
-    type: Number,
-    min: 1,
-    max: 3,
   },
   timestamp: {
     type: Date,
