@@ -15,6 +15,11 @@ import { getCalibrationMapping } from "../common/adjustScores";
 const MAX_REVIEWS_PER_ESSAY = 2;
 // NOTE: No. of essays for each application. As such, will need to be updated whenever we add/remove essays.
 const ESSAY_COUNT = 4;
+// Graders rate how likely an essay was written by AI alongside the normal score, so that they can
+// grade the essay on its merits and record the suspicion separately.
+// 1 = no chance of AI, 2 = some hints and sounds kinda like AI, 3 = fairly confident this is AI.
+const AI_SCORE_MIN = 1;
+const AI_SCORE_MAX = 3;
 
 type AggregatedEssay = {
   applicationId: string;
@@ -224,6 +229,18 @@ gradingRouter.route("/actions/submit-review").post(
       throw new BadRequestError("One or more of the method body arguments is missing.");
     }
 
+    // Optional so clients that haven't been updated yet can still submit reviews.
+    const { aiScore } = req.body;
+    if (
+      aiScore !== undefined &&
+      aiScore !== null &&
+      (!Number.isInteger(aiScore) || aiScore < AI_SCORE_MIN || aiScore > AI_SCORE_MAX)
+    ) {
+      throw new BadRequestError(
+        `AI score must be an integer between ${AI_SCORE_MIN} and ${AI_SCORE_MAX}`
+      );
+    }
+
     const gradingGroup = req.body.gradingGroup as GradingGroupType;
 
     let criteriaScores = grader.calibrationScores.find(
@@ -294,6 +311,7 @@ gradingRouter.route("/actions/submit-review").post(
         score: req.body.score,
         timestamp: new Date(),
         adjustedScore,
+        aiScore,
       });
 
       const allEssayReviews = await ReviewModel.find({
@@ -305,6 +323,17 @@ gradingRouter.route("/actions/submit-review").post(
         application.gradingComplete = true;
         const sumScores = allEssayReviews.reduce((prev, review) => prev + review.adjustedScore, 0);
         application.finalScore = sumScores / allEssayReviews.length;
+
+        // Average only over the reviews that actually submitted an AI score, so reviews from
+        // before this field existed don't pull the average toward zero.
+        const aiScores = allEssayReviews
+          .map(review => review.aiScore)
+          .filter((score): score is number => score !== undefined && score !== null);
+        if (aiScores.length > 0) {
+          application.finalAiScore =
+            aiScores.reduce((prev, score) => prev + score, 0) / aiScores.length;
+        }
+
         await application.save();
       }
 
