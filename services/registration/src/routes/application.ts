@@ -871,7 +871,7 @@ applicationRouter.route("/bulk/decide-applications").post(
       },
     };
     const result = await ApplicationModel.accessibleBy(req.ability).updateMany(
-      { _id: { $in: validIds } },
+      { _id: { $in: validIds }, status: StatusType.APPLIED },
       updater,
       { runValidators: true }
     );
