@@ -16,6 +16,44 @@ const MAX_REVIEWS_PER_ESSAY = 2;
 // NOTE: No. of essays for each application. As such, will need to be updated whenever we add/remove essays.
 const ESSAY_COUNT = 4;
 
+const isTravelReimbursementBranch = (branchName?: string): boolean => {
+  if (!branchName) {
+    return false;
+  }
+
+  return (
+    /travel.*reimbursement/i.test(branchName) ||
+    /travel.*assistance/i.test(branchName) ||
+    (/reimbursement/i.test(branchName) &&
+      !/early.*(bird|registration|application)/i.test(branchName) &&
+      !/no reimbursement/i.test(branchName))
+  );
+};
+
+const isEarlyOrNoReimbursementBranch = (branchName?: string): boolean => {
+  if (!branchName) {
+    return false;
+  }
+
+  return (
+    /early.*(bird|registration|application)/i.test(branchName) ||
+    /no reimbursement/i.test(branchName) ||
+    /regular.*application/i.test(branchName)
+  );
+};
+
+const filterEligibleGradingBranches = (branches: any[]) => {
+  const travelReimbursementBranches = branches.filter(branch =>
+    isTravelReimbursementBranch(branch.name)
+  );
+
+  if (travelReimbursementBranches.length > 0) {
+    return travelReimbursementBranches;
+  }
+
+  return branches.filter(branch => !isEarlyOrNoReimbursementBranch(branch.name));
+};
+
 type AggregatedEssay = {
   applicationId: string;
   applicationBranch: string;
@@ -100,9 +138,12 @@ gradingRouter.route("/actions/retrieve-question").post(
         },
         type: BranchType.APPLICATION,
       });
-      if (databaseBranches.length === 0) {
+
+      const eligibleBranches = filterEligibleGradingBranches(databaseBranches);
+
+      if (eligibleBranches.length === 0) {
         throw new BadRequestError(
-          "No branches are currently available for grading. Please try again later."
+          "No travel reimbursement applications are currently available for grading. Please try again later."
         );
       }
 
@@ -112,7 +153,7 @@ gradingRouter.route("/actions/retrieve-question").post(
             status: StatusType.APPLIED,
             gradingComplete: false,
             applicationBranch: {
-              $in: databaseBranches.map(branch => branch._id),
+              $in: eligibleBranches.map(branch => branch._id),
             },
             hexathon: new Types.ObjectId(req.body.hexathon),
           },
@@ -555,11 +596,24 @@ gradingRouter.route("/grading-status").get(
         },
       },
       {
-        // Ensures that the branch grading group value exists
+        // Ensures that the branch grading group value exists and excludes early/no-reimbursement branches
+        // unless a travel reimbursement branch is the only matching option for the group.
         $match: {
           "applicationBranchDetail.grading.group": {
             $exists: true,
           },
+          $or: [
+            {
+              "applicationBranchDetail.name": {
+                $regex: /travel.*reimbursement|travel.*assistance/i,
+              },
+            },
+            {
+              "applicationBranchDetail.name": {
+                $not: /early.*(bird|registration|application)|no reimbursement|regular.*application/i,
+              },
+            },
+          ],
         },
       },
       {
