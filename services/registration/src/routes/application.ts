@@ -75,15 +75,33 @@ applicationRouter.route("/").get(
 
     const limit = parseInt(req.query.limit as string) || 50;
     const offset = parseInt(req.query.offset as string) || 0;
-    const applications = await ApplicationModel.accessibleBy(req.ability)
-      .find(filter)
-      .skip(offset)
-      .limit(limit)
-      .select(requireApplicationData ? "-finalScore" : "-applicationData -finalScore");
+    const select = requireApplicationData
+      ? req.user?.roles.member ? "" : "-finalScore"
+      : "-applicationData -finalScore";
+
+    let total = matchCount;
+    let applications;
+
+    if (req.query.topPercentage) {
+      const pct = Math.min(100, Math.max(1, parseInt(req.query.topPercentage as string)));
+      total = Math.ceil(matchCount * (pct / 100));
+      applications = await ApplicationModel.accessibleBy(req.ability)
+        .find(filter)
+        .sort({ finalScore: -1 })
+        .skip(offset)
+        .limit(Math.min(limit, Math.max(0, total - offset)))
+        .select(select);
+    } else {
+      applications = await ApplicationModel.accessibleBy(req.ability)
+        .find(filter)
+        .skip(offset)
+        .limit(limit)
+        .select(select);
+    }
 
     return res.status(200).json({
       offset,
-      total: matchCount,
+      total,
       count: applications.length,
       applications,
     });
@@ -156,7 +174,7 @@ applicationRouter.route("/generate-csv").get(
       .find(filter)
       .skip(offset)
       .limit(limit)
-      .select(requireApplicationData ? "-finalScore" : "-applicationData -finalScore");
+      .select(requireApplicationData ? (req.user?.roles.member ? "" : "-finalScore") : "-applicationData -finalScore");
 
     res.header("Content-Type", "text/csv");
 
