@@ -897,10 +897,16 @@ applicationRouter.route("/bulk/emails-to-applications").post(
       throw new BadRequestError("List of emails required");
     }
 
-    const result = await ApplicationModel.accessibleBy(req.ability).find(
-      { email: { $in: emails } },
-      { projection: { _id: 1, name: 1, finalScore: 1, applicationBranch: 1 } }
-    );
+    // require hexathon and branch for this
+    const hexathonId = req.body?.hexathonId;
+    const branchId = req.body?.branchId;
+    if (!hexathonId || !branchId) {
+      throw new BadRequestError("hexathonId and branchId are required.");
+    }
+
+    const result = await ApplicationModel.accessibleBy(req.ability)
+      .find({ email: { $in: emails }, hexathon: hexathonId, applicationBranch: branchId })
+      .select({ _id: 1, name: 1, finalScore: 1, applicationBranch: 1 });
 
     return res.status(200).json(result);
   })
