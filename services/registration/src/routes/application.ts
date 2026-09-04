@@ -841,6 +841,7 @@ applicationRouter.route("/bulk/decide-applications").post(
       confirmationBranchId, // optional, for acceptance only. ignored for not accepting.
     } = req.body ?? {};
 
+    // VALIDATIONS =====
     if (!Array.isArray(ids) || typeof newStatus !== "string") {
       throw new BadRequestError("ids: string[] and newStatus: StatusType (string) are required.");
     }
@@ -853,9 +854,6 @@ applicationRouter.route("/bulk/decide-applications").post(
         "confirmationBranchId is required when updating status to ACCEPTED."
       );
     }
-
-    const validIds = ids.map(id => new Types.ObjectId(id));
-
     // only allow this route to accept,wl,or deny
     const ALLOWED_NEWSTATUSES = [StatusType.ACCEPTED, StatusType.WAITLISTED, StatusType.DENIED];
     if (!ALLOWED_NEWSTATUSES.includes(newStatus as StatusType)) {
@@ -863,18 +861,21 @@ applicationRouter.route("/bulk/decide-applications").post(
         `This endpoint can only be used to set application statuses to ${ALLOWED_NEWSTATUSES.join(", ")}.`
       );
     }
+    // =====
 
+    const filter = {
+      _id: { $in: ids.map(id => new Types.ObjectId(id)) },
+      status: StatusType.APPLIED,
+    };
     const updater = {
       $set: {
         status: newStatus,
         confirmationBranch: newStatus === StatusType.ACCEPTED ? confirmationBranchId : undefined,
       },
     };
-    const result = await ApplicationModel.accessibleBy(req.ability).updateMany(
-      { _id: { $in: validIds }, status: StatusType.APPLIED },
-      updater,
-      { runValidators: true }
-    );
+    const result = await ApplicationModel.accessibleBy(req.ability).updateMany(filter, updater, {
+      runValidators: true,
+    });
 
     return res.status(200).json({ updatedCount: result.modifiedCount });
   })
