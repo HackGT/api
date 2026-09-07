@@ -25,12 +25,25 @@ applicationRouter.route("/").get(
     if (req.query.status?.length) {
       filter.status = req.query.status;
     }
-    if (req.query.applicationBranch?.length) {
-      filter.applicationBranch = req.query.applicationBranch;
+
+    // could pass in a single id, or list of ids
+    // if a list is given on client side, it looks something like:
+    // "applicationBranch[]=123456789&applicationBranch[]=23456789&applicationBranch[]=3456789"
+    const applicationBranches = req.query.applicationBranch || req.query["applicationBranch[]"];
+    const confirmationBranches = req.query.confirmationBranch || req.query["confirmationBranch[]"];
+
+    if (applicationBranches?.length) {
+      filter.applicationBranch = Array.isArray(applicationBranches)
+        ? { $in: applicationBranches }
+        : applicationBranches;
     }
-    if (req.query.confirmationBranch?.length) {
-      filter.confirmationBranch = req.query.confirmationBranch;
+
+    if (confirmationBranches?.length) {
+      filter.confirmationBranch = Array.isArray(confirmationBranches)
+        ? { $in: confirmationBranches }
+        : confirmationBranches;
     }
+
     let company;
     try {
       company = await apiCall(
