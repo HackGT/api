@@ -268,6 +268,16 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
       });
       return generalDBPrizes;
     }
+
+    case "HackGT 13 TEST 2": {
+      const allDBPrizes = await prisma.category.findMany({
+        where: {
+          hexathon: currentHexathon.id,
+        },
+      });
+      return allDBPrizes;
+    }
+
     default: {
       return [];
     }
@@ -577,6 +587,37 @@ export const validatePrizes = async (prizes: any[], req: express.Request) => {
       }
       return { error: false };
     }
+    case "HackGT 12": {
+      if (prizeNames.filter(prize => prize.includes("General")).length > 1) {
+        return {
+          error: true,
+          message: "You cannot submit to multiple general tracks.",
+        };
+      }
+
+      // if prizenames has a general and emerging prize, return error
+      if (
+        prizeNames.filter(prize => prize.includes("General")).length > 0 &&
+        prizeNames.filter(prize => prize.includes("Emerging")).length > 0
+      ) {
+        return {
+          error: true,
+          message: "You cannot submit to both general and emerging.",
+        };
+      }
+
+      if (
+        prizeNames.filter(prize => prize.includes("General")).length === 0 &&
+        prizeNames.filter(prize => prize.includes("Emerging")).length === 0
+      ) {
+        return {
+          error: true,
+          message: "You must submit to either a general or emerging track.",
+        };
+      }
+      return { error: false };
+    }
+
     default: {
       return { error: false };
     }
