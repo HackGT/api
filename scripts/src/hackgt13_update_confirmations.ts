@@ -5,7 +5,7 @@ import path from "node:path";
 const MONGO_URI = "mongodb://localhost:7777";
 
 // Set to false for dry-run, true for real database updates
-const IS_REAL_RUN = false;
+const IS_REAL_RUN = true;
 
 // Configuration for HackGT 13 top 50% accepted without travel
 const INPUT_JSON_FILE = path.resolve(__dirname, "../output/hackgt13_top50_candidates.json");
