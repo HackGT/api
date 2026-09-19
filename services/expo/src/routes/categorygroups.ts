@@ -163,6 +163,44 @@ categoryGroupRoutes.route("/:id").patch(
   })
 );
 
+categoryGroupRoutes.route("/:id/judges").post(
+  isAdmin,
+  asyncHandler(async (req, res) => {
+    const categoryGroup = await prisma.categoryGroup.findUnique({
+      where: { id: parseInt(req.params.id) },
+    });
+
+    const existingGroup = await prisma.categoryGroup.findFirst({
+      where: {
+        hexathon: categoryGroup?.hexathon,
+        users: { some: { id: req.body.userId } },
+      },
+    });
+    if (existingGroup) {
+      throw new BadRequestError(
+        `User already has a category group for this hexathon`
+      );
+    }
+
+    const updatedCategoryGroup = await prisma.categoryGroup.update({
+      where: { id: parseInt(req.params.id) },
+      data: { users: { connect: { id: req.body.userId } } },
+    });
+    res.status(200).json(updatedCategoryGroup);
+  })
+);
+
+categoryGroupRoutes.route("/:id/judges/:userId").delete(
+  isAdmin,
+  asyncHandler(async (req, res) => {
+    const updatedCategoryGroup = await prisma.categoryGroup.update({
+      where: { id: parseInt(req.params.id) },
+      data: { users: { disconnect: { id: parseInt(req.params.userId) } } },
+    });
+    res.status(200).json(updatedCategoryGroup);
+  })
+);
+
 categoryGroupRoutes.route("/:id").delete(
   isAdmin,
   asyncHandler(async (req, res) => {
