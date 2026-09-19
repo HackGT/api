@@ -240,6 +240,11 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/purchase-swag-item"
     }
 
     const { swagItemId } = req.body;
+    if (typeof swagItemId !== "string" || !isValidObjectId(swagItemId)) {
+      throw new BadRequestError("Invalid swag item id provided.");
+    }
+    const safeSwagItemId = new Types.ObjectId(swagItemId);
+
     const quantity = Number(req.body.quantity);
     if (!Number.isInteger(quantity) || quantity < 1) {
       throw new BadRequestError("Quantity must be a positive integer.");
@@ -256,7 +261,7 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/purchase-swag-item"
         );
         const swagItem = await SwagItemModel.findOne({
           hexathon: req.params.hexathonId,
-          _id: swagItemId,
+          _id: safeSwagItemId,
         }).session(session);
 
         if (!swagItem) {
@@ -287,7 +292,7 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/purchase-swag-item"
             $inc: { "points.numSpent": pointsCost },
             $push: {
               purchasedSwagItems: {
-                swagItemId,
+                swagItemId: safeSwagItemId,
                 quantity,
                 timestamp: new Date(),
               },
