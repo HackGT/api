@@ -43,6 +43,7 @@ model Item {
   category         Category  @relation(fields: [categoryId], references: [id])
   location         Location  @relation(fields: [locationId], references: [id])
   requests         Request[]
+  checkouts        Checkout[]
 
   categoryId Int
   locationId Int
@@ -78,6 +79,40 @@ model Request {
   @@map("request")
 }
 
+model Inventory {
+  id               Int        @id @default(autoincrement())
+  name             String
+  event            String?
+  size             String?
+  quantity         Int
+  availableQuantity Int
+  notes            String?
+  createdAt        DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime   @updatedAt @db.Timestamptz(6)
+  checkouts        Checkout[]
+
+  @@index([event, size])
+  @@map("inventory")
+}
+
+model Checkout {
+  id           Int       @id @default(autoincrement())
+  quantity     Int
+  checkedOutAt DateTime  @default(now()) @db.Timestamptz(6)
+  returnedAt   DateTime? @db.Timestamptz(6)
+  inventory    Inventory @relation(fields: [inventoryId], references: [id])
+  user         User      @relation(fields: [userId], references: [userId])
+  item         Item?     @relation(fields: [itemId], references: [id])
+
+  inventoryId Int
+  userId      String
+  itemId      Int?
+
+  @@index([inventoryId, returnedAt])
+  @@index([userId, returnedAt])
+  @@map("checkout")
+}
+
 model Setting {
   id                        Int     @id @default(autoincrement())
   isHardwareRequestsAllowed Boolean @default(false)
@@ -90,6 +125,7 @@ model User {
   haveID   Boolean   @default(false)
   name     String    @default("")
   requests Request[]
+  checkouts Checkout[]
 
   @@map("user")
 }
