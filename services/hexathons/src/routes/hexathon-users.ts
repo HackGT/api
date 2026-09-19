@@ -8,7 +8,7 @@ import {
 } from "@api/common";
 import _ from "lodash";
 import { Service } from "@api/config";
-import { FilterQuery, isValidObjectId, Types } from "mongoose";
+import mongoose, { FilterQuery, isValidObjectId, Types } from "mongoose";
 
 import { CommitmentType, HexathonUser, HexathonUserModel } from "../models/hexathonUser";
 import { getHexathonUserWithUpdatedPoints } from "../common/util";
@@ -235,55 +235,78 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/check-valid-user").
 hexathonUserRouter.route("/:hexathonId/users/:userId/actions/purchase-swag-item").post(
   checkAbility("manage", "HexathonUser"),
   asyncHandler(async (req, res) => {
+    if (!req.user?.roles?.admin) {
+      throw new BadRequestError("Only admins can check out swag items.");
+    }
+
     const { swagItemId } = req.body;
-    const quantity = parseInt(req.body.quantity);
-
-    const hexathonUser = await getHexathonUserWithUpdatedPoints(
-      req,
-      req.params.userId,
-      req.params.hexathonId
-    );
-
-    const swagItem = await SwagItemModel.findOne({
-      hexathon: req.params.hexathonId,
-      _id: swagItemId,
-    });
-
-    if (!swagItem) {
+    if (typeof swagItemId !== "string" || !isValidObjectId(swagItemId)) {
       throw new BadRequestError("Invalid swag item id provided.");
     }
+    const safeSwagItemId = new Types.ObjectId(swagItemId);
 
-    if (swagItem.purchased + quantity > swagItem.capacity) {
-      throw new BadRequestError("Swag item is full.");
+    const quantity = Number(req.body.quantity);
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      throw new BadRequestError("Quantity must be a positive integer.");
     }
 
-    if (swagItem.points * quantity > hexathonUser.points.currentTotal) {
-      throw new BadRequestError("User does not have enough points to purchase this swag item.");
-    }
+    const session = await mongoose.startSession();
+    try {
+      await session.withTransaction(async () => {
+        const hexathonUser = await getHexathonUserWithUpdatedPoints(
+          req,
+          req.params.userId,
+          req.params.hexathonId,
+          session
+        );
+        const swagItem = await SwagItemModel.findOne({
+          hexathon: req.params.hexathonId,
+          _id: safeSwagItemId,
+        }).session(session);
 
-    await HexathonUserModel.findOneAndUpdate(
-      {
-        userId: req.params.userId,
-        hexathon: req.params.hexathonId,
-      },
-      {
-        "points.numSpent": hexathonUser.points.numSpent + swagItem.points * quantity,
-        "$push": {
-          purchasedSwagItems: {
-            swagItemId,
-            quantity,
-            timestamp: new Date(),
+        if (!swagItem) {
+          throw new BadRequestError("Invalid swag item id provided.");
+        }
+
+        const pointsCost = swagItem.points * quantity;
+        if (pointsCost > hexathonUser.points.currentTotal) {
+          throw new BadRequestError("User does not have enough points to purchase this swag item.");
+        }
+
+        const itemUpdate = await SwagItemModel.updateOne(
+          {
+            _id: swagItem._id,
+            hexathon: req.params.hexathonId,
+            purchased: { $lte: swagItem.capacity - quantity },
           },
-        },
-      },
-      {
-        new: true,
-      }
-    );
+          { $inc: { purchased: quantity } },
+          { session }
+        );
+        if (itemUpdate.modifiedCount !== 1) {
+          throw new BadRequestError("Swag item is full.");
+        }
 
-    await SwagItemModel.findByIdAndUpdate(swagItem.id, {
-      purchased: (swagItem.purchased || 0) + quantity,
-    });
+        const userUpdate = await HexathonUserModel.updateOne(
+          { _id: hexathonUser._id },
+          {
+            $inc: { "points.numSpent": pointsCost },
+            $push: {
+              purchasedSwagItems: {
+                swagItemId: safeSwagItemId,
+                quantity,
+                timestamp: new Date(),
+              },
+            },
+          },
+          { session }
+        );
+        if (userUpdate.modifiedCount !== 1) {
+          throw new BadRequestError("There was an error recording the swag purchase.");
+        }
+      });
+    } finally {
+      await session.endSession();
+    }
 
     return res.sendStatus(204);
   })

@@ -13,10 +13,14 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
   if (req.user.roles.admin) {
     can("manage", "Location");
     can("manage", "Category");
+    can("manage", "Inventory");
+    can("manage", "Checkout");
   }
 
   if (req.user.roles.member) {
     can("manage", "Item");
+    can("manage", "Inventory");
+    can("manage", "Checkout");
     can("read", "Location");
     can("manage", "HardwareRequest");
     can("manage", "HardwareSetting");
@@ -24,6 +28,8 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
 
   can("read", "Item");
   can("read", "Category");
+  can("read", "Inventory");
+  can("read", "Checkout");
   can(["read", "create"], "HardwareRequest");
   can("delete", "HardwareRequest", { userId: req.user.uid });
   can("read", "HardwareSetting");

@@ -1,5 +1,6 @@
 import { BadRequestError } from "@api/common";
 import express from "express";
+import { ClientSession } from "mongoose";
 
 import { EventType } from "../models/event";
 import { HexathonUserModel } from "../models/hexathonUser";
@@ -28,23 +29,25 @@ export const EVENT_TYPE_POINTS: { [key in EventType]: number } = {
 export const getHexathonUserWithUpdatedPoints = async (
   req: express.Request,
   userId: string,
-  hexathon: string
+  hexathon: string,
+  session?: ClientSession
 ) => {
-  const hexathonUser = await HexathonUserModel.accessibleBy(req.ability).findOne({
+  const userQuery = HexathonUserModel.accessibleBy(req.ability).findOne({
     userId,
     hexathon,
   });
+  if (session) userQuery.session(session);
+  const hexathonUser = await userQuery;
   if (!hexathonUser) {
     throw new BadRequestError("You do not have access or invalid params provided.");
   }
 
   // Load user events
-  const interactions = await InteractionModel.accessibleBy(req.ability)
-    .find({
-      userId,
-      hexathon,
-    })
+  const interactionQuery = InteractionModel.accessibleBy(req.ability)
+    .find({ userId, hexathon })
     .populate("event");
+  if (session) interactionQuery.session(session);
+  const interactions = await interactionQuery;
 
   // Calculate points
   const points = interactions.reduce((prev, interaction) => {
@@ -78,6 +81,7 @@ export const getHexathonUserWithUpdatedPoints = async (
     },
     {
       new: true,
+      session,
     }
   );
 
