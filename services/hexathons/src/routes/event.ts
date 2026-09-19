@@ -65,6 +65,7 @@ eventRoutes.route("/").post(
       endDate: req.body.endDate,
       location: req.body.location,
       tags: req.body.tags,
+      checkIns: req.body.checkIns || 0,
     });
 
     return res.send(event);
@@ -112,5 +113,24 @@ eventRoutes.route("/:id").delete(
   asyncHandler(async (req, res) => {
     await EventModel.findByIdAndDelete(req.params.id);
     return res.sendStatus(204);
+  })
+);
+
+eventRoutes.route("/add-check-in/:id").patch(
+  checkAbility("update", "Event"),
+  asyncHandler(async (req, res) => {
+    const currentEvent = await EventModel.findById(req.params.id);
+
+    const event = await EventModel.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: {
+          checkIns: currentEvent?.checkIns ? currentEvent.checkIns + 1 : 1,
+        },
+      },
+      { new: true }
+    );
+
+    res.send(event);
   })
 );
