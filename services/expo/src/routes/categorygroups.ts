@@ -163,6 +163,7 @@ categoryGroupRoutes.route("/:id").patch(
   })
 );
 
+/** (admin only), add a given judge to a given categoryGroup */
 categoryGroupRoutes.route("/:id/judges").post(
   isAdmin,
   asyncHandler(async (req, res) => {
@@ -212,8 +213,13 @@ categoryGroupRoutes.route("/:id").delete(
   })
 );
 
-categoryGroupRoutes.route("/:id/add").post(
-  checkAbility("update", "CategoryGroup"),
+/**
+ * Self assign the current user to a given category group.
+ * diff from the other judge assigner is that this one's open to
+ * hexlabs members, but only handles self-assigning.
+ */
+categoryGroupRoutes.route("/:id/selfAssign").post(
+  checkAbility("selfAssign", "CategoryGroup"),
   asyncHandler(async (req, res) => {
     const categoryGroupId = Number(req.params.id);
     const userId = req.user?.uid;
