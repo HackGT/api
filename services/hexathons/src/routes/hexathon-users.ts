@@ -8,7 +8,7 @@ import {
 } from "@api/common";
 import _ from "lodash";
 import { Service } from "@api/config";
-import mongoose, { FilterQuery, isValidObjectId, Types } from "mongoose";
+import { FilterQuery, isValidObjectId, Types } from "mongoose";
 
 import { CommitmentType, HexathonUser, HexathonUserModel } from "../models/hexathonUser";
 import { getHexathonUserWithUpdatedPoints } from "../common/util";
@@ -248,63 +248,50 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/purchase-swag-item"
       throw new BadRequestError("Quantity must be a positive integer.");
     }
 
-    const session = await mongoose.startSession();
-    try {
-      await session.withTransaction(async () => {
-        const hexathonUser = await getHexathonUserWithUpdatedPoints(
-          req,
-          req.params.userId,
-          req.params.hexathonId,
-          session
-        );
-        const swagItem = await SwagItemModel.findOne({
-          hexathon: req.params.hexathonId,
-          _id: safeSwagItemId,
-        }).session(session);
+    const hexathonUser = await getHexathonUserWithUpdatedPoints(
+      req,
+      req.params.userId,
+      req.params.hexathonId
+    );
+    const swagItem = await SwagItemModel.findOne({
+      hexathon: req.params.hexathonId,
+      _id: safeSwagItemId,
+    });
 
-        if (!swagItem) {
-          throw new BadRequestError("Invalid swag item id provided.");
-        }
-
-        const pointsCost = swagItem.points * quantity;
-        if (pointsCost > hexathonUser.points.currentTotal) {
-          throw new BadRequestError("User does not have enough points to purchase this swag item.");
-        }
-
-        const itemUpdate = await SwagItemModel.updateOne(
-          {
-            _id: swagItem._id,
-            hexathon: req.params.hexathonId,
-            purchased: { $lte: swagItem.capacity - quantity },
-          },
-          { $inc: { purchased: quantity } },
-          { session }
-        );
-        if (itemUpdate.modifiedCount !== 1) {
-          throw new BadRequestError("Swag item is full.");
-        }
-
-        const userUpdate = await HexathonUserModel.updateOne(
-          { _id: hexathonUser._id },
-          {
-            $inc: { "points.numSpent": pointsCost },
-            $push: {
-              purchasedSwagItems: {
-                swagItemId: safeSwagItemId,
-                quantity,
-                timestamp: new Date(),
-              },
-            },
-          },
-          { session }
-        );
-        if (userUpdate.modifiedCount !== 1) {
-          throw new BadRequestError("There was an error recording the swag purchase.");
-        }
-      });
-    } finally {
-      await session.endSession();
+    if (!swagItem) {
+      throw new BadRequestError("Invalid swag item id provided.");
     }
+
+    const pointsCost = swagItem.points * quantity;
+    if (pointsCost > hexathonUser.points.currentTotal) {
+      throw new BadRequestError("User does not have enough points to purchase this swag item.");
+    }
+
+    const itemUpdate = await SwagItemModel.updateOne(
+      {
+        _id: swagItem._id,
+        hexathon: req.params.hexathonId,
+        purchased: { $lte: swagItem.capacity - quantity },
+      },
+      { $inc: { purchased: quantity } }
+    );
+    if (itemUpdate.modifiedCount !== 1) {
+      throw new BadRequestError("Swag item is out of stock (tried to add too much quantity)");
+    }
+
+    await HexathonUserModel.updateOne(
+      { _id: hexathonUser._id },
+      {
+        $inc: { "points.numSpent": pointsCost },
+        $push: {
+          purchasedSwagItems: {
+            swagItemId: safeSwagItemId,
+            quantity,
+            timestamp: new Date(),
+          },
+        },
+      }
+    );
 
     return res.sendStatus(204);
   })
