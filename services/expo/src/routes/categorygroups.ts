@@ -1,5 +1,5 @@
 import express from "express";
-import { BadRequestError, asyncHandler } from "@api/common";
+import { BadRequestError, asyncHandler, checkAbility } from "@api/common";
 
 import { prisma } from "../common";
 import { getCurrentHexathon, isAdmin } from "../utils/utils";
@@ -177,9 +177,7 @@ categoryGroupRoutes.route("/:id/judges").post(
       },
     });
     if (existingGroup) {
-      throw new BadRequestError(
-        `User already has a category group for this hexathon`
-      );
+      throw new BadRequestError(`User already has a category group for this hexathon`);
     }
 
     const updatedCategoryGroup = await prisma.categoryGroup.update({
@@ -211,5 +209,70 @@ categoryGroupRoutes.route("/:id").delete(
     });
 
     res.status(204).end();
+  })
+);
+
+categoryGroupRoutes.route("/:id/add").post(
+  checkAbility("update", "CategoryGroup"),
+  asyncHandler(async (req, res) => {
+    const categoryGroupId = Number(req.params.id);
+    const userId = req.user?.uid;
+
+    console.log("Auth user:", req.user);
+    if (!Number.isInteger(categoryGroupId)) {
+      throw new BadRequestError("Invalid category group");
+    }
+
+    if (!userId) {
+      throw new BadRequestError("User not found");
+    }
+
+    const currentHexathon = await getCurrentHexathon(req);
+
+    const [categoryGroup, user] = await Promise.all([
+      prisma.categoryGroup.findFirst({
+        where: {
+          id: categoryGroupId,
+          hexathon: currentHexathon.id,
+        },
+      }),
+      prisma.user.findUnique({
+        where: { userId },
+        include: {
+          categoryGroups: true,
+        },
+      }),
+    ]);
+
+    if (!categoryGroup) {
+      throw new BadRequestError("Category group not found");
+    }
+
+    if (!user) {
+      throw new BadRequestError("User not found");
+    }
+
+    const existingCategoryGroup = user.categoryGroups.find(
+      categoryGroup => categoryGroup.hexathon === currentHexathon.id
+    );
+
+    if (existingCategoryGroup?.id === categoryGroupId) {
+      throw new BadRequestError("User is already in this category group");
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { userId },
+      data: {
+        categoryGroups: {
+          disconnect: existingCategoryGroup?.id ? { id: existingCategoryGroup?.id } : undefined,
+          connect: { id: categoryGroupId },
+        },
+      },
+      include: {
+        categoryGroups: true,
+      },
+    });
+
+    res.status(200).json(updatedUser);
   })
 );
