@@ -204,7 +204,7 @@ export const handleError: ErrorRequestHandler = (err, req, res, next) => {
       message: err.message,
       stack: err.stack,
     });
-  } else if ((err as FirebaseError).code?.startsWith("auth/")) {
+  } else if ((err as FirebaseError).code?.startsWith?.("auth/")) {
     res.status(StatusCodes.BAD_REQUEST).json({
       status: StatusCodes.BAD_REQUEST,
       type: "firebase_auth",

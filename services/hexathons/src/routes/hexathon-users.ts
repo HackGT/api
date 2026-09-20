@@ -90,10 +90,12 @@ hexathonUserRouter.route("/:hexathonId/refresh-users-points").get(
     });
 
     // 1. Create an array of promises using .map()
-    const updatePromises = hexathonUsers.map(user => getHexathonUserWithUpdatedPoints(req, user.userId, req.params.hexathonId).catch(e => {
+    const updatePromises = hexathonUsers.map(user =>
+      getHexathonUserWithUpdatedPoints(req, user.userId, req.params.hexathonId).catch(e => {
         console.warn("Failed to update points for userId:", user.userId, e);
         return { error: true, userId: user.userId };
-      }));
+      })
+    );
 
     const results = await Promise.allSettled(updatePromises);
 
@@ -235,10 +237,6 @@ hexathonUserRouter.route("/:hexathonId/users/:userId/actions/check-valid-user").
 hexathonUserRouter.route("/:hexathonId/users/:userId/actions/purchase-swag-item").post(
   checkAbility("manage", "HexathonUser"),
   asyncHandler(async (req, res) => {
-    if (!req.user?.roles?.admin) {
-      throw new BadRequestError("Only admins can check out swag items.");
-    }
-
     const { swagItemId } = req.body;
     if (typeof swagItemId !== "string" || !isValidObjectId(swagItemId)) {
       throw new BadRequestError("Invalid swag item id provided.");
