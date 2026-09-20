@@ -23,6 +23,7 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
   if (req.user.roles.admin || req.user.roles.member) {
     can("manage", "Company");
     can("manage", "Team");
+    can("selfAssign", "CategoryGroup");
   }
 
   can("manage", "Profile", { userId: req.user.uid });

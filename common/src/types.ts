@@ -90,10 +90,4 @@ export type AutoPopulatedDoc<PopulatedType> = PopulatedType & { _id: mongoose.Re
  * for managing permissions.
  */
 export type AbilityAction =
-  | "read"
-  | "create"
-  | "update"
-  | "delete"
-  | "manage"
-  | "aggregate"
-  | "refer";
+  "read" | "create" | "update" | "delete" | "manage" | "aggregate" | "refer" | "selfAssign";
