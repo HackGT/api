@@ -1,6 +1,5 @@
 /* eslint-disable max-classes-per-file */
 import { AxiosResponse } from "axios";
-import { FirebaseError } from "firebase-admin";
 import mongoose from "mongoose";
 
 /**
@@ -75,7 +74,8 @@ export const shouldHandleError = (err: any): boolean => {
     err instanceof mongoose.Error.CastError ||
     err instanceof mongoose.Error.ValidationError ||
     err instanceof mongoose.Error.ValidatorError ||
-    (err instanceof FirebaseError && (err as FirebaseError).code?.startsWith("auth/"))
+    // if it's a FirebaseError
+    (typeof err.code === "string" && err.code.startsWith("auth/"))
   ) {
     return false;
   }
