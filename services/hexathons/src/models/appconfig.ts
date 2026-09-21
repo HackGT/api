@@ -17,7 +17,10 @@ const appConfigSchema = new Schema<AppConfig>(
     },
     overrides: {
       type: Map,
-      of: Schema.Types.ObjectId,
+      of: {
+        type: Schema.Types.ObjectId,
+        ref: "Hexathon",
+      },
       default: {},
     },
   },
