@@ -12,6 +12,7 @@ import { sponsorVisitRouter } from "./sponsor-visit";
 import { blockRoutes } from "./block";
 import { teamRoutes } from "./team";
 import { foodBatchRouter } from "./food-batch";
+import { appconfigRoutes } from "./appconfig";
 
 export const defaultRouter = express.Router();
 
@@ -27,3 +28,4 @@ defaultRouter.use("/sponsor-visit", sponsorVisitRouter);
 defaultRouter.use("/blocks", blockRoutes);
 defaultRouter.use("/teams", teamRoutes);
 defaultRouter.use("/food-batch", foodBatchRouter);
+defaultRouter.use("/appconfig", appconfigRoutes);

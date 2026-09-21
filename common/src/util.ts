@@ -1,4 +1,5 @@
 import { BadRequestError } from "./errors";
+import { UserRoles } from "./types";
 
 /**
  * Gets a full name for a user
@@ -41,4 +42,9 @@ export function getAllSmallest<T>(arr: T[], key?: (item: T) => number): T[] {
   }
 
   return arr.filter(item => getValue(item) === minValue);
+}
+
+/** returns whether a user has at least hexlabs-member-level permissions */
+export function hasAtLeastMemberPerms(rolesObj?: UserRoles) {
+  return rolesObj?.admin || rolesObj?.exec || rolesObj?.member;
 }

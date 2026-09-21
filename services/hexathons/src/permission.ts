@@ -25,6 +25,7 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
 
   if (req.user.roles.admin || req.user.roles.exec) {
     can("manage", "Hexathon");
+    can("manage", "AppConfig");
     can("manage", "SwagItem");
   }
 
@@ -33,6 +34,7 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
   }
 
   can("read", "Hexathon");
+  can("read", "AppConfig");
   can("read", "Interaction", { userId: req.user.uid });
   can("create", "Interaction");
   can("read", "Event");
