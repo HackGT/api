@@ -13,6 +13,7 @@ import { blockRoutes } from "./block";
 import { teamRoutes } from "./team";
 import { foodBatchRouter } from "./food-batch";
 import { appconfigRoutes } from "./appconfig";
+import { apiKeyRouter } from "./api-key";
 
 export const defaultRouter = express.Router();
 
@@ -29,3 +30,4 @@ defaultRouter.use("/blocks", blockRoutes);
 defaultRouter.use("/teams", teamRoutes);
 defaultRouter.use("/food-batch", foodBatchRouter);
 defaultRouter.use("/appconfig", appconfigRoutes);
+defaultRouter.use("/api-keys", apiKeyRouter);
