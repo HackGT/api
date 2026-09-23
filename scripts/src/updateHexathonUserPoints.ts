@@ -13,13 +13,16 @@ const EVENT_TYPE_POINTS = {
   "workshop": 30,
   "ceremony": 0,
   "tech-talk": 40,
-  "mini-event": 10,
+  "mini-event": 20,
   "important": 0,
   "speaker": 40,
+  "sponsor-events": 50, // sponsor events at HackGT 12
+  "sponsor-mini-event": 30, // sponsor events at HackGT 12
+  "important-mini-event": 50,
   "mini-challenge": 40, // sponsor events at HackGT 12
   "important-workshop": 100,
   "main-event": 50, // Museum event at HackGT 12
-  "performance": 15,
+  "performance": 20,
 };
 
 // These values should match the enums and constants in your main application.
@@ -31,8 +34,11 @@ enum EventType {
   MINI_EVENT = "mini-event",
   IMPORTANT = "important",
   SPEAKER = "speaker",
+  SPONSOR_EVENTS = "sponsor-events",
+  SPONSOR_MINI_EVENT = "sponsor-mini-event",
   MINI_CHALLENGE = "mini-challenge",
   IMPORTANT_WORKSHOP = "important-workshop",
+  IMPORTANT_MINI_EVENT = "important-mini-event",
   MAIN_EVENT = "main-event",
   PERFORMANCE = "performance",
 }
