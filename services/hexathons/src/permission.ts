@@ -21,6 +21,7 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
     can("manage", "HexathonUser");
     can("manage", "Block");
     can("manage", "FoodBatch");
+    can("manage", "VolunteerShift");
   }
 
   if (req.user.roles.admin || req.user.roles.exec) {
