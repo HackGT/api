@@ -112,6 +112,20 @@ applicationRouter.route("/").get(
         .select(select);
     }
 
+    // sort applications by confirmed first if we are filtering by a specific userId
+    // (TODO) workaround for letting app check in denied ppl during walkin checkin
+    if (req.query.userId) {
+      applications.sort((a, b) => {
+        if (a.status === StatusType.CONFIRMED && b.status !== StatusType.CONFIRMED) {
+          return -1;
+        }
+        if (a.status !== StatusType.CONFIRMED && b.status === StatusType.CONFIRMED) {
+          return 1;
+        }
+        return 0;
+      });
+    }
+
     return res.status(200).json({
       offset,
       total,
