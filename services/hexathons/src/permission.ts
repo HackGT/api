@@ -34,11 +34,16 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
     can("manage", "Team");
   }
 
+  if (req.user.roles.admin) {
+    can("manage", "VolunteerShift");
+  }
+
   can("read", "Hexathon");
   can("read", "AppConfig");
   can("read", "Interaction", { userId: req.user.uid });
   can("create", "Interaction");
   can("read", "Event");
+  can("read", "VolunteerShift", { assignees: req.user.uid });
   can("read", "Location");
   can("read", "Tag");
   can("read", "Checkin", { userId: req.user.uid });

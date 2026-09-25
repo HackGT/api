@@ -14,6 +14,7 @@ import { teamRoutes } from "./team";
 import { foodBatchRouter } from "./food-batch";
 import { appconfigRoutes } from "./appconfig";
 import { apiKeyRouter } from "./api-key";
+import { volunteerShiftRoutes } from "./volunteer-shift";
 
 export const defaultRouter = express.Router();
 
@@ -31,3 +32,4 @@ defaultRouter.use("/teams", teamRoutes);
 defaultRouter.use("/food-batch", foodBatchRouter);
 defaultRouter.use("/appconfig", appconfigRoutes);
 defaultRouter.use("/api-keys", apiKeyRouter);
+defaultRouter.use("/volunteer-shifts", volunteerShiftRoutes);
