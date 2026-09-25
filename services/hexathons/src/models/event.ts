@@ -19,6 +19,9 @@ export enum EventType {
   IMPORTANT_WORKSHOP = "important-workshop",
   MAIN_EVENT = "main-event",
   PERFORMANCE = "performance",
+  SPONSOR_EVENT = "sponsor-events",
+  SPONSOR_MINI_EVENT = "sponsor-mini-event",
+  IMPORTANT_MINI_EVENT = "important mini-event",
 }
 
 export interface Event extends mongoose.Document {
