@@ -317,7 +317,10 @@ applicationRouter.route("/actions/choose-application-branch").post(
         existingApplication.applicationBranch.applicationGroup ===
           ApplicationGroupType.PARTICIPANT && existingApplication.status === StatusType.DENIED;
       // Allows rejected applicants to apply as volunteer even though they already have an active application
-      if (!isRejectedParticipant || (req.body.applicationBranch === ApplicationGroupType.VOLUNTEER)) {
+      // also anything if the branch is a walk-in branch. hardcoded for now (TODO)
+      if (["6ab6c39e334e8ca5a8f0d51a"].includes(req.body.applicationBranch)) {
+        // allow
+      } else if (!(isRejectedParticipant && branch.applicationGroup === ApplicationGroupType.VOLUNTEER)) {
         throw new BadRequestError(
           "You already have an active/pending application. Delete it first to submit a new one."
         );
