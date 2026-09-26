@@ -24,25 +24,7 @@ categoryGroupRoutes.route("/").get(
       where: filter,
       include: {
         categories: true,
-        users: {
-          include: {
-            assignments: {
-              include: {
-                project: {
-                  include: {
-                    categories: true,
-                    ballots: {
-                      include: {
-                        criteria: true,
-                        user: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
+        users: true,
       },
       orderBy: {
         id: "asc",

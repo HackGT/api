@@ -16,7 +16,7 @@ import {
   validatePrizes,
   getEligiblePrizes,
 } from "../utils/validationHelpers";
-import { CategoryType, Prisma, TableGroup } from "@api/prisma-expo/generated";
+import { Prisma, TableGroup } from "@api/prisma-expo/generated";
 
 export const projectRoutes = express.Router();
 

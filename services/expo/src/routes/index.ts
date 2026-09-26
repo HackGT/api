@@ -11,11 +11,13 @@ import { criteriaRoutes } from "./criteria";
 import { rubricRoutes } from "./rubric";
 import { tableGroupRoutes } from "./tablegroups";
 import { winnerRoutes } from "./winner";
+import { judgingSessionRoutes } from "./judgingsessions";
 
 export const defaultRouter = express.Router();
 
 defaultRouter.use("/users", userRoutes);
 defaultRouter.use("/projects", projectRoutes);
+defaultRouter.use("/judging-sessions", judgingSessionRoutes);
 defaultRouter.use("/categories", categoryRoutes);
 defaultRouter.use("/category-groups", categoryGroupRoutes);
 defaultRouter.use("/table-groups", tableGroupRoutes);

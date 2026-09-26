@@ -3,191 +3,292 @@ import { createHash } from "crypto";
 import { asyncHandler, BadRequestError, ConfigError, getAllSmallest } from "@api/common";
 
 import { prisma } from "../common";
-import { getConfig, isAdminOrIsJudging } from "../utils/utils";
-import { AssignmentStatus, Assignment, Prisma } from "@api/prisma-expo/generated";
+import { getConfig, isAdmin, isAdminOrIsJudging } from "../utils/utils";
+import { AssignmentStatus, Assignment } from "@api/prisma-expo/generated";
 
-const autoAssign = async (judgeId: number): Promise<Assignment | null> => {
-  // We are not selecting a random judge for auto-assign
-  // Instead, auto-assign is called when a judge has no projects currently assigned
-  /*
-  // get judges
-  const judges = await prisma.user.findMany({
-    select: {
-      id: true,
-      categoryGroup: {
-        select: {
-          id: true,
-          categories: true
-        }
-      }
-    },
-    where: {
-      isJudging: true,
+// ── Types for in-memory computation ─────────────────────────────────────────
+
+type ProjectWithAssignments = {
+  id: number;
+  tableGroupId: number | null;
+  categories: { id: number }[];
+  assignment: { categoryIds: number[]; status: string; userId: number }[];
+};
+
+// ── Helper functions (pure, in-memory) ──────────────────────────────────────
+
+/** Projects in a room that match the judge's categories */
+function avail(
+  roomId: number,
+  projects: ProjectWithAssignments[],
+  judgeCategoryIds: number[]
+): ProjectWithAssignments[] {
+  return projects.filter(
+    p =>
+      p.tableGroupId === roomId &&
+      p.categories.some(c => judgeCategoryIds.includes(c.id))
+  );
+}
+
+/** Count of completed + queued assignments for a project, scoped to relevant categories */
+function judgedCount(p: ProjectWithAssignments, judgeCategoryIds: number[]): number {
+  return p.assignment.filter(
+    a =>
+      (a.status === "COMPLETED" || a.status === "QUEUED") &&
+      a.categoryIds.some(id => judgeCategoryIds.includes(id))
+  ).length;
+}
+
+/** Lowest judged count among projects the judge is eligible for in a room */
+function minCount(
+  judgeId: number,
+  roomId: number,
+  projects: ProjectWithAssignments[],
+  judgeCategoryIds: number[]
+): number {
+  const candidates = eligible(judgeId, roomId, projects, judgeCategoryIds);
+  if (candidates.length === 0) return Infinity;
+  return Math.min(...candidates.map(p => judgedCount(p, judgeCategoryIds)));
+}
+
+/** Eligible projects at min count minus active judges in the room */
+function need(
+  judgeId: number,
+  roomId: number,
+  projects: ProjectWithAssignments[],
+  judgeCategoryIds: number[],
+  queuedCounts: Map<number, number>
+): number {
+  const candidates = eligible(judgeId, roomId, projects, judgeCategoryIds);
+  const mc = minCount(judgeId, roomId, projects, judgeCategoryIds);
+  const atMin = candidates.filter(p => judgedCount(p, judgeCategoryIds) === mc).length;
+  return atMin - (queuedCounts.get(roomId) ?? 0);
+}
+
+/** Pick best room: lowest minCount, tiebreak by highest need */
+function pickRoom(
+  judgeId: number,
+  roomIds: number[],
+  bannedRoomIds: number[],
+  projects: ProjectWithAssignments[],
+  judgeCategoryIds: number[],
+  queuedCounts: Map<number, number>
+): { roomId: number; mc: number } | null {
+  const candidates = roomIds.filter(id => !bannedRoomIds.includes(id));
+  if (candidates.length === 0) return null;
+
+  let bestRoom = candidates[0];
+  let bestMc = minCount(judgeId, bestRoom, projects, judgeCategoryIds);
+  let bestNeed = need(judgeId, bestRoom, projects, judgeCategoryIds, queuedCounts);
+
+  for (let i = 1; i < candidates.length; i++) {
+    const rid = candidates[i];
+    const mc = minCount(judgeId, rid, projects, judgeCategoryIds);
+    const n = need(judgeId, rid, projects, judgeCategoryIds, queuedCounts);
+    if (mc < bestMc || (mc === bestMc && n > bestNeed)) {
+      bestRoom = rid;
+      bestMc = mc;
+      bestNeed = n;
     }
-  });
-
-  // see which judges already have queued (but not started) projects
-  const assignments = await prisma.assignment.findMany({
-    select: {
-      userId: true,
-    },
-    where: {
-      OR: [
-        // {
-        //   status: AssignmentStatus.STARTED,
-        // },
-        {
-          status: AssignmentStatus.QUEUED
-        }
-      ]
-    }
-  });
-
-  // we define a judge as available if they do not have any queued projects
-  const availableJudges = judges.filter(judge => !assignments.includes({ userId: judge.id }));
-
-  if (availableJudges.length == 0) {
-    return res.status(200).json({
-      error: "No available judges",
-    });
   }
 
-  // pick a random judge
-  const judgeToAssign = availableJudges[Math.floor(Math.random() * availableJudges.length)];
-  */
+  return { roomId: bestRoom, mc: bestMc };
+}
 
+/** Projects the judge can actually judge right now in a room */
+function eligible(
+  judgeId: number,
+  roomId: number,
+  projects: ProjectWithAssignments[],
+  judgeCategoryIds: number[]
+): ProjectWithAssignments[] {
+  return avail(roomId, projects, judgeCategoryIds).filter(p => {
+    return !p.assignment.some(a => a.userId === judgeId);
+  });
+}
+
+/** Main project selection with room routing */
+function pickProject(
+  judgeId: number,
+  session: { currentTableGroupId: number | null; minCountOnArrival: number; bannedTableGroupIds: number[] },
+  roomIds: number[],
+  projects: ProjectWithAssignments[],
+  judgeCategoryIds: number[],
+  queuedCounts: Map<number, number>
+): { project: ProjectWithAssignments; roomId: number; minCountOnArrival: number; roomSwitched: boolean; bannedRoomIds: number[] } | null {
+  let { currentTableGroupId, minCountOnArrival, bannedTableGroupIds } = session;
+  const banned = [...bannedTableGroupIds];
+  let roomSwitched = false;
+
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    // 1. Get a room — either current or pick a new one
+    if (currentTableGroupId == null) {
+      const result = pickRoom(judgeId, roomIds, banned, projects, judgeCategoryIds, queuedCounts);
+      if (!result) return null;
+      currentTableGroupId = result.roomId;
+      minCountOnArrival = result.mc;
+      roomSwitched = true;
+    }
+
+    // 2. Should we leave? If room's min_count has risen since we arrived,
+    //    there might be a better room now
+    if (minCount(judgeId, currentTableGroupId, projects, judgeCategoryIds) > minCountOnArrival) {
+      const result = pickRoom(judgeId, roomIds, banned, projects, judgeCategoryIds, queuedCounts);
+      if (!result) return null;
+      currentTableGroupId = result.roomId;
+      minCountOnArrival = result.mc;
+      roomSwitched = true;
+    }
+
+    // 3. Find projects we can actually judge right now
+    const candidates = eligible(judgeId, currentTableGroupId, projects, judgeCategoryIds);
+
+    if (candidates.length > 0) {
+      // 4. Pick the least-judged project, random tiebreak
+      const finalists = getAllSmallest(candidates, p => judgedCount(p, judgeCategoryIds));
+      const selected = finalists[Math.floor(Math.random() * finalists.length)];
+      return { project: selected, roomId: currentTableGroupId, minCountOnArrival, roomSwitched, bannedRoomIds: banned };
+    }
+
+    // 5. Judge has done every project in this room — permanently ban it
+    banned.push(currentTableGroupId);
+    currentTableGroupId = null;
+  }
+}
+
+// ── autoAssign ──────────────────────────────────────────────────────────────
+
+const autoAssign = async (judgeId: number): Promise<Assignment | null> => {
   const config = await getConfig();
   if (!config.currentHexathon) {
     throw new ConfigError("Current hexathon is not setup yet.");
   }
 
-  // Get judge info with assigned category group for current hexathon
-  const judgeToAssign = await prisma.user.findUnique({
+  // Get judge with category group for current hexathon
+  const judge = await prisma.user.findUnique({
     where: {
       id: judgeId,
       categoryGroups: {
-        some: {
-          hexathon: config.currentHexathon,
-        },
+        some: { hexathon: config.currentHexathon },
       },
     },
     include: {
-      categoryGroups: {
-        include: {
-          categories: true,
-        },
-      },
+      categoryGroups: { include: { categories: true } },
     },
   });
-  if (judgeToAssign == null) {
+  if (!judge) {
     throw new BadRequestError("Judge not found with assigned category group for current hexathon");
   }
 
-  // Get categoryIds from the judge's category group for current hexathon
-  const judgeCategories = judgeToAssign.categoryGroups.find(
-    categoryGroup => categoryGroup.hexathon === config.currentHexathon
+  const judgeCategories = judge.categoryGroups.find(
+    cg => cg.hexathon === config.currentHexathon
   )?.categories;
   if (!judgeCategories) {
     throw new BadRequestError("Invalid category group for this judge");
   }
 
-  // const startedAssignments = await prisma.assignment.findMany({
-  //   where: {
-  //     userId: judgeToAssign.id,
-  //     status: AssignmentStatus.STARTED,
-  //     project: {
-  //       hexathon: config.currentHexathon,
-  //     },
-  //   },
-  // });
-
-  // if (startedAssignments.length !== 0) {
-  //   isStarted = false;
-  // }
-
-  const defaultCategories = judgeCategories.filter(category => category.isDefault);
+  const judgeCategoryIds = judgeCategories.map(c => c.id);
 
   return await prisma.$transaction(async tx => {
-    // Scoped advisory lock: serializes auto-assign calls for the same
-    // hexathon/expo/round so unrelated contexts don't contend on the same lock
-    // have to use a goofy hash because no strings
     const lockKey = createHash("sha256")
       .update(`${config.currentHexathon}:${config.currentExpo}:${config.currentRound}`)
       .digest()
       .readBigInt64BE(0);
     await tx.$executeRaw`SELECT pg_advisory_xact_lock(${lockKey})`;
 
-    const projectFilter: Prisma.ProjectWhereInput = {
-      hexathon: config.currentHexathon!,
-      expo: config.currentExpo,
-      round: config.currentRound,
-      assignment: { none: { userId: judgeToAssign.id } },
-    };
-
-    if (defaultCategories.length === 0) {
-      projectFilter.categories = {
-        some: { id: { in: judgeCategories.map(c => c.id) } },
-      };
-    }
-
-    // Fetch *all* assignments for each candidate project,
-    // we'll compute category-overlap counts manually so we dont miss queued
-    // assignments from other judges for non-overlapping categories (thx copilot)
+    // Single upfront query: all projects in this hexathon/expo/round with assignments
     const projects = await tx.project.findMany({
-      where: projectFilter,
+      where: {
+        hexathon: config.currentHexathon!,
+        expo: config.currentExpo,
+        round: config.currentRound,
+        tableGroupId: { not: null },
+        categories: {
+          some: { id: { in: judgeCategoryIds } },
+        },
+      },
       select: {
         id: true,
-        categories: true,
+        tableGroupId: true,
+        categories: { select: { id: true } },
         assignment: {
-          select: { categoryIds: true, status: true },
+          select: { categoryIds: true, status: true, userId: true },
         },
       },
     });
 
-    // Only eligible if no judge is currently assigned (QUEUED)
-    const eligible = projects.filter(p => {
+    // Collect all distinct room IDs
+    const roomIds = Array.from(new Set(projects.map(p => p.tableGroupId!)));
+    if (roomIds.length === 0) return null;
+
+    // Build queued counts per room
+    const queuedCounts = new Map<number, number>();
+    for (const p of projects) {
       const queued = p.assignment.filter(a => a.status === "QUEUED").length;
-      return queued === 0;
+      if (p.tableGroupId != null && queued > 0) {
+        queuedCounts.set(p.tableGroupId, (queuedCounts.get(p.tableGroupId) ?? 0) + queued);
+      }
+    }
+
+    // Get or create judging session
+    let session = await tx.judgingSession.findUnique({
+      where: {
+        userId_hexathon: { userId: judge.id, hexathon: config.currentHexathon! },
+      },
     });
-    if (eligible.length === 0) return null;
-
-    const judgeCategoryIds = judgeCategories.map(c => c.id);
-
-    // select a random project among the ones that have the least "relevant" assignments
-    // Count only completed assignments that ALSO overlap the judge's categories.
-    // If an assignment is completed but none of the categories overlap, we can still
-    // be comfortable judging this project (so that asmt won't count toward this total)
-    // tldr: higher completedCount = less chance of being judged
-    const completedCount = (proj: (typeof eligible)[number]) =>
-      proj.assignment.filter(
-        asmt =>
-          asmt.status === "COMPLETED" && asmt.categoryIds.some(id => judgeCategoryIds.includes(id))
-      ).length;
-    const candidates = getAllSmallest(eligible, completedCount);
-    const selected = candidates[Math.floor(Math.random() * candidates.length)];
-
-    const alreadyQueued = selected.assignment.filter(a => a.status === "QUEUED").length;
-    if (alreadyQueued > 0) {
-      console.warn(
-        `----- [CONCURRENT] Project ${selected.id} assigned to judge ${judgeId} while already QUEUED by ${alreadyQueued} other judge(s)`
-      );
+    if (!session) {
+      session = await tx.judgingSession.create({
+        data: {
+          userId: judge.id,
+          hexathon: config.currentHexathon!,
+        },
+      });
     }
 
-    let categoriesToJudge = selected.categories.filter(c => judgeCategoryIds.includes(c.id));
-    if (defaultCategories.length > 0) {
-      categoriesToJudge = categoriesToJudge.concat(defaultCategories);
-    }
+    // Run room-based project selection
+    const result = pickProject(
+      judge.id,
+      session,
+      roomIds,
+      projects,
+      judgeCategoryIds,
+      queuedCounts
+    );
+    if (!result) return null;
+
+    // Update session state
+    const newSwitchCount = result.roomSwitched && session.currentTableGroupId != null
+      ? session.roomSwitchCount + 1
+      : session.roomSwitchCount;
+
+    await tx.judgingSession.update({
+      where: { id: session.id },
+      data: {
+        currentTableGroupId: result.roomId,
+        minCountOnArrival: result.minCountOnArrival,
+        bannedTableGroupIds: result.bannedRoomIds,
+        roomSwitchCount: newSwitchCount,
+      },
+    });
+
+    // Determine categories to judge (intersection of judge's and project's categories)
+    const categoriesToJudge = result.project.categories
+      .filter(c => judgeCategoryIds.includes(c.id))
+      .map(c => c.id);
 
     return await tx.assignment.create({
       data: {
-        userId: judgeToAssign.id,
-        projectId: selected.id,
+        userId: judge.id,
+        projectId: result.project.id,
         status: AssignmentStatus.QUEUED,
-        categoryIds: categoriesToJudge.map(c => c.id),
+        categoryIds: categoriesToJudge,
       },
     });
   });
 };
+
+// ── Routes ──────────────────────────────────────────────────────────────────
 
 export const assignmentRoutes = express.Router();
 
@@ -305,7 +406,7 @@ assignmentRoutes.route("/current-project").get(
     const filteredCategories = user.categoryGroups
       .find(categoryGroup => categoryGroup.hexathon === config.currentHexathon)
       ?.categories.filter(
-        category => project?.categories.some(c => c.id === category.id) || category.isDefault
+        category => project?.categories.some(c => c.id === category.id)
       );
 
     const assignedProject = {
@@ -375,10 +476,13 @@ assignmentRoutes.route("/").post(
       throw new BadRequestError("Judge has already judged this project.");
     }
 
-    // Create judging categories if category is default or project has category
-    const categoriesToJudge = judge.categoryGroups[0].categories
-      .filter(category => category.isDefault || project.categories.some(c => c.id === category.id))
-      .map(category => category.id);
+    const judgeCategoryIds = judge.categoryGroups
+      .find(cg => cg.hexathon === config.currentHexathon)
+      ?.categories.map(c => c.id) ?? [];
+
+    const categoriesToJudge = project.categories
+      .filter(c => judgeCategoryIds.includes(c.id))
+      .map(c => c.id);
 
     const upsertAssignment = await prisma.assignment.upsert({
       where: {
@@ -420,5 +524,168 @@ assignmentRoutes.route("/autoAssign").post(
   asyncHandler(async (req, res) => {
     const createdAssignment = await autoAssign(req.body.judge);
     res.status(200).json(createdAssignment);
+  })
+);
+
+// ── Initial judge distribution ──────────────────────────────────────────────
+
+assignmentRoutes.route("/distribute-judges").post(
+  isAdmin,
+  asyncHandler(async (req, res) => {
+    const config = await getConfig();
+    if (!config.currentHexathon) {
+      throw new ConfigError("Current hexathon is not setup yet.");
+    }
+
+    // Get all judges with category groups for this hexathon
+    const judges = await prisma.user.findMany({
+      where: {
+        categoryGroups: {
+          some: { hexathon: config.currentHexathon },
+        },
+      },
+      include: {
+        categoryGroups: { include: { categories: true } },
+      },
+    });
+
+    // Get all table groups with project counts per category
+    const tableGroups = await prisma.tableGroup.findMany({
+      where: { hexathon: config.currentHexathon },
+      include: {
+        projects: {
+          where: {
+            expo: config.currentExpo,
+            round: config.currentRound,
+          },
+          select: { categories: { select: { id: true } } },
+        },
+      },
+    });
+
+    // Group judges by their category group
+    const judgesByCategoryGroup = new Map<number, typeof judges>();
+    for (const judge of judges) {
+      const cg = judge.categoryGroups.find(g => g.hexathon === config.currentHexathon);
+      if (!cg) continue;
+      const list = judgesByCategoryGroup.get(cg.id) ?? [];
+      list.push(judge);
+      judgesByCategoryGroup.set(cg.id, list);
+    }
+
+    const sessions: { userId: number; hexathon: string; currentTableGroupId: number; minCountOnArrival: number }[] = [];
+
+    // For each category group, distribute its judges across rooms proportionally
+    for (const [cgId, cgJudges] of judgesByCategoryGroup) {
+      const categoryIds = cgJudges[0].categoryGroups
+        .find(g => g.id === cgId)
+        ?.categories.map(c => c.id) ?? [];
+
+      // Count eligible projects per room for this category group
+      const roomCounts = new Map<number, number>();
+      for (const tg of tableGroups) {
+        const count = tg.projects.filter(p =>
+          p.categories.some(c => categoryIds.includes(c.id))
+        ).length;
+        if (count > 0) {
+          roomCounts.set(tg.id, count);
+        }
+      }
+
+      const total = [...roomCounts.values()].reduce((a, b) => a + b, 0);
+      if (total === 0) continue;
+
+      // Proportional allocation with largest remainder method
+      const n = cgJudges.length;
+      const exact = new Map<number, number>();
+      for (const [rid, count] of roomCounts) {
+        exact.set(rid, (n * count) / total);
+      }
+
+      const floors = new Map<number, number>();
+      for (const [rid, v] of exact) {
+        floors.set(rid, Math.floor(v));
+      }
+
+      const remainders = [...exact.entries()].sort(
+        (a, b) => (b[1] - Math.floor(b[1])) - (a[1] - Math.floor(a[1]))
+      );
+      let extras = n - [...floors.values()].reduce((a, b) => a + b, 0);
+      const alloc = new Map(floors);
+      for (const [rid] of remainders) {
+        if (extras <= 0) break;
+        alloc.set(rid, (alloc.get(rid) ?? 0) + 1);
+        extras--;
+      }
+
+      // Assign judges to rooms
+      let judgeIdx = 0;
+      for (const [rid, count] of alloc) {
+        for (let i = 0; i < count && judgeIdx < cgJudges.length; i++) {
+          sessions.push({
+            userId: cgJudges[judgeIdx].id,
+            hexathon: config.currentHexathon!,
+            currentTableGroupId: rid,
+            minCountOnArrival: 0,
+          });
+          judgeIdx++;
+        }
+      }
+    }
+
+    // Upsert all sessions
+    const results = await Promise.all(
+      sessions.map(s =>
+        prisma.judgingSession.upsert({
+          where: {
+            userId_hexathon: { userId: s.userId, hexathon: s.hexathon },
+          },
+          update: {
+            currentTableGroupId: s.currentTableGroupId,
+            minCountOnArrival: 0,
+            bannedTableGroupIds: [],
+            roomSwitchCount: 0,
+          },
+          create: s,
+        })
+      )
+    );
+
+    res.status(200).json({
+      distributed: results.length,
+      sessions: results,
+    });
+  })
+);
+
+assignmentRoutes.route("/reset-judging").post(
+  isAdmin,
+  asyncHandler(async (req, res) => {
+    const config = await getConfig();
+    if (!config.currentHexathon) {
+      throw new ConfigError("Current hexathon is not setup yet.");
+    }
+
+    const [deletedBallots, deletedAssignments, deletedSessions] = await prisma.$transaction([
+      prisma.ballot.deleteMany({
+        where: {
+          project: { hexathon: config.currentHexathon },
+        },
+      }),
+      prisma.assignment.deleteMany({
+        where: {
+          project: { hexathon: config.currentHexathon },
+        },
+      }),
+      prisma.judgingSession.deleteMany({
+        where: { hexathon: config.currentHexathon },
+      }),
+    ]);
+
+    res.status(200).json({
+      deletedBallots: deletedBallots.count,
+      deletedAssignments: deletedAssignments.count,
+      deletedSessions: deletedSessions.count,
+    });
   })
 );
