@@ -189,13 +189,6 @@ projectRoutes.route("/").post(
       return;
     }
 
-    const mlhCategories = await prisma.category.findMany({
-      where: {
-        hexathon: currentHexathon.id,
-        type: CategoryType.mlh,
-      },
-    });
-
     const tableGroups = await prisma.tableGroup.findMany({
       where: {
         hexathon: currentHexathon.id,
