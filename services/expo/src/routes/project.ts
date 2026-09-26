@@ -1,6 +1,6 @@
 /* eslint-disable guard-for-in */
 import express from "express";
-import { BadRequestError, apiCall, asyncHandler } from "@api/common";
+import { BadRequestError, apiCall, asyncHandler, checkAbility } from "@api/common";
 import { Service } from "@api/config";
 
 import { prisma } from "../common";
@@ -16,7 +16,7 @@ import {
   validatePrizes,
   getEligiblePrizes,
 } from "../utils/validationHelpers";
-import { CategoryType, Prisma, TableGroup } from "@api/prisma-expo/generated";
+import { AssignmentStatus, Prisma, TableGroup } from "@api/prisma-expo/generated";
 
 export const projectRoutes = express.Router();
 
@@ -559,6 +559,84 @@ projectRoutes.route("/special/dashboard").get(
       }
     }
     res.status(200).json(projects);
+  })
+);
+
+projectRoutes.route("/special/judging-counts").get(
+  checkAbility("read", "JudgingCounts"),
+  asyncHandler(async (req, res) => {
+    const { hexathon } = req.query;
+    if (typeof hexathon !== "string" || hexathon.trim() === "") {
+      throw new BadRequestError("A hexathon query parameter is required.");
+    }
+
+    const projects = await prisma.project.findMany({
+      where: { hexathon },
+      select: {
+        id: true,
+        name: true,
+        expo: true,
+        table: true,
+        tableGroup: true,
+        categories: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        assignment: {
+          select: {
+            status: true,
+            categoryIds: true,
+          },
+        },
+        _count: {
+          select: {
+            assignment: {
+              where: { status: AssignmentStatus.COMPLETED },
+            },
+          },
+        },
+      },
+      orderBy: {
+        name: "asc",
+      },
+    });
+
+    const countStatuses = (assignments: { status: AssignmentStatus }[]) => {
+      const statusCounts: Record<AssignmentStatus, number> = {
+        [AssignmentStatus.QUEUED]: 0,
+        [AssignmentStatus.COMPLETED]: 0,
+        [AssignmentStatus.SKIPPED]: 0,
+      };
+      assignments.forEach(asmt => {
+        statusCounts[asmt.status] += 1;
+      });
+      return statusCounts;
+    };
+
+    const projectsWithCategoryCounts = projects.map(({ assignment, categories, ...project }) => ({
+      ...project,
+      ...countStatuses(assignment),
+      categories: categories.map(category => ({
+        ...category,
+        ...countStatuses(assignment.filter(asmt => asmt.categoryIds.includes(category.id))),
+      })),
+    }));
+
+    const groupedProjects = projectsWithCategoryCounts.reduce<
+      Record<string, typeof projectsWithCategoryCounts>
+    >((groups, project) => {
+      // Prisma uses `_count` for relation counts.
+      // eslint-disable-next-line no-underscore-dangle
+      const count = String(project._count.assignment);
+      return {
+        ...groups,
+        [count]: [...(groups[count] ?? []), project],
+      };
+    }, {});
+
+    res.status(200).json(groupedProjects);
   })
 );
 

@@ -24,6 +24,7 @@ export const addAbilities = (): RequestHandler => (req, res, next) => {
     can("manage", "Company");
     can("manage", "Team");
     can("selfAssign", "CategoryGroup");
+    can("read", "JudgingCounts");
   }
 
   can("manage", "Profile", { userId: req.user.uid });
