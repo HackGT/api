@@ -16,7 +16,7 @@ import {
   validatePrizes,
   getEligiblePrizes,
 } from "../utils/validationHelpers";
-import { Prisma, TableGroup } from "@api/prisma-expo/generated";
+import { CategoryType, Prisma, TableGroup } from "@api/prisma-expo/generated";
 
 export const projectRoutes = express.Router();
 
@@ -189,6 +189,13 @@ projectRoutes.route("/").post(
       return;
     }
 
+    const mlhCategories = await prisma.category.findMany({
+      where: {
+        hexathon: currentHexathon.id,
+        type: CategoryType.mlh,
+      },
+    });
+
     const tableGroups = await prisma.tableGroup.findMany({
       where: {
         hexathon: currentHexathon.id,
@@ -279,7 +286,10 @@ projectRoutes.route("/").post(
               })),
             },
             categories: {
-              connect: data.prizes.map((prizeId: any) => ({ id: prizeId })),
+              connect: [
+                ...data.prizes.map((prizeId: any) => ({ id: prizeId })),
+                ...mlhCategories.map(c => ({ id: c.id })),
+              ],
             },
             tableGroup: {
               connect: { id: firstFreeTableGroup.id },
