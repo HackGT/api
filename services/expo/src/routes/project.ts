@@ -280,6 +280,8 @@ projectRoutes.route("/").post(
             },
             categories: {
               connect: data.prizes.map((prizeId: any) => ({ id: prizeId })),
+              // TODO: all categories on this hexathon which have type
+              // CategoryType=autocomplete should be added here automatically
             },
             tableGroup: {
               connect: { id: firstFreeTableGroup.id },

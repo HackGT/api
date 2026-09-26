@@ -662,3 +662,17 @@ export const validateDevpost = async (devpostUrl: string, submissionName: string
   }
   return { error: true, message: "Please contact help desk" };
 };
+
+/**
+ * Validate the categories (tracks) the users selected.
+ * uses CategoryType to determine the types of tracks
+ * 
+ * for hackgt13:
+ * - general tracks: 0-1
+ * - sponsor tracks: 0-2
+ * - other tracks (mlh tracks): any number
+ */
+export function validateCategories(categories: any[], req: express.Request) {
+
+}
+
