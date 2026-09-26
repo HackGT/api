@@ -278,6 +278,9 @@ projectRoutes.route("/").post(
                 },
               })),
             },
+            categories: {
+              connect: data.prizes.map((prizeId: any) => ({ id: prizeId })),
+            },
             tableGroup: {
               connect: { id: firstFreeTableGroup.id },
             },
