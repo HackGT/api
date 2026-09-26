@@ -8,6 +8,14 @@ datasource db {
   url      = env("POSTGRES_URI_EXPO_SERVICE")
 }
 
+enum CategoryType {
+  general
+  sponsor
+  mlh
+
+  @@map("category_type")
+}
+
 enum AssignmentStatus {
   QUEUED
   COMPLETED
@@ -64,6 +72,7 @@ model Category {
   name           String
   isDefault      Boolean         @default(false)
   description    String
+  type           CategoryType
   categoryGroups CategoryGroup[]
   criterias      Criteria[]
   projects       Project[]
