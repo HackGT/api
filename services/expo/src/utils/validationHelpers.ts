@@ -673,6 +673,17 @@ export const validateDevpost = async (devpostUrl: string, submissionName: string
  * - other tracks (mlh tracks): any number
  */
 export function validateCategories(categories: any[], req: express.Request) {
+  const generalTracks = categories.filter(category => category.type === "general");
+  const sponsorTracks = categories.filter(category => category.type === "sponsor");
 
+  if (generalTracks.length > 1) {
+    return { error: true, message: "You can only select up to 1 general track." };
+  }
+
+  if (sponsorTracks.length > 2) {
+    return { error: true, message: "You can only select up to 2 sponsor tracks." };
+  }
+
+  return { error: false };
 }
 

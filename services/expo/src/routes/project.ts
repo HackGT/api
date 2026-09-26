@@ -16,7 +16,7 @@ import {
   validatePrizes,
   getEligiblePrizes,
 } from "../utils/validationHelpers";
-import { AssignmentStatus, Prisma, TableGroup } from "@api/prisma-expo/generated";
+import { AssignmentStatus, CategoryType, Prisma, TableGroup } from "@api/prisma-expo/generated";
 
 export const projectRoutes = express.Router();
 
@@ -254,6 +254,14 @@ projectRoutes.route("/").post(
         continue; // should never happen
       }
 
+      const automaticCategories: { id: number }[] = await prisma.category.findMany({
+        where: {
+          hexathon: currentHexathon.id,
+          type: CategoryType.autoConsider,
+        },
+        select: { id: true },
+      });
+
       try {
         // eslint-disable-next-line no-await-in-loop
         await prisma.project.create({
@@ -279,9 +287,12 @@ projectRoutes.route("/").post(
               })),
             },
             categories: {
-              connect: data.prizes.map((prizeId: any) => ({ id: prizeId })),
-              // TODO: all categories on this hexathon which have type
-              // CategoryType=autocomplete should be added here automatically
+              connect: [
+                ...data.prizes.map((prizeId: any) => ({ id: prizeId })),
+                ...automaticCategories
+                  .filter(category => !data.prizes.includes(category.id))
+                  .map(category => ({ id: category.id })),
+              ],
             },
             tableGroup: {
               connect: { id: firstFreeTableGroup.id },
