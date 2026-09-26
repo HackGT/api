@@ -30,7 +30,7 @@ export interface Event extends mongoose.Document {
   type: EventType;
   description: string;
   startDate: Date;
-  endDate: Date;
+  endDate?: Date;
   location: AutoPopulatedDoc<Location>[];
   tags: AutoPopulatedDoc<Tag>[];
 }
@@ -63,7 +63,7 @@ const eventSchema = new Schema<Event>({
   },
   endDate: {
     type: Date,
-    required: true,
+    required: false,
   },
   location: {
     type: [
