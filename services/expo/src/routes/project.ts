@@ -290,7 +290,6 @@ projectRoutes.route("/").post(
               connect: [
                 ...data.prizes.map((prizeId: any) => ({ id: prizeId })),
                 ...automaticCategories
-                  .filter(category => !data.prizes.includes(category.id))
                   .map(category => ({ id: category.id })),
               ],
             },
