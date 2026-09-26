@@ -278,12 +278,6 @@ projectRoutes.route("/").post(
                 },
               })),
             },
-            categories: {
-              connect: [
-                ...data.prizes.map((prizeId: any) => ({ id: prizeId })),
-                ...mlhCategories.map(c => ({ id: c.id })),
-              ],
-            },
             tableGroup: {
               connect: { id: firstFreeTableGroup.id },
             },
