@@ -1,6 +1,6 @@
 /* eslint-disable guard-for-in */
 import express from "express";
-import { BadRequestError, apiCall, asyncHandler } from "@api/common";
+import { BadRequestError, apiCall, asyncHandler, checkAbility } from "@api/common";
 import { Service } from "@api/config";
 
 import { prisma } from "../common";
@@ -563,7 +563,7 @@ projectRoutes.route("/special/dashboard").get(
 );
 
 projectRoutes.route("/special/judging-counts").get(
-  isAdmin,
+  checkAbility("read", "JudgingCounts"),
   asyncHandler(async (req, res) => {
     const { hexathon } = req.query;
     if (typeof hexathon !== "string" || hexathon.trim() === "") {

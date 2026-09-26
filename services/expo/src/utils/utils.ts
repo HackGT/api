@@ -69,7 +69,7 @@ export const calculateMeanAndStandardDeviation = (
   // Calculate the mean
   const mean: number = numbers.reduce((sum, value) => sum + value, 0) / numbers.length;
 
-  const squaredDifferences: number[] = numbers.map(number => Math.pow(number - mean, 2));
+  const squaredDifferences: number[] = numbers.map(number => (number - mean)**2);
 
   const averageSquaredDifference: number =
     squaredDifferences.reduce((sum, value) => sum + value, 0) / squaredDifferences.length;
