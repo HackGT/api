@@ -11,7 +11,8 @@ datasource db {
 enum CategoryType {
   general
   sponsor
-  mlh
+  other
+  autoConsider
 
   @@map("category_type")
 }
