@@ -107,7 +107,8 @@ projectRoutes.route("/").get(
 
 projectRoutes.route("/submission/team-validation").post(
   asyncHandler(async (req, res) => {
-    const resp = await validateTeam(req.body.members, req);
+    const projectId = req.body.projectId ? parseInt(req.body.projectId) : undefined;
+    const resp = await validateTeam(req.body.members, req, projectId);
     if (resp.error) {
       res.status(400).json(resp);
     } else {
@@ -137,7 +138,8 @@ projectRoutes.route("/submission/detail-validation").post(
 
 projectRoutes.route("/submission/devpost-validation").post(
   asyncHandler(async (req, res) => {
-    const resp = await validateDevpost(req.body.devpostUrl, req.body.name);
+    const projectId = req.body.projectId ? parseInt(req.body.projectId) : undefined;
+    const resp = await validateDevpost(req.body.devpostUrl, req.body.name, projectId);
     if (resp.error) {
       res.status(400).json(resp);
     } else {
@@ -340,6 +342,105 @@ projectRoutes.route("/").post(
     throw new BadRequestError(
       "Submission could not be saved (error code F) - please contact help desk"
     );
+  })
+);
+
+projectRoutes.route("/:id/submission").patch(
+  asyncHandler(async (req, res) => {
+    const projectId = parseInt(req.params.id);
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      include: { members: true },
+    });
+
+    if (!project) {
+      res.status(404).json({ error: true, message: "Project not found" });
+      return;
+    }
+
+    if (!req.user || !project.members.some(member => member.userId === req.user.uid)) {
+      res.status(403).json({ error: true, message: "You cannot edit this project" });
+      return;
+    }
+
+    const config = await getConfig();
+    if (!config.isProjectSubmissionOpen) {
+      res.status(400).json({ error: true, message: "Submissions are currently closed" });
+      return;
+    }
+
+    const data = req.body;
+    if (!data || !data.prizes) {
+      res.status(400).json({ error: true, message: "Invalid submission" });
+      return;
+    }
+
+    const currentHexathon = await getCurrentHexathon(req);
+    if (project.hexathon !== currentHexathon.id) {
+      res.status(400).json({ error: true, message: "Only the current submission can be edited" });
+      return;
+    }
+
+    const selectedCategories = await prisma.category.findMany({
+      where: {
+        id: { in: data.prizes },
+        hexathon: currentHexathon.id,
+      },
+    });
+
+    if (selectedCategories.length !== data.prizes.length) {
+      res.status(400).json({ error: true, message: "Invalid prize selection" });
+      return;
+    }
+
+    const prizeValidation = await validatePrizes(data.prizes, req);
+    if (prizeValidation.error) {
+      res.status(400).json(prizeValidation);
+      return;
+    }
+
+    const categoryValidation = validateCategories(selectedCategories, req);
+    if (categoryValidation.error) {
+      res.status(400).json(categoryValidation);
+      return;
+    }
+
+    const devpostValidation = await validateDevpost(data.devpostUrl, data.name, projectId);
+    if (devpostValidation.error) {
+      res.status(400).json(devpostValidation);
+      return;
+    }
+
+    const autoConsideredCategories = await prisma.category.findMany({
+      where: {
+        hexathon: currentHexathon.id,
+        type: CategoryType.autoConsider,
+      },
+      select: { id: true },
+    });
+
+    const updated = await prisma.project.update({
+      where: { id: projectId },
+      data: {
+        name: data.name,
+        description: data.description,
+        devpostUrl: data.devpostUrl,
+        githubUrl: data.githubUrl || "",
+        categories: {
+          set: [
+            ...selectedCategories.map(category => ({ id: category.id })),
+            ...autoConsideredCategories,
+          ],
+        },
+      },
+      include: {
+        members: true,
+        categories: true,
+        tableGroup: true,
+      },
+    });
+
+    res.status(200).json(updated);
   })
 );
 
