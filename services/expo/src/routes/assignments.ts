@@ -84,9 +84,9 @@ const autoAssign = async (judgeId: number): Promise<Assignment | null> => {
   }
 
   // Get categoryIds from the judge's category group for current hexathon
-  const judgeCategories = judgeToAssign.categoryGroups.find(
-    categoryGroup => categoryGroup.hexathon === config.currentHexathon
-  )?.categories;
+  const judgeCategories = judgeToAssign.categoryGroups
+    .find(categoryGroup => categoryGroup.hexathon === config.currentHexathon)
+    ?.categories.filter(category => !category.judgedExternally);
   if (!judgeCategories) {
     throw new BadRequestError("Invalid category group for this judge");
   }
@@ -377,6 +377,7 @@ assignmentRoutes.route("/").post(
 
     // Create judging categories if category is default or project has category
     const categoriesToJudge = judge.categoryGroups[0].categories
+      .filter(category => !category.judgedExternally)
       .filter(category => category.isDefault || project.categories.some(c => c.id === category.id))
       .map(category => category.id);
 

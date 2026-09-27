@@ -69,16 +69,17 @@ model Ballot {
 }
 
 model Category {
-  id             Int             @id @default(autoincrement())
-  name           String
-  isDefault      Boolean         @default(false)
-  description    String
-  type           CategoryType
-  categoryGroups CategoryGroup[]
-  criterias      Criteria[]
-  projects       Project[]
-  winners        Winner[]
-  hexathon       String
+  id               Int             @id @default(autoincrement())
+  name             String
+  isDefault        Boolean         @default(false)
+  description      String
+  type             CategoryType
+  judgedExternally Boolean         @default(false)
+  categoryGroups   CategoryGroup[]
+  criterias        Criteria[]
+  projects         Project[]
+  winners          Winner[]
+  hexathon         String
 
   @@index([hexathon])
   @@map("category")
@@ -180,14 +181,14 @@ model TableGroup {
 }
 
 model User {
-  id            Int            @id @default(autoincrement())
-  name          String
-  email         String         @unique
-  userId        String         @unique
+  id             Int             @id @default(autoincrement())
+  name           String
+  email          String          @unique
+  userId         String          @unique
   categoryGroups CategoryGroup[]
-  ballots       Ballot[]
-  projects      Project[]
-  assignments   Assignment[]
+  ballots        Ballot[]
+  projects       Project[]
+  assignments    Assignment[]
 
   @@map("user")
 }

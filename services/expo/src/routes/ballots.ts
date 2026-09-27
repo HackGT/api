@@ -1,6 +1,6 @@
 import express from "express";
 import { StatusCodes } from "http-status-codes";
-import { asyncHandler } from "@api/common";
+import { asyncHandler, BadRequestError } from "@api/common";
 
 import { prisma } from "../common";
 import { Ballot, Prisma } from "@api/prisma-expo/generated";
@@ -59,7 +59,11 @@ ballotsRoutes.route("/").get(
 ballotsRoutes.route("/").post(
   isAdminOrIsJudging,
   asyncHandler(async (req, res) => {
-    const { criterium } = req.body;
+    const { criterium, userId, projectId } = req.body;
+
+    if (!Number.isInteger(userId) || !Number.isInteger(projectId)) {
+      throw new BadRequestError("userId and projectId are required");
+    }
 
     const data: Prisma.BallotCreateManyInput[] = Object.entries(criterium).map(
       ([criteriaId, score]: [string, any]) => ({
@@ -71,9 +75,20 @@ ballotsRoutes.route("/").post(
       })
     );
 
-    const createdBallots = await prisma.ballot.createMany({
-      data,
-    });
+    const [, createdBallots] = await prisma.$transaction([
+      prisma.ballot.deleteMany({
+        where: {
+          userId,
+          projectId,
+          criteriaId: {
+            in: data.map(ballot => ballot.criteriaId),
+          },
+        },
+      }),
+      prisma.ballot.createMany({
+        data,
+      }),
+    ]);
 
     res.status(201).json(createdBallots);
   })
