@@ -195,12 +195,6 @@ projectRoutes.route("/").post(
       );
     }
     
-    const categoryValidation = validateCategories(data.categories, req);
-    if (categoryValidation.error) {
-      res.status(400).send(categoryValidation);
-      return;
-    }
-
     const devpostValidation = await validateDevpost(data.devpostUrl, data.name);
     if (devpostValidation.error) {
       res.status(400).send(devpostValidation);
