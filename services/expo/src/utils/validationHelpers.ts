@@ -269,6 +269,15 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
       return generalDBPrizes;
     }
 
+    case "HackGT 13": {
+      const categories = await prisma.category.findMany({
+        where: {
+          hexathon: currentHexathon.id,
+        },
+      });
+      return categories;
+    }
+    
     case "HackGT 13 TEST 2": {
       const allDBPrizes = await prisma.category.findMany({
         where: {
