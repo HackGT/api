@@ -1,6 +1,6 @@
 import express from "express";
 import { Service } from "@api/config";
-import { BadRequestError, apiCall, asyncHandler } from "@api/common";
+import { BadRequestError, ForbiddenError, apiCall, asyncHandler } from "@api/common";
 
 import { prisma } from "../common";
 import { getConfig, isAdminOrIsJudging } from "../utils/utils";
@@ -65,6 +65,27 @@ userRoutes.route("/check").get(
       isJudging: !!currentCategoryGroup,
       isSponsor: currentCategoryGroup?.isSponsor ?? false,
     });
+  })
+);
+
+userRoutes.route("/").post(
+  asyncHandler(async (req, res) => {
+    if (!req.user?.roles.member) {
+      throw new ForbiddenError("Sorry, you don't have access to this endpoint.");
+    }
+
+    const { userId, name, email } = req.body;
+    if (!userId || !name || !email) {
+      throw new BadRequestError("userId, name, and email are required");
+    }
+
+    const user = await prisma.user.upsert({
+      where: { userId },
+      update: {},
+      create: { userId, name, email },
+    });
+
+    res.status(200).json(user);
   })
 );
 

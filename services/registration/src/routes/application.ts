@@ -12,6 +12,32 @@ import { ApplicationGroupType, BranchModel, BranchType } from "../models/branch"
 
 export const applicationRouter = express.Router();
 
+const createExpoUserIfCheckedInJudge = async (
+  application: Application | null,
+  req: express.Request
+) => {
+  if (
+    application?.status !== StatusType.CHECKED_IN ||
+    application.applicationBranch.applicationGroup !== ApplicationGroupType.JUDGE
+  ) {
+    return;
+  }
+
+  await apiCall(
+    Service.EXPO,
+    {
+      method: "POST",
+      url: "/users",
+      data: {
+        userId: application.userId,
+        name: application.name,
+        email: application.email,
+      },
+    },
+    req
+  );
+};
+
 applicationRouter.route("/").get(
   checkAbility("read", "Application"),
   asyncHandler(async (req, res) => {
@@ -655,7 +681,12 @@ applicationRouter.route("/:id/actions/update-status").post(
       }
     }
 
-    await ApplicationModel.findByIdAndUpdate(req.params.id, updateBody, { new: true });
+    const updatedApplication = await ApplicationModel.findByIdAndUpdate(
+      req.params.id,
+      updateBody,
+      { new: true }
+    );
+    await createExpoUserIfCheckedInJudge(updatedApplication, req);
 
     if (
       existingApplication.applicationBranch.applicationGroup === ApplicationGroupType.PARTICIPANT &&
@@ -724,7 +755,7 @@ applicationRouter.route("/:id/actions/update-application").post(
       newConfirmationExtendedDeadline = null;
     }
 
-    await ApplicationModel.findByIdAndUpdate(
+    const updatedApplication = await ApplicationModel.findByIdAndUpdate(
       req.params.id,
       {
         applicationBranch,
@@ -735,6 +766,7 @@ applicationRouter.route("/:id/actions/update-application").post(
       },
       { new: true }
     );
+    await createExpoUserIfCheckedInJudge(updatedApplication, req);
 
     if (
       existingApplication.applicationBranch.applicationGroup === ApplicationGroupType.PARTICIPANT &&
