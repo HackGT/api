@@ -204,7 +204,7 @@ const autoAssign = async (judgeId: number): Promise<Assignment | null> => {
       categoriesToJudge = categoriesToJudge.concat(defaultCategories);
     }
 
-    const dedup = [...new Set(categoriesToJudge.map((c: any) => c.id))];
+    const dedup: number[] = [...new Set(categoriesToJudge.map((c: any) => c.id))];
     return await tx.assignment.create({
       data: {
         userId: judgeToAssign.id,
