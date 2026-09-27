@@ -310,8 +310,9 @@ categoryGroupRoutes.route("/:id/generate-csv").get(
         githubUrl: true,
         expo: true,
         table: true,
+        tableGroup: { select: { name: true } },
       },
-      orderBy: [{ expo: "asc" }, { table: "asc" }],
+      orderBy: [{ expo: "asc" }, { tableGroup: { name: "asc" } }, { table: "asc" }],
     });
 
     const escapeCsv = (value: string | number | null | undefined) => {
@@ -323,13 +324,21 @@ categoryGroupRoutes.route("/:id/generate-csv").get(
     };
 
     const rows = projects.map(project =>
-      [project.name, project.devpostUrl, project.githubUrl, project.expo, project.table]
+      [
+        project.name,
+        project.devpostUrl,
+        project.githubUrl,
+        project.expo,
+        project.tableGroup?.name,
+        project.table,
+      ]
         .map(escapeCsv)
         .join(",")
     );
-    const csv = ["Project Name,Devpost URL,GitHub URL,Expo Number,Table Number", ...rows].join(
-      "\n"
-    );
+    const csv = [
+      "Project Name,Devpost URL,GitHub URL,Expo Number,Room Name,Table Number",
+      ...rows,
+    ].join("\n");
 
     res.header("Content-Type", "text/csv");
     res.attachment(`${categoryGroup.name}-projects.csv`);
