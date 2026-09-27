@@ -135,17 +135,6 @@ projectRoutes.route("/submission/detail-validation").post(
   })
 );
 
-projectRoutes.route("/submission/category-validation").post(
-  asyncHandler(async (req, res) => {
-    const resp = validateCategories(req.body.categories, req);
-    if (resp.error) {
-      res.status(400).json(resp);
-    } else {
-      res.status(200).json(resp);
-    }
-  })
-);
-
 projectRoutes.route("/submission/devpost-validation").post(
   asyncHandler(async (req, res) => {
     const resp = await validateDevpost(req.body.devpostUrl, req.body.name);
@@ -189,6 +178,13 @@ projectRoutes.route("/").post(
       res.status(400).send(teamValidation);
       return;
     }
+    
+    const categoryValidation = validateCategories(data.prizes, req);
+    if (categoryValidation.error) {
+      res.status(400).send(categoryValidation);
+      return;
+    }
+
     if (!teamValidation.registrationUsers) {
       throw new BadRequestError(
         "There was an error contacting registration. Please contact help desk."
