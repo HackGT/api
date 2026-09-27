@@ -296,7 +296,7 @@ const getTableCode = (room: string | undefined, table: number | null) => {
     return `A${table}`;
   }
   if (room.includes("1116")) {
-    return `B${table}`;
+    return `B${table-86}`;
   }
   // Klaus Atrium 2 continues code A after Klaus Atrium's 86 tables
   if (room === "Klaus Atrium 2") {
