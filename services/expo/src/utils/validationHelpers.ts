@@ -297,7 +297,11 @@ export const getEligiblePrizes = async (users: any[], req: express.Request) => {
     - Query emails from check-in and ensure users accepted to event
     - Create new user objects for users not in db (with email field and name from check-in)
 */
-export const validateTeam = async (members: any[], req: express.Request) => {
+export const validateTeam = async (
+  members: any[],
+  req: express.Request,
+  currentProjectId?: number
+) => {
   if (!members || members.length === 0) {
     return { error: true, message: "Must include at least one member" };
   }
@@ -378,6 +382,7 @@ export const validateTeam = async (members: any[], req: express.Request) => {
               },
             },
             hexathon: currentHexathon.id,
+            ...(currentProjectId ? { id: { not: currentProjectId } } : {}),
           },
         });
 
@@ -606,7 +611,11 @@ export const validatePrizes = async (prizes: any[], req: express.Request) => {
     - Ensure url is the right devpost url
     - Ensure project isn't submitted to multiple hexathons
 */
-export const validateDevpost = async (devpostUrl: string, submissionName: string) => {
+export const validateDevpost = async (
+  devpostUrl: string,
+  submissionName: string,
+  currentProjectId?: number
+) => {
   const config = await getConfig();
 
   if (!config.isDevpostCheckingOn) {
@@ -645,8 +654,13 @@ export const validateDevpost = async (devpostUrl: string, submissionName: string
       }
     });
 
-  const devpostCount = await prisma.project.count({ where: { devpostUrl } });
-  const nameCount = await prisma.project.count({ where: { name: submissionName } });
+  const existingProjectFilter = currentProjectId ? { id: { not: currentProjectId } } : {};
+  const devpostCount = await prisma.project.count({
+    where: { devpostUrl, ...existingProjectFilter },
+  });
+  const nameCount = await prisma.project.count({
+    where: { name: submissionName, ...existingProjectFilter },
+  });
 
   const eligible = submitted && devpostUrls.length === 1 && devpostCount === 0 && nameCount === 0;
 
@@ -695,4 +709,3 @@ export function validateCategories(categories: any[], req: express.Request) {
 
   return { error: false };
 }
-
