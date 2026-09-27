@@ -816,6 +816,7 @@ applicationRouter.route("/actions/expo-user").get(
     const application = await ApplicationModel.findOne({
       hexathon: req.query.hexathon,
       email: req.query.email,
+      status: {$in: [StatusType.CHECKED_IN]}
     }).select("id userId name email applicationData applicationBranch confirmationBranch status");
 
     if (!application) {
