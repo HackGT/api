@@ -14,9 +14,10 @@ import {
   validateTeam,
   validateDevpost,
   validatePrizes,
+  validateCategories,
   getEligiblePrizes,
 } from "../utils/validationHelpers";
-import { AssignmentStatus, Prisma, TableGroup } from "@api/prisma-expo/generated";
+import { AssignmentStatus, CategoryType, Prisma, TableGroup } from "@api/prisma-expo/generated";
 
 export const projectRoutes = express.Router();
 
@@ -177,12 +178,19 @@ projectRoutes.route("/").post(
       res.status(400).send(teamValidation);
       return;
     }
+    
+    const categoryValidation = validateCategories(data.prizes, req);
+    if (categoryValidation.error) {
+      res.status(400).send(categoryValidation);
+      return;
+    }
+
     if (!teamValidation.registrationUsers) {
       throw new BadRequestError(
         "There was an error contacting registration. Please contact help desk."
       );
     }
-
+    
     const devpostValidation = await validateDevpost(data.devpostUrl, data.name);
     if (devpostValidation.error) {
       res.status(400).send(devpostValidation);
@@ -254,6 +262,14 @@ projectRoutes.route("/").post(
         continue; // should never happen
       }
 
+      const automaticCategories: { id: number }[] = await prisma.category.findMany({
+        where: {
+          hexathon: currentHexathon.id,
+          type: CategoryType.autoConsider,
+        },
+        select: { id: true },
+      });
+
       try {
         // eslint-disable-next-line no-await-in-loop
         await prisma.project.create({
@@ -279,7 +295,11 @@ projectRoutes.route("/").post(
               })),
             },
             categories: {
-              connect: data.prizes.map((prizeId: any) => ({ id: prizeId })),
+              connect: [
+                ...data.prizes.map((prizeId: any) => ({ id: prizeId })),
+                ...automaticCategories
+                  .map(category => ({ id: category.id })),
+              ],
             },
             tableGroup: {
               connect: { id: firstFreeTableGroup.id },

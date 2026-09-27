@@ -662,3 +662,28 @@ export const validateDevpost = async (devpostUrl: string, submissionName: string
   }
   return { error: true, message: "Please contact help desk" };
 };
+
+/**
+ * Validate the categories (tracks) the users selected.
+ * uses CategoryType to determine the types of tracks
+ * 
+ * for hackgt13:
+ * - general tracks: 0-1
+ * - sponsor tracks: 0-2
+ * - other tracks (mlh tracks): any number
+ */
+export function validateCategories(categories: any[], req: express.Request) {
+  const generalTracks = categories.filter(category => category.type === "general");
+  const sponsorTracks = categories.filter(category => category.type === "sponsor");
+
+  if (generalTracks.length > 1) {
+    return { error: true, message: "You can only select up to 1 general track." };
+  }
+
+  if (sponsorTracks.length > 2) {
+    return { error: true, message: "You can only select up to 2 sponsor tracks." };
+  }
+
+  return { error: false };
+}
+
