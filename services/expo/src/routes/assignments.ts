@@ -6,6 +6,40 @@ import { prisma } from "../common";
 import { getConfig, isAdminOrIsJudging } from "../utils/utils";
 import { AssignmentStatus, Assignment, Prisma } from "@api/prisma-expo/generated";
 
+
+function bestProjectCandidate(projects: any[], judgeCategoryIds: number[]) {
+  // select a random project among the ones that have the least "relevant" assignments
+  // Count only completed assignments that ALSO overlap the judge's categories.
+  // If an assignment is completed but none of the categories overlap, we can still
+  // be comfortable judging this project (so that asmt won't count toward this total)
+  // tldr: higher completedCount = less chance of being judged
+  const completedCtWithIntersect = (proj) =>
+    proj.assignment.filter(
+      asmt => asmt.status === "COMPLETED" && asmt.categoryIds.some(id => judgeCategoryIds.includes(id))
+    ).length;
+
+  // secondary filter
+  // ALL completed judging ballots (not necessarily overlapping w/ this judge)
+  // also SLIGHTLY count skipped ballots:
+  // if a project has a bunch of skipped ballots then theyre probably afk or smth
+  // so theres no point in wasting time on them ;-;
+  const completedCtTotal = (proj) =>
+    proj.assignment.reduce((acc, asmt) => {
+      switch (asmt.status) {
+        case "COMPLETED": return acc + 1;
+        case "SKIPPED": return acc + 0.2;
+        default: return acc;
+      }
+    }, 0);
+
+  // first sort
+  const smallestWithIntersect = getAllSmallest(projects, completedCtWithIntersect);
+  // break ties by total #times judged (without considering any overlap)
+  const smallestWithTiebreak = getAllSmallest(smallestWithIntersect, completedCtTotal);
+
+  return smallestWithTiebreak[Math.floor(Math.random() * smallestWithTiebreak.length)];
+}
+
 const autoAssign = async (judgeId: number): Promise<Assignment | null> => {
   // We are not selecting a random judge for auto-assign
   // Instead, auto-assign is called when a judge has no projects currently assigned
@@ -145,35 +179,24 @@ const autoAssign = async (judgeId: number): Promise<Assignment | null> => {
     });
 
     // Only eligible if no judge is currently assigned (QUEUED)
-    const eligible = projects.filter(p => {
+    const eligibleProjects = projects.filter(p => {
       const queued = p.assignment.filter(a => a.status === "QUEUED").length;
       return queued === 0;
     });
-    if (eligible.length === 0) return null;
+    if (eligibleProjects.length === 0) return null;
 
     const judgeCategoryIds = judgeCategories.map(c => c.id);
 
-    // select a random project among the ones that have the least "relevant" assignments
-    // Count only completed assignments that ALSO overlap the judge's categories.
-    // If an assignment is completed but none of the categories overlap, we can still
-    // be comfortable judging this project (so that asmt won't count toward this total)
-    // tldr: higher completedCount = less chance of being judged
-    const completedCount = (proj: (typeof eligible)[number]) =>
-      proj.assignment.filter(
-        asmt =>
-          asmt.status === "COMPLETED" && asmt.categoryIds.some(id => judgeCategoryIds.includes(id))
-      ).length;
-    const candidates = getAllSmallest(eligible, completedCount);
-    const selected = candidates[Math.floor(Math.random() * candidates.length)];
+    const selectedProject = bestProjectCandidate(eligibleProjects, judgeCategoryIds);
 
-    const alreadyQueued = selected.assignment.filter(a => a.status === "QUEUED").length;
+    const alreadyQueued = selectedProject.assignment.filter(a => a.status === "QUEUED").length;
     if (alreadyQueued > 0) {
       console.warn(
-        `----- [CONCURRENT] Project ${selected.id} assigned to judge ${judgeId} while already QUEUED by ${alreadyQueued} other judge(s)`
+        `----- [CONCURRENT] Project ${selectedProject.id} assigned to judge ${judgeId} while already QUEUED by ${alreadyQueued} other judge(s)`
       );
     }
 
-    let categoriesToJudge = selected.categories.filter(c => judgeCategoryIds.includes(c.id));
+    let categoriesToJudge = selectedProject.categories.filter(c => judgeCategoryIds.includes(c.id));
     if (defaultCategories.length > 0) {
       categoriesToJudge = categoriesToJudge.concat(defaultCategories);
     }
@@ -181,9 +204,9 @@ const autoAssign = async (judgeId: number): Promise<Assignment | null> => {
     return await tx.assignment.create({
       data: {
         userId: judgeToAssign.id,
-        projectId: selected.id,
+        projectId: selectedProject.id,
         status: AssignmentStatus.QUEUED,
-        categoryIds: categoriesToJudge.map(c => c.id),
+        categoryIds: [...new Set(categoriesToJudge.map(c => c.id))],
       },
     });
   });
@@ -375,8 +398,15 @@ assignmentRoutes.route("/").post(
       throw new BadRequestError("Judge has already judged this project.");
     }
 
+    const judgeCategoryGroup = judge.categoryGroups.find(
+      cg => cg.hexathon === config.currentHexathon
+    );
+    if (!judgeCategoryGroup) {
+      throw new BadRequestError("Judge is not assigned to any category group for the current hexathon");
+    }
+
     // Create judging categories if category is default or project has category
-    const categoriesToJudge = judge.categoryGroups[0].categories
+    const categoriesToJudge = judgeCategoryGroup.categories
       .filter(category => !category.judgedExternally)
       .filter(category => category.isDefault || project.categories.some(c => c.id === category.id))
       .map(category => category.id);
