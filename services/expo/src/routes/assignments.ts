@@ -14,7 +14,7 @@ function bestProjectCandidate(projects: any[], judgeCategoryIds: number[]): any 
   // tldr: higher completedCount = less chance of being judged
   const completedCtWithIntersect = (proj: any) =>
     proj.assignment.filter(
-      asmt =>
+      (asmt: any) =>
         asmt.status === AssignmentStatus.COMPLETED &&
         asmt.categoryIds.some((id: number) => judgeCategoryIds.includes(id))
     ).length;
@@ -199,17 +199,18 @@ const autoAssign = async (judgeId: number): Promise<Assignment | null> => {
       );
     }
 
-    let categoriesToJudge = selectedProject.categories.filter(c => judgeCategoryIds.includes(c.id));
+    let categoriesToJudge = selectedProject.categories.filter((c: any) => judgeCategoryIds.includes(c.id));
     if (defaultCategories.length > 0) {
       categoriesToJudge = categoriesToJudge.concat(defaultCategories);
     }
 
+    const dedup = [...new Set(categoriesToJudge.map((c: any) => c.id))];
     return await tx.assignment.create({
       data: {
         userId: judgeToAssign.id,
         projectId: selectedProject.id,
         status: AssignmentStatus.QUEUED,
-        categoryIds: [...new Set(categoriesToJudge.map(c => c.id))],
+        categoryIds: dedup,
       },
     });
   });
