@@ -15,9 +15,9 @@ const isRealRun = false;
 
 // Fill these in before running
 const HEXATHON_ID = "6a35c6f74d072a2177de9d2e"; // current hexathon
-const JUDGE_CONFIRMATION_BRANCH_ID = "6a9f08743fbdfdfc4acb9f40"; // judge confirmation branch
-const CATEGORY_GROUP_ID = 43; // General Judging category group id (from expo)
-const STATUSES = ["CHECKED_IN"];
+const JUDGE_CONFIRMATION_BRANCH_ID = "REPLACE_WITH_BRANCH_ID"; // judge confirmation branch
+const CATEGORY_GROUP_ID = 0; // General Judging category group id (from expo)
+const STATUSES = ["CONFIRMED", "CHECKED_IN"];
 
 const addJudgesToCategoryGroup = async () => {
   await client.connect();
