@@ -183,6 +183,12 @@ projectRoutes.route("/").post(
       );
     }
 
+    const prizeValidation = await validatePrizes(data.prizes, req);
+    if (prizeValidation.error) {
+      res.status(400).send(prizeValidation);
+      return;
+    }
+
     const devpostValidation = await validateDevpost(data.devpostUrl, data.name);
     if (devpostValidation.error) {
       res.status(400).send(devpostValidation);
