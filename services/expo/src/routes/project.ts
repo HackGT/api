@@ -358,7 +358,8 @@ projectRoutes.route("/:id/submission").patch(
       return;
     }
 
-    if (!req.user || !project.members.some(member => member.userId === req.user.uid)) {
+    const { user } = req;
+    if (!user || !project.members.some(member => member.userId === user.uid)) {
       res.status(403).json({ error: true, message: "You cannot edit this project" });
       return;
     }
