@@ -20,7 +20,11 @@ userRoutes.route("/check").get(
         email: req.user.email,
       },
       include: {
-        categoryGroups: true,
+        categoryGroups: {
+          include: {
+            categories: true,
+          },
+        },
       },
     });
 
@@ -41,7 +45,11 @@ userRoutes.route("/check").get(
           email: req.user.email,
         },
         include: {
-          categoryGroups: true,
+          categoryGroups: {
+            include: {
+              categories: true,
+            },
+          },
         },
       });
     }

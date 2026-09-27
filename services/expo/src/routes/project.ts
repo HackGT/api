@@ -674,10 +674,19 @@ projectRoutes.route("/special/category-group/:id").get(
       },
       include: {
         members: true,
-        categories: true,
+        categories: {
+          include: {
+            criterias: true,
+          },
+        },
         ballots: {
+          where: {
+            deleted: false,
+          },
           select: {
             score: true,
+            criteriaId: true,
+            userId: true,
             user: true,
             criteria: true,
           },
