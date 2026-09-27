@@ -6,16 +6,17 @@ import { prisma } from "../common";
 import { getConfig, isAdminOrIsJudging } from "../utils/utils";
 import { AssignmentStatus, Assignment, Prisma } from "@api/prisma-expo/generated";
 
-
-function bestProjectCandidate(projects: any[], judgeCategoryIds: number[]) {
+function bestProjectCandidate(projects: any[], judgeCategoryIds: number[]): any {
   // select a random project among the ones that have the least "relevant" assignments
   // Count only completed assignments that ALSO overlap the judge's categories.
   // If an assignment is completed but none of the categories overlap, we can still
   // be comfortable judging this project (so that asmt won't count toward this total)
   // tldr: higher completedCount = less chance of being judged
-  const completedCtWithIntersect = (proj) =>
+  const completedCtWithIntersect = (proj: any) =>
     proj.assignment.filter(
-      asmt => asmt.status === "COMPLETED" && asmt.categoryIds.some(id => judgeCategoryIds.includes(id))
+      asmt =>
+        asmt.status === AssignmentStatus.COMPLETED &&
+        asmt.categoryIds.some((id: number) => judgeCategoryIds.includes(id))
     ).length;
 
   // secondary filter
@@ -23,11 +24,13 @@ function bestProjectCandidate(projects: any[], judgeCategoryIds: number[]) {
   // also SLIGHTLY count skipped ballots:
   // if a project has a bunch of skipped ballots then theyre probably afk or smth
   // so theres no point in wasting time on them ;-;
-  const completedCtTotal = (proj) =>
-    proj.assignment.reduce((acc, asmt) => {
+  const completedCtTotal = (proj: any) =>
+    proj.assignment.reduce((acc: number, asmt: any) => {
       switch (asmt.status) {
-        case "COMPLETED": return acc + 1;
-        case "SKIPPED": return acc + 0.2;
+        case AssignmentStatus.COMPLETED:
+          return acc + 1;
+        case AssignmentStatus.SKIPPED:
+          return acc + 0.2;
         default: return acc;
       }
     }, 0);
@@ -179,17 +182,17 @@ const autoAssign = async (judgeId: number): Promise<Assignment | null> => {
     });
 
     // Only eligible if no judge is currently assigned (QUEUED)
-    const eligibleProjects = projects.filter(p => {
-      const queued = p.assignment.filter(a => a.status === "QUEUED").length;
+    const eligibleProjects = projects.filter((p: any) => {
+      const queued = p.assignment.filter((a: any) => a.status === "QUEUED").length;
       return queued === 0;
     });
     if (eligibleProjects.length === 0) return null;
 
-    const judgeCategoryIds = judgeCategories.map(c => c.id);
+    const judgeCategoryIds = judgeCategories.map((c: any) => c.id);
 
     const selectedProject = bestProjectCandidate(eligibleProjects, judgeCategoryIds);
 
-    const alreadyQueued = selectedProject.assignment.filter(a => a.status === "QUEUED").length;
+    const alreadyQueued = selectedProject.assignment.filter((a: any) => a.status === "QUEUED").length;
     if (alreadyQueued > 0) {
       console.warn(
         `----- [CONCURRENT] Project ${selectedProject.id} assigned to judge ${judgeId} while already QUEUED by ${alreadyQueued} other judge(s)`
