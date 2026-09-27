@@ -14,6 +14,7 @@ import {
   validateTeam,
   validateDevpost,
   validatePrizes,
+  validateCategories,
   getEligiblePrizes,
 } from "../utils/validationHelpers";
 import { AssignmentStatus, CategoryType, Prisma, TableGroup } from "@api/prisma-expo/generated";
@@ -134,6 +135,17 @@ projectRoutes.route("/submission/detail-validation").post(
   })
 );
 
+projectRoutes.route("/submission/category-validation").post(
+  asyncHandler(async (req, res) => {
+    const resp = validateCategories(req.body.categories, req);
+    if (resp.error) {
+      res.status(400).json(resp);
+    } else {
+      res.status(200).json(resp);
+    }
+  })
+);
+
 projectRoutes.route("/submission/devpost-validation").post(
   asyncHandler(async (req, res) => {
     const resp = await validateDevpost(req.body.devpostUrl, req.body.name);
@@ -182,10 +194,10 @@ projectRoutes.route("/").post(
         "There was an error contacting registration. Please contact help desk."
       );
     }
-
-    const prizeValidation = await validatePrizes(data.prizes, req);
-    if (prizeValidation.error) {
-      res.status(400).send(prizeValidation);
+    
+    const categoryValidation = validateCategories(data.categories, req);
+    if (categoryValidation.error) {
+      res.status(400).send(categoryValidation);
       return;
     }
 
