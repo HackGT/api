@@ -178,8 +178,18 @@ projectRoutes.route("/").post(
       res.status(400).send(teamValidation);
       return;
     }
+
+    const thisHexathonCategories = await prisma.category.findMany({
+      where: {
+        hexathon: currentHexathon.id,
+      },
+      select: { id: true, type: true },
+    });
     
-    const categoryValidation = validateCategories(data.prizes, req);
+    const categoryValidation = validateCategories(
+      thisHexathonCategories.filter(category => data.prizes.includes(category.id)),
+      req
+    );
     if (categoryValidation.error) {
       res.status(400).send(categoryValidation);
       return;
@@ -262,14 +272,6 @@ projectRoutes.route("/").post(
         continue; // should never happen
       }
 
-      const automaticCategories: { id: number }[] = await prisma.category.findMany({
-        where: {
-          hexathon: currentHexathon.id,
-          type: CategoryType.autoConsider,
-        },
-        select: { id: true },
-      });
-
       try {
         // eslint-disable-next-line no-await-in-loop
         await prisma.project.create({
@@ -297,7 +299,8 @@ projectRoutes.route("/").post(
             categories: {
               connect: [
                 ...data.prizes.map((prizeId: any) => ({ id: prizeId })),
-                ...automaticCategories
+                ...thisHexathonCategories
+                  .filter(category => category.type === CategoryType.autoConsider)
                   .map(category => ({ id: category.id })),
               ],
             },
