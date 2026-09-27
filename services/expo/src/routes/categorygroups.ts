@@ -283,6 +283,35 @@ categoryGroupRoutes.route("/:id/selfAssign").post(
   })
 );
 
+// HackGT 13 specific: maps a room and table number to the table codes used on the venue layout.
+// Rooms not listed here fall back to the raw table number.
+const getTableCode = (room: string | undefined, table: number | null) => {
+  if (table === null) {
+    return null;
+  }
+  if (room === undefined) {
+    return table;
+  }
+  if (room === "Klaus Atrium") {
+    return `A${table}`;
+  }
+  if (room.includes("1116")) {
+    return `B${table}`;
+  }
+  // Klaus Atrium 2 continues code A after Klaus Atrium's 86 tables
+  if (room === "Klaus Atrium 2") {
+    return `A${table + 86}`;
+  }
+  if (room.includes("1456")) {
+    return `C${table}`;
+  }
+  // 1447 shares code C with 1456, continuing after 1456's 25 tables
+  if (room.includes("1447")) {
+    return `C${table + 25}`;
+  }
+  return table;
+};
+
 categoryGroupRoutes.route("/:id/generate-csv").get(
   checkAbility("read", "CategoryGroup"),
   asyncHandler(async (req, res) => {
@@ -330,7 +359,7 @@ categoryGroupRoutes.route("/:id/generate-csv").get(
         project.githubUrl,
         project.expo,
         project.tableGroup?.name,
-        project.table,
+        getTableCode(project.tableGroup?.name, project.table),
       ]
         .map(escapeCsv)
         .join(",")
