@@ -1,6 +1,12 @@
 /* eslint-disable guard-for-in */
 import express from "express";
-import { BadRequestError, apiCall, asyncHandler, checkAbility } from "@api/common";
+import {
+  BadRequestError,
+  apiCall,
+  asyncHandler,
+  checkAbility,
+  hasAtLeastMemberPerms,
+} from "@api/common";
 import { Service } from "@api/config";
 
 import { prisma } from "../common";
@@ -24,6 +30,9 @@ export const projectRoutes = express.Router();
 projectRoutes.route("/").get(
   asyncHandler(async (req: any, res) => {
     const { expo, round, table, search, categories, hexathon } = req.query;
+
+    // whether to return things like scores + user emails
+    const canViewSensitiveData = hasAtLeastMemberPerms(req.user?.roles);
 
     const filter: Prisma.ProjectWhereInput = {};
     if (expo) filter.expo = parseInt(expo);
@@ -86,22 +95,34 @@ projectRoutes.route("/").get(
             categoryGroups: true,
           },
         },
-        ballots: {
-          select: {
-            id: true,
-            score: true,
-            user: true,
-            criteria: true,
-          },
-        },
-        members: true,
+        ballots: canViewSensitiveData
+          ? {
+              select: {
+                id: true,
+                score: true,
+                user: true,
+                criteria: true,
+              },
+            }
+          : false,
+        members: canViewSensitiveData
+          ? true
+          : {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
         tableGroup: true,
       },
       orderBy: {
         id: "asc",
       },
     });
-    res.status(200).json(matches);
+    const response = canViewSensitiveData
+      ? matches
+      : matches.map(project => ({ ...project, ballots: [] }));
+    res.status(200).json(response);
   })
 );
 
