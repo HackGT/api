@@ -192,6 +192,7 @@ const autoAssign = async (judgeId: number): Promise<Assignment | null> => {
 export const assignmentRoutes = express.Router();
 
 assignmentRoutes.route("/").get(
+  isAdminOrIsJudging,
   asyncHandler(async (req, res) => {
     const { hexathon, expo, round, categoryGroup } = req.query;
     const filter: any = {};

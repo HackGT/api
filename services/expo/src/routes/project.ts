@@ -15,6 +15,8 @@ import {
   getConfig,
   getCurrentHexathon,
   isAdmin,
+  isMemberOrAdmin,
+  isMemberOrInCategoryGroup
 } from "../utils/utils";
 import {
   validateTeam,
@@ -646,6 +648,12 @@ projectRoutes.route("/:id").get(
       },
     });
 
+    if (project && !hasAtLeastMemberPerms(req.user?.roles)
+    && !project.members.some(member => member.userId === req.user?.uid)
+  ) {
+    project.members = project.members.map(({id, name}) => ({id, name})) as any;
+  }
+
     if (project) {
       const hexathon = await apiCall(
         Service.HEXATHONS,
@@ -790,6 +798,7 @@ projectRoutes.route("/special/judging-counts").get(
 );
 
 projectRoutes.route("/special/category-group/:id").get(
+  isMemberOrInCategoryGroup,
   asyncHandler(async (req, res) => {
     const categories = await prisma.category.findMany({
       where: {
@@ -845,6 +854,7 @@ projectRoutes.route("/special/category-group/:id").get(
 );
 
 projectRoutes.route("/special/calculate-normalized-scores").get(
+  isMemberOrAdmin,
   asyncHandler(async (req, res) => {
     const currentHexathon = await getCurrentHexathon(req);
 

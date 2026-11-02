@@ -3,7 +3,7 @@ import { asyncHandler } from "@api/common";
 
 import { Prisma } from "@api/prisma-expo/generated";
 import { prisma } from "../common";
-import { isAdmin } from "../utils/utils";
+import {canViewJudgingData, isAdmin } from "../utils/utils";
 
 export const criteriaRoutes = express.Router();
 
@@ -18,7 +18,7 @@ criteriaRoutes.route("/").get(
     const criteria = await prisma.criteria.findMany({
       where: filter,
       include: {
-        ballots: true,
+        ballots: canViewJudgingData(req),
       },
     });
     res.status(200).json(criteria);

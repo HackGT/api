@@ -1,4 +1,4 @@
-import { apiCall, ConfigError, ForbiddenError } from "@api/common";
+import { apiCall, ConfigError, ForbiddenError, asyncHandler, hasAtLeastMemberPerms } from "@api/common";
 import { Service } from "@api/config";
 import express from "express";
 
@@ -35,7 +35,29 @@ export const getCurrentHexathon = async (request: express.Request) => {
   return hexathon;
 };
 
-export const isAdminOrIsJudging = async (
+export const canViewJudgingData = (request: express.Request) =>
+  !!hasAtLeastMemberPerms(request.user?.roles);
+
+export const isMemberOrAdmin = (request: express.Request, response: express.Response, next: express.NextFunction) => {
+  if (!canViewJudgingData(request)) throw new ForbiddenError("Sorry, you don't have access to this endpoint.");
+  next();
+};
+
+// staff, or a judge/sponsor in the category group :id for the current hexathon
+export const isMemberOrInCategoryGroup = asyncHandler(async (request, response, next) => {
+  if (canViewJudgingData(request)) return next();
+  const [user, config] = await Promise.all([
+    prisma.user.findUnique({ where: { userId: request.user?.uid }, include: { categoryGroups: true } }),
+    getConfig(),
+  ]);
+  const id = parseInt(request.params.id);
+  const inGroup = user?.categoryGroups.some(g => g.id === id && g.hexathon === config.currentHexathon) ?? false;
+  if (!inGroup) throw new ForbiddenError("Sorry, you don't have access to this endpoint.");
+  next();
+});
+
+export const isAdminOrIsJudging = asyncHandler(
+  async (
   request: express.Request,
   response: express.Response,
   next: express.NextFunction
@@ -61,7 +83,8 @@ export const isAdminOrIsJudging = async (
     throw new ForbiddenError("Sorry, you don't have access to this endpoint.");
   }
   next();
-};
+
+});
 
 export const calculateMeanAndStandardDeviation = (
   ...numbers: number[]
@@ -79,7 +102,7 @@ export const calculateMeanAndStandardDeviation = (
   return { mean, standardDeviation };
 };
 
-export const isAdmin = async (
+export const isAdmin = (
   request: express.Request,
   response: express.Response,
   next: express.NextFunction

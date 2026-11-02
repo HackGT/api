@@ -2,7 +2,7 @@ import express from "express";
 import { BadRequestError, asyncHandler } from "@api/common";
 
 import { prisma } from "../common";
-import { getConfig, isAdmin } from "../utils/utils";
+import {canViewJudgingData, getConfig, isAdmin } from "../utils/utils";
 import { Prisma } from "@api/prisma-expo/generated";
 
 export const categoryRoutes = express.Router();
@@ -27,7 +27,8 @@ categoryRoutes.route("/").get(
       include: {
         criterias: {
           include: {
-            ballots: true,
+            // who made ballots true... we need to have a convo
+            ballots: canViewJudgingData(req)
           },
         },
         projects: true,

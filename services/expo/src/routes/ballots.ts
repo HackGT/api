@@ -4,11 +4,12 @@ import { asyncHandler, BadRequestError } from "@api/common";
 
 import { prisma } from "../common";
 import { Ballot, Prisma } from "@api/prisma-expo/generated";
-import { isAdmin, isAdminOrIsJudging } from "../utils/utils";
+import { isAdmin, isAdminOrIsJudging, isMemberOrAdmin } from "../utils/utils";
 
 export const ballotsRoutes = express.Router();
 
 ballotsRoutes.route("/").get(
+  isMemberOrAdmin,
   asyncHandler(async (req, res) => {
     const { criterium } = req.query;
     const filter: any = {};

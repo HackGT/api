@@ -2,13 +2,23 @@ import express from "express";
 import { asyncHandler } from "@api/common";
 
 import { prisma } from "../common";
-import { isAdmin } from "../utils/utils";
+import {canViewJudgingData, getConfig, isAdmin } from "../utils/utils";
 
 export const winnerRoutes = express.Router();
 
 // Get all winners
 winnerRoutes.route("/").get(
   asyncHandler(async (req, res) => {
+    // Non-staff only see winners once revealed, and never see member emails
+    const canViewSensitiveData = canViewJudgingData(req);
+    if (!canViewSensitiveData) {
+      const config = await getConfig();
+      if (!config.revealWinners) {
+        res.status(200).json([]);
+        return;
+      }
+    }
+
     const winners = await prisma.winner.findMany({
       where: {
         hexathon: String(req.query.hexathon),
@@ -16,7 +26,7 @@ winnerRoutes.route("/").get(
       include: {
         project: {
           include: {
-            members: true,
+            members: canViewSensitiveData ? true : { select: { id: true, name: true } },
           },
         },
         category: true,
