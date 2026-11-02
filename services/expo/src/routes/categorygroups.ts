@@ -8,6 +8,7 @@ import { Prisma } from "@api/prisma-expo/generated";
 export const categoryGroupRoutes = express.Router();
 
 categoryGroupRoutes.route("/").get(
+  checkAbility("read", "CategoryGroup"),
   asyncHandler(async (req, res) => {
     const { hexathon, name } = req.query;
     const filter: Prisma.CategoryGroupWhereInput = {};
