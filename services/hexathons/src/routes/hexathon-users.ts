@@ -57,6 +57,7 @@ hexathonUserRouter.route("/:hexathonId/users").get(
     const offset = parseInt(req.query.offset as string) || 0;
     const hexathonUsers = await HexathonUserModel.accessibleBy(req.ability)
       .find(filter)
+      .sort({ "points.numCollected": 'desc', name: 'asc' })
       .skip(offset)
       .limit(limit);
 
